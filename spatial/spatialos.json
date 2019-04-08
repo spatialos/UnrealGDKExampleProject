@@ -1,0 +1,11 @@
+{
+  "name": "unreal_gdk_third_person_shooter",
+  "project_version": "0.0.1",
+  "sdk_version": "13.5.0",
+  "dependencies": [
+    {
+      "name": "standard_library",
+      "version": "13.5.0"
+    }
+  ]
+}
