@@ -26,30 +26,20 @@ void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
 void OnLoginTokens(void* UserData, const Worker_Alpha_LoginTokensResponse* LoginTokens)
 {
 	ADeploymentsPlayerController* contoller = static_cast<ADeploymentsPlayerController*>(UserData);
-	if (LoginTokens->error != nullptr)
-	{
-		UE_LOG(LogGDK, Log, TEXT("Failure: Error %s"), UTF8_TO_TCHAR(LoginTokens->error));
-	}
-	else
+	if (LoginTokens->status.code == WORKER_CONNECTION_STATUS_CODE_SUCCESS)
 	{
 		UE_LOG(LogGDK, Log, TEXT("Success: Login Token Count %d"), LoginTokens->login_token_count);
 		contoller->Populate(LoginTokens);
+	}
+	else
+	{
+		UE_LOG(LogGDK, Log, TEXT("Failure: Error %s"), UTF8_TO_TCHAR(LoginTokens->status.detail));
 	}
 }
 
 void OnPlayerIdentityToken(void* UserData, const Worker_Alpha_PlayerIdentityTokenResponse* PIToken)
 {
-	if (PIToken->error != nullptr)
-	{
-		UE_LOG(LogGDK, Log, TEXT("Failure: Error %s"), UTF8_TO_TCHAR(PIToken->error));
-		ADeploymentsPlayerController* controller = static_cast<ADeploymentsPlayerController*>(UserData);
-
-		if (controller->GetWorld()->GetTimerManager().IsTimerActive(controller->QueryDeploymentsTimer))
-		{
-			controller->GetWorld()->GetTimerManager().ClearTimer(controller->QueryDeploymentsTimer);
-		}
-	}
-	else
+	if (PIToken->status.code == WORKER_CONNECTION_STATUS_CODE_SUCCESS)
 	{
 		UE_LOG(LogGDK, Log, TEXT("Success: Received PIToken: %s"), UTF8_TO_TCHAR(PIToken->player_identity_token));
 		ADeploymentsPlayerController* controller = static_cast<ADeploymentsPlayerController*>(UserData);
@@ -59,6 +49,16 @@ void OnPlayerIdentityToken(void* UserData, const Worker_Alpha_PlayerIdentityToke
 		if (!controller->GetWorld()->GetTimerManager().IsTimerActive(controller->QueryDeploymentsTimer))
 		{
 			controller->GetWorld()->GetTimerManager().SetTimer(controller->QueryDeploymentsTimer, controller, &ADeploymentsPlayerController::QueryDeployments, 5.0f, true, 0.0f);
+		}
+	}
+	else
+	{
+		UE_LOG(LogGDK, Log, TEXT("Failure: Error %s"), UTF8_TO_TCHAR(PIToken->status.detail));
+		ADeploymentsPlayerController* controller = static_cast<ADeploymentsPlayerController*>(UserData);
+
+		if (controller->GetWorld()->GetTimerManager().IsTimerActive(controller->QueryDeploymentsTimer))
+		{
+			controller->GetWorld()->GetTimerManager().ClearTimer(controller->QueryDeploymentsTimer);
 		}
 	}
 }
@@ -76,7 +76,7 @@ void ADeploymentsPlayerController::QueryPIT()
 {
 	Worker_Alpha_PlayerIdentityTokenRequest* PITParams = new Worker_Alpha_PlayerIdentityTokenRequest();
 	// Replace this string with a dev auth token, see docs for information on how to generate one of these
-	PITParams->development_authentication_token_id = "REPLACE ME";
+	PITParams->development_authentication_token_id = "ODU5OTg5MmEtY2YzZS00ZWMwLTk5ZTctNTNlNGM1M2QzZDA1OjoxMGNhMWFmMC05MjA2LTQwMTAtYWYxOC0wMzkyODdkMzI4ZDM=";
 	PITParams->player_id = "Player Id";
 	PITParams->display_name = "";
 	PITParams->metadata = "";
