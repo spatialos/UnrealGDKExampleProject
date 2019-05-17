@@ -23,6 +23,8 @@ UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectIni
 	MaxWalkSpeedCrouched = 125;
 	MaxAcceleration = 1000;
 	bReplicates = true;
+	JumpZVelocity = 600.f;
+	AirControl = 0.2f;
 }
 
 void UGDKMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)

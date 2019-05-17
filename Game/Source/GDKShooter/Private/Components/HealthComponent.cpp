@@ -56,22 +56,23 @@ void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	UE_LOG(LogGDK, Error, TEXT("UHealthComponent::TakeDamage, %f at %f"), Damage, CurrentHealth);
 	int32 ArmourRemoved = FMath::Min(static_cast<int32>(Damage), CurrentArmour);
 	CurrentArmour -= ArmourRemoved;
 	int32 DamageDealt = FMath::Min(static_cast<int32>(Damage) - ArmourRemoved, CurrentHealth);
 	bool bWasDead = CurrentHealth <= 0;
 	CurrentHealth -= DamageDealt;
-	UE_LOG(LogGDK, Error, TEXT("UHealthComponent::TakeDamage, down to %f"), CurrentHealth);
+	bool bIsDead = CurrentHealth <= 0;
 
 	MulticastDamageTaken(DamageCauser->GetActorLocation());
 
-	if (!bWasDead && CurrentHealth <= 0)
+	if (!bWasDead && bIsDead)
 	{
-		//This will only fire on authoritative worker
-		Death.Broadcast(DamageCauser);
+		//This will only fire on theauthoritative worker
+		AuthoritativeDeath.Broadcast(DamageCauser);
 	}
-	else {
+
+	if(!bIsDead)
+	{
 		if (GetOwner()->GetWorldTimerManager().IsTimerActive(HealthRegenerationHandle))
 		{
 			GetOwner()->GetWorldTimerManager().ClearTimer(HealthRegenerationHandle);
@@ -138,8 +139,11 @@ void UHealthComponent::OnRep_CurrentArmour()
 
 void UHealthComponent::OnRep_CurrentHealth()
 {
-	UE_LOG(LogGDK, Error, TEXT("UHealthComponent::OnRep_CurrentHealth, %f/%f"), CurrentHealth, MaxHealth);
 	HealthUpdated.Broadcast(CurrentHealth, MaxHealth);
+	if (CurrentHealth == 0)
+	{
+		Death.Broadcast();
+	}
 }
 
 void UHealthComponent::MulticastDamageTaken_Implementation(FVector DamageSource)

@@ -21,11 +21,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trace Provider")
 		FVector GetLineTraceStart() const;
-	virtual FVector GetLineTraceStart_Implementation();
+	virtual FVector GetLineTraceStart_Implementation() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trace Provider")
 		FVector GetLineTraceDirection() const;
-	virtual FVector GetLineTraceDirection_Implementation();
+	virtual FVector GetLineTraceDirection_Implementation() const;
 	
 protected:
 
