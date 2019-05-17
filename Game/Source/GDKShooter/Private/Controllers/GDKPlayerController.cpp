@@ -135,8 +135,6 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 					}
 				}
 			}
-		}
-	}
 
 	InformOfDeath(KillerName, KillerId);
 

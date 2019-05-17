@@ -27,7 +27,7 @@ public:
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 
 	virtual class FNetworkPredictionData_Client* GetPredictionData_Client() const override;
-
+	
 	// Sets whether the character is trying to sprint.
 	void SetWantsToSprint(bool bSprinting);
 

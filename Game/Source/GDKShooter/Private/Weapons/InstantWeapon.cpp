@@ -110,17 +110,12 @@ FVector AInstantWeapon::GetLineTraceDirection()
 
 		if (SpreadToUse > 0)
 		{
-			auto Spread = FMath::RandPointInCircle(SpreadToUse);
 			Direction = Direction.Rotation().RotateVector(FVector(10000, Spread.X, Spread.Y));
 		}
 	}
 
 	return Direction;
 }
-
-void AInstantWeapon::NotifyClientsOfHit(const FInstantHitInfo& HitInfo, bool bImpact)
-{
-	check(GetNetMode() < NM_Client);
 
 	MulticastNotifyHit(HitInfo, bImpact);
 }

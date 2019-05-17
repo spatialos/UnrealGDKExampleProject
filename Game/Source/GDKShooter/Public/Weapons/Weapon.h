@@ -148,6 +148,8 @@ private:
 		void RefreshComponentCache();
 
 
+private:
+	
 	// Channel to use for raytrace on shot
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 		TEnumAsByte<ECollisionChannel> TraceChannel = ECC_WorldStatic;
