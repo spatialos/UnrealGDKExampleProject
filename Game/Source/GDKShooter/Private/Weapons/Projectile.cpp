@@ -80,7 +80,7 @@ void AProjectile::OnRep_MetaData()
 
 void AProjectile::Tick(float DeltaTime)
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		return;
 	}
@@ -95,7 +95,7 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::OnStop(const FHitResult& ImpactResult)
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		return;
 	}
@@ -108,7 +108,7 @@ void AProjectile::OnStop(const FHitResult& ImpactResult)
 
 void AProjectile::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		return;
 	}
@@ -133,7 +133,7 @@ void AProjectile::ExplosionVisuals_Implementation()
 
 void AProjectile::Explode()
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		return;
 	}

@@ -75,8 +75,10 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 		void ExplosionVisuals();
 
+	UPROPERTY(Handover)
 	AController* InstigatingController;
 
+	UPROPERTY(Handover)
 	AWeapon* InstigatingWeapon;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Projectile)
