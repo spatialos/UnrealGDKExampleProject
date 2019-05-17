@@ -74,11 +74,15 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 	if (GetNetMode() == NM_Client && InPawn)
 	{
 		SetCharacterState(EGDKCharacterState::Alive);
-
-		// Make the new pawn's camera this controller's camera.
 		SetViewTarget(InPawn);
+		// Make the new pawn's camera this controller's camera.
 		this->ClientSetRotation(InPawn->GetActorRotation(), true);
 	}
+	else
+	{
+		SetViewTarget(this);
+	}
+
 	PawnEvent.Broadcast(InPawn);
 }
 
