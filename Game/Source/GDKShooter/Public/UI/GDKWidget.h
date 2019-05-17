@@ -29,13 +29,16 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		bool bListenersAdded;
 
+	UFUNCTION()
+		void OnPawn(APawn* InPawn);
+
 	// Called whenever the current health value is updated
 	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")
-		void OnHealthUpdated(int32 CurrentHealth, int32 MaxHealth);
+		void OnHealthUpdated(float CurrentHealth, float MaxHealth);
 
 	// Called whenever the current armour value is updated
 	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")
-		void OnArmourUpdated(int32 CurrentArmour, int32 MaxArmour);
+		void OnArmourUpdated(float CurrentArmour, float MaxArmour);
 
 	// Called whenever the local player dies
 	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")

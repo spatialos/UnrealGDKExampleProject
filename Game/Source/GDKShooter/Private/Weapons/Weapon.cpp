@@ -2,17 +2,15 @@
 
 #include "Weapon.h"
 
-#include "Characters/Core/GDKShooterCharacter.h"
 #include "Engine/World.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "CollisionQueryParams.h"
+#include "Kismet/GameplayStatics.h"
 #include "GDKLogging.h"
 #include "UnrealNetwork.h"
 
 
 AWeapon::AWeapon()
-	: CurrentState(EWeaponState::Idle)
-	, OwningCharacter(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
@@ -23,152 +21,39 @@ AWeapon::AWeapon()
 	bDrawDebugLineTrace = false;
 	MaxRange = 50000.0f;
 
-	LocationComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	SetRootComponent(LocationComponent);
-
-	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
-	Mesh->SetupAttachment(RootComponent);
+	BufferShotThreshold = 0.2f;
 }
+
 
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!bHasAttached)
-	{
-		TryToAttach();
-	}
-
-	OnMetaDataUpdated();
-}
-
-void AWeapon::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	if (!bHasAttached)
-	{
-		TryToAttach();
-	}
-	else if (!this->GetAttachParentSocketName().ToString().Equals("Gun_Transform"))
-	{
-		UE_LOG(LogGDK, Log, TEXT("AWeapon:: %s incorrectly attached to %s"), *this->GetName(), *this->GetAttachParentSocketName().ToString());
-	}
-}
-
-void AWeapon::StopFire() {}
-
-class AGDKShooterCharacter* AWeapon::GetOwningCharacter() const
-{
-	return OwningCharacter;
-}
-
-void AWeapon::SetOwningCharacter(AGDKShooterCharacter* NewCharacter)
-{
-	OwningCharacter = NewCharacter;
+	GetWorld()->DebugDrawTraceTag = kTraceTag;
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AWeapon, OwningCharacter);
-	DOREPLIFETIME(AWeapon, MetaData);
-	DOREPLIFETIME(AWeapon, bIsActive);
 }
 
 FVector AWeapon::GetLineTraceDirection()
 {
-	return GetOwningCharacter()->GetLineTraceDirection();
-}
-
-EWeaponState AWeapon::GetWeaponState() const
-{
-	return CurrentState;
-}
-
-void AWeapon::SetWeaponState(EWeaponState NewState)
-{
-	CurrentState = NewState;
-}
-
-void AWeapon::OnRep_MetaData()
-{
-	if (GetNetMode() == NM_DedicatedServer)
-	{
-		return;
-	}
-
-	OnMetaDataUpdated();
-}
-
-void AWeapon::SetMetaData(FGDKMetaData NewMetaData)
-{
-	if (HasAuthority())
-	{
-		MetaData = NewMetaData;
-	}
-	OnMetaDataUpdated();
-}
-
-void AWeapon::EnableShadows(bool bShadows)
-{
-	Mesh->CastShadow = bShadows;
-}
-
-void AWeapon::SetFirstPerson(bool bFirstPerson)
-{
-	this->bFirstPerson = bFirstPerson;
-}
-
-bool AWeapon::IsFirstPerson()
-{
-	return bFirstPerson;
-}
-
-void AWeapon::TryToAttach()
-{
-	if (GetRootComponent()->GetAttachParent()
-		&& GetRootComponent()->GetAttachParent()->GetOwner())
-	{
-		AGDKShooterCharacter* ShooterCharacter = Cast<AGDKShooterCharacter>(GetRootComponent()->GetAttachParent()->GetOwner());
-		if (ShooterCharacter) {
-			ShooterCharacter->AttachWeapon(this);
-			bHasAttached = true;
-		}
-	}
-	this->SetActorHiddenInGame(!bIsActive);
-}
-
-void AWeapon::OnRep_IsActive()
-{
-	StopFire();
-	this->SetActorHiddenInGame(!bIsActive);
-}
-
-void AWeapon::AddShotListener(FShotDelegate Listener)
-{
-	ShotCallback = Listener;
-}
-void AWeapon::RemoveShotListener()
-{
-	ShotCallback.Unbind();
+	return Shooting->GetLineTraceDirection();
 }
 
 void AWeapon::AnnounceShot(bool bHit)
 {
-	ShotCallback.ExecuteIfBound(bHit);
-}
-
-FVector AWeapon::BulletSpawnPoint()
-{
-	return Mesh->GetSocketLocation(BarrelSocketName);
+	if (Shooting)
+	{
+		Shooting->FireShot(this);
+	}
 }
 
 bool AWeapon::DoLineTrace(FInstantHitInfo& OutHitInfo)
 {
-	AGDKShooterCharacter* Character = GetOwningCharacter();
-	if (Character == nullptr)
+	if (Wielder == nullptr)
 	{
 		UE_LOG(LogGDK, Verbose, TEXT("Weapon %s does not have an owning character"), *this->GetName());
 		return false;
@@ -179,7 +64,7 @@ bool AWeapon::DoLineTrace(FInstantHitInfo& OutHitInfo)
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 	TraceParams.AddIgnoredActor(this);
-	TraceParams.AddIgnoredActor(Character);
+	TraceParams.AddIgnoredActor(Wielder->GetOwner());
 
 	if (bDrawDebugLineTrace)
 	{
@@ -187,7 +72,7 @@ bool AWeapon::DoLineTrace(FInstantHitInfo& OutHitInfo)
 	}
 
 	FHitResult HitResult(ForceInit);
-	FVector TraceStart = Character->GetLineTraceStart();
+	FVector TraceStart = Shooting->GetLineTraceStart();
 	FVector TraceEnd = TraceStart + GetLineTraceDirection() * MaxRange;
 
 	bool bDidHit = GetWorld()->LineTraceSingleByChannel(
@@ -207,4 +92,123 @@ bool AWeapon::DoLineTrace(FInstantHitInfo& OutHitInfo)
 	OutHitInfo.HitActor = HitResult.GetActor();
 
 	return true;
+}
+
+void AWeapon::StartSecondaryUse()
+{
+	if (Movement)
+	{
+		Movement->SetAiming(true);
+		Movement->SetAimingRotationModifier(AimingRotationSpeed);
+	}
+}
+
+void AWeapon::StopSecondaryUse()
+{
+	if (Movement)
+	{
+		Movement->SetAiming(false);
+	}
+}
+
+void AWeapon::OnRep_Wielder()
+{
+	Super::OnRep_Wielder();
+
+	if (Wielder)
+	{
+		Movement = Cast<UGDKMovementComponent>(Wielder->GetOwner()->GetComponentByClass(UGDKMovementComponent::StaticClass()));
+		Shooting = Cast<UShootingComponent>(Wielder->GetOwner()->GetComponentByClass(UShootingComponent::StaticClass()));
+	}
+	else
+	{
+		Movement = nullptr;
+		Shooting = nullptr;
+	}
+}
+
+void AWeapon::ForceCooldown(float Cooldown)
+{
+	Super::ForceCooldown(Cooldown);
+	NextShotTime = FMath::Max(NextShotTime, UGameplayStatics::GetRealTimeSeconds(GetWorld()) + Cooldown);
+
+}
+
+bool AWeapon::ReadyToFire()
+{
+	float Now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+	return Now > NextShotTime;
+}
+
+void AWeapon::StartPrimaryUse()
+{
+	Super::StartPrimaryUse();
+
+	bHasBufferedShot = true;
+	BufferedShotUntil = UGameplayStatics::GetRealTimeSeconds(GetWorld()) + BufferShotThreshold;
+
+	Wielder->SetBusy(true);
+}
+
+void AWeapon::StopPrimaryUse()
+{
+	Super::StopPrimaryUse();
+
+	if (!HasBufferedShot())
+	{
+		Wielder->SetBusy(false);
+	}
+}
+
+bool AWeapon::BufferedShotStillValid()
+{
+	return UGameplayStatics::GetRealTimeSeconds(GetWorld()) < BufferedShotUntil;
+}
+
+bool AWeapon::HasBufferedShot()
+{
+	return bHasBufferedShot;
+}
+
+void AWeapon::ConsumeBufferedShot()
+{
+	BufferedShotUntil = 0;
+	bHasBufferedShot = false;
+}
+
+void AWeapon::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (GetNetMode() != NM_Client)
+	{
+		return;
+	}
+
+	if ((IsPrimaryUsing || HasBufferedShot()) && ReadyToFire())
+	{
+		ConsumeBufferedShot();
+		DoFire();
+
+		if (!IsPrimaryUsing)
+		{
+			Wielder->SetBusy(false);
+		}
+	}
+
+	if (HasBufferedShot() && !BufferedShotStillValid())
+	{
+		ConsumeBufferedShot();
+		if (!IsPrimaryUsing)
+		{
+			Wielder->SetBusy(false);
+		}
+	}
+}
+
+void AWeapon::SetIsActive(bool bNewIsActive)
+{
+	Super::SetIsActive(bNewIsActive);
+
+	ConsumeBufferedShot();
 }

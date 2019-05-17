@@ -2,9 +2,7 @@
 
 #include "GDKMobileCharacter.h"
 #include "GDKLogging.h"
-#include "UnrealNetwork.h"
 
-#include "Components/GDKMovementComponent.h"
 
 AGDKMobileCharacter::AGDKMobileCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGDKMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -16,18 +14,8 @@ AGDKMobileCharacter::AGDKMobileCharacter(const FObjectInitializer& ObjectInitial
 	// Configure character movement
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
-}
 
-// Called every frame
-void AGDKMobileCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	bJumpedThisFrame = false;
-	if (HasAuthority())
-	{
-		Pitch = GetControlRotation().Pitch;
-	}
+	GDKMovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement());
 }
 
 // Called to bind functionality to input
@@ -51,30 +39,17 @@ void AGDKMobileCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AGDKMobileCharacter::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AGDKMobileCharacter::StartSprinting);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AGDKMobileCharacter::StopSprinting);
+	PlayerInputComponent->BindAction<FBoolean>("Sprint", IE_Pressed, GDKMovementComponent, &UGDKMovementComponent::SetWantsToSprint, true);
+	PlayerInputComponent->BindAction<FBoolean>("Sprint", IE_Released, GDKMovementComponent, &UGDKMovementComponent::SetWantsToSprint, false);
 
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AGDKMobileCharacter::StartCrouching);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AGDKMobileCharacter::StopCrouching);
-
-	/*
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AGDKCharacter::Interact);
-	PlayerInputComponent->BindAction("DebugResetCharacter", IE_Pressed, this, &AGDKCharacter::DebugResetCharacter);
-	*/
-}
-
-void AGDKMobileCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AGDKMobileCharacter, Pitch);
+	PlayerInputComponent->BindAction<FBoolean>("Crouch", IE_Pressed, this, &AGDKMobileCharacter::Crouch, true);
+	PlayerInputComponent->BindAction<FBoolean>("Crouch", IE_Released, this, &AGDKMobileCharacter::UnCrouch, true);
 }
 
 void AGDKMobileCharacter::MoveForward(float Value)
 {
 	if (Value != 0.0f)
 	{
-		// add movement in that direction
 		AddMovementInput(GetActorForwardVector(), Value);
 	}
 }
@@ -83,62 +58,23 @@ void AGDKMobileCharacter::MoveRight(float Value)
 {
 	if (Value != 0.0f)
 	{
-		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
 	}
 }
 
 void AGDKMobileCharacter::TurnAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AGDKMobileCharacter::LookUpAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-}
-
-void AGDKMobileCharacter::StartSprinting()
-{
-	if (UGDKMovementComponent* MovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement()))
-	{
-		MovementComponent->SetWantsToSprint(true);
-	}
-}
-
-void AGDKMobileCharacter::StopSprinting()
-{
-	if (UGDKMovementComponent* MovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement()))
-	{
-		MovementComponent->SetWantsToSprint(false);
-	}
-}
-
-void AGDKMobileCharacter::StartCrouching()
-{
-	Crouch(true);
-}
-
-void AGDKMobileCharacter::StopCrouching()
-{
-	UnCrouch(true);
-}
-
-bool AGDKMobileCharacter::HasSprintedRecently()
-{
-	if (UGDKMovementComponent* MovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement()))
-	{
-		return MovementComponent->HasSprintedRecently();
-	}
-	return IsSprinting();
 }
 
 bool AGDKMobileCharacter::IsSprinting()
 {
-	UGDKMovementComponent* Movement = Cast<UGDKMovementComponent>(GetCharacterMovement());
-	if (Movement == nullptr)
+	if (GDKMovementComponent == nullptr)
 	{
 		return false;
 	}
@@ -146,25 +82,15 @@ bool AGDKMobileCharacter::IsSprinting()
 	if (Role >= ROLE_AutonomousProxy)
 	{
 		// If we're authoritative or the owning client, we know definitively whether we're sprinting.
-		return Movement->IsSprinting();
+		return GDKMovementComponent->IsSprinting();
 	}
 
 	// For all other client types, we need to guess based on speed.
 	// Add a tolerance factor to the max jog speed and use that as a sprint threshold.
-	float SquaredSprintThreshold = Movement->MaxWalkSpeed + 10.0f;
+	float SquaredSprintThreshold = GDKMovementComponent->MaxWalkSpeed + 10.0f;
 	SquaredSprintThreshold *= SquaredSprintThreshold;
 
 	// We only care about speed in the X-Y plane.
 	return GetVelocity().SizeSquared2D() > SquaredSprintThreshold;
-}
-
-void AGDKMobileCharacter::OnJumped_Implementation()
-{
-	bJumpedThisFrame = true;
-}
-
-bool AGDKMobileCharacter::JumpedThisFrame()
-{
-	return bJumpedThisFrame;
 }
 

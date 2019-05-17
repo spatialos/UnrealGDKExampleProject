@@ -16,10 +16,10 @@ class GDKSHOOTER_API AProjectileWeapon : public AWeapon
 
 public:
 	AProjectileWeapon();
-
-	virtual void StartFire() override;
 	
 protected:
+
+	virtual void DoFire() override;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapons")
 		void OnShot();
@@ -36,10 +36,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 		FName BarrelSocket = FName(TEXT("WP_Barrel"));
 
-	// Time (in seconds since start of level) of the last shot. Used for limiting fire rate.
-	float LastShotTime;
-
 	UFUNCTION(reliable, server, WithValidation)
 		void FireProjectile(FVector Origin, FVector_NetQuantizeNormal Direction);
-	
+
+	virtual void ConsumeBufferedShot() override;
 };

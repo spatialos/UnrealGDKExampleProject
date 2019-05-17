@@ -4,7 +4,9 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/FirstPersonTraceProvider.h"
 #include "GDKLogging.h"
+#include "UnrealNetwork.h"
 
 FName AGDKFPShooterCharacter::FirstPersonMeshComponentName(TEXT("FirstPersonMesh"));
 
@@ -40,6 +42,9 @@ AGDKFPShooterCharacter::AGDKFPShooterCharacter(const FObjectInitializer& ObjectI
 		FirstPersonMesh->SetGenerateOverlapEvents(false);
 		FirstPersonMesh->SetCanEverAffectNavigation(false);
 	}
+
+	UFirstPersonTraceProvider* TraceProvider = CreateDefaultSubobject<UFirstPersonTraceProvider>(TEXT("TraceProvider"));
+
 }
 
 FVector AGDKFPShooterCharacter::GetLineTraceStart() const
@@ -52,17 +57,15 @@ FVector AGDKFPShooterCharacter::GetLineTraceDirection() const
 	return FirstPersonCamera->GetForwardVector();
 }
 
-void AGDKFPShooterCharacter::AttachWeapon(AWeapon* Weapon) const
+void AGDKFPShooterCharacter::AttachHoldable(AHoldable* Holdable, FName Socket) const
 {
 	if (IsLocallyControlled())
 	{
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, kRightGunSocketName);
-		UE_LOG(LogGDK, Log, TEXT("AGDKFPShooterCharacter:: Attached %s to %s"), *Weapon->GetName(), *Weapon->GetAttachParentSocketName().ToString());
-		Weapon->EnableShadows(false);
-		Weapon->SetFirstPerson(true);
+		Holdable->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
+		Holdable->SetFirstPerson(true);
 	}
 	else
 	{
-		Super::AttachWeapon(Weapon);
+		Super::AttachHoldable(Holdable, Socket);
 	}
 }

@@ -99,7 +99,7 @@ void AGDKSessionGameState::SendStateUpdate(int NewState)
 	}
 
 	Worker_EntityId target_entity_id = 39;
-	Worker_ComponentUpdate component_update = {};
+	Worker_ComponentUpdate component_update;
 	component_update.component_id = 1000;
 	component_update.schema_type = Schema_CreateComponentUpdate(1000);
 	Schema_Object* fields_object = Schema_GetComponentUpdateFields(component_update.schema_type);

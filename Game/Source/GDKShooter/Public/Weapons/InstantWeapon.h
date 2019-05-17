@@ -20,21 +20,16 @@ class GDKSHOOTER_API AInstantWeapon : public AWeapon
 public:
 	AInstantWeapon();
 
-	virtual void StartFire() override;
-
-	virtual void StopFire() override;
+	virtual void StartPrimaryUse() override;
+	virtual void StopPrimaryUse() override;
 
 	// RPC for telling the server that we fired and hit something.
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerDidHit(const FInstantHitInfo& HitInfo);
-	bool ServerDidHit_Validate(const FInstantHitInfo& HitInfo);
-	void ServerDidHit_Implementation(const FInstantHitInfo& HitInfo);
 
 	// RPC for telling the server that we fired and did not hit anything.
 	UFUNCTION(Server, Unreliable, WithValidation)
 	void ServerDidMiss(const FInstantHitInfo& HitInfo);
-	bool ServerDidMiss_Validate(const FInstantHitInfo& HitInfo);
-	void ServerDidMiss_Implementation(const FInstantHitInfo& HitInfo);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapons")
 	void OnRenderShot(const FVector Location, bool bImpact);
@@ -42,10 +37,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void FinishedBurst();
 
+	virtual void SetIsActive(bool bNewActive) override;
+
 protected:
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
-	virtual void Tick(float DeltaTime) override;
 
 	// [client] Runs a line trace and triggers the server RPC for hits.
 	virtual void DoFire();
@@ -68,15 +62,6 @@ private:
 
 	// [client] Clears the NextShotTimer if it's running.
 	void ClearTimerIfRunning();
-
-	// [client] Actually stops the weapon firing.
-	void StopFiring();
-
-	void ActuallyStartFiring();
-
-	bool ReadyToStartFiring();
-
-	bool ReadyToFire();
 
 	// Notifies all clients that a shot hit something. Used for visualizing shots on the client.
 	UFUNCTION(NetMulticast, Unreliable)
@@ -109,22 +94,9 @@ private:
 	// >1 = burst fire
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 	int32 BurstCount;
-
-	// Amount of time to buffer a shot for if fired just before off cooldown
-	UPROPERTY(EditAnywhere, Category = "Weapons")
-		float ShotInputLeniancy;
-
-	// Time for which we have a shot buffered
-	float ShotBufferedUntil;
-
-	// If we have a shot buffered
-	bool  ShotBuffered;
-
-	// Time (in seconds since start of level) since the last burst fire. Used for limiting fire rate.
-	float LastBurstTime;
-
-	// Time (in seconds since start of level) since the last shot fired. Used for limiting fire rate.
-	float LastShotTime;
+	
+	// Time of the next allowed burst, based on last burst start + burst interval.
+	float NextBurstTime;
 
 	// Number of shots remaining in the current burst.
 	int32 BurstShotsRemaining;

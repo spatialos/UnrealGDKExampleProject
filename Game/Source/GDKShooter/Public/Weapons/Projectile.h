@@ -24,7 +24,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void SetPlayer(AGDKCharacter* Character, AWeapon* Weapon);
+	void SetPlayer(AWeapon* Weapon);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_MetaData)
 		FGDKMetaData MetaData;
@@ -40,6 +40,17 @@ protected:
 		virtual void OnStop(const FHitResult& ImpactResult);
 	UFUNCTION()
 		virtual void OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
+
+	UFUNCTION()
+		void BeginOverlap(UPrimitiveComponent* OverlappedComponent,
+			AActor* OtherActor,
+			UPrimitiveComponent* OtherComp,
+			int32 OtherBodyIndex,
+			bool bFromSweep,
+			const FHitResult &SweepResult);
+
+	UFUNCTION(BlueprintNativeEvent)
+		void OverlapPawn(APawn* Pawn);
 
 	// If doesn't explode on stop, will explode on timer
 	// Later we can add proximity mines etc.
@@ -76,10 +87,9 @@ protected:
 		void ExplosionVisuals();
 
 	UPROPERTY(Handover)
-	AController* InstigatingController;
-
+		AController* InstigatingController;
 	UPROPERTY(Handover)
-	AWeapon* InstigatingWeapon;
+		AWeapon* InstigatingWeapon;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Projectile)
 		float ExplosionDamage = 50;

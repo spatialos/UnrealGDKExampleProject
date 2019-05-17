@@ -9,7 +9,7 @@
 #include "GDKLogging.h"
 #include "Game/GDKPlayerState.h"
 #include "Controllers/GDKPlayerController.h"
-#include "Weapons/InstantWeapon.h"
+#include "Weapons/Holdable.h"
 
 // Sets default values
 AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
@@ -17,12 +17,9 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-
-	MaxHealth = 100;
-	CurrentHealth = MaxHealth;
-	MaxArmour = 100;
-	CurrentArmour = 0;
 	bIsRagdoll = false;
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 }
 
 // Called when the game starts or when spawned
@@ -30,23 +27,7 @@ void AGDKCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority())
-	{
-		CurrentHealth = MaxHealth;
-		CurrentArmour = 0;
-	}
-	OnMetaDataUpdated();
-
-}
-
-void AGDKCharacter::Destroyed()
-{
-	Super::Destroyed();
-
-	if (GetWorldTimerManager().IsTimerActive(RegenerationHandle))
-	{
-		GetWorldTimerManager().ClearTimer(RegenerationHandle);
-	}
+	HealthComponent->Death.AddDynamic(this, &AGDKCharacter::Die);
 }
 
 void AGDKCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -54,15 +35,9 @@ void AGDKCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGDKCharacter, bIsRagdoll);
-
-	DOREPLIFETIME(AGDKCharacter, CurrentHealth);
-
-	DOREPLIFETIME(AGDKCharacter, CurrentArmour);
-
-	DOREPLIFETIME(AGDKCharacter, MetaData);
 }
 
-void AGDKCharacter::Die(const AGDKCharacter* Killer)
+void AGDKCharacter::Die(const AActor* Killer)
 {
 	TearOff();
 
@@ -123,35 +98,7 @@ void AGDKCharacter::StartRagdoll()
 	// Fix up the camera to a "death view".
 	if (GetNetMode() == NM_Client)
 	{
-		ShowRespawnScreen();
-	}
-}
-
-void AGDKCharacter::OnRep_CurrentHealth()
-{
-	if (GetNetMode() != NM_DedicatedServer)
-	{
-		AGDKPlayerController* PC = Cast<AGDKPlayerController>(GetController());
-		if (PC)
-		{
-			PC->UpdateHealthUI(CurrentHealth, MaxHealth);
-		}
-
-		OnHealthUpdated(CurrentHealth, MaxHealth);
-	}
-}
-
-void AGDKCharacter::OnRep_CurrentArmour()
-{
-	if (GetNetMode() != NM_DedicatedServer)
-	{
-		AGDKPlayerController* PC = Cast<AGDKPlayerController>(GetController());
-		if (PC)
-		{
-			PC->UpdateArmourUI(CurrentArmour, MaxArmour);
-		}
-
-		OnArmourUpdated(CurrentArmour, MaxArmour);
+		//ShowRespawnScreen();
 	}
 }
 
@@ -173,26 +120,6 @@ void AGDKCharacter::DeleteSelf()
 	}
 }
 
-bool AGDKCharacter::GrantShield(float Value)
-{
-	if (CurrentArmour < MaxArmour)
-	{
-		CurrentArmour = FMath::Min(static_cast<int32>(CurrentArmour + Value), MaxArmour);
-
-		return true;
-	}
-
-	return false;
-}
-
-void AGDKCharacter::RegenerateHealth()
-{
-	if (CurrentHealth > 0 && CurrentHealth < MaxHealth)
-	{
-		CurrentHealth = FMath::Min(static_cast<int32>(CurrentHealth + HealthRegenValue), MaxHealth);
-	}
-}
-
 float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	TakeDamageCrossServer(Damage, DamageEvent, EventInstigator, DamageCauser);
@@ -207,70 +134,7 @@ void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDa
 		return;
 	}
 
-	check(DamageCauser);
+	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
-	Damage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-
-	const AWeapon* DamageSourceWeapon = Cast<AWeapon>(DamageCauser);
-	const AGDKCharacter* Killer = Cast<AGDKCharacter>(DamageSourceWeapon->GetWeilder());
-	
-	int32 ArmourRemoved = FMath::Min(static_cast<int32>(Damage), CurrentArmour);
-	CurrentArmour -= ArmourRemoved;
-	int32 DamageDealt = FMath::Min(static_cast<int32>(Damage) - ArmourRemoved, CurrentHealth);
-	CurrentHealth -= DamageDealt;
-
-	MulticastDamageTaken(DamageCauser->GetActorLocation());
-
-	if (CurrentHealth <= 0)
-	{
-		Die(Killer);
-	}
-	else {
-		if (GetWorldTimerManager().IsTimerActive(RegenerationHandle))
-		{
-			GetWorldTimerManager().ClearTimer(RegenerationHandle);
-		}
-		if (HealthRegenInterval > 0)
-		{
-			GetWorldTimerManager().SetTimer(RegenerationHandle, this, &AGDKCharacter::RegenerateHealth, HealthRegenInterval, true, HealthRegenCooldown);
-		}
-	}
-}
-
-void AGDKCharacter::MulticastDamageTaken_Implementation(FVector DamageSource)
-{
-	if (GetNetMode() == NM_Client)
-	{
-		OnDamageTaken(DamageSource);
-	}
-}
-
-void AGDKCharacter::OnRep_MetaData()
-{
-	OnMetaDataUpdated();
-}
-
-void AGDKCharacter::SetMetaData(FGDKMetaData NewMetaData)
-{
-	if (!HasAuthority())
-	{
-		return;
-	}
-
-	MetaData = NewMetaData;
-	OnMetaDataUpdated();
-}
-
-FString AGDKCharacter::GetPlayerName() const
-{
-	if (AGDKPlayerState* PS = Cast<AGDKPlayerState>(PlayerState))
-	{
-		return PS->GetPlayerName();
-	}
-	return FString("UNKNOWN");
-}
-
-void AGDKCharacter::IgnoreMe(AActor* ToIgnore)
-{
-	GetCapsuleComponent()->IgnoreActorWhenMoving(ToIgnore, true);
+	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 }
