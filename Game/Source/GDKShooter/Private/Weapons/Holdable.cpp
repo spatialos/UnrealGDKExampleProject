@@ -90,7 +90,8 @@ FVector AHoldable::EffectSpawnPoint()
 	return Mesh->GetSocketLocation(EffectSocketName);
 }
 
-void AHoldable::ForceCooldown(float Cooldown)
+void AHoldable::SetFirstPerson(bool bNewFirstPerson)
 {
-
+	bIsFirstPerson = bNewFirstPerson;
+	Mesh->CastShadow = !bNewFirstPerson;
 }

@@ -5,7 +5,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Weapons/Projectile.h"
-#include "Characters/Core/GDKEquippedCharacter.h"
 #include "GDKLogging.h"
 #include "Components/SkeletalMeshComponent.h"
 

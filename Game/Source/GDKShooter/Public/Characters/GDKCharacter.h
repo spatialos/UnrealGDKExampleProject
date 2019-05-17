@@ -6,7 +6,14 @@
 #include "Materials/MaterialInstance.h"
 #include "GameFramework/Character.h"
 #include "Components/HealthComponent.h"
+#include "Components/EquippedComponent.h"
+#include "Components/MetaDataComponent.h"
+#include "Components/GDKMovementComponent.h"
+#include "Weapons/Holdable.h"
 #include "GDKCharacter.generated.h"
+
+DECLARE_DELEGATE_OneParam(FBoolean, bool);
+DECLARE_DELEGATE_OneParam(FHoldableSelection, int32);
 
 UCLASS()
 class GDKSHOOTER_API AGDKCharacter : public ACharacter
@@ -16,35 +23,46 @@ class GDKSHOOTER_API AGDKCharacter : public ACharacter
 public:
 	AGDKCharacter(const FObjectInitializer& ObjectInitializer);
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UHealthComponent* HealthComponent;
+
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		UGDKMovementComponent* GDKMovementComponent;
+
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		UEquippedComponent* EquippedComponent;
+
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		UMetaDataComponent* MetaDataComponent;
 	
 	// [server] Tells this player that it's time to die.
 	// @param Killer  The player who killed me. Can be null if it wasn't a player who dealt the damage that killed me.
 	UFUNCTION()
 		virtual void Die(const class AActor* Killer);
 
-	// If true, the character is currently ragdoll-ing.
-	UPROPERTY(ReplicatedUsing = OnRep_IsRagdoll)
-		bool bIsRagdoll;
-
 	UFUNCTION(BlueprintPure)
 		float GetRemotePitch() {
 			return RemoteViewPitch;
 		}
 
+	/** Handles moving forward/backward */
+	virtual void MoveForward(float Val);
+
+	/** Handles stafing movement, left and right */
+	virtual void MoveRight(float Val);
+
+	UFUNCTION(BlueprintNativeEvent)
+		void OnEquippedUpdated(AHoldable* NewHoldable);
+
 private:
 	// [client + server] Puts the player in ragdoll mode.
 	UFUNCTION()
 		void StartRagdoll();
-
-	UFUNCTION()
-		void OnRep_IsRagdoll();
 
 	UFUNCTION()
 		void DeleteSelf();

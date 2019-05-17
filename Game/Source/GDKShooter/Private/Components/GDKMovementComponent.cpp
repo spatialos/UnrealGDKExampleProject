@@ -2,7 +2,6 @@
 
 #include "Components/GDKMovementComponent.h"
 
-#include "Characters/Core/GDKCharacter.h"
 #include "GameFramework/Character.h"
 #include "UnrealNetwork.h"
 #include "GDKLogging.h"
@@ -15,7 +14,6 @@ UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectIni
 	, MaxSprintSpeed(850)
 	, SprintAcceleration(3400)
 	, SprintDirectionTolerance(0.1f)
-	, SprintCooldown(150)
 	, MaxJogSpeed(450)
 	, JogAcceleration(1800)
 	, bCanSprint(true)
@@ -25,14 +23,17 @@ UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectIni
 	MaxWalkSpeedCrouched = 125;
 	MaxAcceleration = 1000;
 	bReplicates = true;
+	JumpZVelocity = 600.f;
+	AirControl = 0.2f;
 }
 
 void UGDKMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsSprinting()) {
-		lastTimeSprinting = FDateTime::Now();
+	if (IsSprinting() != bWasSprintingLastFrame) {
+		bWasSprintingLastFrame = IsSprinting();
+		SprintingUpdated.Broadcast(IsSprinting());
 	}
 }
 
@@ -87,18 +88,6 @@ bool UGDKMovementComponent::IsSprinting() const
 		&& !IsCrouching()
 		&& !IsAiming()
 		&& !IsBusy();
-}
-
-bool UGDKMovementComponent::HasSprintedRecently() const
-{
-	return
-		IsSprinting()
-		|| TimeSinceLastSprint() < SprintCooldown;
-}
-
-double UGDKMovementComponent::TimeSinceLastSprint() const
-{
-	return (FDateTime::Now() - lastTimeSprinting).GetTotalMilliseconds();
 }
 
 bool UGDKMovementComponent::IsAiming() const
@@ -228,12 +217,10 @@ bool UGDKMovementComponent::SetAiming_Validate(bool NewValue)
 
 void UGDKMovementComponent::SetAiming_Implementation(bool NewValue)
 {
-	UE_LOG(LogGDK, Error, TEXT("SetAiming_Implementation %d"), NewValue);
 	bIsAiming = NewValue;
 }
 
 void UGDKMovementComponent::OnRep_IsAiming()
 {
-	UE_LOG(LogGDK, Error, TEXT("OnRep_IsAiming %d"), bIsAiming);
 	OnAimingUpdated.Broadcast(bIsAiming);
 }

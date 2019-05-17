@@ -7,6 +7,8 @@
 #include "GDKMovementComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAimingUpdated, bool, bIsAiming);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSprintingUpdated, bool, bIsSprinting);
+
 UCLASS()
 class GDKSHOOTER_API UGDKMovementComponent : public UCharacterMovementComponent
 {
@@ -25,7 +27,7 @@ public:
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 
 	virtual class FNetworkPredictionData_Client* GetPredictionData_Client() const override;
-	
+
 	// Sets whether the character is trying to sprint.
 	void SetWantsToSprint(bool bSprinting);
 
@@ -36,10 +38,6 @@ public:
 	// Set whether the character is allowed to sprint
 	UFUNCTION(BlueprintCallable, Category = "Sprint")
 		void SetSprintEnabled(bool bSprintEnabled);
-
-	// Returns true if the character is actually sprinting.
-	UFUNCTION(BlueprintPure, Category = "Sprint")
-		bool HasSprintedRecently() const;
 	
 	// Set if the character should be aiming
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -51,6 +49,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Aiming")
 		FAimingUpdated OnAimingUpdated;
+
+	UPROPERTY(BlueprintAssignable, Category = "Sprint")
+		FSprintingUpdated SprintingUpdated;
 
 	void SetAimingRotationModifier(float NewAimingRotationModifier) { AimingRotationModifier = NewAimingRotationModifier; }
 	UFUNCTION(BlueprintPure, Category = "Aiming")
@@ -65,10 +66,7 @@ public:
 	// True if movement direction is within SprintDirectionTolerance of the look direction.
 	UFUNCTION(BlueprintPure)
 		bool IsMovingForward() const;
-
-	// Time in miliseconds since IsSprinting was last true
-	double TimeSinceLastSprint() const;
-
+	
 		// Multiply max speed by this factor when sprinting.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character Movement: Walking")
 		float MaxJogSpeed;
@@ -95,9 +93,6 @@ private:
 
 	// Set to true on each frame that IsSprinting is true, for detecting when sprinting stops
 	uint8 bWasSprintingLastFrame : 1;
-
-	// Last time, in miliseconds, when sprinting was true
-	FDateTime lastTimeSprinting;
 
 	// If true, the player is aiming, should therefore move slower, and should not be allowed to sprint.
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_IsAiming)
@@ -127,11 +122,6 @@ private:
 	// Represents the minimum magnitude of the dot product between the vectors.
 	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")
 		float SprintDirectionTolerance;
-
-	// Time in miliseconds after sprinting until character has recovered from the sprint.
-	// For example to return to a non-sprinting animation before shooting.
-	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")
-		float SprintCooldown;
 
 	// Multiply acceleration by this factor when aiming.
 	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")

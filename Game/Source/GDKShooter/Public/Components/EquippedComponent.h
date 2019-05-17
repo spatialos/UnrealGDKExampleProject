@@ -79,6 +79,8 @@ public:
 		bool IsBusy() { return bIsBusy; }
 	UFUNCTION()
 		void SetBusy(bool bNewBusy);
+	UFUNCTION()
+		void SetIsSprinting(bool bNewSprinting) { bIsSprinting = bNewSprinting; }
 
 	UFUNCTION()
 		void BlockUsing(bool bBlock);
@@ -98,13 +100,18 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FBusyUpdated BusyUpdated;
 
+	UPROPERTY(EditDefaultsOnly)
+		float SprintRecoveryTime = 0.2f;
+
 protected:
 
+	// Is using holdables blocked by e.g. Menus being open
 	bool bBlockUsing;
-	bool bIsAiming;
+	// Are we currently busy using an item, used to e.g. block sprinting
 	bool bIsBusy;
-	bool bIsCrouching;
-	bool bCanUseHoldables;
+	// Do we think we are sprinting
+	// Should we apply the sprinting cooldown when going to use a holdable
+	bool bIsSprinting;
 
 
 };

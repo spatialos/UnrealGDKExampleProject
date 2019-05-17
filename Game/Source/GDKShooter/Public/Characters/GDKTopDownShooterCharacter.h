@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/GDKEquippedCharacter.h"
+#include "GDKCharacter.h"
 #include "GDKTopDownShooterCharacter.generated.h"
 
 UCLASS()
-class GDKSHOOTER_API AGDKTopDownShooterCharacter : public AGDKEquippedCharacter
+class GDKSHOOTER_API AGDKTopDownShooterCharacter : public AGDKCharacter
 {
 	GENERATED_BODY()
 

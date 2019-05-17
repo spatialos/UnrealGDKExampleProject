@@ -9,9 +9,6 @@
 AGDKTopDownShooterCharacter::AGDKTopDownShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	BaseTurnRate = 0;
-	BaseLookUpRate = 0;
-
 	// Create the top down camera
 	TopDownCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	TopDownCamera->SetupAttachment(GetCapsuleComponent());
@@ -124,7 +121,7 @@ void AGDKTopDownShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	bool AnyMouseMovement = MouseMovement.X != 0 && MouseMovement.Y != 0;
-	bool SprintMovement = IsSprinting() && GetVelocity().SizeSquared() > 0.1f;
+	bool SprintMovement = GDKMovementComponent->IsSprinting() && GetVelocity().SizeSquared() > 0.1f;
 	if (AnyMouseMovement || SprintMovement)
 	{
 		float targetAngle = 0;

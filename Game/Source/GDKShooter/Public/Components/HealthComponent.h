@@ -8,7 +8,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFloatValue, float, Current, float, Max);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVectorEvent, FVector, Source);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathEvent, const AActor*, Causer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathCauserEvent, const AActor*, Causer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathEvent);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GDKSHOOTER_API UHealthComponent : public UActorComponent
@@ -58,6 +59,8 @@ public:
 		FFloatValue ArmourUpdated;
 	UPROPERTY(BlueprintAssignable)
 		FVectorEvent DamageTaken;
+	UPROPERTY(BlueprintAssignable)
+		FDeathCauserEvent AuthoritativeDeath;
 	UPROPERTY(BlueprintAssignable)
 		FDeathEvent Death;
 

@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/GDKEquippedCharacter.h"
+#include "GDKCharacter.h"
 #include "GDKTPShooterCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GDKSHOOTER_API AGDKTPShooterCharacter : public AGDKEquippedCharacter
+class GDKSHOOTER_API AGDKTPShooterCharacter : public AGDKCharacter
 {
 	GENERATED_BODY()
 

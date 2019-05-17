@@ -46,9 +46,7 @@ public:
 	// Return false it was unable to be assigned to the new owner
 	virtual bool AssignTo(class UEquippedComponent* NewOwner);
 
-	virtual void ApplyCooldown(float Time) {}
-
-	virtual void SetFirstPerson(bool bNewFirstPerson) { bIsFirstPerson = bNewFirstPerson; }
+	virtual void SetFirstPerson(bool bNewFirstPerson);
 
 	// Starting weapons would probably be removed when a character dies
 	// However weapons that had been picked up might want to persist
@@ -72,7 +70,7 @@ public:
 		FName GetActiveSocket() { return ActiveSocket; }
 
 	UFUNCTION()
-		virtual void ForceCooldown(float Cooldown);
+		virtual void ForceCooldown(float Cooldown) {}
 
 protected:
 

@@ -2,7 +2,6 @@
 
 #include "ShootingComponent.h"
 #include "GDKLogging.h"
-#include "Characters/Core/GDKEquippedCharacter.h"
 
 UShootingComponent::UShootingComponent()
 {

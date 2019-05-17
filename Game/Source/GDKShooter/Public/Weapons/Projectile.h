@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
-#include "Characters/Core/GDKCharacter.h"
 #include "Weapons/Weapon.h"
 #include "Projectile.generated.h"
 

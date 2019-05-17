@@ -168,6 +168,11 @@ void UEquippedComponent::StartPrimaryUse()
 
 	if (CurrentlyHeldItem())
 	{
+		if (bIsSprinting)
+		{
+			CurrentlyHeldItem()->ForceCooldown(SprintRecoveryTime);
+		}
+
 		CurrentlyHeldItem()->StartPrimaryUse();
 	}
 }

@@ -2,7 +2,7 @@
 
 #include "Controllers/GDKPlayerController.h"
 
-#include "Characters/Core/GDKEquippedCharacter.h"
+#include "GameFramework/Character.h"
 #include "Game/GDKGameState.h"
 #include "Game/GDKSessionGameState.h"
 #include "Game/GDKPlayerState.h"
@@ -14,6 +14,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/MetaDataComponent.h"
+#include "Components/EquippedComponent.h"
+#include "Weapons/Holdable.h"
 
 #include "SpatialNetDriver.h"
 #include "Connection/SpatialWorkerConnection.h"
@@ -69,22 +71,13 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 
-	if (GetNetMode() == NM_Client)
+	if (GetNetMode() == NM_Client && InPawn)
 	{
-		AGDKCharacter* Character = Cast<AGDKCharacter>(InPawn);
-		if (Character != nullptr)
-		{
-			SetCharacterState(EGDKCharacterState::Alive);
+		SetCharacterState(EGDKCharacterState::Alive);
 
-			// Make the new pawn's camera this controller's camera.
-			SetViewTarget(InPawn);
-
-			this->ClientSetRotation(InPawn->GetActorRotation(), true);
-		}
-		else
-		{
-			SetViewTarget(this);
-		}
+		// Make the new pawn's camera this controller's camera.
+		SetViewTarget(InPawn);
+		this->ClientSetRotation(InPawn->GetActorRotation(), true);
 	}
 	PawnEvent.Broadcast(InPawn);
 }

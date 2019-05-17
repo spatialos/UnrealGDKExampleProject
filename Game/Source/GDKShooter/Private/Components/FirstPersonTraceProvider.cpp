@@ -19,13 +19,13 @@ void UFirstPersonTraceProvider::BeginPlay()
 	}
 }
 
-FVector UFirstPersonTraceProvider::GetLineTraceStart_Implementation()
+FVector UFirstPersonTraceProvider::GetLineTraceStart_Implementation() const
 {
 	return FirstPersonCamera->GetComponentLocation();
 }
 
 
-FVector UFirstPersonTraceProvider::GetLineTraceDirection_Implementation()
+FVector UFirstPersonTraceProvider::GetLineTraceDirection_Implementation() const
 {
 	return FirstPersonCamera->GetForwardVector();
 }

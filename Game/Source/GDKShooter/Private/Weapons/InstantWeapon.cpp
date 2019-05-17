@@ -2,7 +2,6 @@
 
 #include "InstantWeapon.h"
 
-#include "Characters/Core/GDKEquippedCharacter.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GDKLogging.h"

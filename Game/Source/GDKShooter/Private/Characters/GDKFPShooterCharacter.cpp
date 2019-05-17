@@ -13,7 +13,6 @@ FName AGDKFPShooterCharacter::FirstPersonMeshComponentName(TEXT("FirstPersonMesh
 AGDKFPShooterCharacter::AGDKFPShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-
 	// Hide the ThirdPerson Mesh from Owner
 	GetMesh()->bOwnerNoSee = true;
 	GetMesh()->bOnlyOwnerSee = false;
@@ -43,29 +42,15 @@ AGDKFPShooterCharacter::AGDKFPShooterCharacter(const FObjectInitializer& ObjectI
 		FirstPersonMesh->SetCanEverAffectNavigation(false);
 	}
 
-	UFirstPersonTraceProvider* TraceProvider = CreateDefaultSubobject<UFirstPersonTraceProvider>(TEXT("TraceProvider"));
-
+	CreateDefaultSubobject<UFirstPersonTraceProvider>(TEXT("TraceProvider"));
 }
 
-FVector AGDKFPShooterCharacter::GetLineTraceStart() const
+void AGDKFPShooterCharacter::OnEquippedUpdated_Implementation(AHoldable* Holdable)
 {
-	return FirstPersonCamera->GetComponentLocation();
-}
-
-FVector AGDKFPShooterCharacter::GetLineTraceDirection() const
-{
-	return FirstPersonCamera->GetForwardVector();
-}
-
-void AGDKFPShooterCharacter::AttachHoldable(AHoldable* Holdable, FName Socket) const
-{
-	if (IsLocallyControlled())
+	if (Holdable)
 	{
-		Holdable->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
-		Holdable->SetFirstPerson(true);
-	}
-	else
-	{
-		Super::AttachHoldable(Holdable, Socket);
+		USkeletalMeshComponent* MeshToAttachTo = IsLocallyControlled() ? FirstPersonMesh : GetMesh();
+		Holdable->AttachToComponent(MeshToAttachTo, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Holdable->GetActiveSocket());
+		Holdable->SetFirstPerson(IsLocallyControlled());
 	}
 }
