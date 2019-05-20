@@ -84,6 +84,8 @@ void UEquippedComponent::OnRep_HeldUpdate()
 {
 	if (CurrentlyHeldItem())
 	{
+		LastCachedIndex = CurrentCachedIndex;
+		CurrentCachedIndex = CurrentHeldIndex;
 		LocallyActivate(CurrentlyHeldItem());
 	}
 }
@@ -125,12 +127,57 @@ void UEquippedComponent::LocallyActivate(AHoldable* Holdable)
 	HoldableUpdated.Broadcast(Holdable);
 }
 
-void UEquippedComponent::ServerRequestEquip_Implementation(int TargetIndex)
+void UEquippedComponent::ToggleMode()
 {
-	CurrentHeldIndex = TargetIndex;
+	if (CurrentlyHeldItem())
+	{
+		CurrentlyHeldItem()->ToggleMode();
+	}
 }
 
-bool UEquippedComponent::ServerRequestEquip_Validate(int TargetIndex)
+void UEquippedComponent::QuickToggle()
+{
+	ServerRequestEquip(LastCachedIndex);
+}
+
+bool UEquippedComponent::HasHoldableAtIndex(int32 Index)
+{
+	return Index >= 0 && Index < HeldItems.Num() && HeldItems[Index];
+}
+
+void UEquippedComponent::ScrollUp()
+{
+	for (int i = CurrentHeldIndex + 1; i < HeldItems.Num(); i++)
+	{
+		if (HasHoldableAtIndex(i))
+		{
+			ServerRequestEquip(i);
+			return;
+		}
+	}
+}
+
+void UEquippedComponent::ScrollDown()
+{
+	for (int i = CurrentHeldIndex - 1; i >= 0; i--)
+	{
+		if (HasHoldableAtIndex(i))
+		{
+			ServerRequestEquip(i);
+			return;
+		}
+	}
+}
+
+void UEquippedComponent::ServerRequestEquip_Implementation(int32 TargetIndex)
+{
+	if (HasHoldableAtIndex(TargetIndex))
+	{
+		CurrentHeldIndex = TargetIndex;
+	}
+}
+
+bool UEquippedComponent::ServerRequestEquip_Validate(int32 TargetIndex)
 {
 	return true;
 }
