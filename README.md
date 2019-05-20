@@ -2,6 +2,8 @@
 
 - **LICENSE:** Use of the contents of this repository is subject to the [license](LICENSE.md)
 
+![](https://commondatastorage.googleapis.com/improbable-docs/docs2/unreal/1467e0562596379c/assets/example-project/example-project-headline.png)
+
 This project is an example shooter game which uses the [SpatialOS GDK for Unreal](https://github.com/spatialos/unrealGDK). 
 
 The project contains gameplay and assets that are representative of a basic first-person shooter running on SpatialOS. If you want to make your own project from scratch, use the [Starter Template](https://docs.improbable.io/unreal/alpha/content/get-started/gdk-template).
