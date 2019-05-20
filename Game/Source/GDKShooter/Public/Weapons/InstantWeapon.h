@@ -20,8 +20,8 @@ class GDKSHOOTER_API AInstantWeapon : public AWeapon
 public:
 	AInstantWeapon();
 
-	virtual void StartPrimaryUse() override;
-	virtual void StopPrimaryUse() override;
+	virtual void StartPrimaryUse_Implementation() override;
+	virtual void StopPrimaryUse_Implementation() override;
 
 	// RPC for telling the server that we fired and hit something.
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -42,7 +42,7 @@ public:
 protected:
 
 	// [client] Runs a line trace and triggers the server RPC for hits.
-	virtual void DoFire();
+	virtual void DoFire_Implementation() override;
 
 	virtual FVector GetLineTraceDirection() override;
 

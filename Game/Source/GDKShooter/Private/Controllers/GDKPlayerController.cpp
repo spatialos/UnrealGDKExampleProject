@@ -110,7 +110,7 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 	}
 
 	FString KillerName;
-	int32 KillerId;
+	int32 KillerId = -1;
 
 	if (const AHoldable* Holdable = Cast<AHoldable>(Killer))
 	{
@@ -123,7 +123,6 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 			{
 				KillerName = KillerState->GetPlayerName();
 				KillerId = KillerState->PlayerId;
-				InformOfDeath(KillerName, KillerId);
 			}
 
 			if (KillerCharacter->GetController())
@@ -139,14 +138,16 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 					}
 				}
 			}
+		}
+	}
 
-			if (AGDKGameState* GM = Cast<AGDKGameState>(GetWorld()->GetGameState()))
-			{
-				if (AGDKPlayerState* VictimState = Cast<AGDKPlayerState>(PlayerState))
-				{
-					GM->AddDeath(KillerId, VictimState->PlayerId);
-				}
-			}
+	InformOfDeath(KillerName, KillerId);
+
+	if (AGDKGameState* GM = Cast<AGDKGameState>(GetWorld()->GetGameState()))
+	{
+		if (AGDKPlayerState* VictimState = Cast<AGDKPlayerState>(PlayerState))
+		{
+			GM->AddDeath(KillerId, VictimState->PlayerId);
 		}
 	}
 

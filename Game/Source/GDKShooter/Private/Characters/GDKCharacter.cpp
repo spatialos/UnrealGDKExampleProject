@@ -70,6 +70,10 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction< FHoldableSelection>("8", IE_Pressed, EquippedComponent, &UEquippedComponent::ServerRequestEquip, 7);
 	PlayerInputComponent->BindAction< FHoldableSelection>("9", IE_Pressed, EquippedComponent, &UEquippedComponent::ServerRequestEquip, 8);
 	PlayerInputComponent->BindAction< FHoldableSelection>("0", IE_Pressed, EquippedComponent, &UEquippedComponent::ServerRequestEquip, 9);
+	PlayerInputComponent->BindAction("QuickToggle", IE_Pressed, EquippedComponent, &UEquippedComponent::QuickToggle);
+	PlayerInputComponent->BindAction("ToggleMode", IE_Pressed, EquippedComponent, &UEquippedComponent::ToggleMode);
+	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollUp);
+	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollDown);
 }
 
 void AGDKCharacter::MoveForward(float Value)
@@ -105,6 +109,9 @@ void AGDKCharacter::Die(const AActor* Killer)
 	{
 		PC->KillCharacter(Killer);
 	}
+
+	DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
+	GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, 5.0f, false);
 }
 
 void AGDKCharacter::StartRagdoll()
@@ -169,11 +176,10 @@ float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 
 void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (!HasAuthority())
+	if (HasAuthority())
 	{
-		return;
+		float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+		HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 	}
 
-	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 }

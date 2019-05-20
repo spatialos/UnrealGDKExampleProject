@@ -13,7 +13,7 @@ AProjectileWeapon::AProjectileWeapon()
 	ShotCooldown = 1;
 }
 
-void AProjectileWeapon::DoFire()
+void AProjectileWeapon::DoFire_Implementation()
 {
 	float Now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	NextShotTime = Now + ShotCooldown;
@@ -23,8 +23,8 @@ void AProjectileWeapon::DoFire()
 	FVector Barrel = Mesh->GetSocketLocation(BarrelSocket);
 
 
-	FInstantHitInfo HitInfo;
-	if (DoLineTrace(HitInfo))
+	FInstantHitInfo HitInfo = DoLineTrace();
+	if (HitInfo.bDidHit)
 	{
 		Direction = HitInfo.Location - Barrel;
 		Direction.Normalize();

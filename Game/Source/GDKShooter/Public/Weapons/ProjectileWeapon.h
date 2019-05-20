@@ -19,7 +19,7 @@ public:
 	
 protected:
 
-	virtual void DoFire() override;
+	virtual void DoFire_Implementation() override;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapons")
 		void OnShot();
@@ -29,7 +29,7 @@ protected:
 		float ShotCooldown;
 
 	// Projectile class to fire.
-	UPROPERTY(EditAnywhere, Category = "Weapons")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 		TSubclassOf<class AProjectile> ProjectileClass;
 
 	// Socket name of where to spawn projectiles

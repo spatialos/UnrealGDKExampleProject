@@ -21,7 +21,7 @@ AInstantWeapon::AInstantWeapon()
 	ShotVisualizationDelayTolerance = FTimespan::FromMilliseconds(3000.0f);
 }
 
-void AInstantWeapon::StartPrimaryUse()
+void AInstantWeapon::StartPrimaryUse_Implementation()
 {
 	if (IsBurstFire())
 	{
@@ -32,19 +32,19 @@ void AInstantWeapon::StartPrimaryUse()
 		}
 	}
 
-	Super::StartPrimaryUse();
+	Super::StartPrimaryUse_Implementation();
 }
 
-void AInstantWeapon::StopPrimaryUse()
+void AInstantWeapon::StopPrimaryUse_Implementation()
 {
 	// Can't force stop a burst.
 	if (!IsBurstFire())
 	{
-		Super::StopPrimaryUse();
+		Super::StopPrimaryUse_Implementation();
 	}
 }
 
-void AInstantWeapon::DoFire()
+void AInstantWeapon::DoFire_Implementation()
 {
 	check(GetNetMode() == NM_Client);
 
@@ -64,8 +64,8 @@ void AInstantWeapon::DoFire()
 		return;
 	}
 
-	FInstantHitInfo HitInfo;
-	if (DoLineTrace(HitInfo))
+	FInstantHitInfo HitInfo = DoLineTrace();
+	if (HitInfo.bDidHit)
 	{
 		ServerDidHit(HitInfo);
 		SpawnFX(HitInfo, true);  // Spawn the hit fx locally

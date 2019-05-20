@@ -10,22 +10,26 @@
 #include "Components/ShootingComponent.h"
 #include "Weapon.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FInstantHitInfo
 {
 	GENERATED_USTRUCT_BODY()
 
 	// Location of the hit in world space.
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 		FVector Location;
 
 	// Actor that was hit, or nullptr if nothing was hit.
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 		AActor* HitActor;
+
+	UPROPERTY(BlueprintReadOnly)
+		bool bDidHit;
 
 	FInstantHitInfo() :
 		Location(FVector{ 0,0,0 }),
-		HitActor(nullptr)
+		HitActor(nullptr),
+		bDidHit(false)
 	{}
 };
 
@@ -41,12 +45,9 @@ public:
 	AWeapon();
 
 	virtual void Tick(float DeltaTime) override;
-	
-	// [client] Fire the weapon if not on cooldown.
-	virtual void TryShooting() PURE_VIRTUAL(AWeapon::TryShooting, );
 
-	virtual void StartSecondaryUse() override;
-	virtual void StopSecondaryUse() override;
+	virtual void StartSecondaryUse_Implementation() override;
+	virtual void StopSecondaryUse_Implementation() override;
 
 	virtual void SetIsActive(bool bNewActive);
 
@@ -89,8 +90,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<UCameraShake> RecoilShake;
 
-	virtual void StartPrimaryUse() override;
-	virtual void StopPrimaryUse() override;
+	virtual void StartPrimaryUse_Implementation() override;
+	virtual void StopPrimaryUse_Implementation() override;
 
 protected:
 	
@@ -100,7 +101,8 @@ protected:
 
 	virtual void OnRep_Wielder() override;
 
-	virtual void DoFire() { }
+	UFUNCTION(BlueprintNativeEvent)
+		void DoFire();
 	
 	virtual bool ReadyToFire();
 
@@ -110,14 +112,17 @@ protected:
 
 	// [client] Performs a line trace and populates OutHitInfo based on the results.
 	// Returns true if it hits anything, false otherwise.
-	bool DoLineTrace(FInstantHitInfo& OutHitInfo);
+	UFUNCTION(BlueprintCallable)
+		FInstantHitInfo DoLineTrace();
 
 	// Maximum range of the weapon's hitscan.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapons")
 		float MaxRange;
 
-	UGDKMovementComponent* Movement;
-	UShootingComponent* Shooting;
+	UPROPERTY(BlueprintReadOnly)
+		UGDKMovementComponent* Movement;
+	UPROPERTY(BlueprintReadOnly)
+		UShootingComponent* Shooting;
 
 	// Time that we are next able to shoot
 	float NextShotTime;

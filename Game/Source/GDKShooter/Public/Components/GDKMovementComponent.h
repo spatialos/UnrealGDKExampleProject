@@ -40,7 +40,7 @@ public:
 		void SetSprintEnabled(bool bSprintEnabled);
 	
 	// Set if the character should be aiming
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 		void SetAiming(bool NewValue);
 
 	// Returns true if the character is aiming.
@@ -53,7 +53,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Sprint")
 		FSprintingUpdated SprintingUpdated;
 
-	void SetAimingRotationModifier(float NewAimingRotationModifier) { AimingRotationModifier = NewAimingRotationModifier; }
+	UFUNCTION(BlueprintCallable, Category = "Aiming")
+		void SetAimingRotationModifier(float NewAimingRotationModifier) { AimingRotationModifier = NewAimingRotationModifier; }
 	UFUNCTION(BlueprintPure, Category = "Aiming")
 		float GetAimingRotationModifier() { return AimingRotationModifier; }
 
@@ -81,6 +82,9 @@ public:
 	// Set if the character is busy
 	UFUNCTION(BlueprintPure)
 		bool IsBusy() const { return bIsBusy; }
+
+	UFUNCTION(BlueprintCallable)
+		void SetGravityScale(float NewScale) { GravityScale = NewScale; }
 
 private:
 

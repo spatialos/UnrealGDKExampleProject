@@ -25,12 +25,14 @@ public:
 
 	void FireShot(AWeapon* Weapon) { ShotEvent.Broadcast(Weapon); }
 
+	UFUNCTION(BlueprintCallable)
 	FVector GetLineTraceStart()
 	{
 		UObject* TraceProviderObject = TraceProvider.GetObject();
 		return ITraceProvider::Execute_GetLineTraceStart(TraceProvider.GetObject());
 	}
 
+	UFUNCTION(BlueprintCallable)
 	FVector GetLineTraceDirection()
 	{
 		UObject* TraceProviderObject = TraceProvider.GetObject();

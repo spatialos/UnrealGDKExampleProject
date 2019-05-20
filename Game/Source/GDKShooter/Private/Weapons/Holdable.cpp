@@ -11,6 +11,9 @@ AHoldable::AHoldable()
  	// Default to not ticking
 	PrimaryActorTick.bCanEverTick = false;
 
+	bReplicates = true;
+	bReplicateMovement = true;
+
 	LocationComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	SetRootComponent(LocationComponent);
 
@@ -33,6 +36,11 @@ void AHoldable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(AHoldable, MetaData);
 	DOREPLIFETIME(AHoldable, CurrentMode);
 }
+
+void AHoldable::StartPrimaryUse_Implementation() { IsPrimaryUsing = true; }
+void AHoldable::StopPrimaryUse_Implementation() { IsPrimaryUsing = false; }
+void AHoldable::StartSecondaryUse_Implementation() { IsSecondaryUsing = true; }
+void AHoldable::StopSecondaryUse_Implementation() { IsSecondaryUsing = false; }
 
 bool AHoldable::AssignTo(UEquippedComponent* NewOwner)
 {
@@ -75,7 +83,7 @@ void AHoldable::SetMetaData(FGDKMetaData NewMetaData)
 	OnMetaDataUpdated();
 }
 
-void AHoldable::SetIsActive(bool bNewIsActive)
+void AHoldable::SetIsActive_Implementation(bool bNewIsActive)
 {
 	//TODO Find logic for sheathing inactive weapons
 	UE_LOG(LogGDK, Error, TEXT("SetIsActive %d on %s"), bNewIsActive, *this->GetName());
@@ -90,8 +98,13 @@ FVector AHoldable::EffectSpawnPoint()
 	return Mesh->GetSocketLocation(EffectSocketName);
 }
 
-void AHoldable::SetFirstPerson(bool bNewFirstPerson)
+void AHoldable::SetFirstPerson_Implementation(bool bNewFirstPerson)
 {
 	bIsFirstPerson = bNewFirstPerson;
 	Mesh->CastShadow = !bNewFirstPerson;
+}
+
+void AHoldable::ToggleMode_Implementation()
+{
+
 }

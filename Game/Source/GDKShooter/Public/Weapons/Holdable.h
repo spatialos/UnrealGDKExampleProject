@@ -37,16 +37,23 @@ public:
 	
 public:
 
-	// Returns true only if the primary use can be performed immediately or within a buffer of time
-	virtual void StartPrimaryUse() { IsPrimaryUsing = true; }
-	virtual void StopPrimaryUse() { IsPrimaryUsing = false; }
-	virtual void StartSecondaryUse() { IsSecondaryUsing = true; }
-	virtual void StopSecondaryUse() { IsSecondaryUsing = false;  }
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+		void StartPrimaryUse();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+		void StopPrimaryUse();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+		void StartSecondaryUse();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+		void StopSecondaryUse();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+		void ToggleMode();
 
 	// Return false it was unable to be assigned to the new owner
 	virtual bool AssignTo(class UEquippedComponent* NewOwner);
 
-	virtual void SetFirstPerson(bool bNewFirstPerson);
+	UFUNCTION(BlueprintNativeEvent)
+	void SetFirstPerson(bool bNewFirstPerson);
 
 	// Starting weapons would probably be removed when a character dies
 	// However weapons that had been picked up might want to persist
@@ -61,7 +68,8 @@ public:
 
 	void SetMetaData(FGDKMetaData MetaData);
 
-	virtual void SetIsActive(bool bNewActive);
+	UFUNCTION(BlueprintNativeEvent)
+		void SetIsActive(bool bNewActive);
 	
 	UFUNCTION(BlueprintCallable)
 		FVector EffectSpawnPoint();
@@ -69,7 +77,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FName GetActiveSocket() { return ActiveSocket; }
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		virtual void ForceCooldown(float Cooldown) {}
 
 protected:

@@ -14,9 +14,6 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
-	
-	bReplicates = true;
-	bReplicateMovement = true;
 
 	bDrawDebugLineTrace = false;
 	MaxRange = 50000.0f;
@@ -51,12 +48,19 @@ void AWeapon::AnnounceShot(bool bHit)
 	}
 }
 
-bool AWeapon::DoLineTrace(FInstantHitInfo& OutHitInfo)
+void AWeapon::DoFire_Implementation()
 {
+
+}
+
+FInstantHitInfo AWeapon::DoLineTrace()
+{
+	FInstantHitInfo OutHitInfo;
+
 	if (Wielder == nullptr)
 	{
 		UE_LOG(LogGDK, Verbose, TEXT("Weapon %s does not have an owning character"), *this->GetName());
-		return false;
+		return OutHitInfo;
 	}
 
 	FCollisionQueryParams TraceParams;
@@ -85,17 +89,41 @@ bool AWeapon::DoLineTrace(FInstantHitInfo& OutHitInfo)
 	if (!bDidHit)
 	{
 		OutHitInfo.Location = TraceEnd;
-		return false;
+		return OutHitInfo;
 	}
 
 	OutHitInfo.Location = HitResult.ImpactPoint;
 	OutHitInfo.HitActor = HitResult.GetActor();
 
-	return true;
+	OutHitInfo.bDidHit = true;
+
+	return OutHitInfo;
 }
 
-void AWeapon::StartSecondaryUse()
+void AWeapon::StartPrimaryUse_Implementation()
 {
+	Super::StartPrimaryUse_Implementation();
+
+	bHasBufferedShot = true;
+	BufferedShotUntil = UGameplayStatics::GetRealTimeSeconds(GetWorld()) + BufferShotThreshold;
+
+	Wielder->SetBusy(true);
+}
+
+void AWeapon::StopPrimaryUse_Implementation()
+{
+	Super::StopPrimaryUse_Implementation();
+
+	if (!HasBufferedShot())
+	{
+		Wielder->SetBusy(false);
+	}
+}
+
+void AWeapon::StartSecondaryUse_Implementation()
+{
+	Super::StartSecondaryUse_Implementation();
+
 	if (Movement)
 	{
 		Movement->SetAiming(true);
@@ -103,8 +131,10 @@ void AWeapon::StartSecondaryUse()
 	}
 }
 
-void AWeapon::StopSecondaryUse()
+void AWeapon::StopSecondaryUse_Implementation()
 {
+	Super::StopSecondaryUse_Implementation();
+
 	if (Movement)
 	{
 		Movement->SetAiming(false);
@@ -115,15 +145,18 @@ void AWeapon::OnRep_Wielder()
 {
 	Super::OnRep_Wielder();
 
+	UE_LOG(LogGDK, Error, TEXT("OnRep_Wielder for %s"), *this->GetName());
 	if (Wielder)
 	{
 		Movement = Cast<UGDKMovementComponent>(Wielder->GetOwner()->GetComponentByClass(UGDKMovementComponent::StaticClass()));
 		Shooting = Cast<UShootingComponent>(Wielder->GetOwner()->GetComponentByClass(UShootingComponent::StaticClass()));
+		UE_LOG(LogGDK, Error, TEXT("Got Shooting? %d"), (Shooting ? 1 : 0));
 	}
 	else
 	{
 		Movement = nullptr;
 		Shooting = nullptr;
+		UE_LOG(LogGDK, Error, TEXT("Shooting = nullptr"));
 	}
 }
 
@@ -138,26 +171,6 @@ bool AWeapon::ReadyToFire()
 {
 	float Now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	return Now > NextShotTime;
-}
-
-void AWeapon::StartPrimaryUse()
-{
-	Super::StartPrimaryUse();
-
-	bHasBufferedShot = true;
-	BufferedShotUntil = UGameplayStatics::GetRealTimeSeconds(GetWorld()) + BufferShotThreshold;
-
-	Wielder->SetBusy(true);
-}
-
-void AWeapon::StopPrimaryUse()
-{
-	Super::StopPrimaryUse();
-
-	if (!HasBufferedShot())
-	{
-		Wielder->SetBusy(false);
-	}
 }
 
 bool AWeapon::BufferedShotStillValid()

@@ -46,6 +46,20 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerRequestEquip(int32 Index);
 
+	UFUNCTION(BlueprintCallable)
+		void QuickToggle();
+
+	UFUNCTION(BlueprintCallable)
+		void ToggleMode();
+
+	UFUNCTION(BlueprintCallable)
+		void ScrollUp();
+
+	UFUNCTION(BlueprintCallable)
+		void ScrollDown();
+
+	bool HasHoldableAtIndex(int32 Index);
+
 	// Called in BeginPlay of the Holdable when it realises it exists
 	// Not currently called when a holdable is given a new wielder
 	UFUNCTION()
@@ -113,5 +127,7 @@ protected:
 	// Should we apply the sprinting cooldown when going to use a holdable
 	bool bIsSprinting;
 
+	int32 LastCachedIndex = -1;
+	int32 CurrentCachedIndex = -1;
 
 };
