@@ -1,5 +1,7 @@
 # SpatialOS Unreal GDK Example Project
 
+<img src="https://user-images.githubusercontent.com/2433131/58086122-f28af200-7bb5-11e9-9b96-b13b747130d0.png" height="70%" width="70%">
+
 - **LICENSE:** Use of the contents of this repository is subject to the [license](LICENSE.md)
 
 This project is an example shooter game which uses the [SpatialOS GDK for Unreal](https://github.com/spatialos/unrealGDK). 
