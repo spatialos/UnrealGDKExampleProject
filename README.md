@@ -2,7 +2,7 @@
 
 - **LICENSE:** Use of the contents of this repository is subject to the [license](LICENSE.md)
 
-![](https://commondatastorage.googleapis.com/improbable-docs/docs2/unreal/1467e0562596379c/assets/example-project/example-project-headline.png)
+![Example Project](https://user-images.githubusercontent.com/2433131/58086122-f28af200-7bb5-11e9-9b96-b13b747130d0.png)
 
 This project is an example shooter game which uses the [SpatialOS GDK for Unreal](https://github.com/spatialos/unrealGDK). 
 
