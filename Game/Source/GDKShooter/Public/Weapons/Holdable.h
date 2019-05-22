@@ -49,9 +49,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 		void ToggleMode();
 
-	// Return false it was unable to be assigned to the new owner
-	virtual bool AssignTo(class UEquippedComponent* NewOwner);
-
 	UFUNCTION(BlueprintNativeEvent)
 	void SetFirstPerson(bool bNewFirstPerson);
 
@@ -81,7 +78,6 @@ public:
 		virtual void ForceCooldown(float Cooldown) {}
 
 protected:
-
 	UPROPERTY(Transient, BlueprintReadOnly)
 		bool IsPrimaryUsing;
 	UPROPERTY(Transient, BlueprintReadOnly)
@@ -115,16 +111,12 @@ protected:
 		bool bVisibleWhenInactive;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		bool bCanBeVisibleWhenInactive;
-	
-	UPROPERTY(BlueprintReadOnly, Transient, ReplicatedUsing = OnRep_Wielder)
-		UEquippedComponent* Wielder;
-
-	UFUNCTION()
-		virtual void OnRep_Wielder();
 
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsFirstPerson;
 
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsActive;	
+
+
 };

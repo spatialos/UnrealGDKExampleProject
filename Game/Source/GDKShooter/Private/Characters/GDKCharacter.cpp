@@ -29,9 +29,8 @@ void AGDKCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	HealthComponent->AuthoritativeDeath.AddDynamic(this, &AGDKCharacter::Die);
-	HealthComponent->Death.AddDynamic(this, &AGDKCharacter::StartRagdoll);
+	//HealthComponent->Death.AddDynamic(this, &AGDKCharacter::StartRagdoll);
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
-	EquippedComponent->BusyUpdated.AddDynamic(GDKMovementComponent, &UGDKMovementComponent::SetIsBusy);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
 	MetaDataComponent->MetaDataUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SpawnStarterTemplates);
 }
@@ -112,6 +111,11 @@ void AGDKCharacter::Die(const AActor* Killer)
 
 	DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
 	GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, 5.0f, false);
+}
+
+void AGDKCharacter::TornOff()
+{
+	StartRagdoll();
 }
 
 void AGDKCharacter::StartRagdoll()

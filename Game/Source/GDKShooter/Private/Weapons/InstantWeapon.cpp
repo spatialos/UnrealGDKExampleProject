@@ -59,7 +59,10 @@ void AInstantWeapon::DoFire_Implementation()
 
 	if (IsBurstFire() && BurstShotsRemaining <= 0)
 	{
-		Wielder->SetBusy(false);
+		if (GetMovementComponent())
+		{
+			GetMovementComponent()->SetIsBusy(false);
+		}
 		IsPrimaryUsing = false;
 		return;
 	}
@@ -84,7 +87,10 @@ void AInstantWeapon::DoFire_Implementation()
 		if (BurstShotsRemaining <= 0)
 		{
 			FinishedBurst();
-			Wielder->SetBusy(false);
+			if (GetMovementComponent())
+			{
+				GetMovementComponent()->SetIsBusy(false);
+			}
 			IsPrimaryUsing = false;
 		}
 	}
@@ -95,16 +101,19 @@ FVector AInstantWeapon::GetLineTraceDirection()
 {
 	FVector Direction = Super::GetLineTraceDirection();
 
-	float SpreadToUse = Movement->IsAiming() ? SpreadAt100mWhenAiming : SpreadAt100m;
-	if (Movement->IsCrouching())
+	if (GetMovementComponent())
 	{
-		SpreadToUse *= SpreadCrouchModifier;
-	}
+		float SpreadToUse = GetMovementComponent()->IsAiming() ? SpreadAt100mWhenAiming : SpreadAt100m;
+		if (GetMovementComponent()->IsCrouching())
+		{
+			SpreadToUse *= SpreadCrouchModifier;
+		}
 
-	if (SpreadToUse > 0)
-	{
-		auto Spread = FMath::RandPointInCircle(SpreadToUse);
-		Direction = Direction.Rotation().RotateVector(FVector(10000, Spread.X, Spread.Y));
+		if (SpreadToUse > 0)
+		{
+			auto Spread = FMath::RandPointInCircle(SpreadToUse);
+			Direction = Direction.Rotation().RotateVector(FVector(10000, Spread.X, Spread.Y));
+		}
 	}
 
 	return Direction;
@@ -165,7 +174,7 @@ void AInstantWeapon::DealDamage(const FInstantHitInfo& HitInfo)
 	DmgEvent.DamageTypeClass = DamageTypeClass;
 	DmgEvent.HitInfo.ImpactPoint = HitInfo.Location;
 
-	if (APawn* Pawn = Cast<APawn>(Wielder->GetOwner()))
+	if (APawn* Pawn = Cast<APawn>(GetOwner()))
 	{
 		HitInfo.HitActor->TakeDamage(ShotBaseDamage, DmgEvent, Pawn->GetController(), this);
 	}
@@ -217,7 +226,7 @@ void AInstantWeapon::ServerDidMiss_Implementation(const FInstantHitInfo& HitInfo
 void AInstantWeapon::MulticastNotifyHit_Implementation(FInstantHitInfo HitInfo, bool bImpact)
 {
 	// Make sure we're a client, and we're not the client that owns this gun (they will have already played the effect locally).
-	APawn* Pawn = Cast<APawn>(Wielder->GetOwner());
+	APawn* Pawn = Cast<APawn>(GetOwner());
 
 	if (GetNetMode() != NM_DedicatedServer &&
 		(Pawn == nullptr || !Pawn->IsLocallyControlled()))

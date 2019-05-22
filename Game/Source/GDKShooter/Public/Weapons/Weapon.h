@@ -99,8 +99,6 @@ protected:
 
 	virtual void BeginPlay();
 
-	virtual void OnRep_Wielder() override;
-
 	UFUNCTION(BlueprintNativeEvent)
 		void DoFire();
 	
@@ -112,17 +110,18 @@ protected:
 
 	// [client] Performs a line trace and populates OutHitInfo based on the results.
 	// Returns true if it hits anything, false otherwise.
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 		FInstantHitInfo DoLineTrace();
 
 	// Maximum range of the weapon's hitscan.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapons")
 		float MaxRange;
 
-	UPROPERTY(BlueprintReadOnly)
-		UGDKMovementComponent* Movement;
-	UPROPERTY(BlueprintReadOnly)
-		UShootingComponent* Shooting;
+	UFUNCTION(BlueprintPure)
+		UGDKMovementComponent* GetMovementComponent();
+	UFUNCTION(BlueprintPure)
+		UShootingComponent* GetShootingComponent();
+	   
 
 	// Time that we are next able to shoot
 	float NextShotTime;
@@ -136,7 +135,17 @@ protected:
 	virtual void ConsumeBufferedShot();
 
 private:
-	
+
+	UPROPERTY()
+		AActor* CachedOwner;
+	UPROPERTY()
+		UGDKMovementComponent* CachedMovementComponent;
+	UPROPERTY()
+		UShootingComponent* CachedShootingComponent;
+	UFUNCTION()
+		void RefreshComponentCache();
+
+
 	// Channel to use for raytrace on shot
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 		TEnumAsByte<ECollisionChannel> TraceChannel = ECC_WorldStatic;

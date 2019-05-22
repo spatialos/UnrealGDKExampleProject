@@ -24,7 +24,6 @@ AHoldable::AHoldable()
 void AHoldable::BeginPlay()
 {
 	Super::BeginPlay();
-	OnRep_Wielder();
 	OnMetaDataUpdated();
 }
 
@@ -32,7 +31,6 @@ void AHoldable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AHoldable, Wielder);
 	DOREPLIFETIME(AHoldable, MetaData);
 	DOREPLIFETIME(AHoldable, CurrentMode);
 }
@@ -41,28 +39,6 @@ void AHoldable::StartPrimaryUse_Implementation() { IsPrimaryUsing = true; }
 void AHoldable::StopPrimaryUse_Implementation() { IsPrimaryUsing = false; }
 void AHoldable::StartSecondaryUse_Implementation() { IsSecondaryUsing = true; }
 void AHoldable::StopSecondaryUse_Implementation() { IsSecondaryUsing = false; }
-
-bool AHoldable::AssignTo(UEquippedComponent* NewOwner)
-{
-	check(HasAuthority());
-
-	Wielder = NewOwner;
-
-	return true;
-}
-
-// Wielder has updated, if null then we are (hopefully) a pickup
-void AHoldable::OnRep_Wielder()
-{
-	if (Wielder)
-	{
-		Wielder->InformWielderOfWielded(this);
-	}
-	else
-	{
-		// Deal with being dropped or late checkout of wielder
-	}
-}
 
 void AHoldable::OnRep_MetaData()
 {
@@ -86,7 +62,6 @@ void AHoldable::SetMetaData(FGDKMetaData NewMetaData)
 void AHoldable::SetIsActive_Implementation(bool bNewIsActive)
 {
 	//TODO Find logic for sheathing inactive weapons
-	UE_LOG(LogGDK, Error, TEXT("SetIsActive %d on %s"), bNewIsActive, *this->GetName());
 	bIsActive = bNewIsActive;
 	this->SetActorHiddenInGame(!bNewIsActive);
 	StopPrimaryUse();

@@ -60,6 +60,9 @@ protected:
 		void OnEquippedUpdated(AHoldable* NewHoldable);
 
 private:
+	
+	virtual void TornOff() override;
+
 	// [client + server] Puts the player in ragdoll mode.
 	UFUNCTION()
 		void StartRagdoll();

@@ -52,7 +52,6 @@ void UEquippedComponent::SpawnStarterTemplates(FGDKMetaData MetaData)
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = GetOwner();
 			AHoldable* Starter = GetWorld()->SpawnActor<AHoldable>(StarterTemplates[i], GetOwner()->GetActorTransform(), SpawnParams);
-			Starter->AssignTo(this);
 			Starter->AttachToActor(GetOwner(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			Starter->SetMetaData(MetaData);
 			Starter->SetOwner(GetOwner());
@@ -82,11 +81,23 @@ void UEquippedComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 void UEquippedComponent::OnRep_HeldUpdate()
 {
-	if (CurrentlyHeldItem())
+	for (int i = 0; i < HeldItems.Num(); i++)
 	{
-		LastCachedIndex = CurrentCachedIndex;
-		CurrentCachedIndex = CurrentHeldIndex;
-		LocallyActivate(CurrentlyHeldItem());
+		if(!HeldItems[i])
+		{
+			continue;
+		}
+
+		if (i == CurrentHeldIndex)
+		{
+			LastCachedIndex = CurrentCachedIndex;
+			CurrentCachedIndex = CurrentHeldIndex;
+			LocallyActivate(CurrentlyHeldItem());
+		}
+		else
+		{
+			HeldItems[i]->SetIsActive(false);
+		}
 	}
 }
 
@@ -98,22 +109,6 @@ AHoldable* UEquippedComponent::CurrentlyHeldItem() const
 	return HeldItems[CurrentHeldIndex];
 }
 
-// This method is called by the Holdable when it wakes up
-// It informs the component that it is ready to be activated/attached
-void UEquippedComponent::InformWielderOfWielded(AHoldable* WieldedHoldable)
-{
-	bool bIsActiveWeapon = (WieldedHoldable == CurrentlyHeldItem());
-
-	if (bIsActiveWeapon)
-	{
-		LocallyActivate(WieldedHoldable);
-	}
-	else
-	{
-		WieldedHoldable->SetIsActive(false);
-	}
-}
-
 void UEquippedComponent::LocallyActivate(AHoldable* Holdable)
 {
 	if (LocallyActiveHoldable)
@@ -121,7 +116,6 @@ void UEquippedComponent::LocallyActivate(AHoldable* Holdable)
 		LocallyActiveHoldable->SetIsActive(false);
 	}
 
-	SetBusy(false);
 	Holdable->SetIsActive(true);
 	LocallyActiveHoldable = Holdable;
 	HoldableUpdated.Broadcast(Holdable);
@@ -198,12 +192,6 @@ void UEquippedComponent::BlockUsing(bool bBlock)
 		StopPrimaryUse();
 		StopSecondaryUse();
 	}
-}
-
-void UEquippedComponent::SetBusy(bool bNewBusy)
-{
-	bIsBusy = bNewBusy;
-	BusyUpdated.Broadcast(bIsBusy);
 }
 
 void UEquippedComponent::StartPrimaryUse()

@@ -15,10 +15,16 @@ AProjectileWeapon::AProjectileWeapon()
 
 void AProjectileWeapon::DoFire_Implementation()
 {
+	if (!GetShootingComponent())
+	{
+		UE_LOG(LogGDK, Verbose, TEXT("Weapon %s does not have a shooting component"), *this->GetName());
+		return;
+	}
+
 	float Now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	NextShotTime = Now + ShotCooldown;
 
-	FVector Direction = Shooting->GetLineTraceDirection();
+	FVector Direction = GetShootingComponent()->GetLineTraceDirection();
 
 	FVector Barrel = Mesh->GetSocketLocation(BarrelSocket);
 
@@ -31,14 +37,17 @@ void AProjectileWeapon::DoFire_Implementation()
 	}
 	else
 	{
-		Direction = Shooting->GetLineTraceDirection();
+		Direction = GetShootingComponent()->GetLineTraceDirection();
 		Direction.Normalize();
 	}
 
 	AnnounceShot(false);
 	OnShot();
 	FireProjectile(Barrel, Direction);
-	Wielder->SetBusy(false);
+	if (GetMovementComponent())
+	{
+		GetMovementComponent()->SetIsBusy(false);
+	}
 	IsPrimaryUsing = false;
 }
 
@@ -64,5 +73,8 @@ void AProjectileWeapon::ConsumeBufferedShot()
 {
 	Super::ConsumeBufferedShot();
 	IsPrimaryUsing = false;
-	Wielder->SetBusy(false);
+	if (GetMovementComponent())
+	{
+		GetMovementComponent()->SetIsBusy(false);
+	}
 }

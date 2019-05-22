@@ -37,14 +37,19 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 FVector AWeapon::GetLineTraceDirection()
 {
-	return Shooting->GetLineTraceDirection();
+	if (!GetShootingComponent())
+	{
+		return FVector::ZeroVector;
+	}
+
+	return GetShootingComponent()->GetLineTraceDirection();
 }
 
 void AWeapon::AnnounceShot(bool bHit)
 {
-	if (Shooting)
+	if (GetShootingComponent())
 	{
-		Shooting->FireShot(this);
+		GetShootingComponent()->FireShot(this);
 	}
 }
 
@@ -57,9 +62,9 @@ FInstantHitInfo AWeapon::DoLineTrace()
 {
 	FInstantHitInfo OutHitInfo;
 
-	if (Wielder == nullptr)
+	if (!GetShootingComponent())
 	{
-		UE_LOG(LogGDK, Verbose, TEXT("Weapon %s does not have an owning character"), *this->GetName());
+		UE_LOG(LogGDK, Verbose, TEXT("Weapon %s does not have a shooting component"), *this->GetName());
 		return OutHitInfo;
 	}
 
@@ -68,7 +73,7 @@ FInstantHitInfo AWeapon::DoLineTrace()
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 	TraceParams.AddIgnoredActor(this);
-	TraceParams.AddIgnoredActor(Wielder->GetOwner());
+	TraceParams.AddIgnoredActor(GetOwner());
 
 	if (bDrawDebugLineTrace)
 	{
@@ -76,7 +81,7 @@ FInstantHitInfo AWeapon::DoLineTrace()
 	}
 
 	FHitResult HitResult(ForceInit);
-	FVector TraceStart = Shooting->GetLineTraceStart();
+	FVector TraceStart = GetShootingComponent()->GetLineTraceStart();
 	FVector TraceEnd = TraceStart + GetLineTraceDirection() * MaxRange;
 
 	bool bDidHit = GetWorld()->LineTraceSingleByChannel(
@@ -107,7 +112,10 @@ void AWeapon::StartPrimaryUse_Implementation()
 	bHasBufferedShot = true;
 	BufferedShotUntil = UGameplayStatics::GetRealTimeSeconds(GetWorld()) + BufferShotThreshold;
 
-	Wielder->SetBusy(true);
+	if (GetMovementComponent())
+	{
+		GetMovementComponent()->SetIsBusy(true);
+	}
 }
 
 void AWeapon::StopPrimaryUse_Implementation()
@@ -116,7 +124,10 @@ void AWeapon::StopPrimaryUse_Implementation()
 
 	if (!HasBufferedShot())
 	{
-		Wielder->SetBusy(false);
+		if (GetMovementComponent())
+		{
+			GetMovementComponent()->SetIsBusy(false);
+		}
 	}
 }
 
@@ -124,10 +135,10 @@ void AWeapon::StartSecondaryUse_Implementation()
 {
 	Super::StartSecondaryUse_Implementation();
 
-	if (Movement)
+	if (GetMovementComponent())
 	{
-		Movement->SetAiming(true);
-		Movement->SetAimingRotationModifier(AimingRotationSpeed);
+		GetMovementComponent()->SetAiming(true);
+		GetMovementComponent()->SetAimingRotationModifier(AimingRotationSpeed);
 	}
 }
 
@@ -135,28 +146,9 @@ void AWeapon::StopSecondaryUse_Implementation()
 {
 	Super::StopSecondaryUse_Implementation();
 
-	if (Movement)
+	if (GetMovementComponent())
 	{
-		Movement->SetAiming(false);
-	}
-}
-
-void AWeapon::OnRep_Wielder()
-{
-	Super::OnRep_Wielder();
-
-	UE_LOG(LogGDK, Error, TEXT("OnRep_Wielder for %s"), *this->GetName());
-	if (Wielder)
-	{
-		Movement = Cast<UGDKMovementComponent>(Wielder->GetOwner()->GetComponentByClass(UGDKMovementComponent::StaticClass()));
-		Shooting = Cast<UShootingComponent>(Wielder->GetOwner()->GetComponentByClass(UShootingComponent::StaticClass()));
-		UE_LOG(LogGDK, Error, TEXT("Got Shooting? %d"), (Shooting ? 1 : 0));
-	}
-	else
-	{
-		Movement = nullptr;
-		Shooting = nullptr;
-		UE_LOG(LogGDK, Error, TEXT("Shooting = nullptr"));
+		GetMovementComponent()->SetAiming(false);
 	}
 }
 
@@ -205,7 +197,10 @@ void AWeapon::Tick(float DeltaTime)
 
 		if (!IsPrimaryUsing)
 		{
-			Wielder->SetBusy(false);
+			if (GetMovementComponent())
+			{
+				GetMovementComponent()->SetIsBusy(false);
+			}
 		}
 	}
 
@@ -214,7 +209,10 @@ void AWeapon::Tick(float DeltaTime)
 		ConsumeBufferedShot();
 		if (!IsPrimaryUsing)
 		{
-			Wielder->SetBusy(false);
+			if (GetMovementComponent())
+			{
+				GetMovementComponent()->SetIsBusy(false);
+			}
 		}
 	}
 }
@@ -224,4 +222,37 @@ void AWeapon::SetIsActive(bool bNewIsActive)
 	Super::SetIsActive(bNewIsActive);
 
 	ConsumeBufferedShot();
+}
+
+void AWeapon::RefreshComponentCache()
+{
+	CachedOwner = GetOwner();
+	if (CachedOwner == nullptr)
+	{
+		CachedMovementComponent = nullptr;
+		CachedShootingComponent = nullptr;
+	}
+	else
+	{
+		CachedMovementComponent = Cast<UGDKMovementComponent>(CachedOwner->GetComponentByClass(UGDKMovementComponent::StaticClass()));
+		CachedShootingComponent = Cast<UShootingComponent>(CachedOwner->GetComponentByClass(UShootingComponent::StaticClass()));
+	}
+}
+
+UGDKMovementComponent* AWeapon::GetMovementComponent()
+{
+	if (GetOwner() != CachedOwner)
+	{
+		RefreshComponentCache();
+	}
+	return CachedMovementComponent;
+}
+
+UShootingComponent* AWeapon::GetShootingComponent()
+{
+	if (!GetOwner())
+	{
+		RefreshComponentCache();
+	}
+	return CachedShootingComponent;
 }
