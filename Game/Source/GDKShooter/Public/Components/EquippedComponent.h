@@ -60,11 +60,6 @@ public:
 
 	bool HasHoldableAtIndex(int32 Index);
 
-	// Called in BeginPlay of the Holdable when it realises it exists
-	// Not currently called when a holdable is given a new wielder
-	UFUNCTION()
-		void InformWielderOfWielded(class AHoldable* WieldedHoldable);
-
 	UPROPERTY(BlueprintAssignable)
 		FHoldableUpdated HoldableUpdated;
 
@@ -90,10 +85,6 @@ protected:
 // Using Logic
 public:
 	UFUNCTION()
-		bool IsBusy() { return bIsBusy; }
-	UFUNCTION()
-		void SetBusy(bool bNewBusy);
-	UFUNCTION()
 		void SetIsSprinting(bool bNewSprinting) { bIsSprinting = bNewSprinting; }
 
 	UFUNCTION()
@@ -110,9 +101,6 @@ public:
 
 	UFUNCTION()
 		void ForceCooldown(float Cooldown);
-
-	UPROPERTY(BlueprintAssignable)
-		FBusyUpdated BusyUpdated;
 
 	UPROPERTY(EditDefaultsOnly)
 		float SprintRecoveryTime = 0.2f;
