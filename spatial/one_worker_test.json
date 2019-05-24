@@ -5,6 +5,16 @@
     "snapshots": {
       "snapshotWritePeriodSeconds": 0
     },
+    "legacy_flags": [
+      {
+        "name": "bridge_soft_handover_enabled",
+        "value": "false"
+      },
+      {
+        "name": "enable_chunk_interest",
+        "value": "false"
+      }
+    ],
     "dimensions": {
       "xMeters": 2000,
       "zMeters": 2000
