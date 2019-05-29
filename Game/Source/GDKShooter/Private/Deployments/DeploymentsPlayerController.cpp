@@ -76,7 +76,7 @@ void ADeploymentsPlayerController::QueryPIT()
 {
 	Worker_Alpha_PlayerIdentityTokenRequest* PITParams = new Worker_Alpha_PlayerIdentityTokenRequest();
 	// Replace this string with a dev auth token, see docs for information on how to generate one of these
-	PITParams->development_authentication_token_id = "REPLACE ME";
+	PITParams->development_authentication_token = "REPLACE ME";
 	PITParams->player_id = "Player Id";
 	PITParams->display_name = "";
 	PITParams->metadata = "";

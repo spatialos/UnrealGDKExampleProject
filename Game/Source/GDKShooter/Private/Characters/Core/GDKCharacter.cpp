@@ -195,10 +195,7 @@ void AGDKCharacter::RegenerateHealth()
 
 float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-
-	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-
-	TakeDamageCrossServer(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+	TakeDamageCrossServer(Damage, DamageEvent, EventInstigator, DamageCauser);
 
 	return Damage;
 }
@@ -209,6 +206,10 @@ void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDa
 	{
 		return;
 	}
+
+	check(DamageCauser);
+
+	Damage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
 	const AWeapon* DamageSourceWeapon = Cast<AWeapon>(DamageCauser);
 	const AGDKCharacter* Killer = Cast<AGDKCharacter>(DamageSourceWeapon->GetWeilder());
