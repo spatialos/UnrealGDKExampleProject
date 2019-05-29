@@ -6,6 +6,9 @@
 #include "GDKLogging.h"
 #include "Game/GDKGameState.h"
 #include "GDKSessionProgress.h"
+
+#include <WorkerSDK/improbable/c_worker.h>
+
 #include "GDKSessionGameState.generated.h"
 
 DECLARE_EVENT_TwoParams(AGDKGameState, FSessionTimerEvent, EGDKSessionProgress, int);
@@ -42,6 +45,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Timers")
 		int ResultsSessionLength = 60;
+	
+	Worker_EntityId SessionEntityId = 39;
+	Worker_ComponentId SessionComponentId = 1000;
 
 	FTimerHandle TickTimer;
 

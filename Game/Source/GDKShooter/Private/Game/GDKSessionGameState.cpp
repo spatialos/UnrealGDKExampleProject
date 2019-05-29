@@ -6,6 +6,7 @@
 #include "UnrealNetwork.h"
 #include "SpatialNetDriver.h"
 #include "SpatialWorkerConnection.h"
+#include "Interop/SpatialStaticComponentView.h"
 #include "c_worker.h"
 #include "c_schema.h"
 
@@ -44,6 +45,15 @@ void AGDKSessionGameState::RemovePlayerState(APlayerState* PlayerState)
 
 void AGDKSessionGameState::OnRep_SessionProgress()
 {
+	USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver());
+	bool AuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
+
+	if (AuthoritativeOverSessionEntity)
+	{
+		// There's an offset of 1 between the corresponding states of session progress and session state.
+		int SessionState = (int)SessionProgress + 1;
+		SendStateUpdate(SessionState);
+	}
 	TimerEvent.Broadcast(SessionProgress, SessionTimer);
 }
 
@@ -64,29 +74,43 @@ void AGDKSessionGameState::BeginTimer()
 
 void AGDKSessionGameState::TickGameTimer()
 {
-	if (GetNetMode() != NM_Client)
+	bool AuthoritativeOverSessionProgress = Role == ROLE_Authority;
+
+	if (GetNetMode() != NM_Client && AuthoritativeOverSessionProgress)
 	{
 		SessionTimer--;
+
+		USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver());
+		bool AuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
 
 		if (SessionProgress == EGDKSessionProgress::Lobby && SessionTimer <= 0)
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Running"));
 			SessionProgress = EGDKSessionProgress::Running;
-			SendStateUpdate(2);
+			if (AuthoritativeOverSessionEntity)
+			{
+				SendStateUpdate(2);
+			}
 			SessionTimer = GameSessionLength;
 		}
 		if (SessionProgress == EGDKSessionProgress::Running && SessionTimer <= 0)
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Results"));
 			SessionProgress = EGDKSessionProgress::Results;
-			SendStateUpdate(3);
+			if (AuthoritativeOverSessionEntity)
+			{
+				SendStateUpdate(3);
+			}
 			SessionTimer = ResultsSessionLength;
 		}
 		if (SessionProgress == EGDKSessionProgress::Results && SessionTimer <= 0)
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Finished"));
 			SessionProgress = EGDKSessionProgress::Finished;
-			SendStateUpdate(4);
+			if (AuthoritativeOverSessionEntity)
+			{
+				SendStateUpdate(4);
+			}
 		}
 	}
 }
@@ -98,13 +122,14 @@ void AGDKSessionGameState::SendStateUpdate(int NewState)
 		return;
 	}
 
-	Worker_EntityId target_entity_id = 39;
+	Worker_EntityId target_entity_id = SessionEntityId;
 	Worker_ComponentUpdate component_update = {};
-	component_update.component_id = 1000;
-	component_update.schema_type = Schema_CreateComponentUpdate(1000);
+	component_update.component_id = SessionComponentId;
+	component_update.schema_type = Schema_CreateComponentUpdate(SessionComponentId);
 	Schema_Object* fields_object = Schema_GetComponentUpdateFields(component_update.schema_type);
 	Schema_AddInt32(fields_object, 1, NewState);
 	Cast<USpatialNetDriver>(GetWorld()->GetNetDriver())->Connection->SendComponentUpdate(target_entity_id, &component_update);
+	UE_LOG(LogGDK, Warning, TEXT("Sending update for session component. State: %i; worker authority: %i"), NewState, Role.GetValue());
 }
 
 
