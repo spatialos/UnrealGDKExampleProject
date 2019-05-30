@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "Game/GDKMetaData.h"
-#include "Game/GDKPlayerScore.h"
-#include "Game/GDKSessionProgress.h"
+#include "Characters/Components/MetaDataComponent.h"
+#include "Game/Components/DeathmatchScoreComponent.h"
+#include "Game/Components/MatchStateComponent.h"
 #include "GDKPlayerController.generated.h"
 
 UENUM(BlueprintType)
@@ -52,7 +52,6 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
 	UPROPERTY(BlueprintAssignable)
 		FMenuEvent OnMenuChanged;
@@ -72,6 +71,7 @@ public:
 
 	// [server] Tells the controller that it's time for the player to die, and sets up conditions for respawn.
 	// @param Killer  The player who killed me. Can be null if it wasn't a player who dealt the damage that killed me.
+	UFUNCTION(BlueprintCallable)
 	void KillCharacter(const class AActor* Killer);
 
 	// [client] Sets whether the cursor is in "UI mode", meaning it is visible and can be moved around the screen,
@@ -94,8 +94,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void RequestRespawn();
 
-	void UpdatePlayerScores(const TArray<FPlayerScore>& PlayerScores);
-
 	UFUNCTION(Client, unreliable)
 		void InformOfKill(const FString& VictimName, int32 VictimId);
 	UFUNCTION(Client, unreliable)
@@ -106,8 +104,6 @@ protected:
 
 	bool bHasRequetsedPlayer;
 	bool bHasBeenGrantedPlayer;
-	
-	virtual void ChooseNewSpawnPoint();
 
 	UPROPERTY(BlueprintAssignable)
 		FPawnEvent PawnEvent;
@@ -139,10 +135,6 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerTryJoinGame(const FString& NewPlayerName, const FGDKMetaData MetaData);
 
-	// [client] Informs the invoking client whether the join request suceeded or failed
-	UFUNCTION(Client, Reliable)
-		void ClientJoinResults(const bool bJoinSucceeded);
-
 	// [server] Causes the character to respawn.
 	UFUNCTION(Server, Reliable, WithValidation)
 		void RespawnCharacter();
@@ -162,7 +154,7 @@ private:
 		float DeleteCharacterDelay;
 
 	UFUNCTION()
-		void TimerUpdated(EGDKSessionProgress SessionProgress, int SessionTimer);
+		void MatchStateUpdated(EMatchState MatchState);
 
 	FTimerHandle RespawnTimerHandle;
 

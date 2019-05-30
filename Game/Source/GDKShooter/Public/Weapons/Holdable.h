@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/EquippedComponent.h"
-#include "Game/GDKMetaData.h"
+#include "Characters/Components/MetaDataComponent.h"
 #include "Holdable.generated.h"
 
 UENUM(BlueprintType)

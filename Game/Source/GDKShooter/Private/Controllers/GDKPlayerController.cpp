@@ -3,19 +3,19 @@
 #include "Controllers/GDKPlayerController.h"
 
 #include "GameFramework/Character.h"
-#include "Game/GDKGameState.h"
-#include "Game/GDKSessionGameState.h"
-#include "Game/GDKPlayerState.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/GameStateBase.h"
 #include "Blueprint/UserWidget.h"
-#include "GDKLogging.h"
 #include "UnrealNetwork.h"
-#include "TimerManager.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/MetaDataComponent.h"
 #include "Components/EquippedComponent.h"
 #include "Weapons/Holdable.h"
+#include "Game/Components/ScorePublisher.h"
+#include "Game/Components/PlayerPublisher.h"
+#include "Game/Components/SpawnRequestPublisher.h"
 
 #include "SpatialNetDriver.h"
 #include "Connection/SpatialWorkerConnection.h"
@@ -45,11 +45,19 @@ void AGDKPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AGDKSessionGameState* GameState = Cast<AGDKSessionGameState>(GetWorld()->GetGameState()))
+	if (UMatchStateComponent* MatchState = Cast<UMatchStateComponent>(GetWorld()->GetGameState()->GetComponentByClass(UMatchStateComponent::StaticClass())))
 	{
-		GameState->OnTimerUpdated().AddUObject(this, &AGDKPlayerController::TimerUpdated);
+		MatchState->MatchEvent.AddDynamic(this, &AGDKPlayerController::MatchStateUpdated);
 	}
 	SetUIMode(true, false);
+
+	if (PlayerState)
+	{
+		if (UPlayerPublisher* PlayerPublisher = Cast<UPlayerPublisher>(GetWorld()->GetGameState()->GetComponentByClass(UPlayerPublisher::StaticClass())))
+		{
+			PlayerPublisher->PublishPlayer(PlayerState, EPlayerProgress::Connected);
+		}
+	}
 }
 
 void AGDKPlayerController::Tick(float DeltaTime)
@@ -60,17 +68,11 @@ void AGDKPlayerController::Tick(float DeltaTime)
 	}
 }
 
-void AGDKPlayerController::EndPlay(const EEndPlayReason::Type Reason)
-{
-	Super::EndPlay(Reason);
-
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
-}
-
 void AGDKPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 
+	SetControllerState(EGDKControllerState::InProgress);
 	if (GetNetMode() == NM_Client && InPawn)
 	{
 		SetCharacterState(EGDKCharacterState::Alive);
@@ -119,11 +121,8 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 
 		if (const ACharacter* KillerCharacter = Cast<ACharacter>(Weilder))
 		{
-			if (AGDKPlayerState* KillerState = Cast<AGDKPlayerState>(KillerCharacter->PlayerState))
-			{
-				KillerName = KillerState->GetPlayerName();
-				KillerId = KillerState->PlayerId;
-			}
+			KillerName = KillerCharacter->PlayerState->GetPlayerName();
+			KillerId = KillerCharacter->PlayerState->PlayerId;
 
 			if (KillerCharacter->GetController())
 			{
@@ -131,10 +130,8 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 				{
 					if (ACharacter* VictimCharacter = Cast<ACharacter>(GetPawn()))
 					{
-						if (AGDKPlayerState* VictimState = Cast<AGDKPlayerState>(VictimCharacter->PlayerState))
-						{
-							KillerController->InformOfKill(VictimState->GetPlayerName(), VictimState->PlayerId);
-						}
+						APlayerState* VictimState = VictimCharacter->PlayerState;
+						KillerController->InformOfKill(VictimState->GetPlayerName(), VictimState->PlayerId);
 					}
 				}
 			}
@@ -143,12 +140,9 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 
 	InformOfDeath(KillerName, KillerId);
 
-	if (AGDKGameState* GM = Cast<AGDKGameState>(GetWorld()->GetGameState()))
+	if (UScorePublisher* ScorePublisher = Cast<UScorePublisher>(GetWorld()->GetGameState()->GetComponentByClass(UScorePublisher::StaticClass())))
 	{
-		if (AGDKPlayerState* VictimState = Cast<AGDKPlayerState>(PlayerState))
-		{
-			GM->AddDeath(KillerId, VictimState->PlayerId);
-		}
+		ScorePublisher->PublishKill(KillerId, PlayerState->PlayerId);
 	}
 
 	UnPossess();
@@ -169,23 +163,17 @@ void AGDKPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction("ShowScoreboard", IE_Pressed, this, &AGDKPlayerController::ShowScoreboard);
-	InputComponent->BindAction("ShowScoreboard", IE_Released, this, &AGDKPlayerController::HideScoreboard);
-	InputComponent->BindAction("ShowMenu", IE_Pressed, this, &AGDKPlayerController::ToggleMenu);
+	//InputComponent->BindAction("ShowScoreboard", IE_Pressed, this, &AGDKPlayerController::ShowScoreboard);
+	//InputComponent->BindAction("ShowScoreboard", IE_Released, this, &AGDKPlayerController::HideScoreboard);
+	//InputComponent->BindAction("ShowMenu", IE_Pressed, this, &AGDKPlayerController::ToggleMenu);
 }
 
-void AGDKPlayerController::TimerUpdated(EGDKSessionProgress SessionProgress, int SessionTimer)
+void AGDKPlayerController::MatchStateUpdated(EMatchState CurrentState)
 {
-	if (SessionProgress == EGDKSessionProgress::Results && !bGameFinished)
+	if (CurrentState == EMatchState::PostGame && !bGameFinished)
 	{
 		bGameFinished = true;
 		SetControllerState(EGDKControllerState::Finished);
-	}
-	if (SessionProgress == EGDKSessionProgress::Finished)
-	{
-		FURL TravelURL;
-		TravelURL.Map = TEXT("Deployments");
-		ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false /*bSeamless*/);
 	}
 }
 
@@ -218,102 +206,28 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
 
 void AGDKPlayerController::TryJoinGame(const FString& NewPlayerName, const FGDKMetaData MetaData)
 {
+	SetControllerState(EGDKControllerState::PendingCharacter);
 	check(GetNetMode() != NM_DedicatedServer);
 	SetControllerState(EGDKControllerState::PendingCharacter);
 	bHasRequetsedPlayer = true;
 	ServerTryJoinGame(
 		NewPlayerName.IsEmpty() ? TEXT("Unknown") : NewPlayerName,
 		MetaData);
-}
 
-void AGDKPlayerController::ChooseNewSpawnPoint()
-{
-	AActor* const NewStartSpot = GetWorld()->GetAuthGameMode()->ChoosePlayerStart(this);
-	if (NewStartSpot != nullptr)
-	{
-		// Set the player controller / camera in this new location
-		FRotator InitialControllerRot = NewStartSpot->GetActorRotation();
-		InitialControllerRot.Roll = 0.f;
-		SetInitialLocationAndRotation(NewStartSpot->GetActorLocation(), InitialControllerRot);
-		StartSpot = NewStartSpot;
-	}
 }
 
 void AGDKPlayerController::ServerTryJoinGame_Implementation(const FString& NewPlayerName, const FGDKMetaData MetaData)
 {
-	bool bJoinWasSuccessful = true;
-
-	// Validate player name
-	if (NewPlayerName.IsEmpty())
+	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
 	{
-		bJoinWasSuccessful = false;
-
-		UE_LOG(LogGDK, Error, TEXT("%s PlayerController: Player attempted to join with empty name."), *this->GetName());
+		Spawner->RequestSpawn(this);
+		return;
 	}
-
-	// Validate PlayerState
-	if (PlayerState == nullptr
-		|| !PlayerState->IsA(AGDKPlayerState::StaticClass()))
-	{
-		bJoinWasSuccessful = false;
-
-		UE_LOG(LogGDK, Error, TEXT("%s PlayerController: Invalid PlayerState pointer (%s)"), *this->GetName(), PlayerState == nullptr ? TEXT("nullptr") : *PlayerState->GetName());
-	}
-
-	// Validate the join request
-	if (bHasBeenGrantedPlayer)
-	{
-		bJoinWasSuccessful = false;
-
-		UE_LOG(LogGDK, Error, TEXT("%s PlayerController: Already submitted Join request.  Client attempting to join session multiple times."), *this->GetName());
-	}
-
-	// Inform Client as to whether or not join was accepted
-	ClientJoinResults(bJoinWasSuccessful);
-
-	if (bJoinWasSuccessful)
-	{
-		bHasBeenGrantedPlayer = true;
-
-		// Set the player-selected values
-		PlayerState->SetPlayerName(NewPlayerName);
-		Cast<AGDKPlayerState>(PlayerState)->SetMetaData(MetaData);
-
-		// Spawn the Pawn
-		RespawnCharacter();
-
-		// Add the player to the game's scoreboard.
-		if (AGDKGameState* GS = GetWorld()->GetGameState<AGDKGameState>())
-		{
-			GS->AddPlayer(PlayerState->PlayerId, NewPlayerName);
-		}
-		else
-		{
-			UE_LOG(LogGDK, Error, TEXT("%s: failed to add player because GameMode didn't exist"),
-				*GDKLogging::LogPrefix(this));
-		}
-	}
-
 }
 
 bool AGDKPlayerController::ServerTryJoinGame_Validate(const FString& NewPlayerName, const FGDKMetaData MetaData)
 {
 	return true;
-}
-
-void AGDKPlayerController::ClientJoinResults_Implementation(const bool bJoinSucceeded)
-{
-	if (bJoinSucceeded)
-	{
-		bHasBeenGrantedPlayer = true;
-		SetControllerState(EGDKControllerState::InProgress);
-	}
-	else
-	{
-		bHasRequetsedPlayer = false;
-		SetControllerState(EGDKControllerState::PreCharacter);
-	}
-
 }
 
 void AGDKPlayerController::RequestRespawn()
@@ -330,45 +244,18 @@ void AGDKPlayerController::RequestRespawn()
 	RespawnCharacter();
 }
 
+void AGDKPlayerController::RespawnCharacter_Implementation()
+{
+	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
+	{
+		Spawner->RequestSpawn(this);
+		return;
+	}
+}
+
 bool AGDKPlayerController::RespawnCharacter_Validate()
 {
 	return true;
-}
-
-void AGDKPlayerController::RespawnCharacter_Implementation()
-{
-	check(GetNetMode() == NM_DedicatedServer);
-
-	if (bGameFinished)
-	{
-		return;
-	}
-
-	if (AGameModeBase* GameMode = GetWorld()->GetAuthGameMode())
-	{
-		APawn* NewPawn = nullptr; 
-		
-		ChooseNewSpawnPoint();
-
-		check(StartSpot.IsValid());
-
-		NewPawn = GameMode->SpawnDefaultPawnFor(this, StartSpot.Get());
-
-		Possess(NewPawn);
-		
-		AGDKPlayerState* GDKPlayerState = Cast<AGDKPlayerState>(PlayerState);
-		if (GDKPlayerState)
-		{
-			if (UMetaDataComponent* MetaData = Cast<UMetaDataComponent>(NewPawn->GetComponentByClass(UMetaDataComponent::StaticClass())))
-			{
-				MetaData->SetMetaData(GDKPlayerState->GetMetaData());
-			}
-		}
-		else
-		{
-			UE_LOG(LogGDK, Error, TEXT("%d: Created a player without a GDK PlayerState"), *this->GetName());
-		}
-	}
 }
 
 void AGDKPlayerController::SetUIMode()

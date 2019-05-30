@@ -1,12 +1,13 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "GDKWidget.h"
-#include "Game/GDKGameState.h"
-#include "Game/GDKSessionGameState.h"
-#include "Game/GDKPlayerState.h"
+#include "GameFramework/GameStateBase.h"
 #include "Controllers/GDKPlayerController.h"
 #include "Components/GDKMovementComponent.h"
 #include "Components/HealthComponent.h"
+#include "Game/Components/PlayerCountingComponent.h"
+#include "Game/Components/LobbyTimerComponent.h"
+#include "Game/Components/MatchTimerComponent.h"
 #include "GDKLogging.h"
 
 // Registr listeners on AGDKPlayerController and AGDKGameState
@@ -33,18 +34,34 @@ void UGDKWidget::NativeConstruct()
 		GDKPC->OnKilledNotification().AddUObject(this, &UGDKWidget::OnDeath);
 	}
 
-	if (AGDKGameState* GS = GetWorld()->GetGameState<AGDKGameState>())
+	if (UDeathmatchScoreComponent* Deathmatch = Cast<UDeathmatchScoreComponent>(GetWorld()->GetGameState()->GetComponentByClass(UDeathmatchScoreComponent::StaticClass())))
 	{
-		GS->OnScoreUpdated().AddUObject(this, &UGDKWidget::OnPlayerScoresUpdated);
-		OnPlayerScoresUpdated(GS->PlayerScores());
-		GS->OnPlayerCountUpdated().AddUObject(this, &UGDKWidget::OnPlayerCountUpdated);
-		OnPlayerCountUpdated(GS->ConnectedPlayers);
+		Deathmatch->ScoreEvent.AddDynamic(this, &UGDKWidget::OnPlayerScoresUpdated);
+		OnPlayerScoresUpdated(Deathmatch->PlayerScores());
 	}
 
-	if (AGDKSessionGameState* SGS = GetWorld()->GetGameState<AGDKSessionGameState>())
+	if (UPlayerCountingComponent* PlayerCounter = Cast<UPlayerCountingComponent>(GetWorld()->GetGameState()->GetComponentByClass(UPlayerCountingComponent::StaticClass())))
 	{
-		SGS->OnTimerUpdated().AddUObject(this, &UGDKWidget::OnTimerUpdated);
-		OnTimerUpdated(SGS->SessionProgress, SGS->SessionTimer);
+		PlayerCounter->PlayerCountEvent.AddDynamic(this, &UGDKWidget::OnPlayerCountUpdated);
+		OnPlayerCountUpdated(PlayerCounter->PlayerCount());
+	}
+
+	if (UMatchStateComponent* MatchState = Cast<UMatchStateComponent>(GetWorld()->GetGameState()->GetComponentByClass(UMatchStateComponent::StaticClass())))
+	{
+		MatchState->MatchEvent.AddDynamic(this, &UGDKWidget::OnStateUpdated);
+		OnStateUpdated(MatchState->GetCurrentState());
+	}
+
+	if (UMatchTimerComponent* MatchTimer = Cast<UMatchTimerComponent>(GetWorld()->GetGameState()->GetComponentByClass(UMatchTimerComponent::StaticClass())))
+	{
+		MatchTimer->OnTimer.AddDynamic(this, &UGDKWidget::OnMatchTimerUpdated);
+		OnMatchTimerUpdated(MatchTimer->GetTimer());
+	}
+
+	if (ULobbyTimerComponent* LobbyTimer = Cast<ULobbyTimerComponent>(GetWorld()->GetGameState()->GetComponentByClass(ULobbyTimerComponent::StaticClass())))
+	{
+		LobbyTimer->OnTimer.AddDynamic(this, &UGDKWidget::OnLobbyTimerUpdated);
+		OnLobbyTimerUpdated(LobbyTimer->GetTimer());
 	}
 }
 
@@ -57,16 +74,13 @@ void UGDKWidget::OnPawn(APawn* InPawn)
 
 	if (UGDKMovementComponent* Movement = Cast< UGDKMovementComponent>(InPawn->GetComponentByClass(UGDKMovementComponent::StaticClass())))
 	{
-		Movement->OnAimingUpdated.RemoveDynamic(this, &UGDKWidget::OnAimingUpdated);
-		Movement->OnAimingUpdated.AddDynamic(this, &UGDKWidget::OnAimingUpdated);
+		Movement->OnAimingUpdated.AddUniqueDynamic(this, &UGDKWidget::OnAimingUpdated);
 	}
 
 	if (UHealthComponent* Health = Cast< UHealthComponent>(InPawn->GetComponentByClass(UHealthComponent::StaticClass())))
 	{
-		Health->HealthUpdated.RemoveDynamic(this, &UGDKWidget::OnHealthUpdated);
-		Health->HealthUpdated.AddDynamic(this, &UGDKWidget::OnHealthUpdated);
-		Health->ArmourUpdated.RemoveDynamic(this, &UGDKWidget::OnArmourUpdated);
-		Health->ArmourUpdated.AddDynamic(this, &UGDKWidget::OnArmourUpdated);
+		Health->HealthUpdated.AddUniqueDynamic(this, &UGDKWidget::OnHealthUpdated);
+		Health->ArmourUpdated.AddUniqueDynamic(this, &UGDKWidget::OnArmourUpdated);
 		OnHealthUpdated(Health->GetCurrentHealth(), Health->GetMaxHealth());
 		OnArmourUpdated(Health->GetCurrentArmour(), Health->GetMaxArmour());
 	}

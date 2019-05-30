@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Weapons/Weapon.h"
-#include "Game/GDKSessionProgress.h"
-#include "Game/GDKPlayerScore.h"
+#include "Game/Components/DeathmatchScoreComponent.h"
+#include "Game/Components/MatchStateComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "GDKWidget.generated.h"
 
@@ -60,9 +60,17 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")
 		void OnPlayerScoresUpdated(const TArray<FPlayerScore>& Scores);
 
-	// Called each time the game state timer ticks or changes session state
+	// Called each time the game state changes
 	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")
-		void OnTimerUpdated(EGDKSessionProgress SessionProgress, int SecondsRemaining);
+		void OnStateUpdated(EMatchState MatchState);
+
+	// Called each time the lobby timer changes
+	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")
+		void OnLobbyTimerUpdated(int SecondsRemaining);
+
+	// Called each time the match timer changes
+	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")
+		void OnMatchTimerUpdated(int SecondsRemaining);
 
 	// Called each time a shot is fired by the local player
 	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")

@@ -8,6 +8,8 @@
 #include "Holdable.h"
 #include "Components/GDKMovementComponent.h"
 #include "Components/ShootingComponent.h"
+#include "TimerManager.h"
+#include "Camera/CameraShake.h"
 #include "Weapon.generated.h"
 
 USTRUCT(BlueprintType)

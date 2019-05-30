@@ -4,11 +4,12 @@
 
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "SpatialNetDriver.h"
 #include "UnrealNetwork.h"
 #include "GDKLogging.h"
-#include "Game/GDKPlayerState.h"
 #include "Controllers/GDKPlayerController.h"
+#include "Controllers/Components/ControllerEventsComponent.h"
 #include "Weapons/Holdable.h"
 
 AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
@@ -103,10 +104,9 @@ void AGDKCharacter::Die(const AActor* Killer)
 {
 	TearOff();
 
-	AGDKPlayerController* PC = Cast<AGDKPlayerController>(GetController());
-	if (PC)
+	if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(GetController()->GetComponentByClass(UControllerEventsComponent::StaticClass())))
 	{
-		PC->KillCharacter(Killer);
+		ControllerEvents->KilledBy(Killer);
 	}
 
 	DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
@@ -121,15 +121,15 @@ void AGDKCharacter::TornOff()
 void AGDKCharacter::StartRagdoll()
 {
 	// Disable capsule collision and disable movement.
-	UCapsuleComponent* CapsuleComponent = GetCapsuleComponent();
-	if (CapsuleComponent == nullptr)
+	UCapsuleComponent* Capsule = GetCapsuleComponent();
+	if (Capsule == nullptr)
 	{
 		UE_LOG(LogGDK, Error, TEXT("Invalid capsule component on character %s"), *this->GetName());
 		return;
 	}
 
-	CapsuleComponent->SetSimulatePhysics(false);
-	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Capsule->SetSimulatePhysics(false);
+	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
 
@@ -141,10 +141,10 @@ void AGDKCharacter::StartRagdoll()
 
 	// Gather list of child components of the capsule.
 	TArray<USceneComponent*> ComponentsToMove;
-	int NumChildren = CapsuleComponent->GetNumChildrenComponents();
+	int NumChildren = Capsule->GetNumChildrenComponents();
 	for (int i = 0; i < NumChildren; ++i)
 	{
-		USceneComponent* Component = CapsuleComponent->GetChildComponent(i);
+		USceneComponent* Component = Capsule->GetChildComponent(i);
 		if (Component != nullptr && Component != MeshComponent)
 		{
 			ComponentsToMove.Add(Component);
