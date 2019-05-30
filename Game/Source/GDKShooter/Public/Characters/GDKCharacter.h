@@ -10,6 +10,7 @@
 #include "Components/MetaDataComponent.h"
 #include "Components/GDKMovementComponent.h"
 #include "Weapons/Holdable.h"
+#include "TimerManager.h"
 #include "GDKCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FBoolean, bool);

@@ -16,13 +16,6 @@ UDeathmatchSpawnerComponent::UDeathmatchSpawnerComponent()
 
 void UDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller)
 {
-	/*
-	PlayerState->SetPlayerName(NewPlayerName);
-	if (UMetaDataComponent* MetaDataComponent = Cast<UMetaDataComponent>(PlayerState->GetComponentByClass(UMetaDataComponent::StaticClass())))
-	{
-		MetaDataComponent->SetMetaData(MetaData);
-	}*/
-
 	// Spawn the Pawn
 	SpawnCharacter(Controller);
 

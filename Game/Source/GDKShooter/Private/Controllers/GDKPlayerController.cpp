@@ -18,6 +18,9 @@
 #include "SpatialNetDriver.h"
 #include "UnrealNetwork.h"
 #include "Weapons/Holdable.h"
+#include "Game/Components/ScorePublisher.h"
+#include "Game/Components/PlayerPublisher.h"
+#include "Game/Components/SpawnRequestPublisher.h"
 
 
 
@@ -71,6 +74,7 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 
+	SetControllerState(EGDKControllerState::InProgress);
 	if (GetNetMode() == NM_Client && InPawn)
 	{
 		SetViewTarget(InPawn);
@@ -187,6 +191,7 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
 
 void AGDKPlayerController::TryJoinGame()
 {
+	SetControllerState(EGDKControllerState::PendingCharacter);
 	check(GetNetMode() != NM_DedicatedServer);
 	ServerTryJoinGame();
 
@@ -194,7 +199,6 @@ void AGDKPlayerController::TryJoinGame()
 
 void AGDKPlayerController::ServerTryJoinGame_Implementation()
 {
-
 	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
 	{
 		Spawner->RequestSpawn(this);
