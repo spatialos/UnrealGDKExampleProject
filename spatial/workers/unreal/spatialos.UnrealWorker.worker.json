@@ -28,7 +28,7 @@
     "launchConfiguration": {
         "localDeployment": {
             "windows": {
-                "localBuildDirectory": "../spatial/build/unreal/WindowsEditor",
+                "localBuildDirectory": "../../build/unreal/WindowsEditor",
                 "command": "StartEditor.bat",
                 "arguments": [
                     "-server",
@@ -60,7 +60,7 @@
         },
         "cloudDeployment": {
             "linux": {
-                "localBuildDirectory": "../spatial/build/unreal/LinuxServer",
+                "localBuildDirectory": "../../build/unreal/LinuxServer",
                 "command": "StartWorker.sh",
                 "arguments": [
                     "+appName",
