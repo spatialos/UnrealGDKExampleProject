@@ -1,0 +1,25 @@
+{
+    "template": "small",
+    "dimensionsInWorldUnits": {
+        "x": 2000,
+        "z": 2000
+    },
+    "loadBalancing": {
+        "layerConfigurations": [
+            {
+                "layer": "UnrealWorker",
+                "rectangleGrid": {
+                    "cols": 1,
+                    "rows": 1
+                },
+                "options": {
+                    "manualWorkerConnectionOnly": true
+                }
+            }
+        ]
+    },
+    "snapshot": {
+        "takeSnapshotIntervalSeconds": 0,
+        "startDeploymentFromSnapshotFile": "./snapshots/default.snapshot"
+    }
+}

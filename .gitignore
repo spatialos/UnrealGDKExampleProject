@@ -19,8 +19,9 @@
 logs
 build/
 
-# SpatialGDK symlinked files
+# SpatialGDK project specific files
 Game/Plugins/UnrealGDK/
 spatial/schema/unreal
 spatial/snapshots
+spatial/.improbable
 Game/Content/Spatial/SchemaDatabase.uasset

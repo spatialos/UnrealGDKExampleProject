@@ -1,11 +1,12 @@
 {
-  "name": "unreal_gdk_playtests",
-  "project_version": "0.0.1",
-  "sdk_version": "13.7.1",
-  "dependencies": [
-    {
-      "name": "standard_library",
-      "version": "13.7.1"
-    }
-  ]
+    "configurationVersion": "0.1",
+    "projectName": "unreal_gdk_playtests",
+    "schemaDescriptor": "./build/descriptor/output/schema.descriptor",
+    "clientWorkers": [
+        "./workers/unreal/spatialos.UnrealClient.worker.json"
+    ],
+    "serverWorkers": [
+        "./workers/unreal/spatialos.UnrealWorker.worker.json"
+    ],
+    "launchConfiguration": "./default_launch.json"
 }
