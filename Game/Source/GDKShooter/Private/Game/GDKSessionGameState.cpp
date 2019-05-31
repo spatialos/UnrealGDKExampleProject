@@ -2,14 +2,14 @@
 
 #include "GDKSessionGameState.h"
 
+#include "Interop/SpatialStaticComponentView.h"
 #include "TimerManager.h"
 #include "UnrealNetwork.h"
 #include "SpatialNetDriver.h"
 #include "SpatialWorkerConnection.h"
-#include "Interop/SpatialStaticComponentView.h"
-#include "c_worker.h"
-#include "c_schema.h"
 
+#include <WorkerSDK/improbable/c_schema.h>
+#include <WorkerSDK/improbable/c_worker.h>
 
 void AGDKSessionGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -46,9 +46,9 @@ void AGDKSessionGameState::RemovePlayerState(APlayerState* PlayerState)
 void AGDKSessionGameState::OnRep_SessionProgress()
 {
 	USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver());
-	bool AuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
+	bool bAuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
 
-	if (AuthoritativeOverSessionEntity)
+	if (bAuthoritativeOverSessionEntity)
 	{
 		// There's an offset of 1 between the corresponding states of session progress and session state.
 		int SessionState = (int)SessionProgress + 1;
@@ -74,20 +74,20 @@ void AGDKSessionGameState::BeginTimer()
 
 void AGDKSessionGameState::TickGameTimer()
 {
-	bool AuthoritativeOverSessionProgress = Role == ROLE_Authority;
+	const bool bAuthoritativeOverSessionProgress = HasAuthority();
 
-	if (GetNetMode() != NM_Client && AuthoritativeOverSessionProgress)
+	if (GetNetMode() != NM_Client && bAuthoritativeOverSessionProgress)
 	{
 		SessionTimer--;
 
 		USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver());
-		bool AuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
+		bool bAuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
 
 		if (SessionProgress == EGDKSessionProgress::Lobby && SessionTimer <= 0)
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Running"));
 			SessionProgress = EGDKSessionProgress::Running;
-			if (AuthoritativeOverSessionEntity)
+			if (bAuthoritativeOverSessionEntity)
 			{
 				SendStateUpdate(2);
 			}
@@ -97,7 +97,7 @@ void AGDKSessionGameState::TickGameTimer()
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Results"));
 			SessionProgress = EGDKSessionProgress::Results;
-			if (AuthoritativeOverSessionEntity)
+			if (bAuthoritativeOverSessionEntity)
 			{
 				SendStateUpdate(3);
 			}
@@ -107,7 +107,7 @@ void AGDKSessionGameState::TickGameTimer()
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Finished"));
 			SessionProgress = EGDKSessionProgress::Finished;
-			if (AuthoritativeOverSessionEntity)
+			if (bAuthoritativeOverSessionEntity)
 			{
 				SendStateUpdate(4);
 			}
