@@ -50,9 +50,7 @@ void AGDKSessionGameState::OnRep_SessionProgress()
 
 	if (bAuthoritativeOverSessionEntity)
 	{
-		// There's an offset of 1 between the corresponding states of session progress and session state.
-		int SessionState = (int)SessionProgress + 1;
-		SendStateUpdate(SessionState);
+		SendStateUpdate(SessionProgress);
 	}
 	TimerEvent.Broadcast(SessionProgress, SessionTimer);
 }
@@ -89,7 +87,7 @@ void AGDKSessionGameState::TickGameTimer()
 			SessionProgress = EGDKSessionProgress::Running;
 			if (bAuthoritativeOverSessionEntity)
 			{
-				SendStateUpdate(2);
+				SendStateUpdate(SessionProgress);
 			}
 			SessionTimer = GameSessionLength;
 		}
@@ -99,7 +97,7 @@ void AGDKSessionGameState::TickGameTimer()
 			SessionProgress = EGDKSessionProgress::Results;
 			if (bAuthoritativeOverSessionEntity)
 			{
-				SendStateUpdate(3);
+				SendStateUpdate(SessionProgress);
 			}
 			SessionTimer = ResultsSessionLength;
 		}
@@ -109,27 +107,29 @@ void AGDKSessionGameState::TickGameTimer()
 			SessionProgress = EGDKSessionProgress::Finished;
 			if (bAuthoritativeOverSessionEntity)
 			{
-				SendStateUpdate(4);
+				SendStateUpdate(SessionProgress);
 			}
 		}
 	}
 }
 
-void AGDKSessionGameState::SendStateUpdate(int NewState)
+void AGDKSessionGameState::SendStateUpdate(EGDKSessionProgress SessionProgress)
 {
 	if (!GetWorld()->GetNetDriver() || !GetWorld()->GetNetDriver()->IsA<USpatialNetDriver>())
 	{
 		return;
 	}
 
+	// There's an offset of 1 between the corresponding states of session progress and session state.
+	int SessionState = (int)SessionProgress + 1;
+
 	Worker_EntityId target_entity_id = SessionEntityId;
 	Worker_ComponentUpdate component_update = {};
 	component_update.component_id = SessionComponentId;
 	component_update.schema_type = Schema_CreateComponentUpdate(SessionComponentId);
 	Schema_Object* fields_object = Schema_GetComponentUpdateFields(component_update.schema_type);
-	Schema_AddInt32(fields_object, 1, NewState);
+	Schema_AddInt32(fields_object, 1, SessionState);
 	Cast<USpatialNetDriver>(GetWorld()->GetNetDriver())->Connection->SendComponentUpdate(target_entity_id, &component_update);
-	UE_LOG(LogGDK, Warning, TEXT("Sending update for session component. State: %i; worker authority: %i"), NewState, Role.GetValue());
 }
 
 
