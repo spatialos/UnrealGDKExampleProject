@@ -1,6 +1,6 @@
 {
     "configurationVersion": "0.1",
-    "projectName": "unreal_gdk_playtests",
+    "projectName": "your_project_name_here",
     "schemaDescriptor": "./build/descriptor/output/schema.descriptor",
     "clientWorkers": [
         "./workers/unreal/spatialos.UnrealClient.worker.json"

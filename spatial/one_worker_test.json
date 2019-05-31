@@ -11,10 +11,20 @@
 				"rectangleGrid": {
 					"cols": 1,
 					"rows": 1
-				}
-			}
+        }
+      },
+      {
+        "layer": "DeploymentManager",
+        "rectangleGrid": {
+          "cols": 1,
+          "rows": 1
+        },
+        "options": {
+          "manualWorkerConnectionOnly": true
+        }
+      }
 		]
-	},
+  },
 	"snapshot": {
 
 	},
@@ -35,7 +45,11 @@
 		{
 			"name": "worker_start_connection_timeout_ms",
 			"value": "60000"
-		}
+		},
+    {
+      "name": "enable_chunk_interest",
+      "value": "false"
+    }
 	],
 	"workerFlags": [
 		{

@@ -50,10 +50,6 @@ void AWeapon::Tick(float DeltaSeconds)
 	{
 		TryToAttach();
 	}
-	else if (!this->GetAttachParentSocketName().ToString().Equals("Gun_Transform"))
-	{
-		UE_LOG(LogGDK, Log, TEXT("AWeapon:: %s incorrectly attached to %s"), *this->GetName(), *this->GetAttachParentSocketName().ToString());
-	}
 }
 
 void AWeapon::StopFire() {}
