@@ -121,7 +121,7 @@ void AGDKSessionGameState::SendStateUpdate(EGDKSessionProgress SessionProgress)
 	}
 
 	// There's an offset of 1 between the corresponding states of session progress and session state.
-	int SessionState = (int)SessionProgress + 1;
+	int SessionState = static_cast<int>(SessionProgress) + 1;
 
 	Worker_EntityId target_entity_id = SessionEntityId;
 	Worker_ComponentUpdate component_update = {};
