@@ -32,7 +32,6 @@ void AWeapon::BeginPlay()
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
 }
 
 FVector AWeapon::GetLineTraceDirection()
