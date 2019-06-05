@@ -113,7 +113,7 @@ void AGDKSessionGameState::TickGameTimer()
 	}
 }
 
-void AGDKSessionGameState::SendStateUpdate(EGDKSessionProgress SessionProgress)
+void AGDKSessionGameState::SendStateUpdate(EGDKSessionProgress SessionProgressState)
 {
 	if (!GetWorld()->GetNetDriver() || !GetWorld()->GetNetDriver()->IsA<USpatialNetDriver>())
 	{
@@ -121,7 +121,7 @@ void AGDKSessionGameState::SendStateUpdate(EGDKSessionProgress SessionProgress)
 	}
 
 	// There's an offset of 1 between the corresponding states of session progress and session state.
-	int SessionState = static_cast<int>(SessionProgress) + 1;
+	int SessionState = static_cast<int>(SessionProgressState) + 1;
 
 	Worker_EntityId target_entity_id = SessionEntityId;
 	Worker_ComponentUpdate component_update = {};

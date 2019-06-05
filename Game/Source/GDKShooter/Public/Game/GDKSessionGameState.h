@@ -61,7 +61,7 @@ private:
 	void TickGameTimer();
 
 	// Send a component update to the session manager entity to be picked up by the deployment manager
-	void SendStateUpdate(EGDKSessionProgress SessionProgress);
+	void SendStateUpdate(EGDKSessionProgress SessionProgressState);
 
 	// Begin progressing through the different stages of game session, if not already started
 	void BeginTimer();
