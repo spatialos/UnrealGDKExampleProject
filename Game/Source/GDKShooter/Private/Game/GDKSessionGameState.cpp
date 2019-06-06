@@ -45,13 +45,7 @@ void AGDKSessionGameState::RemovePlayerState(APlayerState* PlayerState)
 
 void AGDKSessionGameState::OnRep_SessionProgress()
 {
-	USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver());
-	bool bAuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
-
-	if (bAuthoritativeOverSessionEntity)
-	{
-		SendStateUpdate(SessionProgress);
-	}
+	SendStateUpdate(SessionProgress);
 	TimerEvent.Broadcast(SessionProgress, SessionTimer);
 }
 
@@ -78,46 +72,44 @@ void AGDKSessionGameState::TickGameTimer()
 	{
 		SessionTimer--;
 
-		USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver());
-		bool bAuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
-
 		if (SessionProgress == EGDKSessionProgress::Lobby && SessionTimer <= 0)
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Running"));
 			SessionProgress = EGDKSessionProgress::Running;
-			if (bAuthoritativeOverSessionEntity)
-			{
-				SendStateUpdate(SessionProgress);
-			}
+			SendStateUpdate(SessionProgress);
 			SessionTimer = GameSessionLength;
 		}
 		if (SessionProgress == EGDKSessionProgress::Running && SessionTimer <= 0)
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Results"));
 			SessionProgress = EGDKSessionProgress::Results;
-			if (bAuthoritativeOverSessionEntity)
-			{
-				SendStateUpdate(SessionProgress);
-			}
+			SendStateUpdate(SessionProgress);
 			SessionTimer = ResultsSessionLength;
 		}
 		if (SessionProgress == EGDKSessionProgress::Results && SessionTimer <= 0)
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Finished"));
 			SessionProgress = EGDKSessionProgress::Finished;
-			if (bAuthoritativeOverSessionEntity)
-			{
-				SendStateUpdate(SessionProgress);
-			}
+			SendStateUpdate(SessionProgress);
 		}
 	}
 }
 
 void AGDKSessionGameState::SendStateUpdate(EGDKSessionProgress SessionProgressState)
 {
+	// Only send the state update if we're using Spatial networking and if we have authority over the session entity.
 	if (!GetWorld()->GetNetDriver() || !GetWorld()->GetNetDriver()->IsA<USpatialNetDriver>())
 	{
 		return;
+	}
+	else
+	{
+		USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver());
+		bool bAuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
+		if (!bAuthoritativeOverSessionEntity)
+		{
+			return;
+		}
 	}
 
 	// There's an offset of 1 between the corresponding states of session progress and session state.
