@@ -58,9 +58,9 @@ public:
 	// Time in miliseconds since IsSprinting was last true
 	double TimeSinceLastSprint() const;
 
-		// Multiply max speed by this factor when sprinting.
+	// Multiply max speed by this factor when sprinting.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character Movement: Walking")
-		float MaxJogSpeed;
+	float MaxJogSpeed;
 
 	/** Overriding this method to stop crouching when falling */
 	virtual bool CanCrouchInCurrentState() const override;
@@ -89,25 +89,25 @@ private:
 
 	// Multiply max speed by this factor when sprinting.
 	UPROPERTY(EditAnywhere, Category = "Character Movement: Walking")
-		float MaxSprintSpeed;
+	float MaxSprintSpeed;
 
 	// Multiply acceleration by this factor when sprinting.
 	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")
-		float SprintAcceleration;
+	float SprintAcceleration;
 
 	// Tolerance between forward and move direction within which the character can sprint.
 	// Represents the minimum magnitude of the dot product between the vectors.
 	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")
-		float SprintDirectionTolerance;
+	float SprintDirectionTolerance;
 
 	// Time in miliseconds after sprinting until character has recovered from the sprint.
 	// For example to return to a non-sprinting animation before shooting.
 	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")
-		float SprintCooldown;
+	float SprintCooldown;
 
 	// Multiply acceleration by this factor when aiming.
 	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")
-		float JogAcceleration;
+	float JogAcceleration;
 };
 
 class FSavedMove_GDKMovement : public FSavedMove_Character

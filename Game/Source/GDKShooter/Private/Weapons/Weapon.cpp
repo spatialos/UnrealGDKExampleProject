@@ -172,7 +172,7 @@ bool AWeapon::DoLineTrace(FInstantHitInfo& OutHitInfo)
 
 	FCollisionQueryParams TraceParams;
 	TraceParams.bTraceComplex = true;
-	TraceParams.bTraceAsyncScene = true;
+	//TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 	TraceParams.AddIgnoredActor(this);
 	TraceParams.AddIgnoredActor(Character);
