@@ -98,18 +98,17 @@ void AGDKSessionGameState::TickGameTimer()
 void AGDKSessionGameState::SendStateUpdate(EGDKSessionProgress SessionProgressState)
 {
 	// Only send the state update if we're using Spatial networking and if we have authority over the session entity.
-	if (!GetWorld()->GetNetDriver() || !GetWorld()->GetNetDriver()->IsA<USpatialNetDriver>())
+	UNetDriver* NetDriver = GetWorld()->GetNetDriver();
+	if (NetDriver == nullptr || !NetDriver->IsA<USpatialNetDriver>())
 	{
 		return;
 	}
-	else
+
+	USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(NetDriver);
+	bool bAuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
+	if (!bAuthoritativeOverSessionEntity)
 	{
-		USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver());
-		bool bAuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
-		if (!bAuthoritativeOverSessionEntity)
-		{
-			return;
-		}
+		return;
 	}
 
 	// There's an offset of 1 between the corresponding states of session progress and session state.
@@ -121,7 +120,7 @@ void AGDKSessionGameState::SendStateUpdate(EGDKSessionProgress SessionProgressSt
 	component_update.schema_type = Schema_CreateComponentUpdate(SessionComponentId);
 	Schema_Object* fields_object = Schema_GetComponentUpdateFields(component_update.schema_type);
 	Schema_AddInt32(fields_object, 1, SessionState);
-	Cast<USpatialNetDriver>(GetWorld()->GetNetDriver())->Connection->SendComponentUpdate(target_entity_id, &component_update);
+	SpatialNetDriver->Connection->SendComponentUpdate(target_entity_id, &component_update);
 }
 
 
