@@ -6,6 +6,9 @@
 #include "GDKLogging.h"
 #include "Game/GDKGameState.h"
 #include "GDKSessionProgress.h"
+
+#include <WorkerSDK/improbable/c_worker.h>
+
 #include "GDKSessionGameState.generated.h"
 
 DECLARE_EVENT_TwoParams(AGDKGameState, FSessionTimerEvent, EGDKSessionProgress, int);
@@ -42,6 +45,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Timers")
 		int ResultsSessionLength = 60;
+	
+	Worker_EntityId SessionEntityId = 39;
+	Worker_ComponentId SessionComponentId = 1000;
 
 	FTimerHandle TickTimer;
 
@@ -55,7 +61,7 @@ private:
 	void TickGameTimer();
 
 	// Send a component update to the session manager entity to be picked up by the deployment manager
-	void SendStateUpdate(int NewState);
+	void SendStateUpdate(EGDKSessionProgress SessionProgressState);
 
 	// Begin progressing through the different stages of game session, if not already started
 	void BeginTimer();
