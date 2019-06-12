@@ -118,5 +118,5 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsActive;	
 
-
+	virtual void OnRep_AttachmentReplication() override {}
 };

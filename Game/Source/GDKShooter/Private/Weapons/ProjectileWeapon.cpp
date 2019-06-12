@@ -44,11 +44,15 @@ void AProjectileWeapon::DoFire_Implementation()
 	AnnounceShot(false);
 	OnShot();
 	FireProjectile(Barrel, Direction);
-	if (GetMovementComponent())
+
+	if (!bAllowContinuousFire)
 	{
-		GetMovementComponent()->SetIsBusy(false);
+		IsPrimaryUsing = false;
+		if (GetMovementComponent())
+		{
+			GetMovementComponent()->SetIsBusy(false);
+		}
 	}
-	IsPrimaryUsing = false;
 }
 
 bool AProjectileWeapon::FireProjectile_Validate(FVector Origin, FVector_NetQuantizeNormal Direction)
@@ -72,9 +76,12 @@ void AProjectileWeapon::FireProjectile_Implementation(FVector Origin, FVector_Ne
 void AProjectileWeapon::ConsumeBufferedShot()
 {
 	Super::ConsumeBufferedShot();
-	IsPrimaryUsing = false;
-	if (GetMovementComponent())
+	if (!bAllowContinuousFire)
 	{
-		GetMovementComponent()->SetIsBusy(false);
+		IsPrimaryUsing = false;
+		if (GetMovementComponent())
+		{
+			GetMovementComponent()->SetIsBusy(false);
+		}
 	}
 }

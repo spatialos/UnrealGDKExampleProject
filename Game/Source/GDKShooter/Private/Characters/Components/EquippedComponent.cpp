@@ -3,6 +3,7 @@
 #include "EquippedComponent.h"
 #include "UnrealNetwork.h"
 #include "GDKLogging.h"
+#include "Engine/World.h"
 #include "Weapons/Holdable.h"
 
 
@@ -16,11 +17,8 @@ UEquippedComponent::UEquippedComponent()
 void UEquippedComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (CurrentlyHeldItem())
-	{
-		CurrentlyHeldItem()->SetIsActive(true);
-	}
+
+	OnRep_HeldUpdate();
 	
 }
 
@@ -63,10 +61,7 @@ void UEquippedComponent::SpawnStarterTemplates(FGDKMetaData MetaData)
 			CurrentHeldIndex = 0;
 		}
 
-		if (CurrentlyHeldItem())
-		{
-			CurrentlyHeldItem()->SetIsActive(true);
-		}
+		OnRep_HeldUpdate();
 	}
 }
 
@@ -169,6 +164,7 @@ void UEquippedComponent::ServerRequestEquip_Implementation(int32 TargetIndex)
 	{
 		CurrentHeldIndex = TargetIndex;
 	}
+	OnRep_HeldUpdate();
 }
 
 bool UEquippedComponent::ServerRequestEquip_Validate(int32 TargetIndex)

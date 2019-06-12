@@ -26,7 +26,7 @@ protected:
 
 // Starter Templates
 public:
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		virtual void SpawnStarterTemplates(FGDKMetaData NewMetaData);
 
 protected:

@@ -3,6 +3,7 @@
 #include "Holdable.h"
 #include "GDKLogging.h"
 #include "Components/EquippedComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "UnrealNetwork.h"
 
 
