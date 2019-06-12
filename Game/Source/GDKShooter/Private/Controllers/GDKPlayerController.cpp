@@ -44,12 +44,6 @@ void AGDKPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (UMatchStateComponent* MatchState = Cast<UMatchStateComponent>(GetWorld()->GetGameState()->GetComponentByClass(UMatchStateComponent::StaticClass())))
-	{
-		MatchState->MatchEvent.AddDynamic(this, &AGDKPlayerController::MatchStateUpdated);
-	}
-	SetUIMode();
-
 	if (PlayerState)
 	{
 		if (UPlayerPublisher* PlayerPublisher = Cast<UPlayerPublisher>(GetWorld()->GetGameState()->GetComponentByClass(UPlayerPublisher::StaticClass())))
@@ -64,7 +58,6 @@ void AGDKPlayerController::BeginPlay()
 		MetaData.Customization = 0;
 		ServerTryJoinGame("", MetaData);
 	}
-	SetUIMode();
 }
 
 void AGDKPlayerController::Tick(float DeltaTime)
@@ -79,10 +72,8 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 
-	SetControllerState(EGDKControllerState::InProgress);
 	if (GetNetMode() == NM_Client && InPawn)
 	{
-		SetCharacterState(EGDKCharacterState::Alive);
 		SetViewTarget(InPawn);
 		// Make the new pawn's camera this controller's camera.
 		this->ClientSetRotation(InPawn->GetActorRotation(), true);
@@ -165,26 +156,7 @@ void AGDKPlayerController::InformOfKill_Implementation(const FString& VictimName
 void AGDKPlayerController::InformOfDeath_Implementation(const FString& KillerName, int32 KillerId)
 {
 	KilledNotification.Broadcast(KillerName, KillerId);
-	SetCharacterState(EGDKCharacterState::Dead);
 
-}
-
-void AGDKPlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	//InputComponent->BindAction("ShowScoreboard", IE_Pressed, this, &AGDKPlayerController::ShowScoreboard);
-	//InputComponent->BindAction("ShowScoreboard", IE_Released, this, &AGDKPlayerController::HideScoreboard);
-	//InputComponent->BindAction("ShowMenu", IE_Pressed, this, &AGDKPlayerController::ToggleMenu);
-}
-
-void AGDKPlayerController::MatchStateUpdated(EMatchState CurrentState)
-{
-	if (CurrentState == EMatchState::PostGame && !bGameFinished)
-	{
-		bGameFinished = true;
-		SetControllerState(EGDKControllerState::Finished);
-	}
 }
 
 void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
@@ -216,10 +188,7 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
 
 void AGDKPlayerController::TryJoinGame(const FString& NewPlayerName, const FGDKMetaData MetaData)
 {
-	SetControllerState(EGDKControllerState::PendingCharacter);
 	check(GetNetMode() != NM_DedicatedServer);
-	SetControllerState(EGDKControllerState::PendingCharacter);
-	bHasRequetsedPlayer = true;
 	ServerTryJoinGame(
 		NewPlayerName.IsEmpty() ? TEXT("Unknown") : NewPlayerName,
 		MetaData);
@@ -245,13 +214,6 @@ void AGDKPlayerController::RequestRespawn()
 {
 	check(GetNetMode() == NM_Client);
 
-	if (CurrentCharacterState != EGDKCharacterState::Dead)
-	{
-		return;
-	}
-
-	SetCharacterState(EGDKCharacterState::PendingRespawn);
-
 	RespawnCharacter();
 }
 
@@ -269,59 +231,3 @@ bool AGDKPlayerController::RespawnCharacter_Validate()
 	return true;
 }
 
-void AGDKPlayerController::SetUIMode()
-{
-	bool bInMenu = CurrentControllerState != EGDKControllerState::InProgress || CurrentMenu != EGDKMenu::None || CurrentCharacterState != EGDKCharacterState::Alive;
-	SetUIMode(bInMenu, !bInMenu);
-}
-
-void AGDKPlayerController::SetControllerState(EGDKControllerState NewState)
-{
-	CurrentControllerState = NewState;
-	OnControllerState.Broadcast(CurrentControllerState);
-	//There is currently no state transition where we should be keeping a menu window open
-	SetUIMode();
-}
-
-void AGDKPlayerController::SetCharacterState(EGDKCharacterState NewState)
-{
-	CurrentCharacterState = NewState;
-	OnCharacterState.Broadcast(CurrentCharacterState);
-	SetUIMode();
-}
-
-void AGDKPlayerController::SetMenu(EGDKMenu NewMenu)
-{
-	CurrentMenu = NewMenu;
-	OnMenuChanged.Broadcast(CurrentMenu);
-	SetUIMode();
-}
-
-void AGDKPlayerController::ShowScoreboard()
-{
-	if (CurrentControllerState == EGDKControllerState::InProgress)
-	{
-		SetMenu(EGDKMenu::Scores);
-	}
-}
-void AGDKPlayerController::HideScoreboard()
-{
-	if (CurrentMenu == EGDKMenu::Scores)
-	{
-		SetMenu(EGDKMenu::None);
-	}
-}
-void AGDKPlayerController::ToggleMenu()
-{
-	if (CurrentControllerState == EGDKControllerState::InProgress)
-	{
-		if (CurrentMenu != EGDKMenu::Menu)
-		{
-			SetMenu(EGDKMenu::Menu);
-		}
-		else
-		{
-			SetMenu(EGDKMenu::None);
-		}
-	}
-}
