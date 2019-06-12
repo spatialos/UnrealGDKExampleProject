@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameFramework/Controller.h"
+#include "GameFramework/Actor.h"
+#include "TimerManager.h"
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFloatValue, float, Current, float, Max);
@@ -25,7 +28,8 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	virtual void TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	UFUNCTION(BlueprintCallable)
+		virtual void TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 
 	UFUNCTION(BlueprintCallable)
 		bool GrantShield(float Value);
@@ -33,21 +37,25 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool GrantHealth(float Value);
 
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCurrentHealth() const
 	{
 		return CurrentHealth;
 	}
 
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMaxHealth() const
 	{
 		return MaxHealth;
 	}
 
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCurrentArmour() const
 	{
 		return CurrentArmour;
 	}
 
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMaxArmour() const
 	{
 		return MaxArmour;

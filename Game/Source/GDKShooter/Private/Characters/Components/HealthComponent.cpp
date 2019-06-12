@@ -2,6 +2,8 @@
 
 #include "HealthComponent.h"
 #include "GDKLogging.h"
+#include "TeamComponent.h"
+#include "GameFramework/Pawn.h"
 #include "UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent()
@@ -56,6 +58,14 @@ void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (UTeamComponent* Team = Cast<UTeamComponent>(GetOwner()->GetComponentByClass(UTeamComponent::StaticClass())))
+	{
+		if (EventInstigator && !Team->CanDamageActor(EventInstigator->GetPawn()))
+		{
+			return;
+		}
+	}
+
 	int32 ArmourRemoved = FMath::Min(static_cast<int32>(Damage), CurrentArmour);
 	CurrentArmour -= ArmourRemoved;
 	int32 DamageDealt = FMath::Min(static_cast<int32>(Damage) - ArmourRemoved, CurrentHealth);
