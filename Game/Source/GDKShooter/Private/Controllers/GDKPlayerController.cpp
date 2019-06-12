@@ -16,7 +16,6 @@
 #include "Game/Components/ScorePublisher.h"
 #include "Game/Components/PlayerPublisher.h"
 #include "Game/Components/SpawnRequestPublisher.h"
-
 #include "SpatialNetDriver.h"
 #include "Connection/SpatialWorkerConnection.h"
 
@@ -49,7 +48,7 @@ void AGDKPlayerController::BeginPlay()
 	{
 		MatchState->MatchEvent.AddDynamic(this, &AGDKPlayerController::MatchStateUpdated);
 	}
-	SetUIMode(true, false);
+	SetUIMode();
 
 	if (PlayerState)
 	{
@@ -58,6 +57,14 @@ void AGDKPlayerController::BeginPlay()
 			PlayerPublisher->PublishPlayer(PlayerState, EPlayerProgress::Connected);
 		}
 	}
+
+	if (bAutoConnect && HasAuthority())
+	{
+		FGDKMetaData MetaData;
+		MetaData.Customization = 0;
+		ServerTryJoinGame("", MetaData);
+	}
+	SetUIMode();
 }
 
 void AGDKPlayerController::Tick(float DeltaTime)
@@ -121,8 +128,11 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 
 		if (const ACharacter* KillerCharacter = Cast<ACharacter>(Weilder))
 		{
-			KillerName = KillerCharacter->PlayerState->GetPlayerName();
-			KillerId = KillerCharacter->PlayerState->PlayerId;
+			if (KillerCharacter->PlayerState)
+			{
+				KillerName = KillerCharacter->PlayerState->GetPlayerName();
+				KillerId = KillerCharacter->PlayerState->PlayerId;
+			}
 
 			if (KillerCharacter->GetController())
 			{
@@ -218,6 +228,7 @@ void AGDKPlayerController::TryJoinGame(const FString& NewPlayerName, const FGDKM
 
 void AGDKPlayerController::ServerTryJoinGame_Implementation(const FString& NewPlayerName, const FGDKMetaData MetaData)
 {
+
 	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
 	{
 		Spawner->RequestSpawn(this);

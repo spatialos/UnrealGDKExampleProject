@@ -130,6 +130,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		float LatestPawnYaw;
 
+	UPROPERTY(EditDefaultsOnly)
+		bool bAutoConnect;
+
 private:
 	// Sets the player-choice data (name, team, etc) and requests to spawn player pawn and join play
 	UFUNCTION(Server, Reliable, WithValidation)
