@@ -114,7 +114,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		EGDKMenu CurrentMenu = EGDKMenu::None;
 	UPROPERTY(BlueprintReadOnly)
-		EGDKCharacterState CurrentCharacterState = EGDKCharacterState::Alive;
+		EGDKCharacterState CurrentCharacterState = EGDKCharacterState::PendingRespawn;
 	UPROPERTY(BlueprintReadOnly)
 		EGDKControllerState CurrentControllerState = EGDKControllerState::PreCharacter;
 	
