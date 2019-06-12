@@ -54,9 +54,7 @@ void AGDKPlayerController::BeginPlay()
 
 	if (bAutoConnect && HasAuthority())
 	{
-		FGDKMetaData MetaData;
-		MetaData.Customization = 0;
-		ServerTryJoinGame("", MetaData);
+		ServerTryJoinGame();
 	}
 }
 
@@ -186,16 +184,14 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
 	}
 }
 
-void AGDKPlayerController::TryJoinGame(const FString& NewPlayerName, const FGDKMetaData MetaData)
+void AGDKPlayerController::TryJoinGame()
 {
 	check(GetNetMode() != NM_DedicatedServer);
-	ServerTryJoinGame(
-		NewPlayerName.IsEmpty() ? TEXT("Unknown") : NewPlayerName,
-		MetaData);
+	ServerTryJoinGame();
 
 }
 
-void AGDKPlayerController::ServerTryJoinGame_Implementation(const FString& NewPlayerName, const FGDKMetaData MetaData)
+void AGDKPlayerController::ServerTryJoinGame_Implementation()
 {
 
 	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
@@ -205,7 +201,33 @@ void AGDKPlayerController::ServerTryJoinGame_Implementation(const FString& NewPl
 	}
 }
 
-bool AGDKPlayerController::ServerTryJoinGame_Validate(const FString& NewPlayerName, const FGDKMetaData MetaData)
+bool AGDKPlayerController::ServerTryJoinGame_Validate()
+{
+	return true;
+}
+
+void AGDKPlayerController::ServerRequestName_Implementation(const FString& NewPlayerName)
+{
+	if (PlayerState)
+	{
+		PlayerState->SetPlayerName(NewPlayerName);
+	}
+}
+
+bool AGDKPlayerController::ServerRequestName_Validate(const FString& NewPlayerName)
+{
+	return true;
+}
+
+void AGDKPlayerController::ServerRequestMetaData_Implementation(const FGDKMetaData NewMetaData)
+{
+	if (UMetaDataComponent* MetaData = Cast<UMetaDataComponent>(PlayerState->GetComponentByClass(UMetaDataComponent::StaticClass())))
+	{
+		MetaData->SetMetaData(NewMetaData);
+	}
+}
+
+bool AGDKPlayerController::ServerRequestMetaData_Validate(const FGDKMetaData NewMetaData)
 {
 	return true;
 }

@@ -53,7 +53,7 @@ public:
 
 	// [client] Sets the player-choice data (name, team, etc) and requests to spawn player pawn and join play.
 	UFUNCTION(BlueprintCallable)
-		void TryJoinGame(const FString& NewPlayerName, const FGDKMetaData MetaData);
+		void TryJoinGame();
 
 	UFUNCTION(BlueprintCallable)
 		void RequestRespawn();
@@ -88,7 +88,13 @@ protected:
 private:
 	// Sets the player-choice data (name, team, etc) and requests to spawn player pawn and join play
 	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerTryJoinGame(const FString& NewPlayerName, const FGDKMetaData MetaData);
+		void ServerTryJoinGame();
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+		void ServerRequestName(const FString& NewPlayerName);
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+		void ServerRequestMetaData(const FGDKMetaData NewMetaData);
 
 	// [server] Causes the character to respawn.
 	UFUNCTION(Server, Reliable, WithValidation)

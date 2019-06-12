@@ -2,7 +2,6 @@
 
 #include "GDKWidget.h"
 #include "GameFramework/GameStateBase.h"
-#include "Controllers/GDKPlayerController.h"
 #include "Components/GDKMovementComponent.h"
 #include "Components/HealthComponent.h"
 #include "Game/Components/PlayerCountingComponent.h"
@@ -24,15 +23,16 @@ void UGDKWidget::NativeConstruct()
 		bListenersAdded = true;
 	}
 
-	PlayerController = GetOwningPlayer();
+	APlayerController* PlayerController = GetOwningPlayer();
 
 	if (AGDKPlayerController* GDKPC = Cast<AGDKPlayerController>(PlayerController))
 	{
-		GDKPC->OnPawn().AddDynamic(this, &UGDKWidget::OnPawn);
-		OnPawn(GDKPC->GetPawn());
+		GDKPlayerController = GDKPC;
+		GDKPlayerController->OnPawn().AddDynamic(this, &UGDKWidget::OnPawn);
+		OnPawn(GDKPlayerController->GetPawn());
 
-		GDKPC->OnKillNotification().AddUObject(this, &UGDKWidget::OnKill);
-		GDKPC->OnKilledNotification().AddUObject(this, &UGDKWidget::OnDeath);
+		GDKPlayerController->OnKillNotification().AddUObject(this, &UGDKWidget::OnKill);
+		GDKPlayerController->OnKilledNotification().AddUObject(this, &UGDKWidget::OnDeath);
 	}
 
 	if (UDeathmatchScoreComponent* Deathmatch = Cast<UDeathmatchScoreComponent>(GetWorld()->GetGameState()->GetComponentByClass(UDeathmatchScoreComponent::StaticClass())))
@@ -90,12 +90,12 @@ void UGDKWidget::OnPawn(APawn* InPawn)
 // Function to call to ClientTravel to the TargetMap
 void UGDKWidget::LeaveGame(const FString& TargetMap)
 {
-	check(PlayerController);
+	check(GetOwningPlayer());
 
 	FURL TravelURL;
 	TravelURL.Map = *TargetMap;
 
-	PlayerController->ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false /*bSeamless*/);
+	GetOwningPlayer()->ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false /*bSeamless*/);
 
 }
 

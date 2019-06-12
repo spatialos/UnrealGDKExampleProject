@@ -7,6 +7,7 @@
 #include "Game/Components/DeathmatchScoreComponent.h"
 #include "Game/Components/MatchStateComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Controllers/GDKPlayerController.h"
 #include "GDKWidget.generated.h"
 
 /**
@@ -24,7 +25,7 @@ public:
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
-		APlayerController* PlayerController;
+		AGDKPlayerController* GDKPlayerController;
 
 	UPROPERTY(BlueprintReadOnly)
 		bool bListenersAdded;
