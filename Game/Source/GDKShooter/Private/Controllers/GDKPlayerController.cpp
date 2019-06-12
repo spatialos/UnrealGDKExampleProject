@@ -23,7 +23,6 @@
 #include "Game/Components/SpawnRequestPublisher.h"
 
 
-
 AGDKPlayerController::AGDKPlayerController()
 	: bIgnoreActionInput(false)
 	, DeleteCharacterDelay(5.0f)
@@ -199,6 +198,7 @@ void AGDKPlayerController::TryJoinGame()
 
 void AGDKPlayerController::ServerTryJoinGame_Implementation()
 {
+
 	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
 	{
 		Spawner->RequestSpawn(this);
