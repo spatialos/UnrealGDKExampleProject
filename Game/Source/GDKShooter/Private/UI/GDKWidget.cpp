@@ -29,6 +29,7 @@ void UGDKWidget::NativeConstruct()
 	if (AGDKPlayerController* GDKPC = Cast<AGDKPlayerController>(PlayerController))
 	{
 		GDKPC->OnPawn().AddDynamic(this, &UGDKWidget::OnPawn);
+		OnPawn(GDKPC->GetPawn());
 
 		GDKPC->OnKillNotification().AddUObject(this, &UGDKWidget::OnKill);
 		GDKPC->OnKilledNotification().AddUObject(this, &UGDKWidget::OnDeath);
