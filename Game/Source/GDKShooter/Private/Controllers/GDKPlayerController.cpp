@@ -73,7 +73,6 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 
-	SetControllerState(EGDKControllerState::InProgress);
 	if (GetNetMode() == NM_Client && InPawn)
 	{
 		SetViewTarget(InPawn);
@@ -190,7 +189,6 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
 
 void AGDKPlayerController::TryJoinGame()
 {
-	SetControllerState(EGDKControllerState::PendingCharacter);
 	check(GetNetMode() != NM_DedicatedServer);
 	ServerTryJoinGame();
 
