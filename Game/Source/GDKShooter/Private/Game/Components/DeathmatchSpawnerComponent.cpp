@@ -16,8 +16,6 @@ UDeathmatchSpawnerComponent::UDeathmatchSpawnerComponent()
 
 void UDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller)
 {
-	UE_LOG(LogGDK, Error, TEXT("RequestedSpawn, Has args? %d, %d"), (Controller?1:0), (Controller->PlayerState?1:0));
-
 	/*
 	PlayerState->SetPlayerName(NewPlayerName);
 	if (UMetaDataComponent* MetaDataComponent = Cast<UMetaDataComponent>(PlayerState->GetComponentByClass(UMetaDataComponent::StaticClass())))
