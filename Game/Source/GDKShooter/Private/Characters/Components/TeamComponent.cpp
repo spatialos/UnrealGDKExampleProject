@@ -2,7 +2,6 @@
 
 #include "TeamComponent.h"
 
-#include "GameFramework/GameModeBase.h"
 #include "Engine/World.h"
 
 
@@ -11,16 +10,9 @@ UTeamComponent::UTeamComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UTeamComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	TeamMode = Cast<UTeamModeComponent>(GetWorld()->GetAuthGameMode()->GetComponentByClass(UTeamModeComponent::StaticClass()));
-}
-
 bool UTeamComponent::CanDamageActor(AActor* OtherActor)
 {
-	if (!TeamMode || TeamMode->bAllowFriendlyFire)
+	if (bAllowFriendlyFire)
 	{
 		return true;
 	}

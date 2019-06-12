@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Game/Components/TeamModeComponent.h"
+#include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "TeamComponent.generated.h"
 
 
@@ -15,28 +15,26 @@ class GDKSHOOTER_API UTeamComponent : public UActorComponent
 
 public:	
 	UTeamComponent();
-	virtual void BeginPlay() override;
-	
-public:
-	UFUNCTION(BlueprintCallable)
+
+	UFUNCTION(BlueprintPure)
 		virtual bool CanDamageActor(AActor* OtherActor);
 
 	UFUNCTION(BlueprintCallable)
-		void SetTeam(int32 NewTeamId) { TeamId = NewTeamId; }
+		void SetTeam(FGenericTeamId NewTeamId) { TeamId = NewTeamId; }
 
-	UFUNCTION(BlueprintCallable)
-		int32 GetTeam() { return TeamId; }
+	UFUNCTION(BlueprintPure)
+		FGenericTeamId GetTeam() { return TeamId; }
 
 	//Negative or Zero as a Team Id is not considered a valid team
-	UFUNCTION(BlueprintCallable)
-		bool HasTeam() { return TeamId > 0; }
-		
+	UFUNCTION(BlueprintPure)
+		bool HasTeam() { return TeamId != FGenericTeamId::NoTeam; }
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		bool bAllowFriendlyFire;
+
 protected:
 
 	UPROPERTY()
-		int32 TeamId;
-
-	UPROPERTY()
-		UTeamModeComponent* TeamMode;
+		FGenericTeamId TeamId = FGenericTeamId::NoTeam;
 	
 };
