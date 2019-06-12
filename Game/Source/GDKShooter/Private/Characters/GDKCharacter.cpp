@@ -21,6 +21,7 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	EquippedComponent = CreateDefaultSubobject<UEquippedComponent>(TEXT("Equipment"));
 	MetaDataComponent = CreateDefaultSubobject<UMetaDataComponent>(TEXT("MetaData"));
+	TeamComponent = CreateDefaultSubobject<UTeamComponent>(TEXT("Team"));
 	GDKMovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement());
 }
 
@@ -34,6 +35,10 @@ void AGDKCharacter::BeginPlay()
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
 	MetaDataComponent->MetaDataUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SpawnStarterTemplates);
+	if (EquippedComponent->CurrentlyHeldItem())
+	{
+		OnEquippedUpdated(EquippedComponent->CurrentlyHeldItem());
+	}
 }
 
 void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -186,4 +191,43 @@ void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDa
 		HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 	}
 
+}
+
+FGenericTeamId AGDKCharacter::GetGenericTeamId() const
+{
+	return TeamComponent->GetTeam();
+}
+
+bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor) const
+{
+	int32 PositiveHits = 0;
+
+	if (HealthComponent->GetCurrentHealth() <= 0)
+	{
+		return 0;
+	}
+
+	bool bHasSeen = false;
+
+	for (int i = 0; i < LineOfSightSockets.Num(); i++)
+	{
+		FVector Target = GetMesh()->GetSocketLocation(LineOfSightSockets[i]);
+		FHitResult HitResult;
+		const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, ObserverLocation, Target
+			, LineOfSightCollisionChannel.GetValue()
+			, FCollisionQueryParams(SCENE_QUERY_STAT(AILineOfSight), true, IgnoreActor));
+
+		if (bHit == false || (HitResult.Actor.IsValid() && HitResult.Actor->IsOwnedBy(this)))
+		{
+			if (!bHasSeen)
+			{
+				OutSeenLocation = Target;
+				bHasSeen = true;
+			}
+			PositiveHits++;
+		}
+	}
+	NumberOfLoSChecksPerformed = LineOfSightSockets.Num();
+	OutSightStrength = (float)PositiveHits / (float)NumberOfLoSChecksPerformed;
+	return PositiveHits > 0;
 }
