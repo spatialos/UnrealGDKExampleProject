@@ -169,6 +169,7 @@ bool AWeapon::DoLineTrace(FInstantHitInfo& OutHitInfo)
 		UE_LOG(LogGDK, Verbose, TEXT("Weapon %s does not have an owning character"), *this->GetName());
 		return false;
 	}
+	UE_LOG(LogGDK, Verbose, TEXT("TEST"));
 
 	FCollisionQueryParams TraceParams;
 	TraceParams.bTraceComplex = true;
