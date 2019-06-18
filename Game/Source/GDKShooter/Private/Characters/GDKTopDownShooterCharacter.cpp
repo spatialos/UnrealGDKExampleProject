@@ -3,8 +3,8 @@
 #include "GDKTopDownShooterCharacter.h"
 
 #include "Camera/CameraComponent.h"
-#include "GDKLogging.h"
 #include "Components/CapsuleComponent.h"
+#include "GDKLogging.h"v
 
 AGDKTopDownShooterCharacter::AGDKTopDownShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

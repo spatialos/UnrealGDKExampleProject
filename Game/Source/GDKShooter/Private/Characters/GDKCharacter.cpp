@@ -3,12 +3,12 @@
 #include "GDKCharacter.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Controllers/GDKPlayerController.h"
+#include "Game/GDKPlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GDKLogging.h"
 #include "SpatialNetDriver.h"
 #include "UnrealNetwork.h"
-#include "GDKLogging.h"
-#include "Game/GDKPlayerState.h"
-#include "Controllers/GDKPlayerController.h"
 #include "Weapons/Holdable.h"
 
 AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
