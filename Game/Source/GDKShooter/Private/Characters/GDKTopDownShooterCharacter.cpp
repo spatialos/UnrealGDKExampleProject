@@ -125,7 +125,7 @@ void AGDKTopDownShooterCharacter::Tick(float DeltaTime)
 	if (AnyMouseMovement || SprintMovement)
 	{
 		float TargetAngle = 0.f;
-		float strength = 1;
+		float Strength = 1.f;
 		if (SprintMovement)
 		{
 			targetAngle = FMath::RadiansToDegrees(GetVelocity().HeadingAngle());
