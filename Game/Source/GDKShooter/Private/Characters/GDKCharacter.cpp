@@ -166,7 +166,7 @@ void AGDKCharacter::StartRagdoll()
 
 void AGDKCharacter::DeleteSelf()
 {
-	if (this->IsValidLowLevel())
+	if (IsValidLowLevel())
 	{
 		this->Destroy();
 	}
