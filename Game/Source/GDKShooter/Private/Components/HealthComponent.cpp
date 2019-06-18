@@ -1,7 +1,9 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "HealthComponent.h"
+#include "GameFramework/Actor.h"
 #include "GDKLogging.h"
+#include "TimerManager.h"
 #include "UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent()
@@ -15,7 +17,6 @@ UHealthComponent::UHealthComponent()
 	MaxArmour = 100;
 	CurrentArmour = 0;
 }
-
 
 void UHealthComponent::BeginPlay()
 {
@@ -43,14 +44,16 @@ void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (GetOwner()->GetWorldTimerManager().IsTimerActive(HealthRegenerationHandle))
+	FTimerManager& TimerManager = GetOwner()->GetWorldTimerManager();
+
+	if (TimerManager.IsTimerActive(HealthRegenerationHandle))
 	{
-		GetOwner()->GetWorldTimerManager().ClearTimer(HealthRegenerationHandle);
+		TimerManager.ClearTimer(HealthRegenerationHandle);
 	}
 
-	if (GetOwner()->GetWorldTimerManager().IsTimerActive(ArmourRegenerationHandle))
+	if (TimerManager.IsTimerActive(ArmourRegenerationHandle))
 	{
-		GetOwner()->GetWorldTimerManager().ClearTimer(ArmourRegenerationHandle);
+		TimerManager.ClearTimer(ArmourRegenerationHandle);
 	}
 }
 
@@ -73,21 +76,22 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 
 	if(!bIsDead)
 	{
-		if (GetOwner()->GetWorldTimerManager().IsTimerActive(HealthRegenerationHandle))
+		FTimerManager& TimerManager = GetOwner()->GetWorldTimerManager();
+		if (TimerManager.IsTimerActive(HealthRegenerationHandle))
 		{
-			GetOwner()->GetWorldTimerManager().ClearTimer(HealthRegenerationHandle);
+			TimerManager.ClearTimer(HealthRegenerationHandle);
 		}
-		if (GetOwner()->GetWorldTimerManager().IsTimerActive(ArmourRegenerationHandle))
+		if (TimerManager.IsTimerActive(ArmourRegenerationHandle))
 		{
-			GetOwner()->GetWorldTimerManager().ClearTimer(ArmourRegenerationHandle);
+			TimerManager.ClearTimer(ArmourRegenerationHandle);
 		}
 		if (HealthRegenInterval > 0)
 		{
-			GetOwner()->GetWorldTimerManager().SetTimer(HealthRegenerationHandle, this, &UHealthComponent::RegenerateHealth, HealthRegenInterval, true, HealthRegenCooldown);
+			TimerManager.SetTimer(HealthRegenerationHandle, this, &UHealthComponent::RegenerateHealth, HealthRegenInterval, true, HealthRegenCooldown);
 		}
 		if (ArmourRegenInterval > 0)
 		{
-			GetOwner()->GetWorldTimerManager().SetTimer(ArmourRegenerationHandle, this, &UHealthComponent::RegenerateArmour, ArmourRegenInterval, true, ArmourRegenCooldown);
+			TimerManager.SetTimer(ArmourRegenerationHandle, this, &UHealthComponent::RegenerateArmour, ArmourRegenInterval, true, ArmourRegenCooldown);
 		}
 	}
 }

@@ -44,9 +44,9 @@ void AGDKTopDownShooterCharacter::MoveForwardRight(float Value)
 	if (Value != 0.0f)
 	{
 		float OffsetYaw = TopDownCamera->GetComponentRotation().Yaw;
-		if (bMinus) offsetYaw -= this->GetControlRotation().Yaw;
-		if (bAdd) offsetYaw += this->GetControlRotation().Yaw;
-		auto CameraYaw = FRotator(0, offsetYaw, 0);
+		if (bMinus) OffsetYaw -= this->GetControlRotation().Yaw;
+		if (bAdd) OffsetYaw += this->GetControlRotation().Yaw;
+		auto CameraYaw = FRotator(0, OffsetYaw, 0);
 		auto ForwardVector = CameraYaw.RotateVector(FVector::ForwardVector);
 		auto RightVector = CameraYaw.RotateVector(FVector::RightVector);
 		AddMovementInput(ForwardVector, FMath::Abs(Value));
@@ -59,9 +59,9 @@ void AGDKTopDownShooterCharacter::MoveForward(float Value)
 	if (Value != 0.0f)
 	{
 		float OffsetYaw = TopDownCamera->GetComponentRotation().Yaw;
-		if (bMinus) offsetYaw -= this->GetControlRotation().Yaw;
-		if (bAdd) offsetYaw += this->GetControlRotation().Yaw;
-		auto CameraYaw = FRotator(0, offsetYaw, 0);
+		if (bMinus) OffsetYaw -= this->GetControlRotation().Yaw;
+		if (bAdd) OffsetYaw += this->GetControlRotation().Yaw;
+		auto CameraYaw = FRotator(0, OffsetYaw, 0);
 		auto ForwardVector = CameraYaw.RotateVector(FVector::ForwardVector);
 		AddMovementInput(ForwardVector, Value);
 	}
@@ -122,29 +122,29 @@ void AGDKTopDownShooterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	bool bAnyMouseMovement = MouseMovement.X != 0.f && MouseMovement.Y != 0.f;
 	bool SprintMovement = GDKMovementComponent->IsSprinting() && GetVelocity().SizeSquared() > 0.1f;
-	if (AnyMouseMovement || SprintMovement)
+	if (bAnyMouseMovement || SprintMovement)
 	{
 		float TargetAngle = 0.f;
 		float Strength = 1.f;
 		if (SprintMovement)
 		{
-			targetAngle = FMath::RadiansToDegrees(GetVelocity().HeadingAngle());
+			TargetAngle = FMath::RadiansToDegrees(GetVelocity().HeadingAngle());
 		}
 		else
 		{
-			targetAngle = FMath::RadiansToDegrees(MouseMovement.HeadingAngle());
-			targetAngle -= TopDownCamera->GetComponentRotation().Yaw;
-			targetAngle -= 90;
-			targetAngle = -targetAngle;
-			strength = MouseMovement.Size();
+			TargetAngle = FMath::RadiansToDegrees(MouseMovement.HeadingAngle());
+			TargetAngle -= TopDownCamera->GetComponentRotation().Yaw;
+			TargetAngle -= 90;
+			TargetAngle = -TargetAngle;
+			Strength = MouseMovement.Size();
 		}
-		targetAngle = ClampAngle(targetAngle);
+		TargetAngle = ClampAngle(TargetAngle);
 		float currentAngle = this->GetControlRotation().Yaw;
 		currentAngle = ClampAngle(currentAngle);
-		float delta = targetAngle - currentAngle;
+		float delta = TargetAngle - currentAngle;
 		delta = ClampAngle(delta);
 		float RotationSpeed = MouseRotationSpeed;
-		Super::AddControllerYawInput(delta * strength * MouseRotationSpeed); 
+		Super::AddControllerYawInput(delta * Strength * MouseRotationSpeed);
 
 	}
 	TopDownCamera->SetWorldLocation(this->GetActorLocation() + InitialCameraOffset);

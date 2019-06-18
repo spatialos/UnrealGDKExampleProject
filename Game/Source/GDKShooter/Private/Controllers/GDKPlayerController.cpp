@@ -117,7 +117,7 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 		const AActor* Wielder = Holdable->GetOwner();
 
 
-		if (const ACharacter* KillerCharacter = Cast<ACharacter>(Weilder))
+		if (const ACharacter* KillerCharacter = Cast<ACharacter>(Wielder))
 		{
 			if (AGDKPlayerState* KillerState = Cast<AGDKPlayerState>(KillerCharacter->PlayerState))
 			{
