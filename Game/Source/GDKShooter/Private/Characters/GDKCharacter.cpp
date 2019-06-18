@@ -103,14 +103,10 @@ void AGDKCharacter::Die(const AActor* Killer)
 {
 	TearOff();
 
-	AGDKPlayerController* PC = Cast<AGDKPlayerController>(GetController());
-	if (PC)
+	if (AGDKPlayerController* PC = Cast<AGDKPlayerController>(GetController()))
 	{
 		PC->KillCharacter(Killer);
 	}
-
-	DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
-	GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, 5.0f, false);
 }
 
 void AGDKCharacter::TornOff()
