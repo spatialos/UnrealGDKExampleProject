@@ -17,9 +17,10 @@ void UEquippedComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (CurrentlyHeldItem())
+	AHoldable* HeldItem = CurrentlyHeldItem();
+	if (HeldItem != nullptr)
 	{
-		CurrentlyHeldItem()->SetIsActive(true);
+		HeldItem->SetIsActive(true);
 	}
 	
 }
@@ -28,7 +29,7 @@ void UEquippedComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (GetNetMode() == NM_DedicatedServer && GetOwner()->HasAuthority())
+	if (GetOwner()->HasAuthority())
 	{
 		for (AHoldable* Holdable : HeldItems)
 		{
@@ -49,13 +50,16 @@ void UEquippedComponent::SpawnStarterTemplates(FGDKMetaData MetaData)
 
 		for (int i = 0; i < FMath::Min(StarterTemplates.Num(), HoldableCapacity); i++)
 		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = GetOwner();
-			AHoldable* Starter = GetWorld()->SpawnActor<AHoldable>(StarterTemplates[i], GetOwner()->GetActorTransform(), SpawnParams);
-			Starter->AttachToActor(GetOwner(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-			Starter->SetMetaData(MetaData);
-			Starter->SetOwner(GetOwner());
-			HeldItems[i] = Starter;
+			if (StarterTemplates[i] != nullptr)
+			{
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = GetOwner();
+				AHoldable* Starter = GetWorld()->SpawnActor<AHoldable>(StarterTemplates[i], GetOwner()->GetActorTransform(), SpawnParams);
+				Starter->AttachToActor(GetOwner(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				Starter->SetMetaData(MetaData);
+				Starter->SetOwner(GetOwner());
+				HeldItems[i] = Starter;
+			}
 		}
 
 		if (StarterTemplates.Num() > 0)
@@ -104,7 +108,9 @@ void UEquippedComponent::OnRep_HeldUpdate()
 AHoldable* UEquippedComponent::CurrentlyHeldItem() const
 {
 	if (CurrentHeldIndex < 0 || CurrentHeldIndex >= HeldItems.Num())
+	{
 		return nullptr;
+	}
 
 	return HeldItems[CurrentHeldIndex];
 }
@@ -116,7 +122,11 @@ void UEquippedComponent::LocallyActivate(AHoldable* Holdable)
 		LocallyActiveHoldable->SetIsActive(false);
 	}
 
-	Holdable->SetIsActive(true);
+	if (Holdable != nullptr)
+	{
+		Holdable->SetIsActive(true);
+	}
+
 	LocallyActiveHoldable = Holdable;
 	HoldableUpdated.Broadcast(Holdable);
 }
