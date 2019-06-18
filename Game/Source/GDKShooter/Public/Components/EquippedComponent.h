@@ -73,8 +73,9 @@ protected:
 	UPROPERTY()
 		AHoldable* LocallyActiveHoldable;
 
+	// Default value of -1 suggest no item is being held
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, ReplicatedUsing = OnRep_HeldUpdate)
-		int CurrentHeldIndex;
+		int CurrentHeldIndex = -1;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, ReplicatedUsing = OnRep_HeldUpdate)
 		TArray<AHoldable*> HeldItems;
