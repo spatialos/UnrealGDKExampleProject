@@ -120,7 +120,7 @@ float ClampAngle(float Input)
 void AGDKTopDownShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	bool AnyMouseMovement = MouseMovement.X != 0 && MouseMovement.Y != 0;
+	bool bAnyMouseMovement = MouseMovement.X != 0.f && MouseMovement.Y != 0.f;
 	bool SprintMovement = GDKMovementComponent->IsSprinting() && GetVelocity().SizeSquared() > 0.1f;
 	if (AnyMouseMovement || SprintMovement)
 	{
