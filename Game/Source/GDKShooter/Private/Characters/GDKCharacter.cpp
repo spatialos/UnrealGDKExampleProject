@@ -93,7 +93,7 @@ void AGDKCharacter::MoveRight(float Value)
 
 void AGDKCharacter::OnEquippedUpdated_Implementation(AHoldable* Holdable)
 {
-	if (Holdable)
+	if (Holdable != nullptr)
 	{
 		Holdable->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Holdable->GetActiveSocket());
 	}
