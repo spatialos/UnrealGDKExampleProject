@@ -27,7 +27,7 @@ void UGDKWidget::NativeConstruct()
 
 	if (AGDKPlayerController* GDKPC = Cast<AGDKPlayerController>(PlayerController))
 	{
-		GDKPC->OnPawn().AddDynamic(this, &UGDKWidget::OnPawn);
+		GDKPC->OnPawn().AddUniqueDynamic(this, &UGDKWidget::OnPawn);
 
 		GDKPC->OnKillNotification().AddUObject(this, &UGDKWidget::OnKill);
 		GDKPC->OnKilledNotification().AddUObject(this, &UGDKWidget::OnDeath);
@@ -57,16 +57,13 @@ void UGDKWidget::OnPawn(APawn* InPawn)
 
 	if (UGDKMovementComponent* Movement = Cast< UGDKMovementComponent>(InPawn->GetComponentByClass(UGDKMovementComponent::StaticClass())))
 	{
-		Movement->OnAimingUpdated.RemoveDynamic(this, &UGDKWidget::OnAimingUpdated);
-		Movement->OnAimingUpdated.AddDynamic(this, &UGDKWidget::OnAimingUpdated);
+		Movement->OnAimingUpdated.AddUniqueDynamic(this, &UGDKWidget::OnAimingUpdated);
 	}
 
 	if (UHealthComponent* Health = Cast< UHealthComponent>(InPawn->GetComponentByClass(UHealthComponent::StaticClass())))
 	{
-		Health->HealthUpdated.RemoveDynamic(this, &UGDKWidget::OnHealthUpdated);
-		Health->HealthUpdated.AddDynamic(this, &UGDKWidget::OnHealthUpdated);
-		Health->ArmourUpdated.RemoveDynamic(this, &UGDKWidget::OnArmourUpdated);
-		Health->ArmourUpdated.AddDynamic(this, &UGDKWidget::OnArmourUpdated);
+		Health->HealthUpdated.AddUniqueDynamic(this, &UGDKWidget::OnHealthUpdated);
+		Health->ArmourUpdated.AddUniqueDynamic(this, &UGDKWidget::OnArmourUpdated);
 		OnHealthUpdated(Health->GetCurrentHealth(), Health->GetMaxHealth());
 		OnArmourUpdated(Health->GetCurrentArmour(), Health->GetMaxArmour());
 	}
