@@ -31,7 +31,8 @@ void UGDKMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsSprinting() != bWasSprintingLastFrame) {
+	if (IsSprinting() != bWasSprintingLastFrame)
+	{
 		bWasSprintingLastFrame = IsSprinting();
 		SprintingUpdated.Broadcast(IsSprinting());
 	}
