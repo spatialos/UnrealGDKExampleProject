@@ -43,7 +43,7 @@ void AGDKTopDownShooterCharacter::MoveForwardRight(float Value)
 {
 	if (Value != 0.0f)
 	{
-		float offsetYaw = TopDownCamera->GetComponentRotation().Yaw;
+		float OffsetYaw = TopDownCamera->GetComponentRotation().Yaw;
 		if (bMinus) offsetYaw -= this->GetControlRotation().Yaw;
 		if (bAdd) offsetYaw += this->GetControlRotation().Yaw;
 		auto CameraYaw = FRotator(0, offsetYaw, 0);
