@@ -65,8 +65,11 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 	bool bWasDead = CurrentHealth <= 0;
 	CurrentHealth -= DamageDealt;
 	bool bIsDead = CurrentHealth <= 0;
-
-	MulticastDamageTaken(DamageCauser->GetActorLocation());
+	
+	if (DamageCauser != nullptr)
+	{
+		MulticastDamageTaken(DamageCauser->GetActorLocation());
+	}
 
 	if (!bWasDead && bIsDead)
 	{
