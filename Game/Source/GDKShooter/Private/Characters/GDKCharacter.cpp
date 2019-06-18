@@ -124,7 +124,7 @@ void AGDKCharacter::StartRagdoll()
 	UCapsuleComponent* CapsuleComponent = GetCapsuleComponent();
 	if (CapsuleComponent == nullptr)
 	{
-		UE_LOG(LogGDK, Error, TEXT("Invalid capsule component on character %s"), *this->GetName());
+		UE_LOG(LogGDK, Error, TEXT("Invalid capsule component on character %s"), *GetName());
 		return;
 	}
 
