@@ -10,6 +10,13 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHoldableUpdated, AHoldable*, NewHoldable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBusyUpdated, bool, bIsBusy);
 
+// UObject class used as a handle when other classes want to block using
+UCLASS()
+class UBlockingHandle : public UObject
+{
+	GENERATED_BODY()
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GDKSHOOTER_API UEquippedComponent : public UActorComponent
 {
@@ -89,7 +96,9 @@ public:
 		void SetIsSprinting(bool bNewSprinting) { bIsSprinting = bNewSprinting; }
 
 	UFUNCTION()
-		void BlockUsing(bool bBlock);
+		UObject* BlockUsing();
+	UFUNCTION()
+		void UnblockUsing(UObject* BlockingHandle);
 
 	UFUNCTION()
 		void StartPrimaryUse();
@@ -115,6 +124,8 @@ protected:
 	// Do we think we are sprinting
 	// Should we apply the sprinting cooldown when going to use a holdable
 	bool bIsSprinting;
+
+	TArray<UObject*> BlockingObjects;
 
 	int32 LastCachedIndex = -1;
 	int32 CurrentCachedIndex = -1;

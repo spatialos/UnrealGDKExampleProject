@@ -77,7 +77,7 @@ public:
 	// [client] Sets whether the cursor is in "UI mode", meaning it is visible and can be moved around the screen,
 	// instead of locked, invisible, and used for aiming.v
 	void SetUIMode();
-	void SetUIMode(bool bIsUIMode, bool bAllowMovement = false);
+	void SetUIMode(bool bIsUIMode);
 
 	// [client] Sets whether we should ignore action input. For this to work properly, the character
 	// must check the result of IgnoreActionInput before applying any action inputs.
@@ -111,6 +111,9 @@ protected:
 
 	UPROPERTY(BlueprintAssignable)
 		FPawnEvent PawnEvent;
+
+	UPROPERTY()
+		UObject* EquipmentBlockingHande;
 
 	FKillNotificationEvent KillNotification;
 	FKillNotificationEvent KilledNotification;

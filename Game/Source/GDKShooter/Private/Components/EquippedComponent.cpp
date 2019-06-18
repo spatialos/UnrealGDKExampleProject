@@ -194,14 +194,22 @@ void UEquippedComponent::ForceCooldown(float Cooldown)
 	}
 }
 
-void UEquippedComponent::BlockUsing(bool bBlock)
+UObject* UEquippedComponent::BlockUsing()
 {
-	bBlockUsing = bBlock;
-	if (bBlock)
-	{
-		StopPrimaryUse();
-		StopSecondaryUse();
-	}
+	UObject* BlockingHandle = NewObject<UBlockingHandle>();
+	BlockingObjects.Add(BlockingHandle);
+	bBlockUsing = true;
+
+	StopPrimaryUse();
+	StopSecondaryUse();
+
+	return BlockingHandle;
+}
+
+void UEquippedComponent::UnblockUsing(UObject* BlockingObject)
+{
+	BlockingObjects.Remove(BlockingObject);
+	bBlockUsing = BlockingObjects.Num() > 0;
 }
 
 void UEquippedComponent::StartPrimaryUse()
