@@ -124,7 +124,7 @@ void AGDKTopDownShooterCharacter::Tick(float DeltaTime)
 	bool SprintMovement = GDKMovementComponent->IsSprinting() && GetVelocity().SizeSquared() > 0.1f;
 	if (AnyMouseMovement || SprintMovement)
 	{
-		float targetAngle = 0;
+		float TargetAngle = 0.f;
 		float strength = 1;
 		if (SprintMovement)
 		{
