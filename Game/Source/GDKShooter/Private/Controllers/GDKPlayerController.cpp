@@ -366,7 +366,7 @@ void AGDKPlayerController::RespawnCharacter_Implementation()
 		}
 		else
 		{
-			UE_LOG(LogGDK, Error, TEXT("%d: Created a player without a GDK PlayerState"), *this->GetName());
+			UE_LOG(LogGDK, Error, TEXT("%d: Created a player without a GDK PlayerState"), *GetName());
 		}
 	}
 }
