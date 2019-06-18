@@ -168,7 +168,7 @@ void AGDKCharacter::DeleteSelf()
 {
 	if (IsValidLowLevel())
 	{
-		this->Destroy();
+		Destroy();
 	}
 }
 
