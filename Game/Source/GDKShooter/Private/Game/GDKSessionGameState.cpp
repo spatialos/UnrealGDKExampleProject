@@ -2,13 +2,14 @@
 
 #include "GDKSessionGameState.h"
 
+#include "Interop/SpatialStaticComponentView.h"
 #include "TimerManager.h"
 #include "UnrealNetwork.h"
 #include "SpatialNetDriver.h"
 #include "SpatialWorkerConnection.h"
-#include "c_worker.h"
-#include "c_schema.h"
 
+#include <WorkerSDK/improbable/c_schema.h>
+#include <WorkerSDK/improbable/c_worker.h>
 
 void AGDKSessionGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -44,6 +45,7 @@ void AGDKSessionGameState::RemovePlayerState(APlayerState* PlayerState)
 
 void AGDKSessionGameState::OnRep_SessionProgress()
 {
+	SendStateUpdate(SessionProgress);
 	TimerEvent.Broadcast(SessionProgress, SessionTimer);
 }
 
@@ -64,7 +66,9 @@ void AGDKSessionGameState::BeginTimer()
 
 void AGDKSessionGameState::TickGameTimer()
 {
-	if (GetNetMode() != NM_Client)
+	const bool bAuthoritativeOverSessionProgress = HasAuthority();
+
+	if (GetNetMode() != NM_Client && bAuthoritativeOverSessionProgress)
 	{
 		SessionTimer--;
 
@@ -72,39 +76,51 @@ void AGDKSessionGameState::TickGameTimer()
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Running"));
 			SessionProgress = EGDKSessionProgress::Running;
-			SendStateUpdate(2);
+			SendStateUpdate(SessionProgress);
 			SessionTimer = GameSessionLength;
 		}
 		if (SessionProgress == EGDKSessionProgress::Running && SessionTimer <= 0)
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Results"));
 			SessionProgress = EGDKSessionProgress::Results;
-			SendStateUpdate(3);
+			SendStateUpdate(SessionProgress);
 			SessionTimer = ResultsSessionLength;
 		}
 		if (SessionProgress == EGDKSessionProgress::Results && SessionTimer <= 0)
 		{
 			UE_LOG(LogGDK, Log, TEXT("Advance GameState to Finished"));
 			SessionProgress = EGDKSessionProgress::Finished;
-			SendStateUpdate(4);
+			SendStateUpdate(SessionProgress);
 		}
 	}
 }
 
-void AGDKSessionGameState::SendStateUpdate(int NewState)
+void AGDKSessionGameState::SendStateUpdate(EGDKSessionProgress SessionProgressState)
 {
-	if (!GetWorld()->GetNetDriver() || !GetWorld()->GetNetDriver()->IsA<USpatialNetDriver>())
+	// Only send the state update if we're using Spatial networking and if we have authority over the session entity.
+	UNetDriver* NetDriver = GetWorld()->GetNetDriver();
+	if (NetDriver == nullptr || !NetDriver->IsA<USpatialNetDriver>())
 	{
 		return;
 	}
 
-	Worker_EntityId target_entity_id = 39;
+	USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(NetDriver);
+	bool bAuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
+	if (!bAuthoritativeOverSessionEntity)
+	{
+		return;
+	}
+
+	// There's an offset of 1 between the corresponding states of session progress and session state.
+	int SessionState = static_cast<int>(SessionProgressState) + 1;
+
+	Worker_EntityId target_entity_id = SessionEntityId;
 	Worker_ComponentUpdate component_update = {};
-	component_update.component_id = 1000;
-	component_update.schema_type = Schema_CreateComponentUpdate(1000);
+	component_update.component_id = SessionComponentId;
+	component_update.schema_type = Schema_CreateComponentUpdate(SessionComponentId);
 	Schema_Object* fields_object = Schema_GetComponentUpdateFields(component_update.schema_type);
-	Schema_AddInt32(fields_object, 1, NewState);
-	Cast<USpatialNetDriver>(GetWorld()->GetNetDriver())->Connection->SendComponentUpdate(target_entity_id, &component_update);
+	Schema_AddInt32(fields_object, 1, SessionState);
+	SpatialNetDriver->Connection->SendComponentUpdate(target_entity_id, &component_update);
 }
 
 

@@ -248,7 +248,11 @@ void AGDKShooterCharacter::EquipWeapon_Implementation(int32 WeaponId)
 
 	EquippedWeapon->SetIsActive(false);
 	EquippedWeapon = AvailableWeapons[WeaponId];
-	EquippedWeapon->SetIsActive(true);
+
+	if (EquippedWeapon != nullptr)
+	{
+		EquippedWeapon->SetIsActive(true);
+	}
 }
 
 
