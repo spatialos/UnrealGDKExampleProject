@@ -82,15 +82,15 @@ void AGDKCharacter::Die(const AGDKCharacter* Killer)
 void AGDKCharacter::StartRagdoll()
 {
 	// Disable capsule collision and disable movement.
-	UCapsuleComponent* CapsuleComponent = GetCapsuleComponent();
-	if (CapsuleComponent == nullptr)
+	UCapsuleComponent* Capsule = GetCapsuleComponent();
+	if (Capsule == nullptr)
 	{
 		UE_LOG(LogGDK, Error, TEXT("Invalid capsule component on character %s"), *this->GetName());
 		return;
 	}
 
-	CapsuleComponent->SetSimulatePhysics(false);
-	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Capsule->SetSimulatePhysics(false);
+	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
 
@@ -102,10 +102,10 @@ void AGDKCharacter::StartRagdoll()
 
 	// Gather list of child components of the capsule.
 	TArray<USceneComponent*> ComponentsToMove;
-	int NumChildren = CapsuleComponent->GetNumChildrenComponents();
+	int NumChildren = Capsule->GetNumChildrenComponents();
 	for (int i = 0; i < NumChildren; ++i)
 	{
-		USceneComponent* Component = CapsuleComponent->GetChildComponent(i);
+		USceneComponent* Component = Capsule->GetChildComponent(i);
 		if (Component != nullptr && Component != MeshComponent)
 		{
 			ComponentsToMove.Add(Component);
