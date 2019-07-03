@@ -9,8 +9,6 @@
 #include "Game/Components/MatchStateComponent.h"
 #include "GDKPlayerController.generated.h"
 
-DECLARE_EVENT_TwoParams(AGDKPlayerController, FKillNotificationEvent, const FString&, int32);
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPawnEvent, APawn*, InPawn);
 
 UCLASS(SpatialType)
@@ -26,22 +24,14 @@ public:
 
 	FPawnEvent& OnPawn() { return PawnEvent; }
 
-	FKillNotificationEvent& OnKillNotification() { return KillNotification; }
-	FKillNotificationEvent& OnKilledNotification() { return KilledNotification; }
-
 	// Overrides AController::SetPawn, which should be called on the client and server whenever the controller
 	// possesses (or unpossesses) a pawn.
 	virtual void SetPawn(APawn* InPawn) override;
-
-	// [server] Tells the controller that it's time for the player to die, and sets up conditions for respawn.
-	// @param Killer  The player who killed me. Can be null if it wasn't a player who dealt the damage that killed me.
-	UFUNCTION(BlueprintCallable)
-		void KillCharacter(const class AActor* Killer);
-
+	
 	// [client] Sets whether the cursor is in "UI mode", meaning it is visible and can be moved around the screen,
 	// instead of locked, invisible, and used for aiming.v
 	UFUNCTION(BlueprintCallable)
-		void SetUIMode(bool bIsUIMode, bool bAllowMovement = false);
+		void SetUIMode(bool bIsUIMode);
 
 	// [client] Sets whether we should ignore action input. For this to work properly, the character
 	// must check the result of IgnoreActionInput before applying any action inputs.
@@ -58,17 +48,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void RequestRespawn();
 
-	UFUNCTION(Client, unreliable)
-		void InformOfKill(const FString& VictimName, int32 VictimId);
-	UFUNCTION(Client, unreliable)
-		void InformOfDeath(const FString& KillerName, int32 KillerId);
-
 protected:
 	UPROPERTY(BlueprintAssignable)
 		FPawnEvent PawnEvent;
-
-	FKillNotificationEvent KillNotification;
-	FKillNotificationEvent KilledNotification;
 		
 	/** Death camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

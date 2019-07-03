@@ -31,7 +31,7 @@ void AGDKCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	HealthComponent->AuthoritativeDeath.AddDynamic(this, &AGDKCharacter::Die);
-	//HealthComponent->Death.AddDynamic(this, &AGDKCharacter::StartRagdoll);
+	HealthComponent->Death.AddDynamic(this, &AGDKCharacter::ProxyDeath);
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
 	MetaDataComponent->MetaDataUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SpawnStarterTemplates);
@@ -105,25 +105,24 @@ void AGDKCharacter::OnEquippedUpdated_Implementation(AHoldable* Holdable)
 	}
 }
 
-void AGDKCharacter::Die(const AActor* Killer)
+void AGDKCharacter::Die(const AController* Killer)
 {
 	TearOff();
-
-	if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(GetController()->GetComponentByClass(UControllerEventsComponent::StaticClass())))
-	{
-		ControllerEvents->KilledBy(Killer);
-	}
-
-	DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
-	GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, 5.0f, false);
-}
-
-void AGDKCharacter::TornOff()
-{
+	// TODO instead of ragdolling, just disable collision, and delete on timer
 	StartRagdoll();
 }
 
-void AGDKCharacter::StartRagdoll()
+void AGDKCharacter::ProxyDeath_Implementation()
+{
+	StartRagdoll();
+	if (EquippedComponent->CurrentlyHeldItem())
+	{
+		EquippedComponent->CurrentlyHeldItem()->StopPrimaryUse();
+		EquippedComponent->CurrentlyHeldItem()->StopSecondaryUse();
+	}
+}
+
+void AGDKCharacter::StartRagdoll_Implementation()
 {
 	// Disable capsule collision and disable movement.
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
@@ -164,8 +163,11 @@ void AGDKCharacter::StartRagdoll()
 		Component->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 
-	DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
-	GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, 5.0f, false);
+	if (this->IsValidLowLevel() && RagdollLifetime >= 0.f)
+	{
+		DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
+		GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, RagdollLifetime, false);
+	}
 }
 
 

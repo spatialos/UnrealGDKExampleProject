@@ -1,9 +1,9 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "HealthComponent.h"
-#include "GDKLogging.h"
-#include "TeamComponent.h"
+#include "Components/ControllerEventsComponent.h"
 #include "GameFramework/Pawn.h"
+#include "TeamComponent.h"
 #include "UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent()
@@ -77,9 +77,28 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 
 	if (!bWasDead && bIsDead)
 	{
-		//This will only fire on theauthoritative worker
-		AuthoritativeDeath.Broadcast(DamageCauser);
+		AuthoritativeDeath.Broadcast(EventInstigator);
+
+		if (APawn* OwnerAsPawn = Cast<APawn>(GetOwner()))
+		{
+			if (AController* Controller = OwnerAsPawn->GetController())
+			{
+				if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(Controller->GetComponentByClass(UControllerEventsComponent::StaticClass())))
+				{
+					ControllerEvents->Death(EventInstigator);
+				}
+
+				if (EventInstigator != nullptr)
+				{
+					if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(EventInstigator->GetComponentByClass(UControllerEventsComponent::StaticClass())))
+					{
+						ControllerEvents->Kill(Controller);
+					}
+				}
+			}
+		}
 	}
+
 
 	if(!bIsDead)
 	{
