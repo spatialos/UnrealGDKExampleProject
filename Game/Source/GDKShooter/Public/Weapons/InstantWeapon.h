@@ -88,6 +88,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 		float ShotInterval;
 
+	UPROPERTY(EditAnywhere, Category = "Weapons")
+		bool bAllowContinuousBurstFire = false;
+
 	// Number of shots in a single burst.
 	// 0  = full-auto
 	// 1  = single-shot

@@ -39,7 +39,7 @@ void AInstantWeapon::StartPrimaryUse_Implementation()
 void AInstantWeapon::StopPrimaryUse_Implementation()
 {
 	// Can't force stop a burst.
-	if (!IsBurstFire())
+	if (!IsBurstFire() || bAllowContinuousBurstFire)
 	{
 		Super::StopPrimaryUse_Implementation();
 	}
@@ -55,17 +55,7 @@ void AInstantWeapon::DoFire_Implementation()
 	}
 
 	NextShotTime = UGameplayStatics::GetRealTimeSeconds(GetWorld()) + ShotInterval;
-
-	if (IsBurstFire() && BurstShotsRemaining <= 0)
-	{
-		if (GetMovementComponent())
-		{
-			GetMovementComponent()->SetIsBusy(false);
-		}
-		IsPrimaryUsing = false;
-		return;
-	}
-
+	
 	FInstantHitInfo HitInfo = DoLineTrace();
 	if (HitInfo.bDidHit)
 	{
@@ -86,11 +76,20 @@ void AInstantWeapon::DoFire_Implementation()
 		if (BurstShotsRemaining <= 0)
 		{
 			FinishedBurst();
-			if (GetMovementComponent())
+			if (bAllowContinuousBurstFire)
 			{
-				GetMovementComponent()->SetIsBusy(false);
+				BurstShotsRemaining = BurstCount;
+				// We will force a cooldown for the full burst interval, regardless of the time already consumed in the previous burst, for simplicity.
+				ForceCooldown(BurstInterval);
 			}
-			IsPrimaryUsing = false;
+			else
+			{
+				if (GetMovementComponent())
+				{
+					GetMovementComponent()->SetIsBusy(false);
+				}
+				IsPrimaryUsing = false;
+			}
 		}
 	}
 
@@ -100,13 +99,18 @@ FVector AInstantWeapon::GetLineTraceDirection()
 {
 	FVector Direction = Super::GetLineTraceDirection();
 
+	float SpreadToUse = SpreadAt100m;
 	if (GetMovementComponent())
 	{
-		float SpreadToUse = GetMovementComponent()->IsAiming() ? SpreadAt100mWhenAiming : SpreadAt100m;
+		if (GetMovementComponent()->IsAiming())
+		{
+			SpreadToUse = SpreadAt100mWhenAiming;
+		}
 		if (GetMovementComponent()->IsCrouching())
 		{
 			SpreadToUse *= SpreadCrouchModifier;
 		}
+	}
 
 		if (SpreadToUse > 0)
 		{
