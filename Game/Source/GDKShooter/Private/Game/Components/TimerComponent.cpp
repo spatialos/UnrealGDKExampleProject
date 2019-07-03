@@ -79,7 +79,7 @@ void UTimerComponent::TickTimer()
 	if (Timer <= 0)
 	{
 		bHasTimerFinished = true;
-		OnTimerFinished.Broadcast();
 		StopTimer();
+		OnTimerFinished.Broadcast();
 	}
 }

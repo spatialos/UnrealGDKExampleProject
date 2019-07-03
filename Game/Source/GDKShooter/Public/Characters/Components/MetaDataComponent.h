@@ -39,7 +39,7 @@ public:
 		return bMetaDataAvailable;
 	}
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void SetMetaData(FGDKMetaData NewMetaData);
 
 	UPROPERTY(BlueprintAssignable)
