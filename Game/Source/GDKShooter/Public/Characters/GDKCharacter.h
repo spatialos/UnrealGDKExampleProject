@@ -40,7 +40,7 @@ protected:
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UEquippedComponent* EquippedComponent;
-
+	
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UMetaDataComponent* MetaDataComponent;
 
@@ -50,7 +50,7 @@ protected:
 	// [server] Tells this player that it's time to die.
 	// @param Killer  The player who killed me. Can be null if it wasn't a player who dealt the damage that killed me.
 	UFUNCTION()
-		virtual void Die(const class AActor* Killer);
+		virtual void Die(const class AController* Killer);
 
 	UFUNCTION(BlueprintPure)
 		float GetRemotePitch() {
@@ -76,13 +76,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		TEnumAsByte<ECollisionChannel> LineOfSightCollisionChannel;
 
-private:
+	UPROPERTY(EditAnywhere)
+		float RagdollLifetime = 5.0f;
 
-	virtual void TornOff() override;
+	UFUNCTION(BlueprintNativeEvent)
+		void ProxyDeath();
 
 	// [client + server] Puts the player in ragdoll mode.
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 		void StartRagdoll();
+
+private:
 
 	UFUNCTION()
 		void DeleteSelf();

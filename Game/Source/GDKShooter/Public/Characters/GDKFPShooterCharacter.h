@@ -32,4 +32,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
 		USkeletalMeshComponent* FirstPersonMesh;
 		
+	virtual void StartRagdoll_Implementation() override;
+
 };

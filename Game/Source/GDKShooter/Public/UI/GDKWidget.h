@@ -24,6 +24,9 @@ public:
 
 protected:
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void RegisterListeners();
+
 	UPROPERTY(BlueprintReadOnly)
 		AGDKPlayerController* GDKPlayerController;
 

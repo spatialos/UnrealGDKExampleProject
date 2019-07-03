@@ -55,3 +55,17 @@ void AGDKFPShooterCharacter::OnEquippedUpdated_Implementation(AHoldable* Holdabl
 		Holdable->SetFirstPerson(IsLocallyControlled());
 	}
 }
+
+void AGDKFPShooterCharacter::StartRagdoll_Implementation()
+{
+	Super::StartRagdoll_Implementation();
+
+	AHoldable* Holdable = EquippedComponent->CurrentlyHeldItem();
+
+	if (Holdable != nullptr)
+	{
+		Holdable->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Holdable->GetActiveSocket());
+		Holdable->SetFirstPerson(false);
+	}
+
+}
