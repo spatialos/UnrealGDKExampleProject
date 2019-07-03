@@ -63,6 +63,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FHoldableUpdated HoldableUpdated;
 
+	UFUNCTION(BlueprintCallable)
+		bool Grant(AHoldable* NewHoldable);
+
 protected:
 	UFUNCTION()
 		void OnRep_HeldUpdate();
@@ -81,6 +84,15 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated)
 		bool bHeldItemsInitialised;
+
+	UFUNCTION()
+		bool HasAnyEmptySlots();
+
+	UFUNCTION()
+		int GetNextAvailableSlot();
+
+	UFUNCTION()
+		bool AlreadyHas(AHoldable* NewHoldable);
 
 // Using Logic
 public:
