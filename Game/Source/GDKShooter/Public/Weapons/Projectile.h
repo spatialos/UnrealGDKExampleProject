@@ -31,6 +31,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnMetaDataUpdated();
 
+	UPROPERTY(Handover)
+		AWeapon* InstigatingWeapon;
+
 protected:
 
 	virtual void PostNetReceiveVelocity(const FVector& NewVelocity) override;
@@ -87,8 +90,6 @@ protected:
 
 	UPROPERTY(Handover)
 		AController* InstigatingController;
-	UPROPERTY(Handover)
-		AWeapon* InstigatingWeapon;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Projectile)
 		float ExplosionDamage = 50;
@@ -109,9 +110,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Projectile)
 		TSubclassOf<UDamageType> DamageTypeClass;
 	
-	UPROPERTY(BlueprintReadOnly, Category = Projectile)
+	UPROPERTY(Category = Projectile, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UProjectileMovementComponent* MovementComp;
 
-	UPROPERTY(BlueprintReadOnly, Category = Projectile)
+	UPROPERTY(Category = Projectile, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		USphereComponent* CollisionComp;
 };
