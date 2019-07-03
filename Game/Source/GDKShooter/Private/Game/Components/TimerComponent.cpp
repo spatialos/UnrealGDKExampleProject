@@ -79,7 +79,7 @@ void UTimerComponent::DecrementTimer()
 	if (TimeLeft <= 0)
 	{
 		bHasTimerFinished = true;
-		OnTimerFinished.Broadcast();
 		StopTimer();
+		OnTimerFinished.Broadcast();
 	}
 }
