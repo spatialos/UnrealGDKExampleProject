@@ -263,7 +263,7 @@ void AGDKCharacter::SetMetaData(FGDKMetaData NewMetaData)
 
 FString AGDKCharacter::GetPlayerName() const
 {
-	if (AGDKPlayerState* PS = Cast<AGDKPlayerState>(PlayerState))
+	if (AGDKPlayerState* PS = Cast<AGDKPlayerState>(GetPlayerState()))
 	{
 		return PS->GetPlayerName();
 	}

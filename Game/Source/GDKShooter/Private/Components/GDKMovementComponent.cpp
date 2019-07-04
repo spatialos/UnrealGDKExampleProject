@@ -10,15 +10,15 @@ static const FSavedMove_Character::CompressedFlags FLAG_WantsToSprint = FSavedMo
 
 UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, MaxSprintSpeed(850)
-	, SprintAcceleration(3400)
-	, SprintDirectionTolerance(0.1f)
-	, SprintCooldown(150)
-	, MaxJogSpeed(450)
-	, JogAcceleration(1800)
-	, bCanSprint(true)
-	, bShouldOrientToControlRotation(false)
 {
+	MaxSprintSpeed = 850;
+	SprintAcceleration = 3400;
+	SprintDirectionTolerance = 0.1f;
+	SprintCooldown = 150;
+	MaxJogSpeed = 450;
+	JogAcceleration = 1800;
+	bCanSprint = true;
+	bShouldOrientToControlRotation = false;
 	MaxWalkSpeed = 250;
 	MaxWalkSpeedCrouched = 125;
 	MaxAcceleration = 1000;

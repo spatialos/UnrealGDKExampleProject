@@ -29,7 +29,7 @@ AGDKFPShooterCharacter::AGDKFPShooterCharacter(const FObjectInitializer& ObjectI
 		FirstPersonMesh->AlwaysLoadOnServer = false;
 		FirstPersonMesh->bOwnerNoSee = false;
 		FirstPersonMesh->bOnlyOwnerSee = true;
-		FirstPersonMesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPose;
+		FirstPersonMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
 		FirstPersonMesh->bCastDynamicShadow = false;
 		FirstPersonMesh->CastShadow = false;
 		FirstPersonMesh->bAffectDynamicIndirectLighting = true;
