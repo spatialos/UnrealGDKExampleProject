@@ -93,6 +93,18 @@ bool SpatialAutomationCommon::StartSpatialAndPIE(
 	return SpatialStarted;
 }
 
+bool SpatialAutomationCommon::StartSpatial(FAutomationTestBase* Test, SpatialProcessInfo& OutProcessInfo, const FString& WorkerConfigFile, float SpatialStartDelay)
+{
+	bool SpatialStarted = StartLocalSpatialDeploy(Test, OutProcessInfo, WorkerConfigFile);
+	ADD_LATENT_AUTOMATION_COMMAND(FEngineWaitLatentCommand(SpatialStartDelay));
+	return SpatialStarted;
+}
+
+void SpatialAutomationCommon::StartPIE(float PlayerJoinDelay)
+{
+	StartPieWithDelay(0, PlayerJoinDelay);
+}
+
 //void SpatialAutomationCommon::StopCurrentSpatialProcess(SpatialProcessInfo& CurrentProcessInfo)
 //{
 //	ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());

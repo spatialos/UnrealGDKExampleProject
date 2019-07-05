@@ -15,9 +15,9 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTestPlayerControllerGetsCreated, "Spatial.Core.PlayerControllerGetsCreated", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter | EAutomationTestFlags::ServerContext)
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTestServerAuthoritativeOverGSM, "Spatial.Core.ServerHasAuthorityOverGSM", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter | EAutomationTestFlags::ServerContext)
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTestObjectCanBeSpawned, "Spatial.Core.CanSpawnObjects", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter | EAutomationTestFlags::ServerContext)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTestPlayerControllerGetsCreated, "Spatial.Core.Spawning.PlayerControllerGetsCreated", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter | EAutomationTestFlags::ServerContext)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTestServerAuthoritativeOverGSM, "Spatial.Core.Spawning.ServerHasAuthorityOverGSM", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter | EAutomationTestFlags::ServerContext)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTestObjectCanBeSpawnedAndRemoved, "Spatial.Core.Spawning.CanSpawnAndRemoveObjects", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter | EAutomationTestFlags::ServerContext)
 
 
 DEFINE_LATENT_AUTOMATION_COMMAND_ONE_PARAMETER(FCheckPlayerSpawned, FTestPlayerControllerGetsCreated*, Test);
@@ -33,13 +33,10 @@ bool FCheckPlayerSpawned::Update()
 
 bool FTestPlayerControllerGetsCreated::RunTest(const FString& Parameters)
 {
-	FString WorkerConfigFile = TEXT("default_launch.json");
-	SpatialAutomationCommon::SpatialProcessInfo ProcInfo;
-	bool Started = SpatialAutomationCommon::StartSpatialAndPIE(this, ProcInfo, WorkerConfigFile);
+	SpatialAutomationCommon::StartPIE();
 
 	ADD_LATENT_AUTOMATION_COMMAND(FCheckPlayerSpawned(this));
 
-	ADD_LATENT_AUTOMATION_COMMAND(FStopLocalSpatialGame(ProcInfo));
 	ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());
 	return true;
 }
@@ -61,45 +58,53 @@ bool FCheckAuthorityOverGSM::Update()
 
 bool FTestServerAuthoritativeOverGSM::RunTest(const FString& Parameters)
 {
-	FString WorkerConfigFile = TEXT("default_launch.json");
-	SpatialAutomationCommon::SpatialProcessInfo ProcInfo;
-	bool Started = SpatialAutomationCommon::StartSpatialAndPIE(this, ProcInfo, WorkerConfigFile);
+	SpatialAutomationCommon::StartPIE();
 
 	ADD_LATENT_AUTOMATION_COMMAND(FCheckAuthorityOverGSM(this));
 
-	ADD_LATENT_AUTOMATION_COMMAND(FStopLocalSpatialGame(ProcInfo));
 	ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());
 	return true;
 }
 
-DEFINE_LATENT_AUTOMATION_COMMAND_ONE_PARAMETER(FCheckCanSpawnAnObject, FTestObjectCanBeSpawned*, Test);
+DEFINE_LATENT_AUTOMATION_COMMAND_ONE_PARAMETER(FCheckCanSpawnAnObject, FTestObjectCanBeSpawnedAndRemoved*, Test);
 bool FCheckCanSpawnAnObject::Update()
 {
 	UWorld* World = SpatialAutomationCommon::GetActiveGameWorld();
 
+	TArray<AActor*> TestingObjects;
+	UGameplayStatics::GetAllActorsOfClass(World, ATestingObject::StaticClass(), TestingObjects);
+	int NumTestingObjectsBeforeSpawn = TestingObjects.Num();
+
 	FVector Location(0.0f, 0.0f, 0.0f);
 	FRotator Rotation(0.0f, 0.0f, 0.0f);
 	FActorSpawnParameters SpawnInfo;
-	AActor* TestingObject = World->SpawnActor<ATestingObject>(Location, Rotation, SpawnInfo);
+	AActor* SpawnedObject = World->SpawnActor<ATestingObject>(Location, Rotation, SpawnInfo);
 
-	TestingObject->HasAuthority();
+	bool bHasAuthorityOverSpawnedObject = SpawnedObject->HasAuthority();
 
-	TArray<AActor*> TestingObjects;
 	UGameplayStatics::GetAllActorsOfClass(World, ATestingObject::StaticClass(), TestingObjects);
+	int NumTestingObjectsAfterSpawn = TestingObjects.Num();
 
-	Test->TestTrue("Can spawn a new test object", TestingObjects.Num() == 1);
+	Test->TestTrue("Can spawn a new test object", NumTestingObjectsAfterSpawn == NumTestingObjectsBeforeSpawn + 1);
+	Test->TestTrue("Server has authority over the spawned object", bHasAuthorityOverSpawnedObject);
+
+	// Attempt to destroy actor
+	bool bActorCouldBeDestroyed = SpawnedObject->Destroy();
+	Test->TestTrue("Actor could be destroyed", bActorCouldBeDestroyed);
+
+	UGameplayStatics::GetAllActorsOfClass(World, ATestingObject::StaticClass(), TestingObjects);
+	int NumTestingObjectsAfterDestruction = TestingObjects.Num();
+	Test->TestTrue("Testing object has been successfully destroyed", NumTestingObjectsAfterDestruction == NumTestingObjectsAfterSpawn - 1);
+	
 	return true;
 }
 
-bool FTestObjectCanBeSpawned::RunTest(const FString& Parameters)
+bool FTestObjectCanBeSpawnedAndRemoved::RunTest(const FString& Parameters)
 {
-	FString WorkerConfigFile = TEXT("default_launch.json");
-	SpatialAutomationCommon::SpatialProcessInfo ProcInfo;
-	bool Started = SpatialAutomationCommon::StartSpatialAndPIE(this, ProcInfo, WorkerConfigFile);
+	SpatialAutomationCommon::StartPIE();
 
 	ADD_LATENT_AUTOMATION_COMMAND(FCheckCanSpawnAnObject(this));
 
-	ADD_LATENT_AUTOMATION_COMMAND(FStopLocalSpatialGame(ProcInfo));
 	ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());
 	return true;
 }

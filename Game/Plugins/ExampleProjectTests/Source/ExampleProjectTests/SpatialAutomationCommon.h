@@ -57,6 +57,15 @@ public:
 		float PlayerJoinDelay = kDefaultPlayerJoinDelay
 	);
 
+	static bool StartSpatial(
+		FAutomationTestBase* Test,
+		SpatialProcessInfo& OutProcessInfo,
+		const FString& WorkerConfigFile,
+		float SpatialStartDelay = kDefaultSpatialStartDelay
+	);
+
+	static void StartPIE(float PlayerJoinDelay = kDefaultPlayerJoinDelay);
+
 	static void StartPieWithDelay(
 		float SpatialStartDelay = kDefaultSpatialStartDelay,
 		float PlayerJoinDelay = kDefaultPlayerJoinDelay

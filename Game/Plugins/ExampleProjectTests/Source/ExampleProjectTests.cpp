@@ -21,7 +21,7 @@ void FExampleProjectTests::StartSpatialProcessBeforeTesting()
 	UE_LOG(LogTemp, Warning, TEXT("At StartSpatialProcessBeforeTesting, Starting Spatial Process"));
 	FString WorkerConfigFile = TEXT("default_launch.json");
 	SpatialAutomationCommon::SpatialProcessInfo ProcInfo;
-	bool Started = SpatialAutomationCommon::StartSpatialAndPIE(ProcInfo, WorkerConfigFile);
+	//bool Started = SpatialAutomationCommon::StartSpatialAndPIE(ProcInfo, WorkerConfigFile);
 	// TODO if Spatial fails stop testing
 }
 
@@ -29,7 +29,7 @@ void FExampleProjectTests::StopSpatialProcessAfterTesting()
 {
 	UE_LOG(LogTemp, Warning, TEXT("At StopSpatialProcessAfterTesting, Stopping Spatial Process"));
 	SpatialAutomationCommon::SpatialProcessInfo ProcInfo;
-	SpatialAutomationCommon::StopCurrentSpatialProcess(ProcInfo);
+	//SpatialAutomationCommon::StopCurrentSpatialProcess(ProcInfo);
 }
 
 IMPLEMENT_MODULE(FExampleProjectTests, ExampleProjectTests);
