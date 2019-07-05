@@ -54,11 +54,6 @@ void AGDKPlayerController::BeginPlay()
 			PlayerPublisher->PublishPlayer(PlayerState, EPlayerProgress::Connected);
 		}
 	}
-
-	if (bAutoConnect && HasAuthority())
-	{
-		ServerTryJoinGame();
-	}
 }
 
 void AGDKPlayerController::Tick(float DeltaTime)
@@ -128,13 +123,6 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode)
 	}
 }
 
-void AGDKPlayerController::TryJoinGame()
-{
-	check(GetNetMode() != NM_DedicatedServer);
-	ServerTryJoinGame();
-
-}
-
 void AGDKPlayerController::ServerTryJoinGame_Implementation()
 {
 
@@ -176,14 +164,7 @@ bool AGDKPlayerController::ServerRequestMetaData_Validate(const FGDKMetaData New
 	return true;
 }
 
-void AGDKPlayerController::RequestRespawn()
-{
-	check(GetNetMode() == NM_Client);
-
-	RespawnCharacter();
-}
-
-void AGDKPlayerController::RespawnCharacter_Implementation()
+void AGDKPlayerController::ServerRespawnCharacter_Implementation()
 {
 	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
 	{
@@ -192,7 +173,7 @@ void AGDKPlayerController::RespawnCharacter_Implementation()
 	}
 }
 
-bool AGDKPlayerController::RespawnCharacter_Validate()
+bool AGDKPlayerController::ServerRespawnCharacter_Validate()
 {
 	return true;
 }

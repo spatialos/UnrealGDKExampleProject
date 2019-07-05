@@ -30,8 +30,6 @@ void AGDKCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HealthComponent->AuthoritativeDeath.AddDynamic(this, &AGDKCharacter::Die);
-	HealthComponent->Death.AddDynamic(this, &AGDKCharacter::ProxyDeath);
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
 	MetaDataComponent->MetaDataUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SpawnStarterTemplates);
@@ -106,23 +104,6 @@ void AGDKCharacter::OnEquippedUpdated_Implementation(AHoldable* Holdable)
 	}
 }
 
-void AGDKCharacter::Die(const AController* Killer)
-{
-	TearOff();
-	// TODO instead of ragdolling, just disable collision, and delete on timer
-	StartRagdoll();
-}
-
-void AGDKCharacter::ProxyDeath_Implementation()
-{
-	StartRagdoll();
-	if (EquippedComponent->CurrentlyHeldItem())
-	{
-		EquippedComponent->CurrentlyHeldItem()->StopPrimaryUse();
-		EquippedComponent->CurrentlyHeldItem()->StopSecondaryUse();
-	}
-}
-
 void AGDKCharacter::StartRagdoll_Implementation()
 {
 	// Disable capsule collision and disable movement.
@@ -182,7 +163,7 @@ void AGDKCharacter::DeleteSelf()
 
 float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	TakeDamageCrossServer(Damage, DamageEvent, EventInstigator, DamageCauser);
+	TakeDamageCrossServer(Damage, DamageEvent, nullptr, DamageCauser);
 	return Damage;
 }
 

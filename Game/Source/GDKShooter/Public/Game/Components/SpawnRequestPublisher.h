@@ -21,4 +21,7 @@ public:
 
 	void RequestSpawn(APlayerController* Controller) { OnSpawnRequest.Broadcast(Controller); }
 	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		bool bAutoConnect;
+
 };
