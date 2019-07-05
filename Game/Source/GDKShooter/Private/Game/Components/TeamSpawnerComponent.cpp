@@ -1,15 +1,16 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "TeamSpawnerComponent.h"
+
+#include "Components/MetaDataComponent.h"
+#include "Components/TeamComponent.h"
 #include "EngineUtils.h"
-#include "Game/Components/PlayerPublisher.h"
+#include "Components/PlayerPublisher.h"
+#include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
-#include "GameFramework/GameModeBase.h"
 #include "GDKLogging.h"
-#include "Characters/Components/MetaDataComponent.h"
-#include "Characters/Components/TeamComponent.h"
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 
 UTeamSpawnerComponent::UTeamSpawnerComponent()

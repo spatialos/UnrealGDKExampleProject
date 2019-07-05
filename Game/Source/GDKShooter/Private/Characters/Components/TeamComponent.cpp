@@ -8,6 +8,14 @@
 UTeamComponent::UTeamComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	bReplicates = true;
+}
+
+void UTeamComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UTeamComponent, TeamId);
 }
 
 bool UTeamComponent::CanDamageActor(AActor* OtherActor)

@@ -1,11 +1,13 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "DeathmatchSpawnerComponent.h"
+
+#include "Characters/Components/MetaDataComponent.h"
+#include "Components/TeamComponent.h"
+#include "Engine/World.h"
+#include "Game/Components/PlayerPublisher.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
-#include "Characters/Components/MetaDataComponent.h"
-#include "Game/Components/PlayerPublisher.h"
-#include "Engine/World.h"
 #include "GDKLogging.h"
 
 UDeathmatchSpawnerComponent::UDeathmatchSpawnerComponent()
@@ -71,6 +73,11 @@ void UDeathmatchSpawnerComponent::SpawnCharacter(APlayerController* Controller)
 
 		Controller->Possess(NewPawn);
 
+		if (UTeamComponent* TeamComponent = Cast<UTeamComponent>(NewPawn->GetComponentByClass(UTeamComponent::StaticClass())))
+		{
+			// Put all players on Team 0 so that they will not be neutral
+			TeamComponent->SetTeam(FGenericTeamId(0));
+		}
 		if (UMetaDataComponent* StateMetaData = Cast<UMetaDataComponent>(Controller->PlayerState->GetComponentByClass(UMetaDataComponent::StaticClass())))
 		{
 			if (UMetaDataComponent* MetaData = Cast<UMetaDataComponent>(NewPawn->GetComponentByClass(UMetaDataComponent::StaticClass())))

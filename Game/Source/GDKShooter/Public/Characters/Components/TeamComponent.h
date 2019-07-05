@@ -34,7 +34,9 @@ public:
 
 protected:
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 		FGenericTeamId TeamId = FGenericTeamId::NoTeam;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 };
