@@ -80,11 +80,6 @@ void UDeathmatchSpawnerComponent::SpawnCharacter(APlayerController* Controller)
 
 		Controller->Possess(NewPawn);
 
-		if (UTeamComponent* TeamComponent = Cast<UTeamComponent>(NewPawn->GetComponentByClass(UTeamComponent::StaticClass())))
-		{
-			// Put all players on Team 0 so that they will not be neutral
-			TeamComponent->SetTeam(FGenericTeamId(0));
-		}
 		if (UMetaDataComponent* StateMetaData = Cast<UMetaDataComponent>(Controller->PlayerState->GetComponentByClass(UMetaDataComponent::StaticClass())))
 		{
 			if (UMetaDataComponent* MetaData = Cast<UMetaDataComponent>(NewPawn->GetComponentByClass(UMetaDataComponent::StaticClass())))
