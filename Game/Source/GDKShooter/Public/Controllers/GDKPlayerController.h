@@ -41,13 +41,6 @@ public:
 	// which handles user input.
 	bool IgnoreActionInput() const { return bIgnoreActionInput; }
 
-	// [client] Sets the player-choice data (name, team, etc) and requests to spawn player pawn and join play.
-	UFUNCTION(BlueprintCallable)
-		void TryJoinGame();
-
-	UFUNCTION(BlueprintCallable)
-		void RequestRespawn();
-
 protected:
 	UPROPERTY(BlueprintAssignable)
 		FPawnEvent PawnEvent;
@@ -64,12 +57,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		float LatestPawnYaw;
 
-	UPROPERTY(EditDefaultsOnly)
-		bool bAutoConnect;
-
 private:
-	// Sets the player-choice data (name, team, etc) and requests to spawn player pawn and join play
-	UFUNCTION(Server, Reliable, WithValidation)
+	// Requests to spawn player pawn and join play
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 		void ServerTryJoinGame();
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
@@ -79,8 +69,8 @@ private:
 		void ServerRequestMetaData(const FGDKMetaData NewMetaData);
 
 	// [server] Causes the character to respawn.
-	UFUNCTION(Server, Reliable, WithValidation)
-		void RespawnCharacter();
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+		void ServerRespawnCharacter();
 
 	// Gets a default player name based upon the worker's ID.
 	// Generates a GUID if we're not running on a SpatialOS worker.

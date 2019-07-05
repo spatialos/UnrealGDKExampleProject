@@ -46,11 +46,6 @@ protected:
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UTeamComponent* TeamComponent;
-	
-	// [server] Tells this player that it's time to die.
-	// @param Killer  The player who killed me. Can be null if it wasn't a player who dealt the damage that killed me.
-	UFUNCTION()
-		virtual void Die(const class AController* Killer);
 
 	UFUNCTION(BlueprintPure)
 		float GetRemotePitch() {
@@ -78,9 +73,6 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 		float RagdollLifetime = 5.0f;
-
-	UFUNCTION(BlueprintNativeEvent)
-		void ProxyDeath();
 
 	// [client + server] Puts the player in ragdoll mode.
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
