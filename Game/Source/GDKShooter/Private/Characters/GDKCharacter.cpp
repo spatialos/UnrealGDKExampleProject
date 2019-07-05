@@ -32,11 +32,6 @@ void AGDKCharacter::BeginPlay()
 
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
-	MetaDataComponent->MetaDataUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SpawnStarterTemplates);
-	if (EquippedComponent->CurrentlyHeldItem())
-	{
-		OnEquippedUpdated(EquippedComponent->CurrentlyHeldItem());
-	}
 }
 
 void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
