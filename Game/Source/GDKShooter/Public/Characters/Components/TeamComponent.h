@@ -38,7 +38,7 @@ public:
 
 protected:
 
-	UPROPERTY(ReplicatedUsing= OnRep_TeamId)
+	UPROPERTY(ReplicatedUsing = OnRep_TeamId)
 		FGenericTeamId TeamId = FGenericTeamId::NoTeam;
 
 	UFUNCTION()
