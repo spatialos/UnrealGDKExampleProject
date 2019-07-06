@@ -79,13 +79,13 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 
 	if (GetNetMode() == NM_Client)
 	{
-		AGDKCharacter* Character = Cast<AGDKCharacter>(InPawn);
-		if (Character != nullptr)
+		AGDKCharacter* GDKCharacter = Cast<AGDKCharacter>(InPawn);
+		if (GDKCharacter != nullptr)
 		{
 			SetCharacterState(EGDKCharacterState::Alive);
 
-			UpdateHealthUI(Character->GetCurrentHealth(), Character->GetMaxHealth());
-			UpdateArmourUI(Character->GetCurrentArmour(), Character->GetMaxArmour());
+			UpdateHealthUI(GDKCharacter->GetCurrentHealth(), GDKCharacter->GetMaxHealth());
+			UpdateArmourUI(GDKCharacter->GetCurrentArmour(), GDKCharacter->GetMaxArmour());
 
 			// Make the new pawn's camera this controller's camera.
 			SetViewTarget(InPawn);
