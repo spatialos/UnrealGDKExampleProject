@@ -14,7 +14,7 @@ UTimerComponent::UTimerComponent()
 void UTimerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Timer = DefaultTimerDuration;
+	TimeLeft = DefaultTimerDuration;
 	if (bAutoStart)
 	{
 		StartTimer();
@@ -32,7 +32,7 @@ void UTimerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void UTimerComponent::StartTimer()
 {
-	Timer = DefaultTimerDuration;
+	TimeLeft = DefaultTimerDuration;
 	ResumeTimer();
 }
 
@@ -61,7 +61,7 @@ void UTimerComponent::StopTimer()
 
 void UTimerComponent::OnRep_Timer()
 {
-	OnTimer.Broadcast(Timer);
+	OnTimer.Broadcast(TimeLeft);
 }
 
 void UTimerComponent::OnRep_TimerFinished()
