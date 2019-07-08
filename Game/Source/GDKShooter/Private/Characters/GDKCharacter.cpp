@@ -108,6 +108,8 @@ void AGDKCharacter::Die(const AActor* Killer)
 	{
 		PC->KillCharacter(Killer);
 	}
+
+	StartRagdoll();
 }
 
 void AGDKCharacter::TornOff()
