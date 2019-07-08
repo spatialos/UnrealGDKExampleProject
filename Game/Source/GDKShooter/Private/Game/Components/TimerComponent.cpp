@@ -1,8 +1,8 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
+#include "TimerComponent.h"
 #include "Engine/World.h"
 #include "GDKLogging.h"
-#include "TimerComponent.h"
 #include "UnrealNetwork.h"
 
 UTimerComponent::UTimerComponent()
