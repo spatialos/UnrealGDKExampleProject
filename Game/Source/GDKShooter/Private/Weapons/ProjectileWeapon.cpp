@@ -53,6 +53,7 @@ void AProjectileWeapon::DoFire_Implementation()
 			GetMovementComponent()->SetIsBusy(false);
 		}
 	}
+	IsPrimaryUsing = false;
 }
 
 bool AProjectileWeapon::FireProjectile_Validate(FVector Origin, FVector_NetQuantizeNormal Direction)
