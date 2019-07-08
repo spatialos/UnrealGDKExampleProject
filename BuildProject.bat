@@ -4,11 +4,11 @@ call "%~dp0ProjectPaths.bat"
 
 setlocal EnableDelayedExpansion
 
-set GDKDirectory=""
+set GDK_DIRECTORY=""
 
 rem If a project plugin exists. Use this for building.
 if exist "%~dp0\%PROJECT_PATH%\Plugins\UnrealGDK" (
-    set GDKDirectory="%~dp0\%PROJECT_PATH%\Plugins\UnrealGDK\"
+    set GDK_DIRECTORY="%~dp0\%PROJECT_PATH%\Plugins\UnrealGDK\"
     goto :BuildWorkers
 )
 
@@ -21,7 +21,6 @@ set UPROJECT=""
 rem First find the .uproject
 for /f "delims=" %%A in (' powershell -Command "Get-ChildItem %~dp0 -Depth 1 -Filter *.uproject -File | %% {$_.FullName}" ') do set UPROJECT="%%A"
 
-rem If the regex failed then it will return a string containing only a space.
 if %UPROJECT%=="" (
     echo Error: Could not find uproject. Please make sure you have passed in the project directory correctly.
     pause
@@ -86,14 +85,14 @@ cd %UNREAL_ENGINE%
 
 echo Using Unreal Engine at: %cd%
 
-set GDKDirectory="%cd%\Engine\Plugins\UnrealGDK"
+set GDK_DIRECTORY="%cd%\Engine\Plugins\UnrealGDK"
 popd
 
 :BuildWorkers
-echo Building worker with GDK located at %GDKDirectory%
+echo Building worker with GDK located at %GDK_DIRECTORY%
 
-call %GDKDirectory%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME%Server Linux Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
-call %GDKDirectory%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME% Win64 Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
+call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME%Server Linux Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
+call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME% Win64 Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
 echo All builds succeeded.
 
 pause
