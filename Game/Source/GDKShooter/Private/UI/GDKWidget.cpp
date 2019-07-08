@@ -71,6 +71,27 @@ void UGDKWidget::NativeConstruct()
 	}
 }
 
+void UGDKWidget::OnPawn(APawn* InPawn)
+{
+	if (!InPawn)
+	{
+		return;
+	}
+
+	if (UGDKMovementComponent* Movement = Cast< UGDKMovementComponent>(InPawn->GetComponentByClass(UGDKMovementComponent::StaticClass())))
+	{
+		Movement->OnAimingUpdated.AddUniqueDynamic(this, &UGDKWidget::OnAimingUpdated);
+	}
+
+	if (UHealthComponent* Health = Cast< UHealthComponent>(InPawn->GetComponentByClass(UHealthComponent::StaticClass())))
+	{
+		Health->HealthUpdated.AddUniqueDynamic(this, &UGDKWidget::OnHealthUpdated);
+		Health->ArmourUpdated.AddUniqueDynamic(this, &UGDKWidget::OnArmourUpdated);
+		OnHealthUpdated(Health->GetCurrentHealth(), Health->GetMaxHealth());
+		OnArmourUpdated(Health->GetCurrentArmour(), Health->GetMaxArmour());
+	}
+}
+
 // Function to call to ClientTravel to the TargetMap
 void UGDKWidget::LeaveGame(const FString& TargetMap)
 {
