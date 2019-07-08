@@ -80,13 +80,9 @@ if %UNREAL_ENGINE%=="" (
 )
 
 rem Make the relative path absolute
-pushd "%~dp0\%PROJECT_PATH%"
 cd %UNREAL_ENGINE%
-
 echo Using Unreal Engine at: %cd%
-
 set GDK_DIRECTORY="%cd%\Engine\Plugins\UnrealGDK"
-popd
 
 :BuildWorkers
 echo Building worker with GDK located at %GDK_DIRECTORY%
