@@ -2,23 +2,23 @@
 
 #include "Controllers/GDKPlayerController.h"
 
-#include "GameFramework/Character.h"
+#include "Blueprint/UserWidget.h"
+#include "Camera/CameraComponent.h"
+#include "Components/EquippedComponent.h"
+#include "Components/HealthComponent.h"
+#include "Components/MetaDataComponent.h"
+#include "Connection/SpatialWorkerConnection.h"
 #include "Game/GDKGameState.h"
 #include "Game/GDKSessionGameState.h"
 #include "Game/GDKPlayerState.h"
-#include "Blueprint/UserWidget.h"
-#include "GDKLogging.h"
-#include "UnrealNetwork.h"
-#include "TimerManager.h"
-#include "Camera/CameraComponent.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/MetaDataComponent.h"
-#include "Components/EquippedComponent.h"
+#include "GDKLogging.h"
+#include "SpatialNetDriver.h"
+#include "TimerManager.h"
+#include "UnrealNetwork.h"
 #include "Weapons/Holdable.h"
 
-#include "SpatialNetDriver.h"
-#include "Connection/SpatialWorkerConnection.h"
 
 
 AGDKPlayerController::AGDKPlayerController()
@@ -125,16 +125,13 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 				KillerId = KillerState->PlayerId;
 			}
 
-			if (KillerCharacter->GetController())
+			if (AGDKPlayerController* KillerController = Cast<AGDKPlayerController>(KillerCharacter->GetController()))
 			{
-				if (AGDKPlayerController* KillerController = Cast<AGDKPlayerController>(KillerCharacter->GetController()))
+				if (ACharacter* VictimCharacter = Cast<ACharacter>(GetPawn()))
 				{
-					if (ACharacter* VictimCharacter = Cast<ACharacter>(GetPawn()))
+					if (AGDKPlayerState* VictimState = Cast<AGDKPlayerState>(VictimCharacter->PlayerState))
 					{
-						if (AGDKPlayerState* VictimState = Cast<AGDKPlayerState>(VictimCharacter->PlayerState))
-						{
-							KillerController->InformOfKill(VictimState->GetPlayerName(), VictimState->PlayerId);
-						}
+						KillerController->InformOfKill(VictimState->GetPlayerName(), VictimState->PlayerId);
 					}
 				}
 			}
