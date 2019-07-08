@@ -1,9 +1,9 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "HealthComponent.h"
-#include "GameFramework/Actor.h"
 #include "GDKLogging.h"
-#include "TimerManager.h"
+#include "TeamComponent.h"
+#include "GameFramework/Pawn.h"
 #include "UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent()
@@ -17,6 +17,7 @@ UHealthComponent::UHealthComponent()
 	MaxArmour = 100;
 	CurrentArmour = 0;
 }
+
 
 void UHealthComponent::BeginPlay()
 {
@@ -44,32 +45,35 @@ void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	FTimerManager& TimerManager = GetOwner()->GetWorldTimerManager();
-
-	if (TimerManager.IsTimerActive(HealthRegenerationHandle))
+	if (GetOwner()->GetWorldTimerManager().IsTimerActive(HealthRegenerationHandle))
 	{
-		TimerManager.ClearTimer(HealthRegenerationHandle);
+		GetOwner()->GetWorldTimerManager().ClearTimer(HealthRegenerationHandle);
 	}
 
-	if (TimerManager.IsTimerActive(ArmourRegenerationHandle))
+	if (GetOwner()->GetWorldTimerManager().IsTimerActive(ArmourRegenerationHandle))
 	{
-		TimerManager.ClearTimer(ArmourRegenerationHandle);
+		GetOwner()->GetWorldTimerManager().ClearTimer(ArmourRegenerationHandle);
 	}
 }
 
 void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (UTeamComponent* Team = Cast<UTeamComponent>(GetOwner()->GetComponentByClass(UTeamComponent::StaticClass())))
+	{
+		if (EventInstigator && !Team->CanDamageActor(EventInstigator->GetPawn()))
+		{
+			return;
+		}
+	}
+
 	int32 ArmourRemoved = FMath::Min(static_cast<int32>(Damage), CurrentArmour);
 	CurrentArmour -= ArmourRemoved;
 	int32 DamageDealt = FMath::Min(static_cast<int32>(Damage) - ArmourRemoved, CurrentHealth);
 	bool bWasDead = CurrentHealth <= 0;
 	CurrentHealth -= DamageDealt;
 	bool bIsDead = CurrentHealth <= 0;
-	
-	if (DamageCauser != nullptr)
-	{
-		MulticastDamageTaken(DamageCauser->GetActorLocation());
-	}
+
+	MulticastDamageTaken(DamageCauser->GetActorLocation());
 
 	if (!bWasDead && bIsDead)
 	{
@@ -79,22 +83,21 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 
 	if(!bIsDead)
 	{
-		FTimerManager& TimerManager = GetOwner()->GetWorldTimerManager();
-		if (TimerManager.IsTimerActive(HealthRegenerationHandle))
+		if (GetOwner()->GetWorldTimerManager().IsTimerActive(HealthRegenerationHandle))
 		{
-			TimerManager.ClearTimer(HealthRegenerationHandle);
+			GetOwner()->GetWorldTimerManager().ClearTimer(HealthRegenerationHandle);
 		}
-		if (TimerManager.IsTimerActive(ArmourRegenerationHandle))
+		if (GetOwner()->GetWorldTimerManager().IsTimerActive(ArmourRegenerationHandle))
 		{
-			TimerManager.ClearTimer(ArmourRegenerationHandle);
+			GetOwner()->GetWorldTimerManager().ClearTimer(ArmourRegenerationHandle);
 		}
 		if (HealthRegenInterval > 0)
 		{
-			TimerManager.SetTimer(HealthRegenerationHandle, this, &UHealthComponent::RegenerateHealth, HealthRegenInterval, true, HealthRegenCooldown);
+			GetOwner()->GetWorldTimerManager().SetTimer(HealthRegenerationHandle, this, &UHealthComponent::RegenerateHealth, HealthRegenInterval, true, HealthRegenCooldown);
 		}
 		if (ArmourRegenInterval > 0)
 		{
-			TimerManager.SetTimer(ArmourRegenerationHandle, this, &UHealthComponent::RegenerateArmour, ArmourRegenInterval, true, ArmourRegenCooldown);
+			GetOwner()->GetWorldTimerManager().SetTimer(ArmourRegenerationHandle, this, &UHealthComponent::RegenerateArmour, ArmourRegenInterval, true, ArmourRegenCooldown);
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #include "EquippedComponent.h"
 #include "UnrealNetwork.h"
 #include "GDKLogging.h"
+#include "Engine/World.h"
 #include "Weapons/Holdable.h"
 
 
@@ -16,12 +17,8 @@ UEquippedComponent::UEquippedComponent()
 void UEquippedComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	AHoldable* HeldItem = CurrentlyHeldItem();
-	if (HeldItem != nullptr)
-	{
-		HeldItem->SetIsActive(true);
-	}
+
+	OnRep_HeldUpdate();
 	
 }
 
@@ -29,7 +26,7 @@ void UEquippedComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (GetOwner()->HasAuthority())
+	if (GetNetMode() == NM_DedicatedServer && GetOwner()->HasAuthority())
 	{
 		for (AHoldable* Holdable : HeldItems)
 		{
@@ -50,16 +47,13 @@ void UEquippedComponent::SpawnStarterTemplates(FGDKMetaData MetaData)
 
 		for (int i = 0; i < FMath::Min(StarterTemplates.Num(), HoldableCapacity); i++)
 		{
-			if (StarterTemplates[i] != nullptr)
-			{
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.Owner = GetOwner();
-				AHoldable* Starter = GetWorld()->SpawnActor<AHoldable>(StarterTemplates[i], GetOwner()->GetActorTransform(), SpawnParams);
-				Starter->AttachToActor(GetOwner(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-				Starter->SetMetaData(MetaData);
-				Starter->SetOwner(GetOwner());
-				HeldItems[i] = Starter;
-			}
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = GetOwner();
+			AHoldable* Starter = GetWorld()->SpawnActor<AHoldable>(StarterTemplates[i], GetOwner()->GetActorTransform(), SpawnParams);
+			Starter->AttachToActor(GetOwner(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			Starter->SetMetaData(MetaData);
+			Starter->SetOwner(GetOwner());
+			HeldItems[i] = Starter;
 		}
 
 		if (StarterTemplates.Num() > 0)
@@ -67,10 +61,7 @@ void UEquippedComponent::SpawnStarterTemplates(FGDKMetaData MetaData)
 			CurrentHeldIndex = 0;
 		}
 
-		if (CurrentlyHeldItem())
-		{
-			CurrentlyHeldItem()->SetIsActive(true);
-		}
+		OnRep_HeldUpdate();
 	}
 }
 
@@ -108,9 +99,7 @@ void UEquippedComponent::OnRep_HeldUpdate()
 AHoldable* UEquippedComponent::CurrentlyHeldItem() const
 {
 	if (CurrentHeldIndex < 0 || CurrentHeldIndex >= HeldItems.Num())
-	{
 		return nullptr;
-	}
 
 	return HeldItems[CurrentHeldIndex];
 }
@@ -122,11 +111,7 @@ void UEquippedComponent::LocallyActivate(AHoldable* Holdable)
 		LocallyActiveHoldable->SetIsActive(false);
 	}
 
-	if (Holdable != nullptr)
-	{
-		Holdable->SetIsActive(true);
-	}
-
+	Holdable->SetIsActive(true);
 	LocallyActiveHoldable = Holdable;
 	HoldableUpdated.Broadcast(Holdable);
 }
@@ -179,6 +164,7 @@ void UEquippedComponent::ServerRequestEquip_Implementation(int32 TargetIndex)
 	{
 		CurrentHeldIndex = TargetIndex;
 	}
+	OnRep_HeldUpdate();
 }
 
 bool UEquippedComponent::ServerRequestEquip_Validate(int32 TargetIndex)
@@ -194,22 +180,14 @@ void UEquippedComponent::ForceCooldown(float Cooldown)
 	}
 }
 
-UObject* UEquippedComponent::BlockUsing()
+void UEquippedComponent::BlockUsing(bool bBlock)
 {
-	UObject* BlockingHandle = NewObject<UBlockingHandle>();
-	BlockingObjects.Add(BlockingHandle);
-	bBlockUsing = true;
-
-	StopPrimaryUse();
-	StopSecondaryUse();
-
-	return BlockingHandle;
-}
-
-void UEquippedComponent::UnblockUsing(UObject* BlockingObject)
-{
-	BlockingObjects.Remove(BlockingObject);
-	bBlockUsing = BlockingObjects.Num() > 0;
+	bBlockUsing = bBlock;
+	if (bBlock)
+	{
+		StopPrimaryUse();
+		StopSecondaryUse();
+	}
 }
 
 void UEquippedComponent::StartPrimaryUse()

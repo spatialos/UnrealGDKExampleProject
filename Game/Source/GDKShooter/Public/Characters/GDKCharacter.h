@@ -3,12 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Materials/MaterialInstance.h"
-#include "GameFramework/Character.h"
 #include "Components/HealthComponent.h"
 #include "Components/EquippedComponent.h"
-#include "Components/MetaDataComponent.h"
 #include "Components/GDKMovementComponent.h"
+#include "Components/MetaDataComponent.h"
+#include "Components/TeamComponent.h"
+#include "GameFramework/Character.h"
+#include "Materials/MaterialInstance.h"
+#include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
+#include "Runtime/AIModule/Classes/Perception/AISightTargetInterface.h"
+#include "TimerManager.h"
 #include "Weapons/Holdable.h"
 #include "GDKCharacter.generated.h"
 
@@ -16,7 +20,7 @@ DECLARE_DELEGATE_OneParam(FBoolean, bool);
 DECLARE_DELEGATE_OneParam(FHoldableSelection, int32);
 
 UCLASS()
-class GDKSHOOTER_API AGDKCharacter : public ACharacter
+class GDKSHOOTER_API AGDKCharacter : public ACharacter, public IGenericTeamAgentInterface, public IAISightTargetInterface
 {
 	GENERATED_BODY()
 
@@ -24,7 +28,7 @@ public:
 	AGDKCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -39,6 +43,9 @@ protected:
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UMetaDataComponent* MetaDataComponent;
+
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		UTeamComponent* TeamComponent;
 	
 	// [server] Tells this player that it's time to die.
 	// @param Killer  The player who killed me. Can be null if it wasn't a player who dealt the damage that killed me.
@@ -59,8 +66,18 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 		void OnEquippedUpdated(AHoldable* NewHoldable);
 
+	virtual FGenericTeamId GetGenericTeamId() const override;
+
+	virtual bool CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor = NULL) const override;
+
+	UPROPERTY(EditDefaultsOnly)
+		TArray<FName> LineOfSightSockets;
+
+	UPROPERTY(EditDefaultsOnly)
+		TEnumAsByte<ECollisionChannel> LineOfSightCollisionChannel;
+
 private:
-	
+
 	virtual void TornOff() override;
 
 	// [client + server] Puts the player in ragdoll mode.

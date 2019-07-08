@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 		float ShotCooldown;
 
+	UPROPERTY(EditAnywhere, Category = "Weapons")
+		bool bAllowContinuousFire = false;
+
 	// Projectile class to fire.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 		TSubclassOf<class AProjectile> ProjectileClass;

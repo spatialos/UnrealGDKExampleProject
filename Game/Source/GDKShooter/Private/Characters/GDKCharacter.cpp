@@ -3,8 +3,9 @@
 #include "GDKCharacter.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Controllers/Components/ControllerEventsComponent.h"
 #include "Controllers/GDKPlayerController.h"
-#include "Game/GDKPlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GDKLogging.h"
 #include "SpatialNetDriver.h"
@@ -20,6 +21,7 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	EquippedComponent = CreateDefaultSubobject<UEquippedComponent>(TEXT("Equipment"));
 	MetaDataComponent = CreateDefaultSubobject<UMetaDataComponent>(TEXT("MetaData"));
+	TeamComponent = CreateDefaultSubobject<UTeamComponent>(TEXT("Team"));
 	GDKMovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement());
 }
 
@@ -33,6 +35,10 @@ void AGDKCharacter::BeginPlay()
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
 	MetaDataComponent->MetaDataUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SpawnStarterTemplates);
+	if (EquippedComponent->CurrentlyHeldItem())
+	{
+		OnEquippedUpdated(EquippedComponent->CurrentlyHeldItem());
+	}
 }
 
 void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -104,12 +110,13 @@ void AGDKCharacter::Die(const AActor* Killer)
 {
 	TearOff();
 
-	if (AGDKPlayerController* PC = Cast<AGDKPlayerController>(GetController()))
+	if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(GetController()->GetComponentByClass(UControllerEventsComponent::StaticClass())))
 	{
-		PC->KillCharacter(Killer);
+		ControllerEvents->KilledBy(Killer);
 	}
 
-	StartRagdoll();
+	DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
+	GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, 5.0f, false);
 }
 
 void AGDKCharacter::TornOff()
@@ -120,15 +127,15 @@ void AGDKCharacter::TornOff()
 void AGDKCharacter::StartRagdoll()
 {
 	// Disable capsule collision and disable movement.
-	UCapsuleComponent* CapsuleComponent = GetCapsuleComponent();
-	if (CapsuleComponent == nullptr)
+	UCapsuleComponent* Capsule = GetCapsuleComponent();
+	if (Capsule == nullptr)
 	{
-		UE_LOG(LogGDK, Error, TEXT("Invalid capsule component on character %s"), *GetName());
+		UE_LOG(LogGDK, Error, TEXT("Invalid capsule component on character %s"), *this->GetName());
 		return;
 	}
 
-	CapsuleComponent->SetSimulatePhysics(false);
-	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Capsule->SetSimulatePhysics(false);
+	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
 
@@ -140,10 +147,10 @@ void AGDKCharacter::StartRagdoll()
 
 	// Gather list of child components of the capsule.
 	TArray<USceneComponent*> ComponentsToMove;
-	int NumChildren = CapsuleComponent->GetNumChildrenComponents();
+	int NumChildren = Capsule->GetNumChildrenComponents();
 	for (int i = 0; i < NumChildren; ++i)
 	{
-		USceneComponent* Component = CapsuleComponent->GetChildComponent(i);
+		USceneComponent* Component = Capsule->GetChildComponent(i);
 		if (Component != nullptr && Component != MeshComponent)
 		{
 			ComponentsToMove.Add(Component);
@@ -181,4 +188,43 @@ void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDa
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+}
+
+FGenericTeamId AGDKCharacter::GetGenericTeamId() const
+{
+	return TeamComponent->GetTeam();
+}
+
+bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor) const
+{
+	int32 PositiveHits = 0;
+
+	if (HealthComponent->GetCurrentHealth() <= 0)
+	{
+		return 0;
+	}
+
+	bool bHasSeen = false;
+
+	for (int i = 0; i < LineOfSightSockets.Num(); i++)
+	{
+		FVector Target = GetMesh()->GetSocketLocation(LineOfSightSockets[i]);
+		FHitResult HitResult;
+		const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, ObserverLocation, Target
+			, LineOfSightCollisionChannel.GetValue()
+			, FCollisionQueryParams(SCENE_QUERY_STAT(AILineOfSight), true, IgnoreActor));
+
+		if (bHit == false || (HitResult.Actor.IsValid() && HitResult.Actor->IsOwnedBy(this)))
+		{
+			if (!bHasSeen)
+			{
+				OutSeenLocation = Target;
+				bHasSeen = true;
+			}
+			PositiveHits++;
+		}
+	}
+	NumberOfLoSChecksPerformed = LineOfSightSockets.Num();
+	OutSightStrength = (float)PositiveHits / (float)NumberOfLoSChecksPerformed;
+	return PositiveHits > 0;
 }

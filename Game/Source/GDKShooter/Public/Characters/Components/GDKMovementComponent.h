@@ -41,6 +41,8 @@ public:
 	
 	// Set if the character should be aiming
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+		void ServerSetAiming(bool NewValue);
+	UFUNCTION(BlueprintCallable)
 		void SetAiming(bool NewValue);
 
 	// Returns true if the character is aiming.

@@ -4,8 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Game/GDKMetaData.h"
 #include "MetaDataComponent.generated.h"
+
+
+// Meta Data sctruct holding information about a player, also passed to a player's inventory items
+USTRUCT(BlueprintType)
+struct FGDKMetaData {
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+		int32 Customization;
+};
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMetaDataUpdated, FGDKMetaData, MetaData);

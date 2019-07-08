@@ -211,14 +211,21 @@ bool UGDKMovementComponent::CanCrouchInCurrentState() const
 	return !IsFalling() && IsMovingOnGround() && UpdatedComponent && !UpdatedComponent->IsSimulatingPhysics();
 }
 
-bool UGDKMovementComponent::SetAiming_Validate(bool NewValue)
+bool UGDKMovementComponent::ServerSetAiming_Validate(bool NewValue)
 {
 	return true;
 }
 
-void UGDKMovementComponent::SetAiming_Implementation(bool NewValue)
+void UGDKMovementComponent::ServerSetAiming_Implementation(bool NewValue)
 {
 	bIsAiming = NewValue;
+}
+
+void UGDKMovementComponent::SetAiming(bool NewValue)
+{
+	bIsAiming = NewValue;
+	ServerSetAiming(NewValue);
+	OnAimingUpdated.Broadcast(bIsAiming);
 }
 
 void UGDKMovementComponent::OnRep_IsAiming()

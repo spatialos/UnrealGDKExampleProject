@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/FirstPersonTraceProvider.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GDKLogging.h"
 #include "UnrealNetwork.h"
 

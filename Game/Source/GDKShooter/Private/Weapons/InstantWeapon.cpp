@@ -4,6 +4,7 @@
 
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/DamageType.h"
 #include "GDKLogging.h"
 #include "UnrealNetwork.h"
 
@@ -46,8 +47,6 @@ void AInstantWeapon::StopPrimaryUse_Implementation()
 
 void AInstantWeapon::DoFire_Implementation()
 {
-	check(GetNetMode() == NM_Client);
-
 	if (!bIsActive)
 	{
 		IsPrimaryUsing = false;

@@ -32,6 +32,7 @@ void AWeapon::BeginPlay()
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
 }
 
 FVector AWeapon::GetLineTraceDirection()
@@ -183,11 +184,6 @@ void AWeapon::ConsumeBufferedShot()
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (GetNetMode() != NM_Client)
-	{
-		return;
-	}
 
 	if ((IsPrimaryUsing || HasBufferedShot()) && ReadyToFire())
 	{
