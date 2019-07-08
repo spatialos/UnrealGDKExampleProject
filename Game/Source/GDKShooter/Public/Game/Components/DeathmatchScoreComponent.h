@@ -23,6 +23,12 @@ struct FPlayerScore {
 
 	UPROPERTY(BlueprintReadOnly)
 		int32 Deaths;
+
+	UPROPERTY(BlueprintReadOnly)
+		int32 AllTimeKills;
+
+	UPROPERTY(BlueprintReadOnly)
+		int32 AllTimeDeaths;
 };
 
 
