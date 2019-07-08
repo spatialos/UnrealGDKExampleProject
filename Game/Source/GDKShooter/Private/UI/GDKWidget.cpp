@@ -5,6 +5,8 @@
 #include "Game/GDKSessionGameState.h"
 #include "Game/GDKPlayerState.h"
 #include "Controllers/GDKPlayerController.h"
+#include "Components/GDKMovementComponent.h"
+#include "Components/HealthComponent.h"
 #include "GDKLogging.h"
 
 // Registr listeners on AGDKPlayerController and AGDKGameState
@@ -25,13 +27,10 @@ void UGDKWidget::NativeConstruct()
 
 	if (AGDKPlayerController* GDKPC = Cast<AGDKPlayerController>(PlayerController))
 	{
-		GDKPC->OnHealthUpdated().AddUObject(this, &UGDKWidget::OnHealthUpdated);
-		GDKPC->OnArmourUpdated().AddUObject(this, &UGDKWidget::OnArmourUpdated);
+		GDKPC->OnPawn().AddUniqueDynamic(this, &UGDKWidget::OnPawn);
+
 		GDKPC->OnKillNotification().AddUObject(this, &UGDKWidget::OnKill);
 		GDKPC->OnKilledNotification().AddUObject(this, &UGDKWidget::OnDeath);
-		GDKPC->OnAimingUpdated().AddUObject(this, &UGDKWidget::OnAimingUpdated);
-		GDKPC->OnWeaponChanged().AddUObject(this, &UGDKWidget::OnWeaponChanged);
-		GDKPC->OnShot().AddUObject(this, &UGDKWidget::OnShot);
 	}
 
 	if (AGDKGameState* GS = GetWorld()->GetGameState<AGDKGameState>())
@@ -41,10 +40,32 @@ void UGDKWidget::NativeConstruct()
 		GS->OnPlayerCountUpdated().AddUObject(this, &UGDKWidget::OnPlayerCountUpdated);
 		OnPlayerCountUpdated(GS->ConnectedPlayers);
 	}
+
 	if (AGDKSessionGameState* SGS = GetWorld()->GetGameState<AGDKSessionGameState>())
 	{
 		SGS->OnTimerUpdated().AddUObject(this, &UGDKWidget::OnTimerUpdated);
 		OnTimerUpdated(SGS->SessionProgress, SGS->SessionTimer);
+	}
+}
+
+void UGDKWidget::OnPawn(APawn* InPawn)
+{
+	if (!InPawn)
+	{
+		return;
+	}
+
+	if (UGDKMovementComponent* Movement = Cast< UGDKMovementComponent>(InPawn->GetComponentByClass(UGDKMovementComponent::StaticClass())))
+	{
+		Movement->OnAimingUpdated.AddUniqueDynamic(this, &UGDKWidget::OnAimingUpdated);
+	}
+
+	if (UHealthComponent* Health = Cast< UHealthComponent>(InPawn->GetComponentByClass(UHealthComponent::StaticClass())))
+	{
+		Health->HealthUpdated.AddUniqueDynamic(this, &UGDKWidget::OnHealthUpdated);
+		Health->ArmourUpdated.AddUniqueDynamic(this, &UGDKWidget::OnArmourUpdated);
+		OnHealthUpdated(Health->GetCurrentHealth(), Health->GetMaxHealth());
+		OnArmourUpdated(Health->GetCurrentArmour(), Health->GetMaxArmour());
 	}
 }
 

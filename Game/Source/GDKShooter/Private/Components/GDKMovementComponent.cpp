@@ -2,8 +2,9 @@
 
 #include "Components/GDKMovementComponent.h"
 
-#include "Characters/Core/GDKCharacter.h"
 #include "GameFramework/Character.h"
+#include "GDKLogging.h"
+#include "UnrealNetwork.h"
 
 // Use the first custom movement flag slot in the character for sprinting.
 static const FSavedMove_Character::CompressedFlags FLAG_WantsToSprint = FSavedMove_GDKMovement::FLAG_Custom_0;
@@ -13,7 +14,6 @@ UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectIni
 	, MaxSprintSpeed(850)
 	, SprintAcceleration(3400)
 	, SprintDirectionTolerance(0.1f)
-	, SprintCooldown(150)
 	, MaxJogSpeed(450)
 	, JogAcceleration(1800)
 	, bCanSprint(true)
@@ -22,15 +22,27 @@ UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectIni
 	MaxWalkSpeed = 250;
 	MaxWalkSpeedCrouched = 125;
 	MaxAcceleration = 1000;
+	bReplicates = true;
+	JumpZVelocity = 600.f;
+	AirControl = 0.2f;
 }
 
 void UGDKMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsSprinting()) {
-		lastTimeSprinting = FDateTime::Now();
+	if (IsSprinting() != bWasSprintingLastFrame)
+	{
+		bWasSprintingLastFrame = IsSprinting();
+		SprintingUpdated.Broadcast(IsSprinting());
 	}
+}
+
+void UGDKMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UGDKMovementComponent, bIsAiming);
 }
 
 void UGDKMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
@@ -75,24 +87,8 @@ bool UGDKMovementComponent::IsSprinting() const
 		&& static_cast<bool>(bWantsToSprint)
 		&& IsMovingForward()
 		&& !IsCrouching()
-		&& !IsAiming();
-}
-
-bool UGDKMovementComponent::HasSprintedRecently() const
-{
-	return
-		IsSprinting()
-		|| TimeSinceLastSprint() < SprintCooldown;
-}
-
-double UGDKMovementComponent::TimeSinceLastSprint() const
-{
-	return (FDateTime::Now() - lastTimeSprinting).GetTotalMilliseconds();
-}
-
-void UGDKMovementComponent::SetAiming(bool bAiming)
-{
-	bIsAiming = bAiming;
+		&& !IsAiming()
+		&& !IsBusy();
 }
 
 bool UGDKMovementComponent::IsAiming() const
@@ -143,13 +139,10 @@ bool UGDKMovementComponent::IsMovingForward() const
 
 	FVector MoveDirection = Velocity.GetSafeNormal();
 	FVector Forward = PawnOwner->GetActorForwardVector();
-	if (AGDKCharacter* Character = Cast<AGDKCharacter>(PawnOwner))
+	if (AController* PlayerController = PawnOwner->GetController())
 	{
-		if (AController* PlayerController = Character->GetController())
-		{
-			// Check move direction against control rotation.
-			Forward = PlayerController->GetControlRotation().Vector();
-		}
+		// Check move direction against control rotation.
+		Forward = PlayerController->GetControlRotation().Vector();
 	}
 
 	// Ignore the Z axis for comparison.
@@ -208,7 +201,6 @@ FSavedMovePtr FNetworkPredictionData_Client_GDKMovement::AllocateNewMove()
 	return FSavedMovePtr(new FSavedMove_GDKMovement());
 }
 
-
 bool UGDKMovementComponent::CanCrouchInCurrentState() const
 {
 	if (!CanEverCrouch())
@@ -217,4 +209,19 @@ bool UGDKMovementComponent::CanCrouchInCurrentState() const
 	}
 
 	return !IsFalling() && IsMovingOnGround() && UpdatedComponent && !UpdatedComponent->IsSimulatingPhysics();
+}
+
+bool UGDKMovementComponent::SetAiming_Validate(bool NewValue)
+{
+	return true;
+}
+
+void UGDKMovementComponent::SetAiming_Implementation(bool NewValue)
+{
+	bIsAiming = NewValue;
+}
+
+void UGDKMovementComponent::OnRep_IsAiming()
+{
+	OnAimingUpdated.Broadcast(bIsAiming);
 }

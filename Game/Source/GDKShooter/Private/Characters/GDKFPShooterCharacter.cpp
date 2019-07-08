@@ -4,14 +4,15 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/FirstPersonTraceProvider.h"
 #include "GDKLogging.h"
+#include "UnrealNetwork.h"
 
 FName AGDKFPShooterCharacter::FirstPersonMeshComponentName(TEXT("FirstPersonMesh"));
 
 AGDKFPShooterCharacter::AGDKFPShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-
 	// Hide the ThirdPerson Mesh from Owner
 	GetMesh()->bOwnerNoSee = true;
 	GetMesh()->bOnlyOwnerSee = false;
@@ -40,29 +41,16 @@ AGDKFPShooterCharacter::AGDKFPShooterCharacter(const FObjectInitializer& ObjectI
 		FirstPersonMesh->SetGenerateOverlapEvents(false);
 		FirstPersonMesh->SetCanEverAffectNavigation(false);
 	}
+
+	CreateDefaultSubobject<UFirstPersonTraceProvider>(TEXT("TraceProvider"));
 }
 
-FVector AGDKFPShooterCharacter::GetLineTraceStart() const
+void AGDKFPShooterCharacter::OnEquippedUpdated_Implementation(AHoldable* Holdable)
 {
-	return FirstPersonCamera->GetComponentLocation();
-}
-
-FVector AGDKFPShooterCharacter::GetLineTraceDirection() const
-{
-	return FirstPersonCamera->GetForwardVector();
-}
-
-void AGDKFPShooterCharacter::AttachWeapon(AWeapon* Weapon) const
-{
-	if (IsLocallyControlled())
+	if (Holdable != nullptr)
 	{
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, kRightGunSocketName);
-		UE_LOG(LogGDK, Log, TEXT("AGDKFPShooterCharacter:: Attached %s to %s"), *Weapon->GetName(), *Weapon->GetAttachParentSocketName().ToString());
-		Weapon->EnableShadows(false);
-		Weapon->SetFirstPerson(true);
-	}
-	else
-	{
-		Super::AttachWeapon(Weapon);
+		USkeletalMeshComponent* MeshToAttachTo = IsLocallyControlled() ? FirstPersonMesh : GetMesh();
+		Holdable->AttachToComponent(MeshToAttachTo, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Holdable->GetActiveSocket());
+		Holdable->SetFirstPerson(IsLocallyControlled());
 	}
 }
