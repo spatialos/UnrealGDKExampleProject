@@ -47,7 +47,7 @@ AGDKFPShooterCharacter::AGDKFPShooterCharacter(const FObjectInitializer& ObjectI
 
 void AGDKFPShooterCharacter::OnEquippedUpdated_Implementation(AHoldable* Holdable)
 {
-	if (Holdable)
+	if (Holdable != nullptr)
 	{
 		USkeletalMeshComponent* MeshToAttachTo = IsLocallyControlled() ? FirstPersonMesh : GetMesh();
 		Holdable->AttachToComponent(MeshToAttachTo, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Holdable->GetActiveSocket());
