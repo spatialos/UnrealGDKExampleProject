@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Materials/Material.h"
-#include "Holdable.h"
+#include "Camera/CameraShake.h"
 #include "Components/GDKMovementComponent.h"
 #include "Components/ShootingComponent.h"
+#include "GameFramework/Actor.h"
+#include "Holdable.h"
+#include "Materials/Material.h"
 #include "TimerManager.h"
-#include "Camera/CameraShake.h"
 #include "Weapon.generated.h"
 
 USTRUCT(BlueprintType)

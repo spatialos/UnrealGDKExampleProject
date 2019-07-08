@@ -3,8 +3,8 @@
 #include "Components/GDKMovementComponent.h"
 
 #include "GameFramework/Character.h"
-#include "UnrealNetwork.h"
 #include "GDKLogging.h"
+#include "UnrealNetwork.h"
 
 // Use the first custom movement flag slot in the character for sprinting.
 static const FSavedMove_Character::CompressedFlags FLAG_WantsToSprint = FSavedMove_GDKMovement::FLAG_Custom_0;
@@ -31,7 +31,8 @@ void UGDKMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsSprinting() != bWasSprintingLastFrame) {
+	if (IsSprinting() != bWasSprintingLastFrame)
+	{
 		bWasSprintingLastFrame = IsSprinting();
 		SprintingUpdated.Broadcast(IsSprinting());
 	}

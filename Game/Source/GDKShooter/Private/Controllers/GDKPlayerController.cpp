@@ -2,22 +2,23 @@
 
 #include "Controllers/GDKPlayerController.h"
 
-#include "GameFramework/Character.h"
-#include "GameFramework/PlayerState.h"
-#include "GameFramework/GameStateBase.h"
 #include "Blueprint/UserWidget.h"
-#include "UnrealNetwork.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "Components/EquippedComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/MetaDataComponent.h"
-#include "Components/EquippedComponent.h"
-#include "Weapons/Holdable.h"
-#include "Game/Components/ScorePublisher.h"
-#include "Game/Components/PlayerPublisher.h"
-#include "Game/Components/SpawnRequestPublisher.h"
-#include "SpatialNetDriver.h"
 #include "Connection/SpatialWorkerConnection.h"
+#include "Game/GDKGameState.h"
+#include "Game/GDKSessionGameState.h"
+#include "Game/GDKPlayerState.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GDKLogging.h"
+#include "SpatialNetDriver.h"
+#include "TimerManager.h"
+#include "UnrealNetwork.h"
+#include "Weapons/Holdable.h"
+
 
 
 AGDKPlayerController::AGDKPlayerController()
@@ -163,7 +164,7 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
 	ResetIgnoreLookInput();
 	SetIgnoreLookInput(bIsUIMode);
 	ResetIgnoreMoveInput();
-	SetIgnoreMoveInput(bIsUIMode && !bAllowMovement);
+	SetIgnoreMoveInput(bIsUIMode);
 	SetIgnoreActionInput(bIsUIMode);
 
 	if (bIsUIMode)

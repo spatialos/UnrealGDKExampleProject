@@ -1,12 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "GDKWidget.h"
-#include "GameFramework/GameStateBase.h"
 #include "Components/GDKMovementComponent.h"
 #include "Components/HealthComponent.h"
-#include "Game/Components/PlayerCountingComponent.h"
 #include "Game/Components/LobbyTimerComponent.h"
 #include "Game/Components/MatchTimerComponent.h"
+#include "Game/Components/PlayerCountingComponent.h"
+#include "GameFramework/GameStateBase.h"
 #include "GDKLogging.h"
 
 // Registr listeners on AGDKPlayerController and AGDKGameState
@@ -63,6 +63,27 @@ void UGDKWidget::NativeConstruct()
 	{
 		LobbyTimer->OnTimer.AddDynamic(this, &UGDKWidget::OnLobbyTimerUpdated);
 		OnLobbyTimerUpdated(LobbyTimer->GetTimer());
+	}
+}
+
+void UGDKWidget::OnPawn(APawn* InPawn)
+{
+	if (!InPawn)
+	{
+		return;
+	}
+
+	if (UGDKMovementComponent* Movement = Cast< UGDKMovementComponent>(InPawn->GetComponentByClass(UGDKMovementComponent::StaticClass())))
+	{
+		Movement->OnAimingUpdated.AddUniqueDynamic(this, &UGDKWidget::OnAimingUpdated);
+	}
+
+	if (UHealthComponent* Health = Cast< UHealthComponent>(InPawn->GetComponentByClass(UHealthComponent::StaticClass())))
+	{
+		Health->HealthUpdated.AddUniqueDynamic(this, &UGDKWidget::OnHealthUpdated);
+		Health->ArmourUpdated.AddUniqueDynamic(this, &UGDKWidget::OnArmourUpdated);
+		OnHealthUpdated(Health->GetCurrentHealth(), Health->GetMaxHealth());
+		OnArmourUpdated(Health->GetCurrentArmour(), Health->GetMaxArmour());
 	}
 }
 
