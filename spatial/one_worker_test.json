@@ -1,5 +1,5 @@
 {
-  "template": "w2_r0500_e5",
+  "template": "small",
   "world": {
     "chunkEdgeLengthMeters": 50,
     "snapshots": {

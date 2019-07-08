@@ -3,17 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Materials/MaterialInstance.h"
+#include "GameFramework/Character.h"
 #include "Components/HealthComponent.h"
 #include "Components/EquippedComponent.h"
 #include "Components/MetaDataComponent.h"
 #include "Components/GDKMovementComponent.h"
 #include "Components/TeamComponent.h"
-#include "GameFramework/Character.h"
-#include "Materials/MaterialInstance.h"
+#include "Weapons/Holdable.h"
+#include "TimerManager.h"
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "Runtime/AIModule/Classes/Perception/AISightTargetInterface.h"
-#include "TimerManager.h"
-#include "Weapons/Holdable.h"
 #include "GDKCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FBoolean, bool);

@@ -40,6 +40,7 @@ void AWeapon::AnnounceShot(bool bHit)
 	{
 		GetShootingComponent()->FireShot(this);
 	}
+}
 
 void AWeapon::DoFire_Implementation()
 {

@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/Components/MetaDataComponent.h"
-#include "Components/EquippedComponent.h"
 #include "GameFramework/Actor.h"
+#include "Components/EquippedComponent.h"
+#include "Characters/Components/MetaDataComponent.h"
 #include "Holdable.generated.h"
 
 UENUM(BlueprintType)
@@ -26,7 +26,15 @@ public:
 	
 	virtual void BeginPlay();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-		
+	
+	//Locally, is active
+	//Who is holding it
+
+	//Can be visible InActive
+	//Socket to parent to when Active
+	//Socket to parent to when InActive
+	//Some way of defining animations
+	
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
@@ -44,6 +52,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void SetFirstPerson(bool bNewFirstPerson);
 
+	// Starting weapons would probably be removed when a character dies
+	// However weapons that had been picked up might want to persist
+	// Same goes for being able to trade/drop weapons
 	bool bCanBeDropped = false;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
@@ -52,7 +63,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnMetaDataUpdated();
 
-	void SetMetaData(const FGDKMetaData& MetaData);
+	void SetMetaData(FGDKMetaData MetaData);
 
 	UFUNCTION(BlueprintNativeEvent)
 		void SetIsActive(bool bNewActive);
@@ -86,6 +97,7 @@ protected:
 
 	USceneComponent* LocationComponent;
 
+	// Visible mesh.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
 		class USkeletalMeshComponent* Mesh;
 	

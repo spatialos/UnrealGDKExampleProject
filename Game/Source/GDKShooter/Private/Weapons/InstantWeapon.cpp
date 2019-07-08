@@ -112,7 +112,7 @@ FVector AInstantWeapon::GetLineTraceDirection()
 		}
 	}
 
-	if (GetMovementComponent())
+	if (SpreadToUse > 0)
 	{
 		auto Spread = FMath::RandPointInCircle(SpreadToUse);
 		Direction = Direction.Rotation().RotateVector(FVector(10000, Spread.X, Spread.Y));
