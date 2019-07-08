@@ -1,9 +1,9 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
+#include "Engine/World.h"
+#include "GDKLogging.h"
 #include "TimerComponent.h"
 #include "UnrealNetwork.h"
-#include "GDKLogging.h"
-#include "Engine/World.h"
 
 UTimerComponent::UTimerComponent()
 {
@@ -26,7 +26,7 @@ void UTimerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UTimerComponent, bIsTimerRunning);
-	DOREPLIFETIME(UTimerComponent, Timer);
+	DOREPLIFETIME(UTimerComponent, TimeLeft);
 	DOREPLIFETIME(UTimerComponent, bHasTimerFinished);
 }
 
@@ -49,7 +49,7 @@ void UTimerComponent::ResumeTimer()
 
 void UTimerComponent::SetTimer(int32 NewValue)
 {
-	Timer = NewValue;
+	TimeLeft = NewValue;
 	bHasTimerFinished = false;
 }
 
@@ -74,9 +74,9 @@ void UTimerComponent::OnRep_TimerFinished()
 
 void UTimerComponent::TickTimer()
 {
-	Timer--;
+	TimeLeft--;
 
-	if (Timer <= 0)
+	if (TimeLeft <= 0)
 	{
 		bHasTimerFinished = true;
 		OnTimerFinished.Broadcast();

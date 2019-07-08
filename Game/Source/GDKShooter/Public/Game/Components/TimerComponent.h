@@ -35,7 +35,7 @@ public:
 		FTimerFinishedEvent OnTimerFinished;
 
 	UFUNCTION(BlueprintPure)
-		int32 GetTimer() { return Timer; }
+		int32 GetTimer() { return TimeLeft; }
 
 protected:
 	void BeginPlay();
@@ -48,7 +48,7 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 		bool bIsTimerRunning = false;
 	UPROPERTY(ReplicatedUsing = OnRep_Timer, BlueprintReadOnly)
-		int32 Timer;
+		int32 TimeLeft;
 	UPROPERTY(ReplicatedUsing = OnRep_TimerFinished, BlueprintReadOnly)
 		bool bHasTimerFinished = false;
 
