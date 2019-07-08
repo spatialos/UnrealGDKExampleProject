@@ -52,7 +52,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnMetaDataUpdated();
 
-	void SetMetaData(FGDKMetaData MetaData);
+	void SetMetaData(const FGDKMetaData& MetaData);
 
 	UFUNCTION(BlueprintNativeEvent)
 		void SetIsActive(bool bNewActive);

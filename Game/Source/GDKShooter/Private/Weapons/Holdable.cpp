@@ -50,7 +50,7 @@ void AHoldable::OnRep_MetaData()
 	OnMetaDataUpdated();
 }
 
-void AHoldable::SetMetaData(FGDKMetaData NewMetaData)
+void AHoldable::SetMetaData(const FGDKMetaData& NewMetaData)
 {
 	if (HasAuthority())
 	{
