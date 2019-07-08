@@ -42,9 +42,9 @@ if exist "%ENGINE_ASSOCIATION%" (
 rem Try and use the engine association as a key in the registry to get the path to Unreal.
 if %UNREAL_ENGINE%=="" (
     if not "%ENGINE_ASSOCIATION%"=="" (
-        rem Query the registry for the path to the Unreal Engine using the engine associtation.
+        rem Query the registry for the path to the Unreal Engine using the engine association.
         for /f "usebackq tokens=3*" %%A in (`reg query "HKCU\Software\Epic Games\Unreal Engine\Builds" /v %ENGINE_ASSOCIATION%`) do (
-            set UNREAL_ENGINE="%%A"
+            set UNREAL_ENGINE="%%A %%B"
         )
     )
 )
@@ -79,12 +79,11 @@ if %UNREAL_ENGINE%=="" (
     exit /b 1
 )
 
-rem Make the relative path absolute
+rem Make the relative path absolute. Pushd to PROJECT_PATH is required as a relative path will be relative to the .uproject file.
 pushd "%~dp0\%PROJECT_PATH%"
-cd %UNREAL_ENGINE%
-
+echo Changing engine: %UNREAL_ENGINE%
+cd /d %UNREAL_ENGINE%
 echo Using Unreal Engine at: %cd%
-
 set GDK_DIRECTORY="%cd%\Engine\Plugins\UnrealGDK"
 popd
 
