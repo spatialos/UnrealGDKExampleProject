@@ -44,7 +44,7 @@ void UTimerComponent::ResumeTimer()
 	}
 
 	bIsTimerRunning = true;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTimerComponent::TickTimer, 1.0f, true, 1.0f);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTimerComponent::DecrementTimer, 1.0f, true, 1.0f);
 }
 
 void UTimerComponent::SetTimer(int32 NewValue)
@@ -72,7 +72,7 @@ void UTimerComponent::OnRep_TimerFinished()
 	}
 }
 
-void UTimerComponent::TickTimer()
+void UTimerComponent::DecrementTimer()
 {
 	TimeLeft--;
 

@@ -53,7 +53,7 @@ protected:
 		bool bHasTimerFinished = false;
 
 	UFUNCTION()
-		void TickTimer();
+		void DecrementTimer();
 	UFUNCTION()
 		void OnRep_Timer();
 	UFUNCTION()
