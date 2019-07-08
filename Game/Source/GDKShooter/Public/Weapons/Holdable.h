@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/Components/MetaDataComponent.h"
 #include "Components/EquippedComponent.h"
-#include "Game/GDKMetaData.h"
 #include "GameFramework/Actor.h"
 #include "Holdable.generated.h"
 
