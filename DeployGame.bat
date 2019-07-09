@@ -13,7 +13,7 @@ set deploymentname=%gamename%%formatdate%
 :: Upload the assembly, and launch the deployment
 cd spatial/
 spatial build build-config || goto :error
-spatial cloud upload %deploymentname% --force --enable_pre_upload_check=false|| goto :error
+spatial cloud upload %deploymentname% --force || goto :error
 spatial cloud launch %deploymentname% one_worker_test.json %deploymentname% --snapshot=snapshots/default.snapshot --cluster_region=eu || goto :error
 spatial project deployment tags add %deploymentname% dev_login || goto :error
 spatial project deployment tags add %deploymentname% status_lobby || goto :error

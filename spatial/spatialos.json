@@ -1,11 +1,11 @@
 {
-  "name": "unreal_gdk",
+  "name": "your_project_name_here",
   "project_version": "0.0.1",
-  "sdk_version": "13.7.1",
+  "sdk_version": "13.8.1",
   "dependencies": [
     {
       "name": "standard_library",
-      "version": "13.7.1"
+      "version": "13.8.1"
     }
   ]
 }

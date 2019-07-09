@@ -97,7 +97,7 @@ echo All builds succeeded.
 pause
 exit /b 0
 
-:Error
+:error
 echo Builds failed.
 pause
 exit /b 1

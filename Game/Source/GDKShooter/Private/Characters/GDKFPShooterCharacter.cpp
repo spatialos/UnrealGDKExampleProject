@@ -8,7 +8,6 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GDKLogging.h"
 #include "Components/SkinnedMeshComponent.h"
-// #include "UnrealNetwork.h"
 
 FName AGDKFPShooterCharacter::FirstPersonMeshComponentName(TEXT("FirstPersonMesh"));
 
