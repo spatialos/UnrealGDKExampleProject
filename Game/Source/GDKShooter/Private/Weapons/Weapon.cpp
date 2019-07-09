@@ -70,7 +70,6 @@ FInstantHitInfo AWeapon::DoLineTrace()
 
 	FCollisionQueryParams TraceParams;
 	TraceParams.bTraceComplex = true;
-	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 	TraceParams.AddIgnoredActor(this);
 	TraceParams.AddIgnoredActor(GetOwner());

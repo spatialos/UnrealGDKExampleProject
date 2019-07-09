@@ -118,10 +118,10 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 
 		if (const ACharacter* KillerCharacter = Cast<ACharacter>(Weilder))
 		{
-			if (KillerCharacter->PlayerState)
+			if (KillerCharacter->GetPlayerState())
 			{
-				KillerName = KillerCharacter->PlayerState->GetPlayerName();
-				KillerId = KillerCharacter->PlayerState->PlayerId;
+				KillerName = KillerCharacter->GetPlayerState()->GetPlayerName();
+				KillerId = KillerCharacter->GetPlayerState()->PlayerId;
 			}
 
 			if (KillerCharacter->GetController())
@@ -130,7 +130,7 @@ void AGDKPlayerController::KillCharacter(const AActor* Killer)
 				{
 					if (ACharacter* VictimCharacter = Cast<ACharacter>(GetPawn()))
 					{
-						APlayerState* VictimState = VictimCharacter->PlayerState;
+						APlayerState* VictimState = VictimCharacter->GetPlayerState();
 						KillerController->InformOfKill(VictimState->GetPlayerName(), VictimState->PlayerId);
 					}
 				}

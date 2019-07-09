@@ -15,13 +15,11 @@ UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectIni
 	, bCanSprint(true)
 	, bWantsToSprint(false)
 	, bWasSprintingLastFrame(false)
-	, lastTimeSprinting()
 	, bIsAiming(false)
 	, bShouldOrientToControlRotation(false)
 	, MaxSprintSpeed(850)
 	, SprintAcceleration(3400)
 	, SprintDirectionTolerance(0.1f)
-	, SprintCooldown(150)
 	, JogAcceleration(1800)
 {
 	MaxWalkSpeed = 250;
