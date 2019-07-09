@@ -165,6 +165,46 @@ void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDa
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+
+}
+
+FGenericTeamId AGDKCharacter::GetGenericTeamId() const
+{
+	return TeamComponent->GetTeam();
+}
+
+bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor) const
+{
+	int32 PositiveHits = 0;
+
+	if (HealthComponent->GetCurrentHealth() <= 0)
+	{
+		return 0;
+	}
+
+	bool bHasSeen = false;
+
+	for (int i = 0; i < LineOfSightSockets.Num(); i++)
+	{
+		FVector Target = GetMesh()->GetSocketLocation(LineOfSightSockets[i]);
+		FHitResult HitResult;
+		const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, ObserverLocation, Target
+			, LineOfSightCollisionChannel.GetValue()
+			, FCollisionQueryParams(SCENE_QUERY_STAT(AILineOfSight), true, IgnoreActor));
+
+		if (bHit == false || (HitResult.Actor.IsValid() && HitResult.Actor->IsOwnedBy(this)))
+		{
+			if (!bHasSeen)
+			{
+				OutSeenLocation = Target;
+				bHasSeen = true;
+			}
+			PositiveHits++;
+		}
+	}
+	NumberOfLoSChecksPerformed = LineOfSightSockets.Num();
+	OutSightStrength = (float)PositiveHits / (float)NumberOfLoSChecksPerformed;
+	return PositiveHits > 0;
 }
 
 FGenericTeamId AGDKCharacter::GetGenericTeamId() const
