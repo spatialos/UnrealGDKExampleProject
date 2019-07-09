@@ -17,7 +17,7 @@ class GDKSHOOTER_API IPhaseActivated
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Phases")
-		int GetActivatesInPhase();
+		void SnapToPhase(int32 Phase);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Phases")
-		void Activate();
+		void ProgressToPhase(int32 Phase);
 };

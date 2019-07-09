@@ -37,10 +37,8 @@ public:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		APostProcessVolume* PostProcessVolume;
-
-	int GetActivatesInPhase_Implementation() { return ActivatesInPhase; }
 	
-	void Activate_Implementation()
+	void Activate()
 	{
 		bPainCausing = true;
 		if (PostProcessVolume)
@@ -48,5 +46,19 @@ public:
 			PostProcessVolume->bEnabled = true;
 		} 
 	}
-	
+
+	void SnapToPhase_Implementation(int32 Phase)
+	{
+		if (Phase >= ActivatesInPhase)
+		{
+			Activate();
+		}
+	}
+	void ProgressToPhase_Implementation(int32 Phase)
+	{
+		if (Phase >= ActivatesInPhase)
+		{
+			Activate();
+		}
+	}
 };
