@@ -2,6 +2,7 @@
 
 #include "HealthComponent.h"
 #include "Components/ControllerEventsComponent.h"
+#include "Components/ScorePublisher.h"
 #include "GameFramework/Pawn.h"
 #include "TeamComponent.h"
 #include "UnrealNetwork.h"
@@ -25,8 +26,6 @@ void UHealthComponent::BeginPlay()
 
 	if (GetOwner()->HasAuthority())
 	{
-		//Timers if required for regen
-		//TODO watch out for multiworker here
 		CurrentHealth = MaxHealth;
 		CurrentArmour = 0;
 	}
