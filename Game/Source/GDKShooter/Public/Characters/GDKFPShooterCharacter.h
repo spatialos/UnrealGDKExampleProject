@@ -3,28 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/GDKShooterCharacter.h"
+#include "GDKCharacter.h"
 #include "GDKFPShooterCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GDKSHOOTER_API AGDKFPShooterCharacter : public AGDKShooterCharacter
+class GDKSHOOTER_API AGDKFPShooterCharacter : public AGDKCharacter
 {
 	GENERATED_BODY()
 
 public:
 	AGDKFPShooterCharacter(const FObjectInitializer& ObjectInitializer);
 
-	// Returns a position from which to start a line trace.
-	// Use this so your line trace doesn't collide with the player character.
-	virtual FVector GetLineTraceStart() const override;
-
-	// Returns the direction in which to perform a line trace so it lines up with the center of the crosshair.
-	virtual FVector GetLineTraceDirection() const override;
-
-	virtual void AttachWeapon(AWeapon* weapon) const override;
+	virtual void OnEquippedUpdated_Implementation(AHoldable* Holdable) override;
 
 protected:
 

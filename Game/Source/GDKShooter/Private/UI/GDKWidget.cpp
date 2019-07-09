@@ -1,10 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "GDKWidget.h"
-#include "Game/GDKGameState.h"
-#include "Game/GDKSessionGameState.h"
-#include "Game/GDKPlayerState.h"
-#include "Controllers/GDKPlayerController.h"
+#include "Components/GDKMovementComponent.h"
+#include "Components/HealthComponent.h"
+#include "Game/Components/LobbyTimerComponent.h"
+#include "Game/Components/MatchTimerComponent.h"
+#include "Game/Components/PlayerCountingComponent.h"
+#include "GameFramework/GameStateBase.h"
 #include "GDKLogging.h"
 
 // Registr listeners on AGDKPlayerController and AGDKGameState
@@ -21,42 +23,79 @@ void UGDKWidget::NativeConstruct()
 		bListenersAdded = true;
 	}
 
-	PlayerController = GetOwningPlayer();
+	APlayerController* PlayerController = GetOwningPlayer();
 
 	if (AGDKPlayerController* GDKPC = Cast<AGDKPlayerController>(PlayerController))
 	{
-		GDKPC->OnHealthUpdated().AddUObject(this, &UGDKWidget::OnHealthUpdated);
-		GDKPC->OnArmourUpdated().AddUObject(this, &UGDKWidget::OnArmourUpdated);
-		GDKPC->OnKillNotification().AddUObject(this, &UGDKWidget::OnKill);
-		GDKPC->OnKilledNotification().AddUObject(this, &UGDKWidget::OnDeath);
-		GDKPC->OnAimingUpdated().AddUObject(this, &UGDKWidget::OnAimingUpdated);
-		GDKPC->OnWeaponChanged().AddUObject(this, &UGDKWidget::OnWeaponChanged);
-		GDKPC->OnShot().AddUObject(this, &UGDKWidget::OnShot);
+		GDKPlayerController = GDKPC;
+		GDKPlayerController->OnPawn().AddDynamic(this, &UGDKWidget::OnPawn);
+		OnPawn(GDKPlayerController->GetPawn());
+
+		GDKPlayerController->OnKillNotification().AddUObject(this, &UGDKWidget::OnKill);
+		GDKPlayerController->OnKilledNotification().AddUObject(this, &UGDKWidget::OnDeath);
 	}
 
-	if (AGDKGameState* GS = GetWorld()->GetGameState<AGDKGameState>())
+	if (UDeathmatchScoreComponent* Deathmatch = Cast<UDeathmatchScoreComponent>(GetWorld()->GetGameState()->GetComponentByClass(UDeathmatchScoreComponent::StaticClass())))
 	{
-		GS->OnScoreUpdated().AddUObject(this, &UGDKWidget::OnPlayerScoresUpdated);
-		OnPlayerScoresUpdated(GS->PlayerScores());
-		GS->OnPlayerCountUpdated().AddUObject(this, &UGDKWidget::OnPlayerCountUpdated);
-		OnPlayerCountUpdated(GS->ConnectedPlayers);
+		Deathmatch->ScoreEvent.AddDynamic(this, &UGDKWidget::OnPlayerScoresUpdated);
+		OnPlayerScoresUpdated(Deathmatch->PlayerScores());
 	}
-	if (AGDKSessionGameState* SGS = GetWorld()->GetGameState<AGDKSessionGameState>())
+
+	if (UPlayerCountingComponent* PlayerCounter = Cast<UPlayerCountingComponent>(GetWorld()->GetGameState()->GetComponentByClass(UPlayerCountingComponent::StaticClass())))
 	{
-		SGS->OnTimerUpdated().AddUObject(this, &UGDKWidget::OnTimerUpdated);
-		OnTimerUpdated(SGS->SessionProgress, SGS->SessionTimer);
+		PlayerCounter->PlayerCountEvent.AddDynamic(this, &UGDKWidget::OnPlayerCountUpdated);
+		OnPlayerCountUpdated(PlayerCounter->PlayerCount());
+	}
+
+	if (UMatchStateComponent* MatchState = Cast<UMatchStateComponent>(GetWorld()->GetGameState()->GetComponentByClass(UMatchStateComponent::StaticClass())))
+	{
+		MatchState->MatchEvent.AddDynamic(this, &UGDKWidget::OnStateUpdated);
+		OnStateUpdated(MatchState->GetCurrentState());
+	}
+
+	if (UMatchTimerComponent* MatchTimer = Cast<UMatchTimerComponent>(GetWorld()->GetGameState()->GetComponentByClass(UMatchTimerComponent::StaticClass())))
+	{
+		MatchTimer->OnTimer.AddDynamic(this, &UGDKWidget::OnMatchTimerUpdated);
+		OnMatchTimerUpdated(MatchTimer->GetTimer());
+	}
+
+	if (ULobbyTimerComponent* LobbyTimer = Cast<ULobbyTimerComponent>(GetWorld()->GetGameState()->GetComponentByClass(ULobbyTimerComponent::StaticClass())))
+	{
+		LobbyTimer->OnTimer.AddDynamic(this, &UGDKWidget::OnLobbyTimerUpdated);
+		OnLobbyTimerUpdated(LobbyTimer->GetTimer());
+	}
+}
+
+void UGDKWidget::OnPawn(APawn* InPawn)
+{
+	if (!InPawn)
+	{
+		return;
+	}
+
+	if (UGDKMovementComponent* Movement = Cast< UGDKMovementComponent>(InPawn->GetComponentByClass(UGDKMovementComponent::StaticClass())))
+	{
+		Movement->OnAimingUpdated.AddUniqueDynamic(this, &UGDKWidget::OnAimingUpdated);
+	}
+
+	if (UHealthComponent* Health = Cast< UHealthComponent>(InPawn->GetComponentByClass(UHealthComponent::StaticClass())))
+	{
+		Health->HealthUpdated.AddUniqueDynamic(this, &UGDKWidget::OnHealthUpdated);
+		Health->ArmourUpdated.AddUniqueDynamic(this, &UGDKWidget::OnArmourUpdated);
+		OnHealthUpdated(Health->GetCurrentHealth(), Health->GetMaxHealth());
+		OnArmourUpdated(Health->GetCurrentArmour(), Health->GetMaxArmour());
 	}
 }
 
 // Function to call to ClientTravel to the TargetMap
 void UGDKWidget::LeaveGame(const FString& TargetMap)
 {
-	check(PlayerController);
+	check(GetOwningPlayer());
 
 	FURL TravelURL;
 	TravelURL.Map = *TargetMap;
 
-	PlayerController->ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false /*bSeamless*/);
+	GetOwningPlayer()->ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false /*bSeamless*/);
 
 }
 
