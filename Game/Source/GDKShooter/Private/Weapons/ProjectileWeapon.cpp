@@ -28,8 +28,6 @@ void AProjectileWeapon::DoFire_Implementation()
 
 	FVector Barrel = Mesh->GetSocketLocation(BarrelSocket);
 
-	FVector Barrel = Mesh->GetSocketLocation(BarrelSocket);
-
 	FInstantHitInfo HitInfo = DoLineTrace();
 	if (HitInfo.bDidHit)
 	{

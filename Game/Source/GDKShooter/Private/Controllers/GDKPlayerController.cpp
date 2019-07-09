@@ -103,7 +103,6 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode)
 	SetIgnoreLookInput(bIsUIMode);
 	ResetIgnoreMoveInput();
 	SetIgnoreMoveInput(bIsUIMode);
-	SetIgnoreActionInput(bIsUIMode);
 
 	if (bIsUIMode)
 	{

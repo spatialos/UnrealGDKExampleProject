@@ -82,11 +82,5 @@ void AHoldable::SetFirstPerson_Implementation(bool bNewFirstPerson)
 
 void AHoldable::ToggleMode_Implementation()
 {
-	bIsFirstPerson = bNewFirstPerson;
-	Mesh->CastShadow = !bNewFirstPerson;
-}
-
-void AHoldable::ToggleMode_Implementation()
-{
 
 }
