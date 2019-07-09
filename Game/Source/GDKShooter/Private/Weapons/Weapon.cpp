@@ -197,7 +197,6 @@ void AWeapon::Tick(float DeltaTime)
 			}
 		}
 	}
-	UE_LOG(LogGDK, Verbose, TEXT("TEST"));
 
 	if (HasBufferedShot() && !BufferedShotStillValid())
 	{
