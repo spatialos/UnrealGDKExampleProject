@@ -157,7 +157,7 @@ void AGDKCharacter::DeleteSelf()
 
 float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	TakeDamageCrossServer(Damage, DamageEvent, EventInstigator, DamageCauser);
+	TakeDamageCrossServer(Damage, DamageEvent, nullptr, DamageCauser);
 	return Damage;
 }
 
