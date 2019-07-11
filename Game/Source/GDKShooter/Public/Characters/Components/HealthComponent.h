@@ -6,11 +6,12 @@
 #include "Components/ActorComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/Actor.h"
+#include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "TimerManager.h"
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFloatValue, float, Current, float, Max);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVectorEvent, FVector, Source);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FDamageTakenEvent, float, Value, FVector, Source, FVector, Impact, int32, PlayerId, FGenericTeamId, TeamId);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathCauserEvent, const AController*, Instigator);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathEvent);
 
@@ -66,7 +67,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FFloatValue ArmourUpdated;
 	UPROPERTY(BlueprintAssignable)
-		FVectorEvent DamageTaken;
+		FDamageTakenEvent DamageTaken;
 	UPROPERTY(BlueprintAssignable)
 		FDeathCauserEvent AuthoritativeDeath;
 	UPROPERTY(BlueprintAssignable)
@@ -76,7 +77,7 @@ protected:
 
 	// Notifies all clients that a the character has been hit and from what direction.
 	UFUNCTION(NetMulticast, Unreliable)
-		void MulticastDamageTaken(FVector DamageSource);
+		void MulticastDamageTaken(float Value, FVector Source, FVector Impact, int32 PlayerId, FGenericTeamId TeamId);
 
 	UFUNCTION()
 		void OnRep_CurrentHealth();
@@ -86,19 +87,19 @@ protected:
 
 	// Max health this character can have.
 	UPROPERTY(EditDefaultsOnly, Category = "Health", meta = (ClampMin = "1"))
-		int32 MaxHealth;
+		float MaxHealth;
 
 	// Current health of the character, can be at most MaxHealth.
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CurrentHealth, Category = "Health")
-		int32 CurrentHealth;
+		float CurrentHealth;
 
 	// Max armour this character can have.
 	UPROPERTY(EditDefaultsOnly, Category = "Health", meta = (ClampMin = "1"))
-		int32 MaxArmour;
+		float MaxArmour;
 
 	// Current armour of the character, can be at most MaxArmour.
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CurrentArmour, Category = "Health")
-		int32 CurrentArmour;
+		float CurrentArmour;
 
 	FTimerHandle HealthRegenerationHandle;
 
@@ -127,6 +128,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float ArmourRegenInterval;
-		
+	
+	// When hit by radial damage, we assume the impact point is the owner's actor location plus this value
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FVector RadialDamageImpactOffset;
 	
 };
