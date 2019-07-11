@@ -3,6 +3,7 @@
 #include "Components/GDKMovementComponent.h"
 
 #include "GameFramework/Character.h"
+#include "GameFramework/Controller.h"
 #include "UnrealNetwork.h"
 #include "GDKLogging.h"
 
@@ -11,13 +12,17 @@ static const FSavedMove_Character::CompressedFlags FLAG_WantsToSprint = FSavedMo
 
 UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+	, MaxJogSpeed(450)
+	, bCanSprint(true)
+	, bWantsToSprint(false)
+	, bWasSprintingLastFrame(false)
+	, bIsAiming(false)
+	, bIsBusy(false)
+	, bShouldOrientToControlRotation(false)
 	, MaxSprintSpeed(850)
 	, SprintAcceleration(3400)
 	, SprintDirectionTolerance(0.1f)
-	, MaxJogSpeed(450)
 	, JogAcceleration(1800)
-	, bCanSprint(true)
-	, bShouldOrientToControlRotation(false)
 {
 	MaxWalkSpeed = 250;
 	MaxWalkSpeedCrouched = 125;

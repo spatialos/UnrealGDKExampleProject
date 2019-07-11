@@ -44,7 +44,6 @@ FInstantHitInfo UShootingComponent::DoLineTrace(FVector Direction, AActor* Actor
 	
 	FCollisionQueryParams TraceParams;
 	TraceParams.bTraceComplex = true;
-	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 	if (ActorToIgnore != nullptr)
 	{
