@@ -68,10 +68,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 		void SetIsActive(bool bNewActive);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 		FVector EffectSpawnPoint();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 		FName GetActiveSocket() { return ActiveSocket; }
 
 	UFUNCTION(BlueprintCallable)

@@ -80,6 +80,7 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 	}
 
 	PawnEvent.Broadcast(InPawn);
+	OnNewPawn(InPawn);
 }
 
 void AGDKPlayerController::GetPlayerViewPoint(FVector& out_Location, FRotator& out_Rotation) const

@@ -41,6 +41,9 @@ public:
 protected:
 	UPROPERTY(BlueprintAssignable)
 		FPawnEvent PawnEvent;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnNewPawn(APawn* InPawn);
 		
 	/** Death camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
