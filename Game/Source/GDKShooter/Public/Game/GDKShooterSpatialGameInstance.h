@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EngineClasses/SpatialGameInstance.h"
+#include "GDKShooter/ExternalSchemaCodegen/ExternalSchemaInterface.h"
 #include "GDKShooterSpatialGameInstance.generated.h"
 
 /**
@@ -14,7 +15,12 @@ class GDKSHOOTER_API UGDKShooterSpatialGameInstance : public USpatialGameInstanc
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+
+	void Init();
+
+	ExternalSchemaInterface* ExternalSchema;
+
+	Worker_EntityId HierarchyServiceId;
+
 };

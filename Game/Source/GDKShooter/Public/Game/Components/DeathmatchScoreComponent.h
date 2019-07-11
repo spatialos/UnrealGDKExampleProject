@@ -5,6 +5,13 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/PlayerState.h"
+
+#include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncReference.h"
+#include "ExternalSchemaCodegen/improbable/database_sync/AssociateDatabaseSync.h"
+#include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncService.h"
+//#include "ExternalSchemaCodegen/improbable/database_sync/Profiler.h"
+
+
 #include "DeathmatchScoreComponent.generated.h"
 
 // Information about a players performane during a match
@@ -54,6 +61,13 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FScoreChangeEvent ScoreEvent;
 
+	
+	void ItemUpdateEvent(const ::improbable::database_sync::DatabaseSyncService::ComponentUpdateOp& Op);
+
+	void GetItemResponse(const ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::ResponseOp& Op);
+	void CreateItemResponse(const ::improbable::database_sync::DatabaseSyncService::Commands::Create::ResponseOp& Op);
+	void IncrementResponse(const ::improbable::database_sync::DatabaseSyncService::Commands::Increment::ResponseOp& Op);
+
 protected:
 		virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -66,5 +80,17 @@ protected:
 	// A map from player name to score, to make it easier to update scores
 	UPROPERTY()
 		TMap<int32, int32> PlayerScoreMap;
+
+	void RequestGetItem(const FString &Path);
+	void RequestCreateItem(const FString &Name, int64 Count, const FString &Path);
+	void RequestIncrement(const FString &Path, int64 Count);
+
+	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request*> GetItemRequests;
+	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::Create::Request*> CreateItemRequests;
+	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request*> IncrementRequests;
+
+	void UpdateScoreFromPath(const FString &Path, int64 NewCount);
+
+	void RequestCreateItemFromPath(const FString &Path);
 		
 };
