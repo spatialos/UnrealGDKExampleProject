@@ -1,6 +1,7 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "TeamComponent.h"
+#include "UnrealNetwork.h"
 
 #include "Engine/World.h"
 
