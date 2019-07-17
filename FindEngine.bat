@@ -22,10 +22,22 @@ for /f "delims=" %%A in (' powershell -Command "(Get-Content %UPROJECT% | Conver
 
 echo Engine association for uproject is: %ENGINE_ASSOCIATION%
 
-rem If the engine association is a path then use this.
-if exist "%ENGINE_ASSOCIATION%" (
-    set UNREAL_ENGINE="%ENGINE_ASSOCIATION%"
+rem If the engine association is a path then use this. If the path is relative then it will be relative to the uproject, thus we must change directory to the uproject folder.
+
+rem Grab the project path from the .uproject file.
+for %%i in (%UPROJECT%) do (
+	rem file drive + file directory
+	set UNREAL_PROJECT_DIR="%%~di%%~pi"
 )
+
+pushd %UNREAL_PROJECT_DIR%
+
+if exist "%ENGINE_ASSOCIATION%" (
+    cd /d "%ENGINE_ASSOCIATION%"
+    set UNREAL_ENGINE="!cd!"
+)
+
+popd
 
 rem Try and use the engine association as a key in the registry to get the path to Unreal.
 if %UNREAL_ENGINE%=="" (

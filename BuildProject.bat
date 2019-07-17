@@ -21,18 +21,13 @@ if %UNREAL_ENGINE%=="" (
     exit /b 1
 )
 
-rem Make the relative path absolute. Pushd to PROJECT_PATH is required as a relative path will be relative to the .uproject file.
-pushd "%~dp0\%PROJECT_PATH%"
-cd /d %UNREAL_ENGINE%
-echo Using Unreal Engine at: %cd%
-set GDK_DIRECTORY="%cd%\Engine\Plugins\UnrealGDK"
-popd
+set GDK_DIRECTORY=%UNREAL_ENGINE%\Engine\Plugins\UnrealGDK
+
 
 :BuildWorkers
 echo Building worker with GDK located at %GDK_DIRECTORY%
 
 call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME%Server Linux Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
-call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME%SimulatedPlayer Linux Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
 call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME% Win64 Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
 echo All builds succeeded.
 
