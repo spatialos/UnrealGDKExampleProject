@@ -228,7 +228,10 @@ void UGDKMovementComponent::ServerSetAiming_Implementation(bool NewValue)
 void UGDKMovementComponent::SetAiming(bool NewValue)
 {
 	bIsAiming = NewValue;
-	ServerSetAiming(NewValue);
+	if (GetOwnerRole() != ROLE_SimulatedProxy)
+	{
+		ServerSetAiming(NewValue);
+	}
 	OnAimingUpdated.Broadcast(bIsAiming);
 }
 
