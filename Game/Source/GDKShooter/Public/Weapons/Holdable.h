@@ -8,14 +8,6 @@
 #include "Characters/Components/MetaDataComponent.h"
 #include "Holdable.generated.h"
 
-UENUM(BlueprintType)
-enum class EHoldableHolsterType : uint8
-{
-	HH_Hidden 				UMETA(DisplayName = "Hidden"),
-	HH_Holster				UMETA(DisplayName = "Holster"),
-	HH_Back					UMETA(DisplayName = "Back")
-};
-
 UCLASS()
 class GDKSHOOTER_API AHoldable : public AActor
 {
@@ -26,15 +18,7 @@ public:
 	
 	virtual void BeginPlay();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
-	//Locally, is active
-	//Who is holding it
-
-	//Can be visible InActive
-	//Socket to parent to when Active
-	//Socket to parent to when InActive
-	//Some way of defining animations
-	
+		
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
@@ -50,15 +34,7 @@ public:
 		void ToggleMode();
 
 	UFUNCTION(BlueprintNativeEvent)
-	void SetFirstPerson(bool bNewFirstPerson);
-
-	// Starting weapons would probably be removed when a character dies
-	// However weapons that had been picked up might want to persist
-	// Same goes for being able to trade/drop weapons
-	bool bCanBeDropped = false;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-		EHoldableHolsterType Holster = EHoldableHolsterType::HH_Hidden;
+		void SetFirstPerson(bool bNewFirstPerson);
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnMetaDataUpdated();
