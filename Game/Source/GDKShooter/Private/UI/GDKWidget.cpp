@@ -8,6 +8,7 @@
 #include "Game/Components/MatchTimerComponent.h"
 #include "Game/Components/PlayerCountingComponent.h"
 #include "GameFramework/GameStateBase.h"
+#include "Weapons/InstantWeapon.h"
 
 // Register listeners on AGDKPlayerController and AGDKGameState
 void UGDKWidget::NativeConstruct()
@@ -89,6 +90,11 @@ void UGDKWidget::OnPawn(APawn* InPawn)
 		Health->ArmourUpdated.AddUniqueDynamic(this, &UGDKWidget::OnArmourUpdated);
 		OnHealthUpdated(Health->GetCurrentHealth(), Health->GetMaxHealth());
 		OnArmourUpdated(Health->GetCurrentArmour(), Health->GetMaxArmour());
+	}
+
+	if (UShootingComponent* Shooting = Cast< UShootingComponent>(InPawn->GetComponentByClass(UShootingComponent::StaticClass())))
+	{
+		Shooting->ShotEvent.AddDynamic(this, &UGDKWidget::OnShot);
 	}
 }
 

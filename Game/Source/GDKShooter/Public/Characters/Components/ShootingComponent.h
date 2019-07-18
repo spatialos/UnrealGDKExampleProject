@@ -7,7 +7,7 @@
 #include "Weapons/ITraceProvider.h"
 #include "ShootingComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShotEvent, AWeapon*, Weapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FShotEvent, AWeapon*, Weapon, bool, Hit);
 
 USTRUCT(BlueprintType)
 struct FInstantHitInfo
@@ -46,7 +46,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FShotEvent ShotEvent;
 
-	void FireShot(AWeapon* Weapon) { ShotEvent.Broadcast(Weapon); }
+	void FireShot(AWeapon* Weapon, bool bHit) { ShotEvent.Broadcast(Weapon, bHit); }
 
 	UFUNCTION(BlueprintPure)
 	FVector GetLineTraceStart()

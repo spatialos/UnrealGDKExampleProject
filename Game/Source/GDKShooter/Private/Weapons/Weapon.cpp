@@ -38,7 +38,7 @@ void AWeapon::AnnounceShot(bool bHit)
 {
 	if (GetShootingComponent())
 	{
-		GetShootingComponent()->FireShot(this);
+		GetShootingComponent()->FireShot(this, bHit);
 	}
 }
 
