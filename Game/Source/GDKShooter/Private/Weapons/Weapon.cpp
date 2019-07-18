@@ -26,7 +26,9 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->DebugDrawTraceTag = kTraceTag;
+	#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+		GetWorld()->DebugDrawTraceTag = kTraceTag;
+	#endif
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
