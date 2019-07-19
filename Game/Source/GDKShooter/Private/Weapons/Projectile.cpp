@@ -3,6 +3,8 @@
 #include "Projectile.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
+#include "GameFramework/Pawn.h"
 #include "GDKLogging.h"
 #include "UnrealNetwork.h"
 
@@ -165,6 +167,6 @@ void AProjectile::Explode()
 	SetLifeSpan(2.0f);
 	if (ExplosionDamage > 0 && ExplosionRadius > 0)
 	{
-		UGameplayStatics::ApplyRadialDamageWithFalloff(this, ExplosionDamage, ExplosionMinimumDamage, this->GetActorLocation(), ExplosionInnerRadius, ExplosionRadius, ExplosionFalloff, DamageTypeClass, TArray<AActor*>{this}, InstigatingWeapon, InstigatingController);
+		UGameplayStatics::ApplyRadialDamageWithFalloff(this, ExplosionDamage, ExplosionMinimumDamage, this->GetActorLocation(), ExplosionInnerRadius, ExplosionRadius, ExplosionFalloff, DamageTypeClass, TArray<AActor*>{this}, this, InstigatingController);
 	}
 }

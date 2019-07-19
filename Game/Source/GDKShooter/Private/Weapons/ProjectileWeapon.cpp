@@ -28,7 +28,6 @@ void AProjectileWeapon::DoFire_Implementation()
 
 	FVector Barrel = Mesh->GetSocketLocation(BarrelSocket);
 
-
 	FInstantHitInfo HitInfo = DoLineTrace();
 	if (HitInfo.bDidHit)
 	{
@@ -53,7 +52,6 @@ void AProjectileWeapon::DoFire_Implementation()
 			GetMovementComponent()->SetIsBusy(false);
 		}
 	}
-	IsPrimaryUsing = false;
 }
 
 bool AProjectileWeapon::FireProjectile_Validate(FVector Origin, FVector_NetQuantizeNormal Direction)

@@ -3,18 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/Components/MetaDataComponent.h"
-#include "Components/EquippedComponent.h"
 #include "GameFramework/Actor.h"
+#include "Components/EquippedComponent.h"
+#include "Characters/Components/MetaDataComponent.h"
 #include "Holdable.generated.h"
-
-UENUM(BlueprintType)
-enum class EHoldableHolsterType : uint8
-{
-	HH_Hidden 				UMETA(DisplayName = "Hidden"),
-	HH_Holster				UMETA(DisplayName = "Holster"),
-	HH_Back					UMETA(DisplayName = "Back")
-};
 
 UCLASS()
 class GDKSHOOTER_API AHoldable : public AActor
@@ -42,25 +34,20 @@ public:
 		void ToggleMode();
 
 	UFUNCTION(BlueprintNativeEvent)
-	void SetFirstPerson(bool bNewFirstPerson);
-
-	bool bCanBeDropped = false;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-		EHoldableHolsterType Holster = EHoldableHolsterType::HH_Hidden;
+		void SetFirstPerson(bool bNewFirstPerson);
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnMetaDataUpdated();
 
-	void SetMetaData(const FGDKMetaData& MetaData);
+	void SetMetaData(FGDKMetaData MetaData);
 
 	UFUNCTION(BlueprintNativeEvent)
 		void SetIsActive(bool bNewActive);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 		FVector EffectSpawnPoint();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 		FName GetActiveSocket() { return ActiveSocket; }
 
 	UFUNCTION(BlueprintCallable)
@@ -86,6 +73,7 @@ protected:
 
 	USceneComponent* LocationComponent;
 
+	// Visible mesh.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
 		class USkeletalMeshComponent* Mesh;
 	

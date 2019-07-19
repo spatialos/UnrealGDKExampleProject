@@ -15,18 +15,7 @@ AWeapon::AWeapon()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 
-	bDrawDebugLineTrace = false;
-	MaxRange = 50000.0f;
-
 	BufferShotThreshold = 0.2f;
-}
-
-
-void AWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-
-	GetWorld()->DebugDrawTraceTag = kTraceTag;
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -49,60 +38,13 @@ void AWeapon::AnnounceShot(bool bHit)
 {
 	if (GetShootingComponent())
 	{
-		GetShootingComponent()->FireShot(this);
+		GetShootingComponent()->FireShot(this, bHit);
 	}
 }
 
 void AWeapon::DoFire_Implementation()
 {
 
-}
-
-FInstantHitInfo AWeapon::DoLineTrace()
-{
-	FInstantHitInfo OutHitInfo;
-
-	if (!GetShootingComponent())
-	{
-		UE_LOG(LogGDK, Verbose, TEXT("Weapon %s does not have a shooting component"), *this->GetName());
-		return OutHitInfo;
-	}
-
-	FCollisionQueryParams TraceParams;
-	TraceParams.bTraceComplex = true;
-	TraceParams.bTraceAsyncScene = true;
-	TraceParams.bReturnPhysicalMaterial = false;
-	TraceParams.AddIgnoredActor(this);
-	TraceParams.AddIgnoredActor(GetOwner());
-
-	if (bDrawDebugLineTrace)
-	{
-		TraceParams.TraceTag = kTraceTag;
-	}
-
-	FHitResult HitResult(ForceInit);
-	FVector TraceStart = GetShootingComponent()->GetLineTraceStart();
-	FVector TraceEnd = TraceStart + GetLineTraceDirection() * MaxRange;
-
-	bool bDidHit = GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		TraceStart,
-		TraceEnd,
-		TraceChannel,
-		TraceParams);
-
-	if (!bDidHit)
-	{
-		OutHitInfo.Location = TraceEnd;
-		return OutHitInfo;
-	}
-
-	OutHitInfo.Location = HitResult.ImpactPoint;
-	OutHitInfo.HitActor = HitResult.GetActor();
-
-	OutHitInfo.bDidHit = true;
-
-	return OutHitInfo;
 }
 
 void AWeapon::StartPrimaryUse_Implementation()
@@ -245,9 +187,22 @@ UGDKMovementComponent* AWeapon::GetMovementComponent()
 
 UShootingComponent* AWeapon::GetShootingComponent()
 {
-	if (!GetOwner())
+	if (GetOwner() != CachedOwner)
 	{
 		RefreshComponentCache();
 	}
 	return CachedShootingComponent;
+}
+
+FInstantHitInfo AWeapon::DoLineTrace()
+{
+	if (GetShootingComponent() == nullptr)
+	{
+		UE_LOG(LogGDK, Error, TEXT("%s requires a UShootingComponent on its Owner"), *this->GetName());
+
+		FInstantHitInfo HitInfo;
+		return HitInfo;
+	}
+
+	return GetShootingComponent()->DoLineTrace(GetLineTraceDirection(), this);
 }

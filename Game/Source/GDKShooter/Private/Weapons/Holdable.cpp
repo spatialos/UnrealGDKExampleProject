@@ -51,7 +51,7 @@ void AHoldable::OnRep_MetaData()
 	OnMetaDataUpdated();
 }
 
-void AHoldable::SetMetaData(const FGDKMetaData& NewMetaData)
+void AHoldable::SetMetaData(FGDKMetaData NewMetaData)
 {
 	if (HasAuthority())
 	{
@@ -62,6 +62,7 @@ void AHoldable::SetMetaData(const FGDKMetaData& NewMetaData)
 
 void AHoldable::SetIsActive_Implementation(bool bNewIsActive)
 {
+	//TODO Find logic for sheathing inactive weapons
 	bIsActive = bNewIsActive;
 	this->SetActorHiddenInGame(!bNewIsActive);
 	StopPrimaryUse();

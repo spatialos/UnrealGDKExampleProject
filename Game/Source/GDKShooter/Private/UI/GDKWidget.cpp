@@ -1,15 +1,16 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "GDKWidget.h"
+#include "Components/ControllerEventsComponent.h"
 #include "Components/GDKMovementComponent.h"
 #include "Components/HealthComponent.h"
 #include "Game/Components/LobbyTimerComponent.h"
 #include "Game/Components/MatchTimerComponent.h"
 #include "Game/Components/PlayerCountingComponent.h"
 #include "GameFramework/GameStateBase.h"
-#include "GDKLogging.h"
+#include "Weapons/InstantWeapon.h"
 
-// Registr listeners on AGDKPlayerController and AGDKGameState
+// Register listeners on AGDKPlayerController and AGDKGameState
 void UGDKWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -23,6 +24,8 @@ void UGDKWidget::NativeConstruct()
 		bListenersAdded = true;
 	}
 
+	RegisterListeners();
+
 	APlayerController* PlayerController = GetOwningPlayer();
 
 	if (AGDKPlayerController* GDKPC = Cast<AGDKPlayerController>(PlayerController))
@@ -30,9 +33,12 @@ void UGDKWidget::NativeConstruct()
 		GDKPlayerController = GDKPC;
 		GDKPlayerController->OnPawn().AddDynamic(this, &UGDKWidget::OnPawn);
 		OnPawn(GDKPlayerController->GetPawn());
+	}
 
-		GDKPlayerController->OnKillNotification().AddUObject(this, &UGDKWidget::OnKill);
-		GDKPlayerController->OnKilledNotification().AddUObject(this, &UGDKWidget::OnDeath);
+	if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(PlayerController->GetComponentByClass(UControllerEventsComponent::StaticClass())))
+	{
+		ControllerEvents->KillDetailsEvent.AddDynamic(this, &UGDKWidget::OnKill);
+		ControllerEvents->DeathDetailsEvent.AddDynamic(this, &UGDKWidget::OnDeath);
 	}
 
 	if (UDeathmatchScoreComponent* Deathmatch = Cast<UDeathmatchScoreComponent>(GetWorld()->GetGameState()->GetComponentByClass(UDeathmatchScoreComponent::StaticClass())))
@@ -84,6 +90,11 @@ void UGDKWidget::OnPawn(APawn* InPawn)
 		Health->ArmourUpdated.AddUniqueDynamic(this, &UGDKWidget::OnArmourUpdated);
 		OnHealthUpdated(Health->GetCurrentHealth(), Health->GetMaxHealth());
 		OnArmourUpdated(Health->GetCurrentArmour(), Health->GetMaxArmour());
+	}
+
+	if (UShootingComponent* Shooting = Cast< UShootingComponent>(InPawn->GetComponentByClass(UShootingComponent::StaticClass())))
+	{
+		Shooting->ShotEvent.AddUniqueDynamic(this, &UGDKWidget::OnShot);
 	}
 }
 

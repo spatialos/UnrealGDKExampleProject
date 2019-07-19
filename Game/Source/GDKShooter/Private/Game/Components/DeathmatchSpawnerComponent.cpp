@@ -1,11 +1,13 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "DeathmatchSpawnerComponent.h"
+
+#include "Characters/Components/MetaDataComponent.h"
+#include "Components/TeamComponent.h"
+#include "Engine/World.h"
+#include "Game/Components/PlayerPublisher.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
-#include "Characters/Components/MetaDataComponent.h"
-#include "Game/Components/PlayerPublisher.h"
-#include "Engine/World.h"
 #include "GDKLogging.h"
 
 UDeathmatchSpawnerComponent::UDeathmatchSpawnerComponent()
@@ -16,13 +18,6 @@ UDeathmatchSpawnerComponent::UDeathmatchSpawnerComponent()
 
 void UDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller)
 {
-	/*
-	PlayerState->SetPlayerName(NewPlayerName);
-	if (UMetaDataComponent* MetaDataComponent = Cast<UMetaDataComponent>(PlayerState->GetComponentByClass(UMetaDataComponent::StaticClass())))
-	{
-		MetaDataComponent->SetMetaData(MetaData);
-	}*/
-
 	// Spawn the Pawn
 	SpawnCharacter(Controller);
 

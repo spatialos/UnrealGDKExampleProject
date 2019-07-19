@@ -45,17 +45,19 @@ void UEquippedComponent::SpawnStarterTemplates(FGDKMetaData MetaData)
 		HeldItems.SetNum(HoldableCapacity, false);
 		bHeldItemsInitialised = true;
 
-		for (int i = 0; i < FMath::Min(StarterTemplates.Num(), HoldableCapacity); i++)
+		for (int i = 0; i < StarterTemplates.Num(); i++)
 		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = GetOwner();
-			AHoldable* Starter = GetWorld()->SpawnActor<AHoldable>(StarterTemplates[i], GetOwner()->GetActorTransform(), SpawnParams);
-			Starter->AttachToActor(GetOwner(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			if (StarterTemplates[i] == nullptr)
+			{
+				continue;
+			}
+
+			AHoldable* Starter = GetWorld()->SpawnActor<AHoldable>(StarterTemplates[i], GetOwner()->GetActorTransform());
 			Starter->SetMetaData(MetaData);
-			Starter->SetOwner(GetOwner());
-			HeldItems[i] = Starter;
+			Grant(Starter);
 		}
 
+		// Default to holding the weapon in slot 0
 		if (StarterTemplates.Num() > 0)
 		{
 			CurrentHeldIndex = 0;
@@ -63,6 +65,58 @@ void UEquippedComponent::SpawnStarterTemplates(FGDKMetaData MetaData)
 
 		OnRep_HeldUpdate();
 	}
+}
+
+bool UEquippedComponent::Grant(AHoldable* NewHoldable)
+{
+	if (NewHoldable == nullptr || !HasAnyEmptySlots() || AlreadyHas(NewHoldable))
+	{
+		return false;
+	}
+
+	int Index = GetNextAvailableSlot();
+	NewHoldable->AttachToActor(GetOwner(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	NewHoldable->SetOwner(GetOwner());
+	HeldItems[Index] = NewHoldable;
+	CurrentHeldIndex = Index;
+	OnRep_HeldUpdate();
+	return true;
+}
+
+bool UEquippedComponent::HasAnyEmptySlots()
+{
+	for (int i = 0; i < HeldItems.Num(); i++)
+	{
+		if (HeldItems[i] == nullptr)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+int UEquippedComponent::GetNextAvailableSlot()
+{
+	for (int i = 0; i < HeldItems.Num(); i++)
+	{
+		if (HeldItems[i] == nullptr)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+bool UEquippedComponent::AlreadyHas(AHoldable* NewHoldable)
+{
+	for (int i = 0; i < HeldItems.Num(); i++)
+	{
+		if (HeldItems[i] != nullptr && HeldItems[i]->IsA(NewHoldable->GetClass()))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void UEquippedComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

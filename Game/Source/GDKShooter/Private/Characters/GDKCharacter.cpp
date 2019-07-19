@@ -3,13 +3,13 @@
 #include "GDKCharacter.h"
 
 #include "Components/CapsuleComponent.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "Controllers/Components/ControllerEventsComponent.h"
-#include "Controllers/GDKPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GDKLogging.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "SpatialNetDriver.h"
 #include "UnrealNetwork.h"
+#include "GDKLogging.h"
+#include "Controllers/GDKPlayerController.h"
+#include "Controllers/Components/ControllerEventsComponent.h"
 #include "Weapons/Holdable.h"
 
 AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
@@ -30,15 +30,8 @@ void AGDKCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HealthComponent->AuthoritativeDeath.AddDynamic(this, &AGDKCharacter::Die);
-	//HealthComponent->Death.AddDynamic(this, &AGDKCharacter::StartRagdoll);
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
-	MetaDataComponent->MetaDataUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SpawnStarterTemplates);
-	if (EquippedComponent->CurrentlyHeldItem())
-	{
-		OnEquippedUpdated(EquippedComponent->CurrentlyHeldItem());
-	}
 }
 
 void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -57,7 +50,6 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction<FBoolean>("Sprint", IE_Pressed, GDKMovementComponent, &UGDKMovementComponent::SetWantsToSprint, true);
 	PlayerInputComponent->BindAction<FBoolean>("Sprint", IE_Released, GDKMovementComponent, &UGDKMovementComponent::SetWantsToSprint, false);
-	// true parameter to Crouch and UnCrouch is for parameter bClientSimulation
 	PlayerInputComponent->BindAction<FBoolean>("Crouch", IE_Pressed, this, &AGDKCharacter::Crouch, true);
 	PlayerInputComponent->BindAction<FBoolean>("Crouch", IE_Released, this, &AGDKCharacter::UnCrouch, true);
 
@@ -100,31 +92,13 @@ void AGDKCharacter::MoveRight(float Value)
 
 void AGDKCharacter::OnEquippedUpdated_Implementation(AHoldable* Holdable)
 {
-	if (Holdable != nullptr)
+	if (Holdable)
 	{
 		Holdable->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Holdable->GetActiveSocket());
 	}
 }
 
-void AGDKCharacter::Die(const AActor* Killer)
-{
-	TearOff();
-
-	if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(GetController()->GetComponentByClass(UControllerEventsComponent::StaticClass())))
-	{
-		ControllerEvents->KilledBy(Killer);
-	}
-
-	DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
-	GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, 5.0f, false);
-}
-
-void AGDKCharacter::TornOff()
-{
-	StartRagdoll();
-}
-
-void AGDKCharacter::StartRagdoll()
+void AGDKCharacter::StartRagdoll_Implementation()
 {
 	// Disable capsule collision and disable movement.
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
@@ -165,16 +139,19 @@ void AGDKCharacter::StartRagdoll()
 		Component->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 
-	DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
-	GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, 5.0f, false);
+	if (this->IsValidLowLevel() && RagdollLifetime >= 0.f)
+	{
+		DeletionDelegate.BindUFunction(this, FName("DeleteSelf"));
+		GetWorldTimerManager().SetTimer(DeletionTimer, DeletionDelegate, RagdollLifetime, false);
+	}
 }
 
 
 void AGDKCharacter::DeleteSelf()
 {
-	if (IsValidLowLevel())
+	if (this->IsValidLowLevel())
 	{
-		Destroy();
+		this->Destroy();
 	}
 }
 
@@ -188,6 +165,7 @@ void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDa
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+
 }
 
 FGenericTeamId AGDKCharacter::GetGenericTeamId() const

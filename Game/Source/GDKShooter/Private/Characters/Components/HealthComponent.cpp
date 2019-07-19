@@ -1,9 +1,10 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "HealthComponent.h"
-#include "GDKLogging.h"
-#include "TeamComponent.h"
+#include "Components/ControllerEventsComponent.h"
+#include "Components/ScorePublisher.h"
 #include "GameFramework/Pawn.h"
+#include "TeamComponent.h"
 #include "UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent()
@@ -12,10 +13,10 @@ UHealthComponent::UHealthComponent()
 
 	bReplicates = true;
 
-	MaxHealth = 100;
+	MaxHealth = 100.f;
 	CurrentHealth = MaxHealth;
-	MaxArmour = 100;
-	CurrentArmour = 0;
+	MaxArmour = 100.f;
+	CurrentArmour = 0.f;
 }
 
 
@@ -25,10 +26,8 @@ void UHealthComponent::BeginPlay()
 
 	if (GetOwner()->HasAuthority())
 	{
-		//Timers if required for regen
-		//TODO watch out for multiworker here
 		CurrentHealth = MaxHealth;
-		CurrentArmour = 0;
+		CurrentArmour = 0.f;
 	}
 }
 
@@ -66,20 +65,79 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 		}
 	}
 
-	int32 ArmourRemoved = FMath::Min(static_cast<int32>(Damage), CurrentArmour);
+	int32 ArmourRemoved = FMath::Min(Damage, CurrentArmour);
 	CurrentArmour -= ArmourRemoved;
-	int32 DamageDealt = FMath::Min(static_cast<int32>(Damage) - ArmourRemoved, CurrentHealth);
-	bool bWasDead = CurrentHealth <= 0;
+	int32 DamageDealt = FMath::Min(Damage - ArmourRemoved, CurrentHealth);
+	bool bWasDead = CurrentHealth <= 0.f;
 	CurrentHealth -= DamageDealt;
-	bool bIsDead = CurrentHealth <= 0;
+	bool bIsDead = CurrentHealth <= 0.f;
 
-	MulticastDamageTaken(DamageCauser->GetActorLocation());
+	int32 InstigatorPlayerId = -1;
+	FGenericTeamId InstigatorTeamId = FGenericTeamId::NoTeam;
+	if (EventInstigator != nullptr)
+	{
+		APlayerState* InstigatorPlayerState = EventInstigator->PlayerState;
+		if (InstigatorPlayerState != nullptr)
+		{
+			InstigatorPlayerId = InstigatorPlayerState->PlayerId;
+		}
+	}
+	if (IGenericTeamAgentInterface* InstgatorTeam = Cast<IGenericTeamAgentInterface>(EventInstigator))
+	{
+		InstigatorTeamId = InstgatorTeam->GetGenericTeamId();
+	}
+	else if (IGenericTeamAgentInterface* CauserTeam = Cast<IGenericTeamAgentInterface>(DamageCauser))
+	{
+		InstigatorTeamId = CauserTeam->GetGenericTeamId();
+	}
+
+	FVector Source;
+	FVector Impact;
+
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		FPointDamageEvent* const PointDamageEvent = (FPointDamageEvent*)&DamageEvent;
+		Source = DamageCauser ? DamageCauser->GetActorLocation() : GetOwner()->GetActorLocation() - PointDamageEvent->ShotDirection;
+		Impact = PointDamageEvent->HitInfo.ImpactPoint;
+	}
+	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+	{
+		FRadialDamageEvent* const RadialDamageEvent = (FRadialDamageEvent*)&DamageEvent;
+		Impact = GetOwner()->GetActorLocation() + RadialDamageImpactOffset;
+		Source = RadialDamageEvent->Origin;
+	}
+	else
+	{
+		Source = DamageCauser ? DamageCauser->GetActorLocation() : GetOwner()->GetActorLocation();
+		Impact = GetOwner()->GetActorLocation();
+	}
+
+	MulticastDamageTaken(Damage, Source, Impact, InstigatorPlayerId, InstigatorTeamId);
 
 	if (!bWasDead && bIsDead)
 	{
-		//This will only fire on theauthoritative worker
-		AuthoritativeDeath.Broadcast(DamageCauser);
+		AuthoritativeDeath.Broadcast(EventInstigator);
+
+		if (APawn* OwnerAsPawn = Cast<APawn>(GetOwner()))
+		{
+			if (AController* Controller = OwnerAsPawn->GetController())
+			{
+				if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(Controller->GetComponentByClass(UControllerEventsComponent::StaticClass())))
+				{
+					ControllerEvents->Death(EventInstigator);
+				}
+
+				if (EventInstigator != nullptr)
+				{
+					if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(EventInstigator->GetComponentByClass(UControllerEventsComponent::StaticClass())))
+					{
+						ControllerEvents->Kill(Controller);
+					}
+				}
+			}
+		}
 	}
+
 
 	if(!bIsDead)
 	{
@@ -106,7 +164,7 @@ bool UHealthComponent::GrantHealth(float Value)
 {
 	if (CurrentHealth < MaxHealth)
 	{
-		CurrentHealth = FMath::Min(static_cast<int32>(CurrentHealth + Value), MaxHealth);
+		CurrentHealth = FMath::Min(CurrentHealth + Value, MaxHealth);
 
 		return true;
 	}
@@ -118,7 +176,7 @@ bool UHealthComponent::GrantShield(float Value)
 {
 	if (CurrentArmour < MaxArmour)
 	{
-		CurrentArmour = FMath::Min(static_cast<int32>(CurrentArmour + Value), MaxArmour);
+		CurrentArmour = FMath::Min(CurrentArmour + Value, MaxArmour);
 
 		return true;
 	}
@@ -128,7 +186,7 @@ bool UHealthComponent::GrantShield(float Value)
 
 void UHealthComponent::RegenerateHealth()
 {
-	if (CurrentHealth > 0)
+	if (CurrentHealth > 0.f)
 	{
 		GrantHealth(HealthRegenValue);
 	}
@@ -136,7 +194,7 @@ void UHealthComponent::RegenerateHealth()
 
 void UHealthComponent::RegenerateArmour()
 {
-	if (CurrentArmour > 0)
+	if (CurrentArmour > 0.f)
 	{
 		GrantHealth(ArmourRegenValue);
 	}
@@ -150,13 +208,13 @@ void UHealthComponent::OnRep_CurrentArmour()
 void UHealthComponent::OnRep_CurrentHealth()
 {
 	HealthUpdated.Broadcast(CurrentHealth, MaxHealth);
-	if (CurrentHealth == 0)
+	if (CurrentHealth <= 0.f)
 	{
 		Death.Broadcast();
 	}
 }
 
-void UHealthComponent::MulticastDamageTaken_Implementation(FVector DamageSource)
+void UHealthComponent::MulticastDamageTaken_Implementation(float Value, FVector Source, FVector Impact, int32 PlayerId, FGenericTeamId TeamId)
 {
-	DamageTaken.Broadcast(DamageSource);
+	DamageTaken.Broadcast(Value, Source, Impact, PlayerId, TeamId);
 }

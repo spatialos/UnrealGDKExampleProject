@@ -3,17 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Materials/MaterialInstance.h"
+#include "GameFramework/Character.h"
 #include "Components/HealthComponent.h"
 #include "Components/EquippedComponent.h"
-#include "Components/GDKMovementComponent.h"
 #include "Components/MetaDataComponent.h"
+#include "Components/GDKMovementComponent.h"
 #include "Components/TeamComponent.h"
-#include "GameFramework/Character.h"
-#include "Materials/MaterialInstance.h"
+#include "Weapons/Holdable.h"
+#include "TimerManager.h"
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "Runtime/AIModule/Classes/Perception/AISightTargetInterface.h"
-#include "TimerManager.h"
-#include "Weapons/Holdable.h"
 #include "GDKCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FBoolean, bool);
@@ -40,17 +40,12 @@ protected:
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UEquippedComponent* EquippedComponent;
-
+	
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UMetaDataComponent* MetaDataComponent;
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UTeamComponent* TeamComponent;
-	
-	// [server] Tells this player that it's time to die.
-	// @param Killer  The player who killed me. Can be null if it wasn't a player who dealt the damage that killed me.
-	UFUNCTION()
-		virtual void Die(const class AActor* Killer);
 
 	UFUNCTION(BlueprintPure)
 		float GetRemotePitch() {
@@ -76,13 +71,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		TEnumAsByte<ECollisionChannel> LineOfSightCollisionChannel;
 
-private:
-
-	virtual void TornOff() override;
+	UPROPERTY(EditAnywhere)
+		float RagdollLifetime = 5.0f;
 
 	// [client + server] Puts the player in ragdoll mode.
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 		void StartRagdoll();
+
+private:
 
 	UFUNCTION()
 		void DeleteSelf();

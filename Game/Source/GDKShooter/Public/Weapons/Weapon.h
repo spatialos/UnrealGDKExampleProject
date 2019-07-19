@@ -12,32 +12,6 @@
 #include "TimerManager.h"
 #include "Weapon.generated.h"
 
-USTRUCT(BlueprintType)
-struct FInstantHitInfo
-{
-	GENERATED_USTRUCT_BODY()
-
-	// Location of the hit in world space.
-	UPROPERTY(BlueprintReadOnly)
-		FVector Location;
-
-	// Actor that was hit, or nullptr if nothing was hit.
-	UPROPERTY(BlueprintReadOnly)
-		AActor* HitActor;
-
-	UPROPERTY(BlueprintReadOnly)
-		bool bDidHit;
-
-	FInstantHitInfo() :
-		Location(FVector{ 0,0,0 }),
-		HitActor(nullptr),
-		bDidHit(false)
-	{}
-};
-
-// Tag for weapon line trace visualization.
-const FName kTraceTag("GDKTrace");
-
 UCLASS(Abstract)
 class GDKSHOOTER_API AWeapon : public AHoldable
 {
@@ -98,9 +72,7 @@ public:
 protected:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	virtual void BeginPlay();
-
+	
 	UFUNCTION(BlueprintNativeEvent)
 		void DoFire();
 	
@@ -110,20 +82,13 @@ protected:
 
 	virtual FVector GetLineTraceDirection();
 
-	// [client] Performs a line trace and populates OutHitInfo based on the results.
-	// Returns true if it hits anything, false otherwise.
-	UFUNCTION(BlueprintPure)
-		FInstantHitInfo DoLineTrace();
-
-	// Maximum range of the weapon's hitscan.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapons")
-		float MaxRange;
-
 	UFUNCTION(BlueprintPure)
 		UGDKMovementComponent* GetMovementComponent();
 	UFUNCTION(BlueprintPure)
 		UShootingComponent* GetShootingComponent();
-	   
+
+	UFUNCTION(BlueprintPure)
+		FInstantHitInfo DoLineTrace();
 
 	// Time that we are next able to shoot
 	float NextShotTime;
@@ -146,14 +111,5 @@ private:
 		UShootingComponent* CachedShootingComponent;
 	UFUNCTION()
 		void RefreshComponentCache();
-
-
-	// Channel to use for raytrace on shot
-	UPROPERTY(EditAnywhere, Category = "Weapons")
-		TEnumAsByte<ECollisionChannel> TraceChannel = ECC_WorldStatic;
-
-	// If true, draws debug line traces for hitscan shots.
-	UPROPERTY(EditAnywhere, Category = "Weapons")
-		bool bDrawDebugLineTrace;
 	
 };

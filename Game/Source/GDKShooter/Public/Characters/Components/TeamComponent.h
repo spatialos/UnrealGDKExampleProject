@@ -7,6 +7,7 @@
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "TeamComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTeamChangedEvent, FGenericTeamId, Team);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GDKSHOOTER_API UTeamComponent : public UActorComponent
@@ -15,6 +16,9 @@ class GDKSHOOTER_API UTeamComponent : public UActorComponent
 
 public:	
 	UTeamComponent();
+
+	UPROPERTY(BlueprintAssignable)
+		FTeamChangedEvent TeamChanged;
 
 	UFUNCTION(BlueprintPure)
 		virtual bool CanDamageActor(AActor* OtherActor);
@@ -34,7 +38,12 @@ public:
 
 protected:
 
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing = OnRep_TeamId, EditDefaultsOnly)
 		FGenericTeamId TeamId = FGenericTeamId::NoTeam;
+
+	UFUNCTION()
+		void OnRep_TeamId() { TeamChanged.Broadcast(TeamId); };
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 };

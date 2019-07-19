@@ -4,13 +4,14 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
+#include "Components/ControllerEventsComponent.h"
 #include "Components/EquippedComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/MetaDataComponent.h"
 #include "Connection/SpatialWorkerConnection.h"
-#include "Game/Components/PlayerPublisher.h"
 #include "Game/Components/ScorePublisher.h"
 #include "Game/Components/SpawnRequestPublisher.h"
+#include "Game/Components/PlayerPublisher.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
@@ -18,7 +19,8 @@
 #include "SpatialNetDriver.h"
 #include "UnrealNetwork.h"
 #include "Weapons/Holdable.h"
-
+#include "Weapons/Projectile.h"
+#include "Weapons/Weapon.h"
 
 
 AGDKPlayerController::AGDKPlayerController()
@@ -52,11 +54,6 @@ void AGDKPlayerController::BeginPlay()
 			PlayerPublisher->PublishPlayer(PlayerState, EPlayerProgress::Connected);
 		}
 	}
-
-	if (bAutoConnect && HasAuthority())
-	{
-		ServerTryJoinGame();
-	}
 }
 
 void AGDKPlayerController::Tick(float DeltaTime)
@@ -83,6 +80,7 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 	}
 
 	PawnEvent.Broadcast(InPawn);
+	OnNewPawn(InPawn);
 }
 
 void AGDKPlayerController::GetPlayerViewPoint(FVector& out_Location, FRotator& out_Rotation) const
@@ -99,73 +97,13 @@ void AGDKPlayerController::GetPlayerViewPoint(FVector& out_Location, FRotator& o
 	}
 }
 
-void AGDKPlayerController::KillCharacter(const AActor* Killer)
-{
-	check(GetNetMode() == NM_DedicatedServer);
-
-	if (!HasAuthority())
-	{
-		return;
-	}
-
-	FString KillerName;
-	int32 KillerId = -1;
-
-	if (const AHoldable* Holdable = Cast<AHoldable>(Killer))
-	{
-		const AActor* Weilder = Holdable->GetOwner();
-
-
-		if (const ACharacter* KillerCharacter = Cast<ACharacter>(Weilder))
-		{
-			if (KillerCharacter->PlayerState)
-			{
-				KillerName = KillerCharacter->PlayerState->GetPlayerName();
-				KillerId = KillerCharacter->PlayerState->PlayerId;
-			}
-
-			if (KillerCharacter->GetController())
-			{
-				if (AGDKPlayerController* KillerController = Cast<AGDKPlayerController>(KillerCharacter->GetController()))
-				{
-					if (ACharacter* VictimCharacter = Cast<ACharacter>(GetPawn()))
-					{
-						APlayerState* VictimState = VictimCharacter->PlayerState;
-						KillerController->InformOfKill(VictimState->GetPlayerName(), VictimState->PlayerId);
-					}
-				}
-			}
-		}
-	}
-
-	InformOfDeath(KillerName, KillerId);
-
-	if (UScorePublisher* ScorePublisher = Cast<UScorePublisher>(GetWorld()->GetGameState()->GetComponentByClass(UScorePublisher::StaticClass())))
-	{
-		ScorePublisher->PublishKill(KillerId, PlayerState->PlayerId);
-	}
-
-	UnPossess();
-}
-
-void AGDKPlayerController::InformOfKill_Implementation(const FString& VictimName, int32 VictimId)
-{
-	KillNotification.Broadcast(VictimName, VictimId);
-}
-void AGDKPlayerController::InformOfDeath_Implementation(const FString& KillerName, int32 KillerId)
-{
-	KilledNotification.Broadcast(KillerName, KillerId);
-
-}
-
-void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
+void AGDKPlayerController::SetUIMode(bool bIsUIMode)
 {
 	bShowMouseCursor = bIsUIMode;
 	ResetIgnoreLookInput();
 	SetIgnoreLookInput(bIsUIMode);
 	ResetIgnoreMoveInput();
 	SetIgnoreMoveInput(bIsUIMode);
-	SetIgnoreActionInput(bIsUIMode);
 
 	if (bIsUIMode)
 	{
@@ -183,13 +121,6 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
 			EquippedComponent->BlockUsing(bIsUIMode);
 		}
 	}
-}
-
-void AGDKPlayerController::TryJoinGame()
-{
-	check(GetNetMode() != NM_DedicatedServer);
-	ServerTryJoinGame();
-
 }
 
 void AGDKPlayerController::ServerTryJoinGame_Implementation()
@@ -233,14 +164,7 @@ bool AGDKPlayerController::ServerRequestMetaData_Validate(const FGDKMetaData New
 	return true;
 }
 
-void AGDKPlayerController::RequestRespawn()
-{
-	check(GetNetMode() == NM_Client);
-
-	RespawnCharacter();
-}
-
-void AGDKPlayerController::RespawnCharacter_Implementation()
+void AGDKPlayerController::ServerRespawnCharacter_Implementation()
 {
 	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
 	{
@@ -249,7 +173,7 @@ void AGDKPlayerController::RespawnCharacter_Implementation()
 	}
 }
 
-bool AGDKPlayerController::RespawnCharacter_Validate()
+bool AGDKPlayerController::ServerRespawnCharacter_Validate()
 {
 	return true;
 }
