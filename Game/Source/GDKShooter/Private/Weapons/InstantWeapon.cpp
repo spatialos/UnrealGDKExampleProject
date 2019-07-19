@@ -61,7 +61,7 @@ void AInstantWeapon::DoFire_Implementation()
 	{
 		ServerDidHit(HitInfo);
 		SpawnFX(HitInfo, true);  // Spawn the hit fx locally
-		AnnounceShot(HitInfo.HitActor->bCanBeDamaged);
+		AnnounceShot(HitInfo.HitActor ? HitInfo.HitActor->bCanBeDamaged : false);
 	}
 	else
 	{
