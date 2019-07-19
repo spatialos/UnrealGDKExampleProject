@@ -94,7 +94,7 @@ void UGDKWidget::OnPawn(APawn* InPawn)
 
 	if (UShootingComponent* Shooting = Cast< UShootingComponent>(InPawn->GetComponentByClass(UShootingComponent::StaticClass())))
 	{
-		Shooting->ShotEvent.AddDynamic(this, &UGDKWidget::OnShot);
+		Shooting->ShotEvent.AddUniqueDynamic(this, &UGDKWidget::OnShot);
 	}
 }
 
