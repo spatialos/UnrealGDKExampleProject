@@ -1,3 +1,7 @@
+@echo off
+
+setlocal EnableDelayedExpansion
+
 rem Get the Unreal Engine used by this project by querying the registry for the engine association found in the .uproject.
 set UNREAL_ENGINE=""
 set UPROJECT=""
@@ -18,17 +22,29 @@ for /f "delims=" %%A in (' powershell -Command "(Get-Content %UPROJECT% | Conver
 
 echo Engine association for uproject is: %ENGINE_ASSOCIATION%
 
-rem If the engine association is a path then use this.
-if exist "%ENGINE_ASSOCIATION%" (
-    set UNREAL_ENGINE=%ENGINE_ASSOCIATION%
+rem If the engine association is a path then use this. If the path is relative then it will be relative to the uproject, thus we must change directory to the uproject folder.
+
+rem Grab the project path from the .uproject file.
+for %%i in (%UPROJECT%) do (
+	rem file drive + file directory
+	set UNREAL_PROJECT_DIR="%%~di%%~pi"
 )
+
+pushd %UNREAL_PROJECT_DIR%
+
+if exist "%ENGINE_ASSOCIATION%" (
+    cd /d "%ENGINE_ASSOCIATION%"
+    set UNREAL_ENGINE="!cd!"
+)
+
+popd
 
 rem Try and use the engine association as a key in the registry to get the path to Unreal.
 if %UNREAL_ENGINE%=="" (
     if not "%ENGINE_ASSOCIATION%"=="" (
         rem Query the registry for the path to the Unreal Engine using the engine association.
-        for /f "usebackq tokens=3*" %%A in (`reg query "HKCU\Software\Epic Games\Unreal Engine\Builds" /v %ENGINE_ASSOCIATION%`) do (
-            set UNREAL_ENGINE=%%A
+        for /f "usebackq tokens=1,2* skip=2" %%A in (`reg query "HKCU\Software\Epic Games\Unreal Engine\Builds" /v %ENGINE_ASSOCIATION%`) do (
+            set UNREAL_ENGINE="%%C"
         )
     )
 )
@@ -41,7 +57,7 @@ if %UNREAL_ENGINE%=="" (
     if exist Engine (
         rem Check for the Build.version file to be sure we have found a correct Engine folder.
         if exist "Engine\Build\Build.version" (
-            set UNREAL_ENGINE=!cd!
+            set UNREAL_ENGINE="!cd!"
         )
     ) else (
         rem This checks if we are in a root directory. If so we cannot check any higher and so should error out.
@@ -62,3 +78,7 @@ if %UNREAL_ENGINE%=="" (
     pause
     exit /b 1
 )
+
+endlocal & set UNREAL_ENGINE=%UNREAL_ENGINE%
+
+echo Unreal engine found at: %UNREAL_ENGINE%
