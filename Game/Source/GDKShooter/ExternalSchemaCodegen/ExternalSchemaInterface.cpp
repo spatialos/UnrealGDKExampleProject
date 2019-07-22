@@ -182,8 +182,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Response(::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::GetItem::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 1)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Response(::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::GetItem::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 
@@ -210,8 +215,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::GetItems::Response(::improbable::database_sync::DatabaseSyncService::Commands::GetItems::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::GetItems::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::GetItems::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 2)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::GetItems::Response(::improbable::database_sync::DatabaseSyncService::Commands::GetItems::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::GetItems::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::GetItems::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 
@@ -238,8 +248,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::Increment::Response(::improbable::database_sync::DatabaseSyncService::Commands::Increment::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::Increment::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::Increment::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 3)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::Increment::Response(::improbable::database_sync::DatabaseSyncService::Commands::Increment::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::Increment::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::Increment::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 
@@ -266,8 +281,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::Decrement::Response(::improbable::database_sync::DatabaseSyncService::Commands::Decrement::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::Decrement::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::Decrement::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 4)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::Decrement::Response(::improbable::database_sync::DatabaseSyncService::Commands::Decrement::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::Decrement::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::Decrement::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 
@@ -294,8 +314,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::SetParent::Response(::improbable::database_sync::DatabaseSyncService::Commands::SetParent::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::SetParent::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::SetParent::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 5)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::SetParent::Response(::improbable::database_sync::DatabaseSyncService::Commands::SetParent::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::SetParent::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::SetParent::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 
@@ -322,8 +347,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::Create::Response(::improbable::database_sync::DatabaseSyncService::Commands::Create::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::Create::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::Create::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 6)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::Create::Response(::improbable::database_sync::DatabaseSyncService::Commands::Create::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::Create::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::Create::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 
@@ -350,8 +380,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::Delete::Response(::improbable::database_sync::DatabaseSyncService::Commands::Delete::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::Delete::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::Delete::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 7)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::Delete::Response(::improbable::database_sync::DatabaseSyncService::Commands::Delete::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::Delete::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::Delete::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 
@@ -378,8 +413,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::Batch::Response(::improbable::database_sync::DatabaseSyncService::Commands::Batch::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::Batch::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::Batch::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 8)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::Batch::Response(::improbable::database_sync::DatabaseSyncService::Commands::Batch::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::Batch::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::Batch::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 
@@ -406,8 +446,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Response(::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 9)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Response(::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 
@@ -434,8 +479,13 @@ USpatialDispatcher::FCallbackId ExternalSchemaInterface::OnCommandResponse(const
 {
 	return SpatialDispatcher->OnCommandResponse(1901, [Callback](const Worker_CommandResponseOp& Op)
 	{
-		auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ? ::improbable::database_sync::DatabaseSyncService::Commands::GetMetrics::Response(::improbable::database_sync::DatabaseSyncService::Commands::GetMetrics::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) : ::improbable::database_sync::DatabaseSyncService::Commands::GetMetrics::Response();
-		Callback(::improbable::database_sync::DatabaseSyncService::Commands::GetMetrics::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		if (Op.command_id == 10)
+		{
+			auto Response = Op.status_code == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS  ?
+				::improbable::database_sync::DatabaseSyncService::Commands::GetMetrics::Response(::improbable::database_sync::DatabaseSyncService::Commands::GetMetrics::Response::Type::Deserialize(Schema_GetCommandResponseObject(Op.response.schema_type))) :
+				::improbable::database_sync::DatabaseSyncService::Commands::GetMetrics::Response();
+			Callback(::improbable::database_sync::DatabaseSyncService::Commands::GetMetrics::ResponseOp(Op.entity_id, Op.request_id, Op.status_code, Op.message, Op.command_id, Response));
+		}
 	});
 }
 

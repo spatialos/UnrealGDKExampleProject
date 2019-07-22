@@ -9,8 +9,6 @@
 #include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncReference.h"
 #include "ExternalSchemaCodegen/improbable/database_sync/AssociateDatabaseSync.h"
 #include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncService.h"
-//#include "ExternalSchemaCodegen/improbable/database_sync/Profiler.h"
-
 
 #include "DeathmatchScoreComponent.generated.h"
 
@@ -90,7 +88,6 @@ protected:
 	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request*> IncrementRequests;
 
 	void UpdateScoreFromPath(const FString &Path, int64 NewCount);
-
 	void RequestCreateItemFromPath(const FString &Path);
 		
 };

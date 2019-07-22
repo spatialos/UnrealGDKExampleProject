@@ -1,0 +1,334 @@
+package improbable.database_sync;
+import "dbsync/postgres.schema";
+
+// The following annotations are meant to be placed on fields within components
+// that should be persisted into a database.
+
+// Annotate a string field that will contain the path to the root of this component's items.
+// Constraints: Can only be applied to one field in a component.
+// Required field type: `string`.
+type ProfileIdAnnotation {}
+
+// Annotate an int64 field that will contain the `count` portion of a `HierarchyItem`
+// Required field type: `int64`.
+type ValueAnnotation {}
+
+// Annotate a `list<HierarchyItem>` that will contain all `HierarchyItem`s directly
+// parented to this item.
+// Required field type: `list<HierarchyItem>`.
+type ValueListAnnotation {}
+
+// The numeric value is returned as the command failure reason.
+enum CommandErrors {
+  // No error has occurred.
+  NONE = 0;
+
+  // Returned if the requesting worker lacks permission to view or modify the specified path.
+  UNAUTHORIZED = 1001;
+
+  // Returned if the requesting worker has submitted a malformed request.
+  // See individual Request types for constraints.
+  INVALID_REQUEST = 1002;
+
+  // Returned if an error has occurred within the database sync logic.
+  // Check the worker's logs for more diagnostic information.
+  INTERNAL_ERROR = 1003;
+
+  // Returned if the operation failed due to the database.
+  // Check the worker's logs for more diagnostic information.
+  DATABASE_OPERATION_FAILED = 1004;
+}
+
+component DatabaseSyncReference {
+    id = 1906;
+
+    string path = 1;
+}
+
+component AssociateDatabaseSync {
+    id = 1907;
+
+    int64 count = 1;
+}
+
+// DatabaseSyncItem is what is stored in the database.
+// Any changes to this type should also be reflected in DatabaseSyncGenerator.cs
+[improbable.postgres.CreateTableAttribute([
+    "CREATE EXTENSION IF NOT EXISTS ltree;"
+])]
+type DatabaseSyncItem {
+    // A user-defined string.
+    [improbable.postgres.IndexAttribute("CREATE INDEX {tableName}_{fieldName}_idx ON {tableName} ({fieldName});")]
+    string name = 1;
+
+    // The count of this item.
+    // The interpretation of this field is game-specific, so negative values and zero are allowed.
+    int64 count = 2;
+
+    // The unique path to this item. The path describes the hierarchy of the item's parents.
+    // This must be a valid ltree value in PostgreSQL (`unique.path.to.this_item`).
+    // See https://www.postgresql.org/docs/current/ltree.html for more information.
+    [improbable.postgres.PrimaryKeyAttribute]
+    [improbable.postgres.FieldTypeAttribute("ltree REFERENCES {tableName}({fieldName})")]
+    [improbable.postgres.IndexAttribute("CREATE INDEX {tableName}_{fieldName}_idx ON {tableName} USING GIST ({fieldName});")]
+    string path = 3;
+}
+
+type GetItemRequest {
+    // The path of the desired item.
+    // Required; must not be empty.
+    string path = 1;
+
+    // The WorkerId the request is on behalf of.
+    // Required; must not be empty.
+    string worker_id = 2;
+}
+
+type GetItemResponse {
+  DatabaseSyncItem item = 1;
+}
+
+enum GetItemDepth {
+    // Return all items, including the root item.
+    RECURSIVE = 0;
+
+    // Return only immediate children of the root item.
+    CHILDREN_ONLY = 1;
+}
+
+type GetItemsRequest {
+    // The path of root item.
+    // Required; must not be empty.
+    string path = 1;
+
+    // The type of search to perform.
+    GetItemDepth depth = 2;
+
+    // The WorkerId the request is on behalf of.
+    // Required; must not be empty.
+    string worker_id = 3;
+}
+
+type GetItemsResponse {
+    // The results of the search.
+    list<DatabaseSyncItem> items = 1;
+}
+
+type IncrementRequest {
+    // The path of item of the item to modify.
+    // Required; must not be empty.
+    string path = 1;
+
+    // The amount to increment.
+    // Must be greater than 0.
+    int64 amount = 2;
+
+    // The WorkerId the request is on behalf of.
+    // Required; must not be empty.
+    string worker_id = 3;
+}
+
+type IncrementResponse {
+    // The new count of the item.
+    int64 new_count = 1;
+}
+
+type DecrementRequest {
+    // The path of item of the item to modify.
+    // Required; must not be empty.
+    string path = 1;
+
+    // The amount to decrement.
+    // Must be greater than 0.
+    int64 amount = 2;
+
+    // The WorkerId the request is on behalf of.
+    // Required; must not be empty.
+    string worker_id = 3;
+
+}
+
+type DecrementResponse {
+    // The new count of the item.
+    int64 new_count = 1;
+}
+
+type SetParentRequest {
+    // The path of item of the item to modify.
+    // Required; must not be empty.
+    string path = 1;
+
+    // The new parent of the item.
+    // Required; must not be empty.
+    string new_parent = 2;
+
+    // The WorkerId the request is on behalf of.
+    // Required; must not be empty.
+    string worker_id = 3;
+}
+
+type SetParentResponse {
+    // The new path of the modified item.
+    string new_path = 1;
+
+    // The total number of items affected by the move.
+    int64 item_count = 2;
+}
+
+type GetMetricsResponse {
+    map<uint32, int64> command_requests = 1;
+    map<string, int64> queries = 2;
+    map<string, int64> database = 3;
+}
+
+type CreateRequest {
+  // The new item to create.
+  // The 'path' field is required, and must not be empty.
+  DatabaseSyncItem item = 1;
+
+  // The WorkerId the request is on behalf of.
+  // Required; must not be empty.
+  string worker_id = 2;
+}
+
+type CreateResponse {}
+
+type DeleteRequest {
+  // The path to the item root to delete.
+  // All items that exist under this path will also be deleted.
+  string path = 1;
+
+  // The WorkerId the request is on behalf of.
+  // Required; must not be empty.
+  string worker_id = 2;
+}
+
+type DeleteResponse {
+  // The total number of items deleted.
+  int64 item_count = 1;
+}
+
+type GetMetricsRequest {}
+
+type AssociatePathWithClientRequest {
+  // The path to the root item of the client items.
+  // Required; must not be empty.
+  string path = 1;
+
+  // The WorkerId associated with the path.
+  // Required; must not be empty.
+  string client_worker_id = 2;
+}
+
+type AssociatePathWithClientResponse {}
+
+// Only one of these fields can be set per request.
+// Requests with more than one set will be rejected.
+type CompositeRequest {
+  option<IncrementRequest> increment = 1;
+  option<DecrementRequest> decrement = 2;
+  option<SetParentRequest> set_parent = 3;
+  option<CreateRequest> create  = 4;
+  option<DeleteRequest> delete = 5;
+  option<GetItemRequest> get_item = 6;
+  option<GetItemsRequest> get_items = 7;
+}
+
+// Only one of these fields will be set per response.
+type CompositeResponse {
+  option<IncrementResponse> increment = 1;
+  option<DecrementResponse> decrement = 2;
+  option<SetParentResponse> set_parent = 3;
+  option<CreateResponse> create = 4;
+  option<DeleteResponse> delete = 5;
+  option<GetItemResponse> get_item = 6;
+  option<GetItemsResponse> get_items = 7;
+}
+
+type BatchOperationRequest {
+  // A list of actions to perform.
+  list<CompositeRequest> actions = 1;
+}
+
+type BatchOperationResponse {
+  // The results of each action in the request.
+  list<CompositeResponse> actions = 1;
+}
+
+type PathsUpdated {
+  // A list of all paths that have changed.
+  list<string> paths = 1;
+}
+
+component DatabaseSyncService {
+  id = 1901;
+
+  // Gets a single item.
+  // Requires read authorization.
+  command GetItemResponse get_item (GetItemRequest);
+
+  // Gets multiple items.
+  // Requires read authorization.
+  command GetItemsResponse get_items (GetItemsRequest);
+
+  // Increase the count of an item.
+  // Requires write authorization.
+  command IncrementResponse increment (IncrementRequest);
+
+  // Decrease the count of an item.
+  // Requires write authorization.
+  command DecrementResponse decrement (DecrementRequest);
+
+  // Move an item from one parent to another.
+  // Requires write authorization.
+  command SetParentResponse set_parent (SetParentRequest);
+
+  // Create a new item.
+  // Requires write authorization.
+  command CreateResponse create (CreateRequest);
+
+  // Delete an existing item, if it exists.
+  // If the item doesn't exist, the response will contain 0 items.
+  // Requires write authorization.
+  command DeleteResponse delete (DeleteRequest);
+
+  // Perform multiple operations sequentially.
+  // If any individual command within the batch fails validation or authentication,
+  // then none of the actions are attempted.
+  //
+  // In the case of command failure, the error message will be a comma-separated list of error codes,
+  // corresponding to the request's actions, in order.
+  command BatchOperationResponse batch (BatchOperationRequest);
+
+  // Associates a WorkerId with a specific profile path.
+  // Can be called multiple times for the same profile path.
+  // Requires write authorization.
+  command AssociatePathWithClientResponse associate_path_with_client (AssociatePathWithClientRequest);
+
+  command GetMetricsResponse get_metrics (GetMetricsRequest);
+
+  // This is a list of worker attributes that are allowed to execute any commands that require
+  // write authorization.
+  // See https://docs.improbable.io/reference/13.8/shared/worker-configuration/attributes#worker-attribute-set for more details.
+  list<string> write_worker_attributes = 1;
+
+  // This event is periodically triggered to notify interested workers of paths that have changed.
+  event PathsUpdated paths_updated;
+}
+
+// TODO: OS-389 Split this out into a separate test namespace.
+component HydrationTest {
+  id = 1903;
+
+  [ProfileIdAnnotation]
+  string profile_id = 1;
+
+  [ValueAnnotation]
+  int64 value_field1 = 2;
+
+  [ValueAnnotation]
+  int64 value_field2 = 3;
+
+  [ValueListAnnotation]
+  list<DatabaseSyncItem> item_list = 4;
+}

@@ -8,7 +8,6 @@
 #include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncReference.h"
 #include "ExternalSchemaCodegen/improbable/database_sync/AssociateDatabaseSync.h"
 #include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncService.h"
-//#include "ExternalSchemaCodegen/improbable/database_sync/Profile.h"
 
 
 void UGDKShooterSpatialGameInstance::Init()
@@ -23,21 +22,23 @@ void UGDKShooterSpatialGameInstance::Init()
 
 		ExternalSchema = new ExternalSchemaInterface(NetDriver->Connection, NetDriver->Dispatcher);
 
-		//UDeathmatchScoreComponent* Deathmatch = Cast<UDeathmatchScoreComponent>(GetWorld()->GetGameState()->GetComponentByClass(UDeathmatchScoreComponent::StaticClass()));
-
 
 		// Listen to the callback for HierarchyService component to be added to an entity to get the EntityId of the service to send commands to it.
 		ExternalSchema->OnAddComponent([this](const ::improbable::database_sync::DatabaseSyncService::AddComponentOp& Op)
 		{
 			HierarchyServiceId = Op.EntityId;
-		});
 
+			//It can do this by sending the associate_path_with_client command to DBSync in order to allow it.For example, associate_path_with_client(profiles.player1->workerId:Client - {0e61a845 - e978 - 4e5f - b314 - cc6bf1929171}).
+			USpatialNetDriver* NetDriver = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver());
+			if (NetDriver == nullptr)
+			{
+				NetDriver = Cast<USpatialNetDriver>(GetWorldContext()->PendingNetGame->GetNetDriver());
+			}
+			FString workerId = NetDriver->Connection->GetWorkerId();
 
-		// Listen to updates of items stored in the DB that have been changed outside of the game
-		ExternalSchema->OnComponentUpdate([this](const ::improbable::database_sync::DatabaseSyncService::ComponentUpdateOp& Op)
-		{
-			UDeathmatchScoreComponent* Deathmatch = Cast<UDeathmatchScoreComponent>(GetWorld()->GetGameState()->GetComponentByClass(UDeathmatchScoreComponent::StaticClass()));
-			Deathmatch->ItemUpdateEvent(Op);
+			::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Request* Request = new ::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Request("profiles.UnrealWorker", workerId);
+
+			ExternalSchema->SendCommandRequest(HierarchyServiceId, *Request);
 		});
 
 
@@ -58,6 +59,13 @@ void UGDKShooterSpatialGameInstance::Init()
 		{
 			UDeathmatchScoreComponent* Deathmatch = Cast<UDeathmatchScoreComponent>(GetWorld()->GetGameState()->GetComponentByClass(UDeathmatchScoreComponent::StaticClass()));
 			Deathmatch->IncrementResponse(Op);
+		});
+
+		// Listen to updates of items stored in the DB that have been changed outside of the game
+		ExternalSchema->OnComponentUpdate([this](const ::improbable::database_sync::DatabaseSyncService::ComponentUpdateOp& Op)
+		{
+			UDeathmatchScoreComponent* Deathmatch = Cast<UDeathmatchScoreComponent>(GetWorld()->GetGameState()->GetComponentByClass(UDeathmatchScoreComponent::StaticClass()));
+			Deathmatch->ItemUpdateEvent(Op);
 		});
 		
 	});

@@ -36,9 +36,10 @@ void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 		int32 Index = PlayerScoreArray.Add(NewPlayerScore);
 		PlayerScoreMap.Emplace(NewPlayerScore.PlayerId, Index);
 
-		// We have agreed that the Path we are storing the score is in the format "players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-		RequestGetItem("players." + FString::FromInt(PlayerState->PlayerId) + ".score.AllTimeKills"); // Get this value from persistent storage
-		RequestGetItem("players." + FString::FromInt(PlayerState->PlayerId) + ".score.AllTimeDeaths"); // Get this value from persistent storage
+
+		// We have agreed that the Path we are storing the score is in the format "UnrealWorker.players.playerId.score.(AllTimeKills or AllTimeDeaths)"
+		RequestGetItem("profiles.UnrealWorker.players." + FString::FromInt(PlayerState->PlayerId) + ".score.AllTimeKills"); // Get this value from persistent storage
+		RequestGetItem("profiles.UnrealWorker.players." + FString::FromInt(PlayerState->PlayerId) + ".score.AllTimeDeaths"); // Get this value from persistent storage
 	}
 }
 
@@ -50,7 +51,7 @@ void UDeathmatchScoreComponent::RecordKill(const int32 Killer, const int32 Victi
 
 		++PlayerScoreArray[PlayerScoreMap[Killer]].AllTimeKills;
 		// We have agreed that the Path we are storing the score is in the format "players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-		RequestIncrement("players." + FString::FromInt(Killer) + ".score.AllTimeKills", 1);	// Store this value in persistent storage
+		RequestIncrement("profiles.UnrealWorker.players." + FString::FromInt(Killer) + ".score.AllTimeKills", 1);	// Store this value in persistent storage
 	}
 	if (PlayerScoreMap.Contains(Victim))
 	{
@@ -58,7 +59,7 @@ void UDeathmatchScoreComponent::RecordKill(const int32 Killer, const int32 Victi
 
 		++PlayerScoreArray[PlayerScoreMap[Victim]].AllTimeDeaths;
 		// We have agreed that the Path we are storing the score is in the format "players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-		RequestIncrement("players." + FString::FromInt(Killer) + ".score.AllTimeDeaths", 1);	// Store this value in persistent storage
+		RequestIncrement("profiles.UnrealWorker.players." + FString::FromInt(Victim) + ".score.AllTimeDeaths", 1);	// Store this value in persistent storage
 	}
 }
 
@@ -138,7 +139,6 @@ void UDeathmatchScoreComponent::RequestCreateItem(const FString &Name, int64 Cou
 	Worker_RequestId requestId = gameInstance->ExternalSchema->SendCommandRequest(gameInstance->HierarchyServiceId, *Request);
 
 	CreateItemRequests.Add(requestId, Request);
-
 }
 
 void UDeathmatchScoreComponent::CreateItemResponse(const ::improbable::database_sync::DatabaseSyncService::Commands::Create::ResponseOp& Op)
@@ -207,7 +207,7 @@ void UDeathmatchScoreComponent::UpdateScoreFromPath(const FString &Path, int64 N
 {
 	FString workingPath = *Path;
 	// We have agreed that the Path we are storing the score is in the format "players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-	if (workingPath.RemoveFromStart("players."))
+	if (workingPath.RemoveFromStart("profiles.UnrealWorker.players."))
 	{
 		FString playerId;
 		if (workingPath.Split(".", &playerId, &workingPath))
@@ -230,8 +230,8 @@ void UDeathmatchScoreComponent::UpdateScoreFromPath(const FString &Path, int64 N
 void UDeathmatchScoreComponent::RequestCreateItemFromPath(const FString &Path)
 {
 	FString workingPath = *Path;
-	// We have agreed that the Path we are storing the score is in the format "players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-	if (workingPath.RemoveFromStart("players."))
+	// We have agreed that the Path we are storing the score is in the format "UnrealWorker.players.playerId.score.(AllTimeKills or AllTimeDeaths)"
+	if (workingPath.RemoveFromStart("profiles.UnrealWorker.players."))
 	{
 		FString playerId;
 		if (workingPath.Split(".", &playerId, &workingPath))
