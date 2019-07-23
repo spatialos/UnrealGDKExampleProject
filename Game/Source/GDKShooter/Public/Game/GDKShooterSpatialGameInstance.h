@@ -19,6 +19,18 @@ public:
 
 	void Init();
 
+	ExternalSchemaInterface* GetExternalSchemaInterface()
+	{
+		return ExternalSchema;
+	}
+
+	Worker_EntityId GetHierarchyServiceId()
+	{
+		return HierarchyServiceId;
+	}
+
+protected:
+
 	ExternalSchemaInterface* ExternalSchema;
 
 	Worker_EntityId HierarchyServiceId;

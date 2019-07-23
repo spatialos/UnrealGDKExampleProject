@@ -6,6 +6,15 @@
 #include "GDKShooterSpatialGameInstance.h"
 #include "ExternalSchemaCodegen/improbable/database_sync/CommandErrors.h"
 
+// Path format to store the score is in the format "profiles.UnrealWorker.players.<playerId>.score.(AllTimeKills or AllTimeDeaths)"
+namespace DBPaths
+{
+	static const FString kPlayersRoot = TEXT("profiles.UnrealWorker.players.");
+	static const FString kScoreFolder = TEXT("score");
+	static const FString kAllTimeKills = TEXT("AllTimeKills");
+	static const FString kAllTimeDeaths = TEXT("AlltimeDeaths");
+}
+
 UDeathmatchScoreComponent::UDeathmatchScoreComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -21,8 +30,6 @@ void UDeathmatchScoreComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 {
-	UE_LOG(LogTemp, Warning, TEXT("RecordNewPlayer"));
-
 	if (!PlayerScoreMap.Contains(PlayerState->PlayerId))
 	{
 		FPlayerScore NewPlayerScore;
@@ -37,9 +44,8 @@ void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 		PlayerScoreMap.Emplace(NewPlayerScore.PlayerId, Index);
 
 
-		// We have agreed that the Path we are storing the score is in the format "UnrealWorker.players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-		RequestGetItem("profiles.UnrealWorker.players." + FString::FromInt(PlayerState->PlayerId) + ".score.AllTimeKills"); // Get this value from persistent storage
-		RequestGetItem("profiles.UnrealWorker.players." + FString::FromInt(PlayerState->PlayerId) + ".score.AllTimeDeaths"); // Get this value from persistent storage
+		RequestGetItem(DBPaths::kPlayersRoot + FString::FromInt(PlayerState->PlayerId) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeKills); // Get this value from persistent storage
+		RequestGetItem(DBPaths::kPlayersRoot + FString::FromInt(PlayerState->PlayerId) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeDeaths); // Get this value from persistent storage
 	}
 }
 
@@ -50,16 +56,14 @@ void UDeathmatchScoreComponent::RecordKill(const int32 Killer, const int32 Victi
 		++PlayerScoreArray[PlayerScoreMap[Killer]].Kills;
 
 		++PlayerScoreArray[PlayerScoreMap[Killer]].AllTimeKills;
-		// We have agreed that the Path we are storing the score is in the format "players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-		RequestIncrement("profiles.UnrealWorker.players." + FString::FromInt(Killer) + ".score.AllTimeKills", 1);	// Store this value in persistent storage
+		RequestIncrement(DBPaths::kPlayersRoot + FString::FromInt(Killer) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeKills, 1);	// Store this value in persistent storage
 	}
 	if (PlayerScoreMap.Contains(Victim))
 	{
 		++PlayerScoreArray[PlayerScoreMap[Victim]].Deaths;
 
 		++PlayerScoreArray[PlayerScoreMap[Victim]].AllTimeDeaths;
-		// We have agreed that the Path we are storing the score is in the format "players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-		RequestIncrement("profiles.UnrealWorker.players." + FString::FromInt(Victim) + ".score.AllTimeDeaths", 1);	// Store this value in persistent storage
+		RequestIncrement(DBPaths::kPlayersRoot + FString::FromInt(Victim) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeDeaths, 1);	// Store this value in persistent storage
 	}
 }
 
@@ -80,15 +84,13 @@ void UDeathmatchScoreComponent::OnRep_PlayerScores()
 
 void UDeathmatchScoreComponent::RequestGetItem(const FString &Path)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Request Get Item"));
-
 	FString workerId = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver())->Connection->GetWorkerId();
 
 	::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request* Request = new ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request(Path, workerId);
 
 	UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
 	
-	Worker_RequestId requestId = gameInstance->ExternalSchema->SendCommandRequest(gameInstance->HierarchyServiceId, *Request);
+	Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *Request);
 
 	GetItemRequests.Add(requestId, Request);
 
@@ -96,8 +98,6 @@ void UDeathmatchScoreComponent::RequestGetItem(const FString &Path)
 
 void UDeathmatchScoreComponent::GetItemResponse(const ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::ResponseOp& Op)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Get Item Response"));
-
 	if (Op.StatusCode == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS)
 	{
 		UpdateScoreFromPath(GetItemRequests[Op.RequestId]->Data.GetPath(), Op.Data.Data.GetItem().GetCount());		
@@ -118,7 +118,7 @@ void UDeathmatchScoreComponent::GetItemResponse(const ::improbable::database_syn
 	{
 		UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
 
-		Worker_RequestId requestId = gameInstance->ExternalSchema->SendCommandRequest(gameInstance->HierarchyServiceId, *GetItemRequests[Op.RequestId]);
+		Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *GetItemRequests[Op.RequestId]);
 
 		GetItemRequests.Add(requestId, GetItemRequests[Op.RequestId]);
 
@@ -136,7 +136,7 @@ void UDeathmatchScoreComponent::RequestCreateItem(const FString &Name, int64 Cou
 
 	UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
 
-	Worker_RequestId requestId = gameInstance->ExternalSchema->SendCommandRequest(gameInstance->HierarchyServiceId, *Request);
+	Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *Request);
 
 	CreateItemRequests.Add(requestId, Request);
 }
@@ -151,7 +151,7 @@ void UDeathmatchScoreComponent::CreateItemResponse(const ::improbable::database_
 	{
 		UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
 
-		Worker_RequestId requestId = gameInstance->ExternalSchema->SendCommandRequest(gameInstance->HierarchyServiceId, *CreateItemRequests[Op.RequestId]);
+		Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *CreateItemRequests[Op.RequestId]);
 
 		CreateItemRequests.Add(requestId, CreateItemRequests[Op.RequestId]);
 
@@ -169,7 +169,7 @@ void UDeathmatchScoreComponent::RequestIncrement(const FString &Path, int64 Coun
 
 	UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
 
-	Worker_RequestId requestId = gameInstance->ExternalSchema->SendCommandRequest(gameInstance->HierarchyServiceId, *Request);
+	Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *Request);
 
 	IncrementRequests.Add(requestId, Request);
 }
@@ -184,7 +184,7 @@ void UDeathmatchScoreComponent::IncrementResponse(const ::improbable::database_s
 	{
 		UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
 
-		Worker_RequestId requestId = gameInstance->ExternalSchema->SendCommandRequest(gameInstance->HierarchyServiceId, *IncrementRequests[Op.RequestId]);
+		Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *IncrementRequests[Op.RequestId]);
 
 		IncrementRequests.Add(requestId, IncrementRequests[Op.RequestId]);
 
@@ -206,40 +206,59 @@ void UDeathmatchScoreComponent::ItemUpdateEvent(const ::improbable::database_syn
 void UDeathmatchScoreComponent::UpdateScoreFromPath(const FString &Path, int64 NewCount)
 {
 	FString workingPath = *Path;
-	// We have agreed that the Path we are storing the score is in the format "players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-	if (workingPath.RemoveFromStart("profiles.UnrealWorker.players."))
+	if (workingPath.RemoveFromStart(DBPaths::kPlayersRoot))
 	{
 		FString playerId;
 		if (workingPath.Split(".", &playerId, &workingPath))
 		{
-			if (workingPath.RemoveFromStart("score."))
+			if (workingPath.RemoveFromStart(DBPaths::kScoreFolder + "."))
 			{
-				if (workingPath.Compare("AllTimeKills") == 0)
+				if (workingPath.Compare(DBPaths::kAllTimeKills) == 0)
 				{
-					PlayerScoreArray[PlayerScoreMap[FCString::Atoi(*playerId)]].AllTimeKills = NewCount;
+					if (PlayerScoreMap.Contains(FCString::Atoi(*playerId)))
+					{
+						PlayerScoreArray[PlayerScoreMap[FCString::Atoi(*playerId)]].AllTimeKills = NewCount;
+						return;
+					}
+					else
+					{
+						UE_LOG(LogTemp, Log, TEXT("Received Update from Player not currently in game, ignoring it."));
+					}
 				}
-				else if (workingPath.Compare("AllTimeDeaths") == 0)
+				else if (workingPath.Compare(DBPaths::kAllTimeDeaths) == 0)
 				{
-					PlayerScoreArray[PlayerScoreMap[FCString::Atoi(*playerId)]].AllTimeDeaths = NewCount;
+					if (PlayerScoreMap.Contains(FCString::Atoi(*playerId)))
+					{
+						PlayerScoreArray[PlayerScoreMap[FCString::Atoi(*playerId)]].AllTimeDeaths = NewCount;
+						return;
+					}
+					else
+					{
+						UE_LOG(LogTemp, Log, TEXT("Received Update from Player not currently in game, ignoring it."));
+					}
 				}
 			}
 		}
 	}
+	
+	UE_LOG(LogTemp, Log, TEXT("Received update with unexpected path : %s"), *Path);
 }
 
 void UDeathmatchScoreComponent::RequestCreateItemFromPath(const FString &Path)
 {
 	FString workingPath = *Path;
-	// We have agreed that the Path we are storing the score is in the format "UnrealWorker.players.playerId.score.(AllTimeKills or AllTimeDeaths)"
-	if (workingPath.RemoveFromStart("profiles.UnrealWorker.players."))
+	if (workingPath.RemoveFromStart(DBPaths::kPlayersRoot))
 	{
 		FString playerId;
 		if (workingPath.Split(".", &playerId, &workingPath))
 		{
-			if (workingPath.RemoveFromStart("score."))
+			if (workingPath.RemoveFromStart(DBPaths::kScoreFolder + "."))
 			{
 				RequestCreateItem(workingPath, 0, Path);
+				return;
 			}
 		}
 	}
+
+	UE_LOG(LogTemp, Log, TEXT("Request to create item from unexpected path : %s"), *Path);
 }

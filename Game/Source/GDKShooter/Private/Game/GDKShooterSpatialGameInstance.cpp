@@ -5,10 +5,6 @@
 #include "EngineClasses/SpatialNetDriver.h"
 #include "Game/Components/DeathmatchScoreComponent.h"
 
-#include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncReference.h"
-#include "ExternalSchemaCodegen/improbable/database_sync/AssociateDatabaseSync.h"
-#include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncService.h"
-
 
 void UGDKShooterSpatialGameInstance::Init()
 {

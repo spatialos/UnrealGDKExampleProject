@@ -5,11 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/PlayerState.h"
-
-#include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncReference.h"
-#include "ExternalSchemaCodegen/improbable/database_sync/AssociateDatabaseSync.h"
 #include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncService.h"
-
 #include "DeathmatchScoreComponent.generated.h"
 
 // Information about a players performane during a match
@@ -67,7 +63,8 @@ public:
 	void IncrementResponse(const ::improbable::database_sync::DatabaseSyncService::Commands::Increment::ResponseOp& Op);
 
 protected:
-		virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+		
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION()
 		void OnRep_PlayerScores();
