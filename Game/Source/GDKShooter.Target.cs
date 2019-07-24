@@ -9,5 +9,6 @@ public class GDKShooterTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		ExtraModuleNames.Add("GDKShooter");
+		GlobalDefinitions.Add("UE_ALLOW_MAP_OVERRIDE_IN_SHIPPING=1");
 	}
 }
