@@ -7,7 +7,7 @@
 #include "GameFramework/PlayerState.h"
 #include "DeathmatchScoreComponent.generated.h"
 
-// Information about a players performance during a match
+// Information about a players performane during a match
 USTRUCT(BlueprintType)
 struct FPlayerScore {
 	GENERATED_BODY()
@@ -23,6 +23,12 @@ struct FPlayerScore {
 
 	UPROPERTY(BlueprintReadOnly)
 		int32 Deaths;
+
+	UPROPERTY(BlueprintReadOnly)
+		int32 AllTimeKills;
+
+	UPROPERTY(BlueprintReadOnly)
+		int32 AllTimeDeaths;
 };
 
 

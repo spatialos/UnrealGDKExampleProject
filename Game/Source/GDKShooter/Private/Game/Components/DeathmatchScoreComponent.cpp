@@ -25,6 +25,9 @@ void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 		NewPlayerScore.PlayerName = PlayerState->GetPlayerName();
 		NewPlayerScore.Kills = 0;
 		NewPlayerScore.Deaths = 0;
+		
+		NewPlayerScore.AllTimeKills = 0;	// TODO: Get this value from persistent storage
+		NewPlayerScore.AllTimeDeaths = 0;	// TODO: Get this value from persistene storage
 
 		int32 Index = PlayerScoreArray.Add(NewPlayerScore);
 		PlayerScoreMap.Emplace(NewPlayerScore.PlayerId, Index);
@@ -36,10 +39,14 @@ void UDeathmatchScoreComponent::RecordKill(const int32 Killer, const int32 Victi
 	if (Killer != Victim && PlayerScoreMap.Contains(Killer))
 	{
 		++PlayerScoreArray[PlayerScoreMap[Killer]].Kills;
+
+		++PlayerScoreArray[PlayerScoreMap[Killer]].AllTimeKills;	// TODO: Store this value in persistent storage
 	}
 	if (PlayerScoreMap.Contains(Victim))
 	{
 		++PlayerScoreArray[PlayerScoreMap[Victim]].Deaths;
+
+		++PlayerScoreArray[PlayerScoreMap[Victim]].AllTimeDeaths;	// TODO: Store this value in persistent storage
 	}
 }
 
