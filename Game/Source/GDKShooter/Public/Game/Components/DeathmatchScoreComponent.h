@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncService.h"
+#include "GDKShooterSpatialGameInstance.h"
 #include "DeathmatchScoreComponent.generated.h"
 
 // Information about a players performane during a match
@@ -86,5 +87,7 @@ protected:
 
 	void UpdateScoreFromPath(const FString &Path, int64 NewCount);
 	void RequestCreateItemFromPath(const FString &Path);
+
+	UGDKShooterSpatialGameInstance* GameInstance = nullptr;
 		
 };

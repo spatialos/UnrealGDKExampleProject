@@ -3,7 +3,6 @@
 #include "DeathmatchScoreComponent.h"
 #include "UnrealNetwork.h"
 #include "SpatialNetDriver.h"
-#include "GDKShooterSpatialGameInstance.h"
 #include "ExternalSchemaCodegen/improbable/database_sync/CommandErrors.h"
 
 // Path format to store the score is in the format "profiles.UnrealWorker.players.<playerId>.score.(AllTimeKills or AllTimeDeaths)"
@@ -12,7 +11,7 @@ namespace DBPaths
 	static const FString kPlayersRoot = TEXT("profiles.UnrealWorker.players.");
 	static const FString kScoreFolder = TEXT("score");
 	static const FString kAllTimeKills = TEXT("AllTimeKills");
-	static const FString kAllTimeDeaths = TEXT("AlltimeDeaths");
+	static const FString kAllTimeDeaths = TEXT("AllTimeDeaths");
 }
 
 UDeathmatchScoreComponent::UDeathmatchScoreComponent()
@@ -30,6 +29,11 @@ void UDeathmatchScoreComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 {
+	if (GameInstance == nullptr)
+	{
+		GameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
+	}
+
 	if (!PlayerScoreMap.Contains(PlayerState->PlayerId))
 	{
 		FPlayerScore NewPlayerScore;
@@ -43,9 +47,12 @@ void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 		int32 Index = PlayerScoreArray.Add(NewPlayerScore);
 		PlayerScoreMap.Emplace(NewPlayerScore.PlayerId, Index);
 
-
-		RequestGetItem(DBPaths::kPlayersRoot + FString::FromInt(PlayerState->PlayerId) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeKills); // Get this value from persistent storage
-		RequestGetItem(DBPaths::kPlayersRoot + FString::FromInt(PlayerState->PlayerId) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeDeaths); // Get this value from persistent storage
+		// Only use the Database Sync Worker if the entity exists.
+		if (GameInstance->GetHierarchyServiceId() != 0)
+		{
+			RequestGetItem(DBPaths::kPlayersRoot + FString::FromInt(PlayerState->PlayerId) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeKills); // Get this value from persistent storage
+			RequestGetItem(DBPaths::kPlayersRoot + FString::FromInt(PlayerState->PlayerId) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeDeaths); // Get this value from persistent storage
+		}
 	}
 }
 
@@ -56,14 +63,22 @@ void UDeathmatchScoreComponent::RecordKill(const int32 Killer, const int32 Victi
 		++PlayerScoreArray[PlayerScoreMap[Killer]].Kills;
 
 		++PlayerScoreArray[PlayerScoreMap[Killer]].AllTimeKills;
-		RequestIncrement(DBPaths::kPlayersRoot + FString::FromInt(Killer) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeKills, 1);	// Store this value in persistent storage
+		// Only use the Database Sync Worker if the entity exists.
+		if (GameInstance->GetHierarchyServiceId() != 0)
+		{
+			RequestIncrement(DBPaths::kPlayersRoot + FString::FromInt(Killer) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeKills, 1);	// Store this value in persistent storage
+		}
 	}
 	if (PlayerScoreMap.Contains(Victim))
 	{
 		++PlayerScoreArray[PlayerScoreMap[Victim]].Deaths;
 
 		++PlayerScoreArray[PlayerScoreMap[Victim]].AllTimeDeaths;
-		RequestIncrement(DBPaths::kPlayersRoot + FString::FromInt(Victim) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeDeaths, 1);	// Store this value in persistent storage
+		// Only use the Database Sync Worker if the entity exists.
+		if (GameInstance->GetHierarchyServiceId() != 0)
+		{
+			RequestIncrement(DBPaths::kPlayersRoot + FString::FromInt(Victim) + "." + DBPaths::kScoreFolder + "." + DBPaths::kAllTimeDeaths, 1); // Store this value in persistent storage
+		}
 	}
 }
 
@@ -87,10 +102,8 @@ void UDeathmatchScoreComponent::RequestGetItem(const FString &Path)
 	FString workerId = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver())->Connection->GetWorkerId();
 
 	::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request* Request = new ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request(Path, workerId);
-
-	UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
 	
-	Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *Request);
+	Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *Request);
 
 	GetItemRequests.Add(requestId, Request);
 
@@ -114,15 +127,17 @@ void UDeathmatchScoreComponent::GetItemResponse(const ::improbable::database_syn
 		
 		GetItemRequests.Remove(Op.RequestId);
 	}
-	else
+	else if(Op.StatusCode == Worker_StatusCode::WORKER_STATUS_CODE_TIMEOUT)
 	{
-		UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
-
-		Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *GetItemRequests[Op.RequestId]);
+		Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *GetItemRequests[Op.RequestId]);
 
 		GetItemRequests.Add(requestId, GetItemRequests[Op.RequestId]);
 
 		GetItemRequests.Remove(Op.RequestId);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("GetItem Request failed with Error %s : %s"), Op.StatusCode, Op.Message);
 	}
 }
 
@@ -134,9 +149,7 @@ void UDeathmatchScoreComponent::RequestCreateItem(const FString &Name, int64 Cou
 
 	::improbable::database_sync::DatabaseSyncService::Commands::Create::Request* Request = new ::improbable::database_sync::DatabaseSyncService::Commands::Create::Request(*Item, workerId);
 
-	UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
-
-	Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *Request);
+	Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *Request);
 
 	CreateItemRequests.Add(requestId, Request);
 }
@@ -147,15 +160,17 @@ void UDeathmatchScoreComponent::CreateItemResponse(const ::improbable::database_
 	{
 		CreateItemRequests.Remove(Op.RequestId);
 	}
-	else
+	else if (Op.StatusCode == Worker_StatusCode::WORKER_STATUS_CODE_TIMEOUT)
 	{
-		UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
-
-		Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *CreateItemRequests[Op.RequestId]);
+		Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *CreateItemRequests[Op.RequestId]);
 
 		CreateItemRequests.Add(requestId, CreateItemRequests[Op.RequestId]);
 
 		CreateItemRequests.Remove(Op.RequestId);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("CreateItem Request failed with Error %s : %s"), Op.StatusCode, Op.Message);
 	}
 }
 
@@ -167,9 +182,7 @@ void UDeathmatchScoreComponent::RequestIncrement(const FString &Path, int64 Coun
 		
 	::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request* Request = new ::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request(Path, Count, workerId);
 
-	UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
-
-	Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *Request);
+	Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *Request);
 
 	IncrementRequests.Add(requestId, Request);
 }
@@ -180,15 +193,17 @@ void UDeathmatchScoreComponent::IncrementResponse(const ::improbable::database_s
 	{
 		IncrementRequests.Remove(Op.RequestId);
 	}
-	else
+	else if (Op.StatusCode == Worker_StatusCode::WORKER_STATUS_CODE_TIMEOUT)
 	{
-		UGDKShooterSpatialGameInstance* gameInstance = Cast<UGDKShooterSpatialGameInstance>(GetWorld()->GetGameInstance());
-
-		Worker_RequestId requestId = gameInstance->GetExternalSchemaInterface()->SendCommandRequest(gameInstance->GetHierarchyServiceId(), *IncrementRequests[Op.RequestId]);
+		Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *IncrementRequests[Op.RequestId]);
 
 		IncrementRequests.Add(requestId, IncrementRequests[Op.RequestId]);
 
 		IncrementRequests.Remove(Op.RequestId);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Increment Request failed with Error %s : %s"), Op.StatusCode, Op.Message);
 	}
 }
 

@@ -33,6 +33,6 @@ protected:
 
 	ExternalSchemaInterface* ExternalSchema;
 
-	Worker_EntityId HierarchyServiceId;
+	Worker_EntityId HierarchyServiceId = 0;
 
 };
