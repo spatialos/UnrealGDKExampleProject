@@ -36,6 +36,16 @@
           "options": {
             "manual_worker_connection_only": true
         }
+      },
+	  {
+          "layer": "DatabaseSyncWorker",
+          "rectangle_grid": {
+              "cols": 1,
+              "rows": 1
+          },
+          "options": {
+            "manual_worker_connection_only": false
+        }
       }
     ]
   },
@@ -56,6 +66,36 @@
           "all": {}
         }
       ]
-    }
+    },
+	{
+	  "workerType": "DatabaseSyncWorker",
+      "flags": [
+        {
+          "name": "postgres_host",
+          "value": "127.0.0.1"
+        },
+        {
+          "name": "postgres_user",
+          "value": "postgres"
+        },
+        {
+          "name": "postgres_password",
+          "value": "DO_NOT_USE_IN_PRODUCTION"
+        },
+        {
+          "name": "postgres_database",
+          "value": "items"
+        },
+        {
+          "name": "postgres_additional",
+          "value": ""
+        }
+	  ],
+	  "permissions": [
+        {
+          "all": {}
+        }
+      ]
+	}
   ]
 }

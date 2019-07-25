@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/PlayerState.h"
+#include "ExternalSchemaCodegen/improbable/database_sync/DatabaseSyncService.h"
+#include "GDKShooterSpatialGameInstance.h"
 #include "DeathmatchScoreComponent.generated.h"
 
 // Information about a players performance during a match
@@ -54,8 +56,16 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FScoreChangeEvent ScoreEvent;
 
+	
+	void ItemUpdateEvent(const ::improbable::database_sync::DatabaseSyncService::ComponentUpdateOp& Op);
+
+	void GetItemResponse(const ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::ResponseOp& Op);
+	void CreateItemResponse(const ::improbable::database_sync::DatabaseSyncService::Commands::Create::ResponseOp& Op);
+	void IncrementResponse(const ::improbable::database_sync::DatabaseSyncService::Commands::Increment::ResponseOp& Op);
+
 protected:
-		virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+		
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION()
 		void OnRep_PlayerScores();
@@ -66,5 +76,18 @@ protected:
 	// A map from player name to score, to make it easier to update scores
 	UPROPERTY()
 		TMap<int32, int32> PlayerScoreMap;
+
+	void RequestGetItem(const FString &Path);
+	void RequestCreateItem(const FString &Name, int64 Count, const FString &Path);
+	void RequestIncrement(const FString &Path, int64 Count);
+
+	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request*> GetItemRequests;
+	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::Create::Request*> CreateItemRequests;
+	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request*> IncrementRequests;
+
+	void UpdateScoreFromPath(const FString &Path, int64 NewCount);
+	void RequestCreateItemFromPath(const FString &Path);
+
+	UGDKShooterSpatialGameInstance* GameInstance = nullptr;
 		
 };
