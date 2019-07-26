@@ -25,7 +25,8 @@ bool UNPCFunctionLibrary::TargetLocation(const APawn* SelfAsPawn, const AActor* 
 		{
 			return Strength > 0.f;
 		}
-		else {
+		else 
+		{
 			return false;
 		}
 	}
