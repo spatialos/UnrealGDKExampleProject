@@ -30,6 +30,20 @@
         }
       },
       {
+        "layer": "AIWorker",
+        "rectangle_grid": {
+          "cols": 1,
+          "rows": 1
+        }
+      },
+      {
+        "layer": "CrashBotWorker",
+        "rectangle_grid": {
+          "cols": 1,
+          "rows": 1
+        }
+      },
+      {
         "layer": "DeploymentManager",
         "rectangle_grid": {
           "cols": 1,
@@ -44,6 +58,24 @@
   "workers": [
     {
       "worker_type": "UnrealWorker",
+      "flags": [],
+      "permissions": [
+        {
+          "all": {}
+        }
+      ]
+    },
+    {
+      "worker_type": "AIWorker",
+      "flags": [],
+      "permissions": [
+        {
+          "all": {}
+        }
+      ]
+    },
+    {
+      "worker_type": "CrashBotWorker",
       "flags": [],
       "permissions": [
         {
