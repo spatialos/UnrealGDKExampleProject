@@ -26,7 +26,7 @@ void UEquippedComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (GetNetMode() == NM_DedicatedServer && GetOwner()->HasAuthority())
+	if (GetNetMode() == NM_DedicatedServer)
 	{
 		for (AHoldable* Holdable : HeldItems)
 		{
