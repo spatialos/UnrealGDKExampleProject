@@ -1,5 +1,5 @@
 {
-  "template": "small",
+  "template": "w4_r1000_e10",
   "world": {
     "dimensions": {
       "x_meters": 2000,
@@ -9,10 +9,6 @@
     "streaming_query_interval": 4,
     "legacy_flags": [
         {
-          "name": "streaming_query_diff",
-          "value": "true"
-        },
-        {
           "name": "bridge_qos_max_timeout",
           "value": "0"
         },
@@ -21,8 +17,8 @@
           "value": "false"
         },
         {
-          "name": "qos_max_unacked_pings_rate",
-          "value": "10"
+          "name": "enable_chunk_interest",
+          "value": "false"
         }
       ],
     "snapshots": {
