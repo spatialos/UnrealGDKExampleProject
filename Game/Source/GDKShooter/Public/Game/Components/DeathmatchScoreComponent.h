@@ -14,7 +14,7 @@ USTRUCT(BlueprintType)
 struct FPlayerScore {
 	GENERATED_BODY()
 
-		UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 		int32 PlayerId;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -81,9 +81,9 @@ protected:
 	void RequestCreateItem(const FString &Name, int64 Count, const FString &Path);
 	void RequestIncrement(const FString &Path, int64 Count);
 
-	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request*> GetItemRequests;
-	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::Create::Request*> CreateItemRequests;
-	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request*> IncrementRequests;
+	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request> GetItemRequests;
+	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::Create::Request> CreateItemRequests;
+	TMap<Worker_RequestId, ::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request> IncrementRequests;
 
 	void UpdateScoreFromPath(const FString &Path, int64 NewCount);
 	void RequestCreateItemFromPath(const FString &Path);
