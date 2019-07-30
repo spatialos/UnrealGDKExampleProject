@@ -101,9 +101,9 @@ void UDeathmatchScoreComponent::RequestGetItem(const FString &Path)
 {
 	FString workerId = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver())->Connection->GetWorkerId();
 
-	::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request* Request = new ::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request(Path, workerId);
+	::improbable::database_sync::DatabaseSyncService::Commands::GetItem::Request Request(Path, workerId);
 	
-	Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *Request);
+	Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), Request);
 
 	GetItemRequests.Add(requestId, Request);
 
@@ -113,7 +113,7 @@ void UDeathmatchScoreComponent::GetItemResponse(const ::improbable::database_syn
 {
 	if (Op.StatusCode == Worker_StatusCode::WORKER_STATUS_CODE_SUCCESS)
 	{
-		UpdateScoreFromPath(GetItemRequests[Op.RequestId]->Data.GetPath(), Op.Data.Data.GetItem().GetCount());		
+		UpdateScoreFromPath(GetItemRequests[Op.RequestId].Data.GetPath(), Op.Data.Data.GetItem().GetCount());		
 
 		GetItemRequests.Remove(Op.RequestId);
 	}
@@ -122,14 +122,14 @@ void UDeathmatchScoreComponent::GetItemResponse(const ::improbable::database_syn
 		FString message = Op.Message;
 		if (FCString::Atoi(*message) == (int32)::improbable::database_sync::CommandErrors::INVALID_REQUEST)
 		{
-			RequestCreateItemFromPath(GetItemRequests[Op.RequestId]->Data.GetPath());
+			RequestCreateItemFromPath(GetItemRequests[Op.RequestId].Data.GetPath());
 		}
 		
 		GetItemRequests.Remove(Op.RequestId);
 	}
 	else if(Op.StatusCode == Worker_StatusCode::WORKER_STATUS_CODE_TIMEOUT)
 	{
-		Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *GetItemRequests[Op.RequestId]);
+		Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), GetItemRequests[Op.RequestId]);
 
 		GetItemRequests.Add(requestId, GetItemRequests[Op.RequestId]);
 
@@ -145,11 +145,11 @@ void UDeathmatchScoreComponent::RequestCreateItem(const FString &Name, int64 Cou
 {
 	FString workerId = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver())->Connection->GetWorkerId();
 
-	::improbable::database_sync::DatabaseSyncItem* Item = new ::improbable::database_sync::DatabaseSyncItem(Name, Count, Path);
+	::improbable::database_sync::DatabaseSyncItem Item(Name, Count, Path);
 
-	::improbable::database_sync::DatabaseSyncService::Commands::Create::Request* Request = new ::improbable::database_sync::DatabaseSyncService::Commands::Create::Request(*Item, workerId);
+	::improbable::database_sync::DatabaseSyncService::Commands::Create::Request Request(Item, workerId);
 
-	Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *Request);
+	Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), Request);
 
 	CreateItemRequests.Add(requestId, Request);
 }
@@ -162,7 +162,7 @@ void UDeathmatchScoreComponent::CreateItemResponse(const ::improbable::database_
 	}
 	else if (Op.StatusCode == Worker_StatusCode::WORKER_STATUS_CODE_TIMEOUT)
 	{
-		Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *CreateItemRequests[Op.RequestId]);
+		Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), CreateItemRequests[Op.RequestId]);
 
 		CreateItemRequests.Add(requestId, CreateItemRequests[Op.RequestId]);
 
@@ -180,9 +180,9 @@ void UDeathmatchScoreComponent::RequestIncrement(const FString &Path, int64 Coun
 
 	FString workerId = Cast<USpatialNetDriver>(GetWorld()->GetNetDriver())->Connection->GetWorkerId();
 		
-	::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request* Request = new ::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request(Path, Count, workerId);
+	::improbable::database_sync::DatabaseSyncService::Commands::Increment::Request Request(Path, Count, workerId);
 
-	Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *Request);
+	Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), Request);
 
 	IncrementRequests.Add(requestId, Request);
 }
@@ -195,7 +195,7 @@ void UDeathmatchScoreComponent::IncrementResponse(const ::improbable::database_s
 	}
 	else if (Op.StatusCode == Worker_StatusCode::WORKER_STATUS_CODE_TIMEOUT)
 	{
-		Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), *IncrementRequests[Op.RequestId]);
+		Worker_RequestId requestId = GameInstance->GetExternalSchemaInterface()->SendCommandRequest(GameInstance->GetHierarchyServiceId(), IncrementRequests[Op.RequestId]);
 
 		IncrementRequests.Add(requestId, IncrementRequests[Op.RequestId]);
 

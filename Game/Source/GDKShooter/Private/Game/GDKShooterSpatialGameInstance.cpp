@@ -32,9 +32,9 @@ void UGDKShooterSpatialGameInstance::Init()
 			}
 			FString workerId = NetDriver->Connection->GetWorkerId();
 
-			::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Request* Request = new ::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Request("profiles.UnrealWorker", workerId);
+			::improbable::database_sync::DatabaseSyncService::Commands::AssociatePathWithClient::Request Request(TEXT("profiles.UnrealWorker"), workerId);
 
-			ExternalSchema->SendCommandRequest(HierarchyServiceId, *Request);
+			ExternalSchema->SendCommandRequest(HierarchyServiceId, Request);
 		});
 
 

@@ -24,3 +24,4 @@ Game/Plugins/UnrealGDK/
 spatial/schema/unreal
 spatial/snapshots
 Game/Content/Spatial/SchemaDatabase.uasset
+Game/Source/GDKShooter/ExternalSchemaCodegen/
