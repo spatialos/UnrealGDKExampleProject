@@ -80,9 +80,6 @@ protected:
 		void MulticastDamageTaken(float Value, FVector Source, FVector Impact, int32 PlayerId, FGenericTeamId TeamId);
 
 	UFUNCTION()
-		void OnRep_CurrentHealth();
-
-	UFUNCTION()
 		void OnRep_CurrentArmour();
 
 	// Max health this character can have.
@@ -90,7 +87,7 @@ protected:
 		float MaxHealth;
 
 	// Current health of the character, can be at most MaxHealth.
-	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CurrentHealth, Category = "Health")
+	UPROPERTY(VisibleAnywhere, Category = "Health")
 		float CurrentHealth;
 
 	// Max armour this character can have.

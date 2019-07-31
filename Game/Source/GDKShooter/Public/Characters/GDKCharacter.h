@@ -89,7 +89,4 @@ private:
 public:
 
 	float TakeDamage(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	UFUNCTION(CrossServer, Reliable)
-		void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 };

@@ -157,15 +157,9 @@ void AGDKCharacter::DeleteSelf()
 
 float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	TakeDamageCrossServer(Damage, DamageEvent, EventInstigator, DamageCauser);
-	return Damage;
-}
-
-void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
-
+	return ActualDamage;
 }
 
 FGenericTeamId AGDKCharacter::GetGenericTeamId() const

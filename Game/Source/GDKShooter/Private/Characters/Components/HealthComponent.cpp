@@ -35,8 +35,6 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UHealthComponent, CurrentHealth);
-
 	DOREPLIFETIME(UHealthComponent, CurrentArmour);
 }
 
@@ -205,14 +203,6 @@ void UHealthComponent::OnRep_CurrentArmour()
 	ArmourUpdated.Broadcast(CurrentArmour, MaxArmour);
 }
 
-void UHealthComponent::OnRep_CurrentHealth()
-{
-	HealthUpdated.Broadcast(CurrentHealth, MaxHealth);
-	if (CurrentHealth <= 0.f)
-	{
-		Death.Broadcast();
-	}
-}
 
 void UHealthComponent::MulticastDamageTaken_Implementation(float Value, FVector Source, FVector Impact, int32 PlayerId, FGenericTeamId TeamId)
 {
