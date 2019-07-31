@@ -2,9 +2,9 @@
 
 #include "InstantWeapon.h"
 
-#include "Characters/Core/GDKShooterCharacter.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/DamageType.h"
 #include "GDKLogging.h"
 #include "UnrealNetwork.h"
 
@@ -14,7 +14,7 @@ AInstantWeapon::AInstantWeapon()
 	BurstInterval = 0.5f;
 	BurstCount = 1;
 	ShotInterval = 0.2f;
-	LastBurstTime = 0.0f;
+	NextBurstTime = 0.0f;
 	BurstShotsRemaining = 0;
 	ShotBaseDamage = 10.0f;
 	HitValidationTolerance = 50.0f;
@@ -22,135 +22,46 @@ AInstantWeapon::AInstantWeapon()
 	ShotVisualizationDelayTolerance = FTimespan::FromMilliseconds(3000.0f);
 }
 
-void AInstantWeapon::ActuallyStartFiring()
+void AInstantWeapon::StartPrimaryUse_Implementation()
 {
-	SetWeaponState(EWeaponState::Firing);
-
-	// Initialize the burst.
-	LastBurstTime = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-	BurstShotsRemaining = BurstCount;
-}
-
-bool AInstantWeapon::ReadyToStartFiring()
-{
-	float Now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-	if (BurstCount > 0)
+	if (IsBurstFire())
 	{
-		return GetWeaponState() == EWeaponState::Idle && Now > LastBurstTime + BurstInterval;
+		if (!IsPrimaryUsing && NextBurstTime < UGameplayStatics::GetRealTimeSeconds(GetWorld()))
+		{
+			BurstShotsRemaining = BurstCount;
+			NextBurstTime = UGameplayStatics::GetRealTimeSeconds(GetWorld()) + BurstInterval;
+		}
 	}
-	else
+
+	Super::StartPrimaryUse_Implementation();
+}
+
+void AInstantWeapon::StopPrimaryUse_Implementation()
+{
+	// Can't force stop a burst.
+	if (!IsBurstFire() || bAllowContinuousBurstFire)
 	{
-		return GetWeaponState() == EWeaponState::Idle && ReadyToFire();
+		Super::StopPrimaryUse_Implementation();
 	}
 }
 
-bool AInstantWeapon::ReadyToFire()
+void AInstantWeapon::DoFire_Implementation()
 {
-	float Now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-	return Now > LastShotTime + ShotInterval;
-}
-
-void AInstantWeapon::StartFire()
-{
-	check(GetNetMode() == NM_Client);
-
 	if (!bIsActive)
 	{
+		IsPrimaryUsing = false;
+		ConsumeBufferedShot();
 		return;
 	}
 
-	float Now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-	if (ReadyToFire())
-	{
-		ActuallyStartFiring();
-	}
-	else
-	{
-		ShotBuffered = true;
-		ShotBufferedUntil = Now + ShotInputLeniancy;
-	}
-}
-
-void AInstantWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (GetNetMode() != NM_Client)
-	{
-		return;
-	}
-
-	if (GetWeaponState() == EWeaponState::Firing)
-	{
-		if (ReadyToFire())
-		{
-			DoFire();
-		}
-	}
-	else if(ShotBuffered)
-	{
-		float Now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-		if (ShotBufferedUntil > Now)
-		{
-			if (ReadyToFire())
-			{
-				ShotBuffered = false;
-				ActuallyStartFiring();
-				DoFire();
-			}
-		}
-		else
-		{
-			ShotBuffered = false;
-		}
-	}
-}
-
-void AInstantWeapon::StopFire()
-{
-	if (GetNetMode() != NM_Client)
-	{
-		return;
-	}
-
-	ShotBuffered = false;
-	// Can't force stop a burst.
-	if (GetWeaponState() == EWeaponState::Firing && !IsBurstFire())
-	{
-		StopFiring();
-	}
-}
-
-void AInstantWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-
-	GetWorld()->DebugDrawTraceTag = kTraceTag;
-}
-
-void AInstantWeapon::EndPlay(const EEndPlayReason::Type Reason)
-{
-	Super::EndPlay(Reason);
-}
-
-void AInstantWeapon::DoFire()
-{
-	check(GetNetMode() == NM_Client);
-
-	if (!GetOwningCharacter()->CanFire())
-	{
-		// Don't attempt to fire if the character can't.
-		return;
-	}
-
-	LastShotTime = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-
-	FInstantHitInfo HitInfo;
-	if (DoLineTrace(HitInfo))
+	NextShotTime = UGameplayStatics::GetRealTimeSeconds(GetWorld()) + ShotInterval;
+	
+	FInstantHitInfo HitInfo = DoLineTrace();
+	if (HitInfo.bDidHit)
 	{
 		ServerDidHit(HitInfo);
 		SpawnFX(HitInfo, true);  // Spawn the hit fx locally
-		AnnounceShot(HitInfo.HitActor->bCanBeDamaged);
+		AnnounceShot(HitInfo.HitActor ? HitInfo.HitActor->bCanBeDamaged : false);
 	}
 	else
 	{
@@ -165,7 +76,20 @@ void AInstantWeapon::DoFire()
 		if (BurstShotsRemaining <= 0)
 		{
 			FinishedBurst();
-			StopFiring();
+			if (bAllowContinuousBurstFire)
+			{
+				BurstShotsRemaining = BurstCount;
+				// We will force a cooldown for the full burst interval, regardless of the time already consumed in the previous burst, for simplicity.
+				ForceCooldown(BurstInterval);
+			}
+			else
+			{
+				if (GetMovementComponent())
+				{
+					GetMovementComponent()->SetIsBusy(false);
+				}
+				IsPrimaryUsing = false;
+			}
 		}
 	}
 
@@ -173,21 +97,28 @@ void AInstantWeapon::DoFire()
 
 FVector AInstantWeapon::GetLineTraceDirection()
 {
-	float SpreadToUse = GetOwningCharacter()->IsAiming() ? SpreadAt100mWhenAiming : SpreadAt100m;
-	if (GetOwningCharacter()->bIsCrouched)
+	FVector Direction = Super::GetLineTraceDirection();
+
+	float SpreadToUse = SpreadAt100m;
+	if (GetMovementComponent())
 	{
-		SpreadToUse *= SpreadCrouchModifier;
+		if (GetMovementComponent()->IsAiming())
+		{
+			SpreadToUse = SpreadAt100mWhenAiming;
+		}
+		if (GetMovementComponent()->IsCrouching())
+		{
+			SpreadToUse *= SpreadCrouchModifier;
+		}
 	}
 
 	if (SpreadToUse > 0)
 	{
 		auto Spread = FMath::RandPointInCircle(SpreadToUse);
-		return GetOwningCharacter()->GetLineTraceDirection().Rotation().RotateVector(FVector(10000, Spread.X, Spread.Y));
+		Direction = Direction.Rotation().RotateVector(FVector(10000, Spread.X, Spread.Y));
 	}
-	else
-	{
-		return GetOwningCharacter()->GetLineTraceDirection();
-	}
+
+	return Direction;
 }
 
 void AInstantWeapon::NotifyClientsOfHit(const FInstantHitInfo& HitInfo, bool bImpact)
@@ -245,7 +176,10 @@ void AInstantWeapon::DealDamage(const FInstantHitInfo& HitInfo)
 	DmgEvent.DamageTypeClass = DamageTypeClass;
 	DmgEvent.HitInfo.ImpactPoint = HitInfo.Location;
 
-	HitInfo.HitActor->TakeDamage(ShotBaseDamage, DmgEvent, GetOwningCharacter()->GetController(), this);
+	if (APawn* Pawn = Cast<APawn>(GetOwner()))
+	{
+		HitInfo.HitActor->TakeDamage(ShotBaseDamage, DmgEvent, Pawn->GetController(), this);
+	}
 }
 
 bool AInstantWeapon::ServerDidHit_Validate(const FInstantHitInfo& HitInfo)
@@ -255,11 +189,6 @@ bool AInstantWeapon::ServerDidHit_Validate(const FInstantHitInfo& HitInfo)
 
 void AInstantWeapon::ServerDidHit_Implementation(const FInstantHitInfo& HitInfo)
 {
-	if (!GetOwningCharacter()->CanFire())
-	{
-		UE_LOG(LogGDK, Verbose, TEXT("%s server: rejected shot because character is unable to fire"), *this->GetName());
-		return;
-	}
 
 	bool bDoNotifyHit = false;
 
@@ -293,28 +222,24 @@ bool AInstantWeapon::ServerDidMiss_Validate(const FInstantHitInfo& HitInfo)
 
 void AInstantWeapon::ServerDidMiss_Implementation(const FInstantHitInfo& HitInfo)
 {
-	if (!GetOwningCharacter()->CanFire())
-	{
-		UE_LOG(LogGDK, Verbose, TEXT("%s server: rejected shot because character is unable to fire"), *this->GetName());
-		return;
-	}
-
 	NotifyClientsOfHit(HitInfo, false);
-}
-
-void AInstantWeapon::StopFiring()
-{
-	check(GetNetMode() == NM_Client);
-	ShotBuffered = false;
-	SetWeaponState(EWeaponState::Idle);
 }
 
 void AInstantWeapon::MulticastNotifyHit_Implementation(FInstantHitInfo HitInfo, bool bImpact)
 {
 	// Make sure we're a client, and we're not the client that owns this gun (they will have already played the effect locally).
+	APawn* Pawn = Cast<APawn>(GetOwner());
+
 	if (GetNetMode() != NM_DedicatedServer &&
-		(GetOwningCharacter() == nullptr || !GetOwningCharacter()->IsLocallyControlled()))
+		(Pawn == nullptr || !Pawn->IsLocallyControlled()))
 	{
 		SpawnFX(HitInfo, bImpact);
 	}
+}
+
+void AInstantWeapon::SetIsActive(bool bNewActive)
+{
+	Super::SetIsActive(bNewActive);
+
+	ConsumeBufferedShot();
 }

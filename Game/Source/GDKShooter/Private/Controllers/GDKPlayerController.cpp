@@ -2,19 +2,25 @@
 
 #include "Controllers/GDKPlayerController.h"
 
-#include "Characters/Core/GDKShooterCharacter.h"
-#include "Game/GDKGameState.h"
-#include "Game/GDKSessionGameState.h"
-#include "Game/GDKPlayerState.h"
 #include "Blueprint/UserWidget.h"
-#include "GDKLogging.h"
-#include "UnrealNetwork.h"
-#include "TimerManager.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/SpringArmComponent.h"
-
-#include "SpatialNetDriver.h"
+#include "Components/ControllerEventsComponent.h"
+#include "Components/EquippedComponent.h"
+#include "Components/HealthComponent.h"
+#include "Components/MetaDataComponent.h"
 #include "Connection/SpatialWorkerConnection.h"
+#include "Game/Components/ScorePublisher.h"
+#include "Game/Components/SpawnRequestPublisher.h"
+#include "Game/Components/PlayerPublisher.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/GameStateBase.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "SpatialNetDriver.h"
+#include "UnrealNetwork.h"
+#include "Weapons/Holdable.h"
+#include "Weapons/Projectile.h"
+#include "Weapons/Weapon.h"
 
 
 AGDKPlayerController::AGDKPlayerController()
@@ -41,11 +47,13 @@ void AGDKPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AGDKSessionGameState* GameState = Cast<AGDKSessionGameState>(GetWorld()->GetGameState()))
+	if (PlayerState)
 	{
-		GameState->OnTimerUpdated().AddUObject(this, &AGDKPlayerController::TimerUpdated);
+		if (UPlayerPublisher* PlayerPublisher = Cast<UPlayerPublisher>(GetWorld()->GetGameState()->GetComponentByClass(UPlayerPublisher::StaticClass())))
+		{
+			PlayerPublisher->PublishPlayer(PlayerState, EPlayerProgress::Connected);
+		}
 	}
-	SetUIMode(true, false);
 }
 
 void AGDKPlayerController::Tick(float DeltaTime)
@@ -56,65 +64,23 @@ void AGDKPlayerController::Tick(float DeltaTime)
 	}
 }
 
-void AGDKPlayerController::EndPlay(const EEndPlayReason::Type Reason)
-{
-	Super::EndPlay(Reason);
-
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
-}
-
-void AGDKPlayerController::UpdateHealthUI(int32 NewHealth, int32 MaxHealth)
-{
-	HealthChangedEvent.Broadcast(NewHealth, MaxHealth);
-}
-
-void AGDKPlayerController::UpdateArmourUI(int32 NewArmour, int32 MaxArmour)
-{
-	ArmourChangedEvent.Broadcast(NewArmour, MaxArmour);
-}
-
 void AGDKPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 
-	if (GetNetMode() == NM_Client)
+	if (GetNetMode() == NM_Client && InPawn)
 	{
-		AGDKCharacter* Character = Cast<AGDKCharacter>(InPawn);
-		if (Character != nullptr)
-		{
-			SetCharacterState(EGDKCharacterState::Alive);
-
-			UpdateHealthUI(Character->GetCurrentHealth(), Character->GetMaxHealth());
-			UpdateArmourUI(Character->GetCurrentArmour(), Character->GetMaxArmour());
-
-			// Make the new pawn's camera this controller's camera.
-			SetViewTarget(InPawn);
-
-			this->ClientSetRotation(InPawn->GetActorRotation(), true);
-		}
-		else
-		{
-			SetViewTarget(this);
-		}
-
-		AGDKShooterCharacter* ShooterCharacter = Cast<AGDKShooterCharacter>(InPawn);
-		if (ShooterCharacter != nullptr)
-		{
-			FAimingStateChanged AimingCallback;
-			AimingCallback.BindUObject(this, &AGDKPlayerController::AimingChanged);
-			ShooterCharacter->AddAimingListener(AimingCallback);
-			AimingChanged(ShooterCharacter->IsAiming(), 1);
-
-			FWeaponShotDelegate ShotCallback;
-			ShotCallback.BindUObject(this, &AGDKPlayerController::OnCharacterShot);
-			ShooterCharacter->AddShotListener(ShotCallback);
-
-			FWeaponChanged WeaponCallback;
-			WeaponCallback.BindUObject(this, &AGDKPlayerController::WeaponChanged);
-			ShooterCharacter->AddWeaponListener(WeaponCallback);
-
-		}
+		SetViewTarget(InPawn);
+		// Make the new pawn's camera this controller's camera.
+		this->ClientSetRotation(InPawn->GetActorRotation(), true);
 	}
+	else
+	{
+		SetViewTarget(this);
+	}
+
+	PawnEvent.Broadcast(InPawn);
+	OnNewPawn(InPawn);
 }
 
 void AGDKPlayerController::GetPlayerViewPoint(FVector& out_Location, FRotator& out_Rotation) const
@@ -131,334 +97,84 @@ void AGDKPlayerController::GetPlayerViewPoint(FVector& out_Location, FRotator& o
 	}
 }
 
-void AGDKPlayerController::OnCharacterShot(AWeapon* Weapon, bool Hit)
-{
-	if (Weapon)
-	{
-		OnShot(Weapon, Hit);
-	}
-	ShotEvent.Broadcast(Weapon, Hit);
-}
-
-void AGDKPlayerController::AimingChanged(bool bIsAiming, float AimRotationSpeed)
-{
-	AimingChangedEvent.Broadcast(bIsAiming);
-	OnAimingChanged(bIsAiming, AimRotationSpeed);
-}
-
-void AGDKPlayerController::WeaponChanged(AWeapon* Weapon)
-{
-	WeaponNotification.Broadcast(Weapon);
-}
-
-void AGDKPlayerController::KillCharacter(const AGDKCharacter* Killer)
-{
-	check(GetNetMode() == NM_DedicatedServer);
-
-	if (!HasAuthority())
-	{
-		return;
-	}
-
-	FString KillerName;
-
-	if (Killer)
-	{
-		KillerName = Killer->GetPlayerName();
-		InformOfDeath(KillerName, Killer->PlayerId);
-
-		if (Killer->GetController())
-		{
-			if (AGDKPlayerController* KC = Cast<AGDKPlayerController>(Killer->GetController()))
-			{
-				if (AGDKCharacter* PC = Cast<AGDKCharacter>(GetPawn()))
-				{
-					KC->InformOfKill(PC->GetPlayerName(), PC->PlayerId);
-				}
-			}
-		}
-	}
-
-	if (AGDKGameState* GM = Cast<AGDKGameState>(GetWorld()->GetGameState()))
-	{
-		if (AGDKPlayerState* PS = Cast<AGDKPlayerState>(PlayerState))
-			GM->AddDeath(Killer->PlayerId, PS->PlayerId);
-	}
-
-	UnPossess();
-}
-
-void AGDKPlayerController::InformOfKill_Implementation(const FString& VictimName, int32 VictimId)
-{
-	KillNotification.Broadcast(VictimName, VictimId);
-}
-void AGDKPlayerController::InformOfDeath_Implementation(const FString& KillerName, int32 KillerId)
-{
-	KilledNotification.Broadcast(KillerName, KillerId);
-	SetCharacterState(EGDKCharacterState::Dead);
-	HealthChangedEvent.Broadcast(0, 100);
-	ArmourChangedEvent.Broadcast(0, 100);
-
-}
-
-void AGDKPlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	InputComponent->BindAction("ShowScoreboard", IE_Pressed, this, &AGDKPlayerController::ShowScoreboard);
-	InputComponent->BindAction("ShowScoreboard", IE_Released, this, &AGDKPlayerController::HideScoreboard);
-	InputComponent->BindAction("ShowMenu", IE_Pressed, this, &AGDKPlayerController::ToggleMenu);
-}
-
-void AGDKPlayerController::TimerUpdated(EGDKSessionProgress SessionProgress, int SessionTimer)
-{
-	if (SessionProgress == EGDKSessionProgress::Results && !bGameFinished)
-	{
-		bGameFinished = true;
-		SetControllerState(EGDKControllerState::Finished);
-	}
-	if (SessionProgress == EGDKSessionProgress::Finished)
-	{
-		FURL TravelURL;
-		TravelURL.Map = TEXT("Deployments");
-		ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false /*bSeamless*/);
-	}
-}
-
-void AGDKPlayerController::SetUIMode(bool bIsUIMode, bool bAllowMovement)
+void AGDKPlayerController::SetUIMode(bool bIsUIMode)
 {
 	bShowMouseCursor = bIsUIMode;
 	ResetIgnoreLookInput();
 	SetIgnoreLookInput(bIsUIMode);
 	ResetIgnoreMoveInput();
-	SetIgnoreMoveInput(bIsUIMode && !bAllowMovement);
-	SetIgnoreActionInput(bIsUIMode);
+	SetIgnoreMoveInput(bIsUIMode);
+
 	if (bIsUIMode)
 	{
 		SetInputMode(FInputModeGameAndUI());
-
-		AGDKShooterCharacter* ShooterCharacter = Cast<AGDKShooterCharacter>(GetPawn());
-		if (ShooterCharacter != nullptr)
-		{
-			ShooterCharacter->StopFire();
-		}
 	}
 	else
 	{
 		SetInputMode(FInputModeGameOnly());
 	}
-}
 
-void AGDKPlayerController::TryJoinGame(const FString& NewPlayerName, const FGDKMetaData MetaData)
-{
-	check(GetNetMode() != NM_DedicatedServer);
-	SetControllerState(EGDKControllerState::PendingCharacter);
-	bHasRequetsedPlayer = true;
-	ServerTryJoinGame(
-		NewPlayerName.IsEmpty() ? TEXT("Unknown") : NewPlayerName,
-		MetaData);
-}
-
-void AGDKPlayerController::ChooseNewSpawnPoint()
-{
-	AActor* const NewStartSpot = GetWorld()->GetAuthGameMode()->ChoosePlayerStart(this);
-	if (NewStartSpot != nullptr)
+	if (GetPawn())
 	{
-		// Set the player controller / camera in this new location
-		FRotator InitialControllerRot = NewStartSpot->GetActorRotation();
-		InitialControllerRot.Roll = 0.f;
-		SetInitialLocationAndRotation(NewStartSpot->GetActorLocation(), InitialControllerRot);
-		StartSpot = NewStartSpot;
+		if (UEquippedComponent* EquippedComponent = Cast<UEquippedComponent>(GetPawn()->GetComponentByClass(UEquippedComponent::StaticClass())))
+		{
+			EquippedComponent->BlockUsing(bIsUIMode);
+		}
 	}
 }
 
-void AGDKPlayerController::ServerTryJoinGame_Implementation(const FString& NewPlayerName, const FGDKMetaData MetaData)
+void AGDKPlayerController::ServerTryJoinGame_Implementation()
 {
-	bool bJoinWasSuccessful = true;
 
-	// Validate player name
-	if (NewPlayerName.IsEmpty())
+	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
 	{
-		bJoinWasSuccessful = false;
-
-		UE_LOG(LogGDK, Error, TEXT("%s PlayerController: Player attempted to join with empty name."), *this->GetName());
+		Spawner->RequestSpawn(this);
+		return;
 	}
+}
 
-	// Validate PlayerState
-	if (PlayerState == nullptr
-		|| !PlayerState->IsA(AGDKPlayerState::StaticClass()))
+bool AGDKPlayerController::ServerTryJoinGame_Validate()
+{
+	return true;
+}
+
+void AGDKPlayerController::ServerRequestName_Implementation(const FString& NewPlayerName)
+{
+	if (PlayerState)
 	{
-		bJoinWasSuccessful = false;
-
-		UE_LOG(LogGDK, Error, TEXT("%s PlayerController: Invalid PlayerState pointer (%s)"), *this->GetName(), PlayerState == nullptr ? TEXT("nullptr") : *PlayerState->GetName());
-	}
-
-	// Validate the join request
-	if (bHasBeenGrantedPlayer)
-	{
-		bJoinWasSuccessful = false;
-
-		UE_LOG(LogGDK, Error, TEXT("%s PlayerController: Already submitted Join request.  Client attempting to join session multiple times."), *this->GetName());
-	}
-
-	// Inform Client as to whether or not join was accepted
-	ClientJoinResults(bJoinWasSuccessful);
-
-	if (bJoinWasSuccessful)
-	{
-		bHasBeenGrantedPlayer = true;
-
-		// Set the player-selected values
 		PlayerState->SetPlayerName(NewPlayerName);
-		Cast<AGDKPlayerState>(PlayerState)->SetMetaData(MetaData);
-
-		// Spawn the Pawn
-		RespawnCharacter();
-
-		// Add the player to the game's scoreboard.
-		if (AGDKGameState* GS = GetWorld()->GetGameState<AGDKGameState>())
-		{
-			GS->AddPlayer(PlayerState->PlayerId, NewPlayerName);
-		}
-		else
-		{
-			UE_LOG(LogGDK, Error, TEXT("%s: failed to add player because GameMode didn't exist"),
-				*GDKLogging::LogPrefix(this));
-		}
 	}
-
 }
 
-bool AGDKPlayerController::ServerTryJoinGame_Validate(const FString& NewPlayerName, const FGDKMetaData MetaData)
+bool AGDKPlayerController::ServerRequestName_Validate(const FString& NewPlayerName)
 {
 	return true;
 }
 
-void AGDKPlayerController::ClientJoinResults_Implementation(const bool bJoinSucceeded)
+void AGDKPlayerController::ServerRequestMetaData_Implementation(const FGDKMetaData NewMetaData)
 {
-	if (bJoinSucceeded)
+	if (UMetaDataComponent* MetaData = Cast<UMetaDataComponent>(PlayerState->GetComponentByClass(UMetaDataComponent::StaticClass())))
 	{
-		bHasBeenGrantedPlayer = true;
-		SetControllerState(EGDKControllerState::InProgress);
+		MetaData->SetMetaData(NewMetaData);
 	}
-	else
-	{
-		bHasRequetsedPlayer = false;
-		SetControllerState(EGDKControllerState::PreCharacter);
-	}
-
 }
 
-void AGDKPlayerController::RequestRespawn()
-{
-	check(GetNetMode() == NM_Client);
-
-	if (CurrentCharacterState != EGDKCharacterState::Dead)
-	{
-		return;
-	}
-
-	SetCharacterState(EGDKCharacterState::PendingRespawn);
-
-	RespawnCharacter();
-}
-
-bool AGDKPlayerController::RespawnCharacter_Validate()
+bool AGDKPlayerController::ServerRequestMetaData_Validate(const FGDKMetaData NewMetaData)
 {
 	return true;
 }
 
-void AGDKPlayerController::RespawnCharacter_Implementation()
+void AGDKPlayerController::ServerRespawnCharacter_Implementation()
 {
-	check(GetNetMode() == NM_DedicatedServer);
-
-	if (bGameFinished)
+	if (USpawnRequestPublisher* Spawner = Cast<USpawnRequestPublisher>(GetWorld()->GetGameState()->GetComponentByClass(USpawnRequestPublisher::StaticClass())))
 	{
+		Spawner->RequestSpawn(this);
 		return;
 	}
-
-	if (AGameModeBase* GameMode = GetWorld()->GetAuthGameMode())
-	{
-		APawn* NewPawn = nullptr; 
-		
-		ChooseNewSpawnPoint();
-
-		check(StartSpot.IsValid());
-
-		NewPawn = GameMode->SpawnDefaultPawnFor(this, StartSpot.Get());
-
-		Possess(NewPawn);
-
-		AGDKCharacter* NewCharacter = Cast<AGDKCharacter>(NewPawn);
-		if (NewCharacter != nullptr)
-		{
-			AGDKPlayerState* GDKPlayerState = Cast<AGDKPlayerState>(PlayerState);
-			if (GDKPlayerState)
-			{
-				NewCharacter->SetMetaData(GDKPlayerState->GetMetaData());
-				NewCharacter->PlayerId = GDKPlayerState->PlayerId;
-			}
-			else 
-			{
-				UE_LOG(LogGDK, Error, TEXT("%d: Created a player without a PlayerState"), *this->GetName());
-			}
-		}
-	}
 }
 
-void AGDKPlayerController::SetUIMode()
+bool AGDKPlayerController::ServerRespawnCharacter_Validate()
 {
-	bool bInMenu = CurrentControllerState != EGDKControllerState::InProgress || CurrentMenu != EGDKMenu::None || CurrentCharacterState != EGDKCharacterState::Alive;
-	SetUIMode(bInMenu, !bInMenu);
+	return true;
 }
 
-void AGDKPlayerController::SetControllerState(EGDKControllerState NewState)
-{
-	CurrentControllerState = NewState;
-	OnControllerState.Broadcast(CurrentControllerState);
-	//There is currently no state transition where we should be keeping a menu window open
-	SetUIMode();
-}
-
-void AGDKPlayerController::SetCharacterState(EGDKCharacterState NewState)
-{
-	CurrentCharacterState = NewState;
-	OnCharacterState.Broadcast(CurrentCharacterState);
-	SetUIMode();
-}
-
-void AGDKPlayerController::SetMenu(EGDKMenu NewMenu)
-{
-	CurrentMenu = NewMenu;
-	OnMenuChanged.Broadcast(CurrentMenu);
-	SetUIMode();
-}
-
-void AGDKPlayerController::ShowScoreboard()
-{
-	if (CurrentControllerState == EGDKControllerState::InProgress)
-	{
-		SetMenu(EGDKMenu::Scores);
-	}
-}
-void AGDKPlayerController::HideScoreboard()
-{
-	if (CurrentMenu == EGDKMenu::Scores)
-	{
-		SetMenu(EGDKMenu::None);
-	}
-}
-void AGDKPlayerController::ToggleMenu()
-{
-	if (CurrentControllerState == EGDKControllerState::InProgress)
-	{
-		if (CurrentMenu != EGDKMenu::Menu)
-		{
-			SetMenu(EGDKMenu::Menu);
-		}
-		else
-		{
-			SetMenu(EGDKMenu::None);
-		}
-	}
-}
