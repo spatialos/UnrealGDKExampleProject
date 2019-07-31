@@ -3,6 +3,8 @@
 #include "Projectile.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
+#include "GameFramework/Pawn.h"
 #include "GDKLogging.h"
 #include "UnrealNetwork.h"
 
@@ -46,14 +48,18 @@ void AProjectile::PostInitializeComponents()
 	CollisionComp->MoveIgnoreActors.Add(Instigator);
 	MovementComp->OnProjectileStop.AddDynamic(this, &AProjectile::OnStop);
 	MovementComp->OnProjectileBounce.AddDynamic(this, &AProjectile::OnBounce);
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::BeginOverlap);
 	BeginTime = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 }
 
-void AProjectile::SetPlayer(AGDKCharacter* Character, AWeapon* Weapon)
+void AProjectile::SetPlayer(AWeapon* Weapon)
 {
+	AActor* Character = Weapon->GetOwner();
 	CollisionComp->MoveIgnoreActors.Add(Character);
-	Character->IgnoreMe(this);
-	InstigatingController = Character->GetController();
+	if (auto Pawn = Cast<APawn>(Character))
+	{
+		InstigatingController = Pawn->GetController();
+	}
 	InstigatingWeapon = Weapon;
 }
 
@@ -80,7 +86,7 @@ void AProjectile::OnRep_MetaData()
 
 void AProjectile::Tick(float DeltaTime)
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		return;
 	}
@@ -95,7 +101,7 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::OnStop(const FHitResult& ImpactResult)
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		return;
 	}
@@ -108,7 +114,7 @@ void AProjectile::OnStop(const FHitResult& ImpactResult)
 
 void AProjectile::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		return;
 	}
@@ -120,6 +126,23 @@ void AProjectile::OnBounce(const FHitResult& ImpactResult, const FVector& Impact
 	}
 }
 
+void AProjectile::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult &SweepResult)
+{
+	if (APawn* OtherPawn = Cast<APawn>(OtherActor))
+	{
+		OverlapPawn(OtherPawn);
+	}
+}
+
+void AProjectile::OverlapPawn_Implementation(APawn* OtherPawn)
+{
+	Explode();
+}
 
 void AProjectile::OnRep_Exploded()
 {
@@ -133,7 +156,7 @@ void AProjectile::ExplosionVisuals_Implementation()
 
 void AProjectile::Explode()
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		return;
 	}
@@ -144,6 +167,6 @@ void AProjectile::Explode()
 	SetLifeSpan(2.0f);
 	if (ExplosionDamage > 0 && ExplosionRadius > 0)
 	{
-		UGameplayStatics::ApplyRadialDamageWithFalloff(this, ExplosionDamage, ExplosionMinimumDamage, this->GetActorLocation(), ExplosionInnerRadius, ExplosionRadius, ExplosionFalloff, DamageTypeClass, TArray<AActor*>{this}, InstigatingWeapon, InstigatingController);
+		UGameplayStatics::ApplyRadialDamageWithFalloff(this, ExplosionDamage, ExplosionMinimumDamage, this->GetActorLocation(), ExplosionInnerRadius, ExplosionRadius, ExplosionFalloff, DamageTypeClass, TArray<AActor*>{this}, this, InstigatingController);
 	}
 }

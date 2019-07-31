@@ -18,8 +18,6 @@ spatial cloud launch %deploymentname% one_worker_test.json %deploymentname% --sn
 spatial project deployment tags add %deploymentname% dev_login || goto :error
 spatial project deployment tags add %deploymentname% status_lobby || goto :error
 
-
-
 echo Deployment succeeded.
 cd ../
 pause
