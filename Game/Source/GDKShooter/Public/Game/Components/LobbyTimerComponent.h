@@ -13,8 +13,8 @@ class GDKSHOOTER_API ULobbyTimerComponent : public UTimerComponent
 
 public:	
 
-	UFUNCTION(BlueprintCallable)
-		void InformOfPlayerCount(int32 PlayerCount);
+	UFUNCTION(CrossServer, Reliable, BlueprintCallable)
+		void ServerInformOfPlayerCount(int32 PlayerCount);
 	UPROPERTY(EditDefaultsOnly)
 		int32 MinimumPlayersToStartCountdown = 1;
 

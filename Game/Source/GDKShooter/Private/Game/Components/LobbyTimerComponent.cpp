@@ -10,7 +10,7 @@ void ULobbyTimerComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ULobbyTimerComponent::InformOfPlayerCount(int32 PlayerCount)
+void ULobbyTimerComponent::ServerInformOfPlayerCount_Implementation(int32 PlayerCount)
 {
 	if (bHasTimerFinished || !GetOwner()->HasAuthority())
 	{
