@@ -34,16 +34,25 @@ public:
 	// Returns true if the character is actually sprinting.
 	UFUNCTION(BlueprintPure, Category = "Sprint")
 		bool IsSprinting() const;
+	// Returns true if the character is limited to walking speed.
+	UFUNCTION(BlueprintPure)
+		bool IsLimitedToWalking() const;
 
 	// Set whether the character is allowed to sprint
 	UFUNCTION(BlueprintCallable, Category = "Sprint")
 		void SetSprintEnabled(bool bSprintEnabled);
-	
+
 	// Set if the character should be aiming
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 		void ServerSetAiming(bool NewValue);
 	UFUNCTION(BlueprintCallable)
 		void SetAiming(bool NewValue);
+
+	// Set if the character should be walking
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+		void ServerSetLimitedToWalking(bool NewValue);
+	UFUNCTION(BlueprintCallable)
+		void SetLimitedToWalking(bool NewValue);
 
 	// Returns true if the character is aiming.
 	UFUNCTION(BlueprintPure, Category = "Aiming")
@@ -103,6 +112,10 @@ private:
 	// If true, the player is aiming, should therefore move slower, and should not be allowed to sprint.
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_IsAiming)
 		bool bIsAiming;
+
+	// If true, the player is moving slower ragardless of bIsAiming
+	UPROPERTY(VisibleAnywhere, Replicated)
+		bool bIsLimitedToWalking;
 
 	UFUNCTION()
 		void OnRep_IsAiming();

@@ -17,6 +17,7 @@ UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectIni
 	, bWantsToSprint(false)
 	, bWasSprintingLastFrame(false)
 	, bIsAiming(false)
+	, bIsLimitedToWalking(false)
 	, bIsBusy(false)
 	, bShouldOrientToControlRotation(false)
 	, MaxSprintSpeed(850)
@@ -47,6 +48,7 @@ void UGDKMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UGDKMovementComponent, bIsAiming);
+	DOREPLIFETIME(UGDKMovementComponent, bIsLimitedToWalking);
 }
 
 void UGDKMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
@@ -92,6 +94,7 @@ bool UGDKMovementComponent::IsSprinting() const
 		&& IsMovingForward()
 		&& !IsCrouching()
 		&& !IsAiming()
+		&& !IsLimitedToWalking()
 		&& !IsBusy();
 }
 
@@ -100,13 +103,18 @@ bool UGDKMovementComponent::IsAiming() const
 	return bIsAiming;
 }
 
+bool UGDKMovementComponent::IsLimitedToWalking() const
+{
+	return bIsLimitedToWalking;
+}
+
 float UGDKMovementComponent::GetMaxSpeed() const
 {
 	if (IsCrouching())
 	{
 		return MaxWalkSpeedCrouched;
 	}
-	else if (IsAiming())
+	else if (IsAiming() || IsLimitedToWalking())
 	{
 		return MaxWalkSpeed;
 	}
@@ -123,7 +131,7 @@ float UGDKMovementComponent::GetMaxAcceleration() const
 	{
 		return MaxAcceleration;
 	}
-	else if (IsAiming())
+	else if (IsAiming() || IsLimitedToWalking())
 	{
 		return MaxAcceleration;
 	}
@@ -225,6 +233,16 @@ void UGDKMovementComponent::ServerSetAiming_Implementation(bool NewValue)
 	bIsAiming = NewValue;
 }
 
+bool UGDKMovementComponent::ServerSetLimitedToWalking_Validate(bool NewValue)
+{
+	return true;
+}
+
+void UGDKMovementComponent::ServerSetLimitedToWalking_Implementation(bool NewValue)
+{
+	bIsLimitedToWalking = NewValue;
+}
+
 void UGDKMovementComponent::SetAiming(bool NewValue)
 {
 	bIsAiming = NewValue;
@@ -233,6 +251,11 @@ void UGDKMovementComponent::SetAiming(bool NewValue)
 		ServerSetAiming(NewValue);
 	}
 	OnAimingUpdated.Broadcast(bIsAiming);
+}
+void UGDKMovementComponent::SetLimitedToWalking(bool NewValue)
+{
+	bIsLimitedToWalking = NewValue;
+	ServerSetLimitedToWalking(NewValue);
 }
 
 void UGDKMovementComponent::OnRep_IsAiming()
