@@ -10,6 +10,7 @@ void UActorFunctionLibrary::RenameDisplayName(AActor* ToRename, const FString Ne
 	{
 		return;
 	}
+
 #if WITH_EDITOR
 	ToRename->SetActorLabel(*NewName);
 #endif
