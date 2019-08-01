@@ -3,9 +3,15 @@
 #include "LobbyTimerComponent.h"
 #include "GDKLogging.h"
 #include "GameFramework/Actor.h"
+#include "Misc/CommandLine.h"
 
 void ULobbyTimerComponent::BeginPlay()
 {
+#if !UE_BUILD_SHIPPING
+	// Developer cheat so you don't have to wait for a long time before entering a match.
+	const TCHAR* CommandLine = FCommandLine::Get();
+	FParse::Value(CommandLine, TEXT("lobbytime"), DefaultTimerDuration);
+#endif
 	bAutoStart = (MinimumPlayersToStartCountdown == 0);
 	Super::BeginPlay();
 }
