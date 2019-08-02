@@ -11,7 +11,7 @@
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFloatValue, float, Current, float, Max);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FDamageTakenEvent, float, Value, FVector, Source, FVector, Impact, int32, PlayerId, FGenericTeamId, TeamId);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FDamageTakenEvent, float, Value, FVector, Source, FVector, Impact, int32, PlayerId, FGenericTeamId, TeamId, TSubclassOf<UDamageType>, DamageType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathCauserEvent, const AController*, Instigator);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathEvent);
 
@@ -30,7 +30,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
-		virtual void TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+		virtual void TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser, FVector Location);
 
 	UFUNCTION(BlueprintCallable)
 		bool GrantShield(float Value);
@@ -77,7 +77,7 @@ protected:
 
 	// Notifies all clients that a the character has been hit and from what direction.
 	UFUNCTION(NetMulticast, Unreliable)
-		void MulticastDamageTaken(float Value, FVector Source, FVector Impact, int32 PlayerId, FGenericTeamId TeamId);
+		void MulticastDamageTaken(float Value, FVector Source, FVector Impact, int32 PlayerId, FGenericTeamId TeamId, TSubclassOf<UDamageType> DamageType);
 
 	UFUNCTION()
 		void OnRep_CurrentHealth();

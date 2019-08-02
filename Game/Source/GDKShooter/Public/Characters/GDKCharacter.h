@@ -71,7 +71,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		TEnumAsByte<ECollisionChannel> LineOfSightCollisionChannel;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		float RagdollLifetime = 5.0f;
 
 	// [client + server] Puts the player in ragdoll mode.
@@ -91,5 +91,5 @@ public:
 	float TakeDamage(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION(CrossServer, Reliable)
-		void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+		void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser, FVector Location);
 };

@@ -157,14 +157,28 @@ void AGDKCharacter::DeleteSelf()
 
 float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	TakeDamageCrossServer(Damage, DamageEvent, EventInstigator, DamageCauser);
+	FVector Impact;
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		FPointDamageEvent* const PointDamageEvent = (FPointDamageEvent*)&DamageEvent;
+		Impact = PointDamageEvent->HitInfo.ImpactPoint;
+	}
+	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+	{
+		Impact = (DamageCauser->GetActorLocation() + GetActorLocation()) / 2.f;
+	}
+	else
+	{
+		Impact = GetActorLocation();
+	}
+	TakeDamageCrossServer(Damage, DamageEvent, EventInstigator, DamageCauser, Impact);
 	return Damage;
 }
 
-void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser, FVector Location)
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser, Location);
 
 }
 

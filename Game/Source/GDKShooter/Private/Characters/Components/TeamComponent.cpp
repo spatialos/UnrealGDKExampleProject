@@ -21,6 +21,11 @@ void UTeamComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 bool UTeamComponent::CanDamageActor(AActor* OtherActor)
 {
+	if (OtherActor == nullptr)
+	{
+		return false;
+	}
+
 	if (bAllowFriendlyFire)
 	{
 		return true;

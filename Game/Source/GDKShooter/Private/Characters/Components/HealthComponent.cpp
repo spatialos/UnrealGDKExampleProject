@@ -55,7 +55,7 @@ void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
-void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser, FVector Location)
 {
 	if (UTeamComponent* Team = Cast<UTeamComponent>(GetOwner()->GetComponentByClass(UTeamComponent::StaticClass())))
 	{
@@ -112,7 +112,7 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 		Impact = GetOwner()->GetActorLocation();
 	}
 
-	MulticastDamageTaken(Damage, Source, Impact, InstigatorPlayerId, InstigatorTeamId);
+	MulticastDamageTaken(Damage, Source, Location, InstigatorPlayerId, InstigatorTeamId, DamageEvent.DamageTypeClass);
 
 	if (!bWasDead && bIsDead)
 	{
@@ -214,7 +214,7 @@ void UHealthComponent::OnRep_CurrentHealth()
 	}
 }
 
-void UHealthComponent::MulticastDamageTaken_Implementation(float Value, FVector Source, FVector Impact, int32 PlayerId, FGenericTeamId TeamId)
+void UHealthComponent::MulticastDamageTaken_Implementation(float Value, FVector Source, FVector Impact, int32 PlayerId, FGenericTeamId TeamId, TSubclassOf<UDamageType> DamageType)
 {
-	DamageTaken.Broadcast(Value, Source, Impact, PlayerId, TeamId);
+	DamageTaken.Broadcast(Value, Source, Impact, PlayerId, TeamId, DamageType);
 }

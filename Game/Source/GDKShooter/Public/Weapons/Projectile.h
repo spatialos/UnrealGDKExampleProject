@@ -7,10 +7,11 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Weapons/Weapon.h"
+#include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "Projectile.generated.h"
 
 UCLASS(Abstract, Blueprintable)
-class GDKSHOOTER_API AProjectile : public AActor
+class GDKSHOOTER_API AProjectile : public AActor, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 	
@@ -31,8 +32,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnMetaDataUpdated();
 
-	UPROPERTY(Handover)
+	UPROPERTY(Replicated)
 		AWeapon* InstigatingWeapon;
+
+	virtual FGenericTeamId GetGenericTeamId() const override;
 
 protected:
 

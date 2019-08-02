@@ -88,6 +88,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 		float ShotInterval;
 
+	// Number of shots to perform per shot (e.g. shotgun)
+	UPROPERTY(EditAnywhere, Category = "Weapons")
+		int32 ShotsPerShot = 1;
+
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 		bool bAllowContinuousBurstFire = false;
 

@@ -3,6 +3,7 @@
 #include "ControllerEventsComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerState.h"
+#include "GameFramework/Pawn.h"
 
 
 UControllerEventsComponent::UControllerEventsComponent()
@@ -21,6 +22,10 @@ void UControllerEventsComponent::Death_Implementation(const AController* Killer)
 		{
 			ClientInformOfDeath(KillerPlayerState->GetPlayerName(), KillerPlayerState->PlayerId);
 		}
+		else if(Killer->GetPawn() != nullptr)
+		{
+			ClientInformOfDeath(Killer->GetPawn()->GetHumanReadableName(),-1);
+		}
 	}
 }
 
@@ -34,6 +39,10 @@ void UControllerEventsComponent::Kill_Implementation(const AController* Victim)
 		if (VictimPlayerState != nullptr)
 		{
 			ClientInformOfKill(VictimPlayerState->GetPlayerName(), VictimPlayerState->PlayerId);
+		}
+		else if (Victim->GetPawn() != nullptr)
+		{
+			ClientInformOfKill(Victim->GetPawn()->GetHumanReadableName(), -1);
 		}
 	}
 }

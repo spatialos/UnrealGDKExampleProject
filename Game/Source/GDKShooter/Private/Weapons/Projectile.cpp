@@ -170,3 +170,8 @@ void AProjectile::Explode()
 		UGameplayStatics::ApplyRadialDamageWithFalloff(this, ExplosionDamage, ExplosionMinimumDamage, this->GetActorLocation(), ExplosionInnerRadius, ExplosionRadius, ExplosionFalloff, DamageTypeClass, TArray<AActor*>{this}, this, InstigatingController);
 	}
 }
+
+FGenericTeamId AProjectile::GetGenericTeamId() const
+{
+	return InstigatingWeapon->GetGenericTeamId();
+}

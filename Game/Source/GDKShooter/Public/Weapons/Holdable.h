@@ -6,10 +6,19 @@
 #include "GameFramework/Actor.h"
 #include "Components/EquippedComponent.h"
 #include "Characters/Components/MetaDataComponent.h"
+#include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "Holdable.generated.h"
 
+UENUM(BlueprintType)
+enum class EHoldableHolsterType : uint8
+{
+	HH_Hidden 				UMETA(DisplayName = "Hidden"),
+	HH_Holster				UMETA(DisplayName = "Holster"),
+	HH_Back					UMETA(DisplayName = "Back")
+};
+
 UCLASS()
-class GDKSHOOTER_API AHoldable : public AActor
+class GDKSHOOTER_API AHoldable : public AActor, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 	
@@ -18,7 +27,15 @@ public:
 	
 	virtual void BeginPlay();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-		
+	
+	//Locally, is active
+	//Who is holding it
+
+	//Can be visible InActive
+	//Socket to parent to when Active
+	//Socket to parent to when InActive
+	//Some way of defining animations
+	
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
@@ -33,8 +50,18 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 		void ToggleMode();
 
+	virtual FGenericTeamId GetGenericTeamId() const override;
+
 	UFUNCTION(BlueprintNativeEvent)
-		void SetFirstPerson(bool bNewFirstPerson);
+	void SetFirstPerson(bool bNewFirstPerson);
+
+	// Starting weapons would probably be removed when a character dies
+	// However weapons that had been picked up might want to persist
+	// Same goes for being able to trade/drop weapons
+	bool bCanBeDropped = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		EHoldableHolsterType Holster = EHoldableHolsterType::HH_Hidden;
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnMetaDataUpdated();

@@ -55,19 +55,22 @@ void AInstantWeapon::DoFire_Implementation()
 	}
 
 	NextShotTime = UGameplayStatics::GetRealTimeSeconds(GetWorld()) + ShotInterval;
-	
-	FInstantHitInfo HitInfo = DoLineTrace();
-	if (HitInfo.bDidHit)
+
+	for (int i = 0; i < ShotsPerShot; i++)
 	{
-		ServerDidHit(HitInfo);
-		SpawnFX(HitInfo, true);  // Spawn the hit fx locally
-		AnnounceShot(HitInfo.HitActor ? HitInfo.HitActor->bCanBeDamaged : false);
-	}
-	else
-	{
-		ServerDidMiss(HitInfo);
-		SpawnFX(HitInfo, false);  // Spawn the hit fx locally
-		AnnounceShot(false);
+		FInstantHitInfo HitInfo = DoLineTrace();
+		if (HitInfo.bDidHit)
+		{
+			ServerDidHit(HitInfo);
+			SpawnFX(HitInfo, true);  // Spawn the hit fx locally
+			AnnounceShot(HitInfo.HitActor ? HitInfo.HitActor->bCanBeDamaged : false);
+		}
+		else
+		{
+			ServerDidMiss(HitInfo);
+			SpawnFX(HitInfo, false);  // Spawn the hit fx locally
+			AnnounceShot(false);
+		}
 	}
 
 	if (IsBurstFire())

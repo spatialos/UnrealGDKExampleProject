@@ -84,3 +84,15 @@ void AHoldable::ToggleMode_Implementation()
 {
 
 }
+
+FGenericTeamId AHoldable::GetGenericTeamId() const
+{
+	if (IGenericTeamAgentInterface* OwnerTeam = Cast<IGenericTeamAgentInterface>(GetOwner()))
+	{
+		return OwnerTeam->GetGenericTeamId();
+	}
+	else
+	{
+		return FGenericTeamId::NoTeam;
+	}
+}

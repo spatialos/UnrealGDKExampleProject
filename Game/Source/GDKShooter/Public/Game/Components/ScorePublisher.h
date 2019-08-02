@@ -19,6 +19,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PublishKill(int32 KillerId, APlayerState* VictimState) {
 		KillEvent.Broadcast(KillerId, VictimState->PlayerId);
+	}
+
+	UFUNCTION(BlueprintCallable)
+		void PublishDeath(APlayerState* VictimState) {
 		DeathEvent.Broadcast(VictimState);
 	}
 	
