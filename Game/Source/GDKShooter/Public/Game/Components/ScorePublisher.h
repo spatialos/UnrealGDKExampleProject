@@ -7,7 +7,7 @@
 #include "GameFramework/PlayerState.h"
 #include "ScorePublisher.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FKillEvent, int32, KillerId, int32, VictimId);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FKillEvent, FString, Killer, FString, Victim);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathOfState, APlayerState*, VictimState);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -17,8 +17,8 @@ class GDKSHOOTER_API UScorePublisher : public UActorComponent
 
 public:	
 	UFUNCTION(BlueprintCallable)
-	void PublishKill(int32 KillerId, APlayerState* VictimState) {
-		KillEvent.Broadcast(KillerId, VictimState->PlayerId);
+	void PublishKill(FString Killer, APlayerState* VictimState) {
+		KillEvent.Broadcast(Killer, VictimState->GetPlayerName());
 		DeathEvent.Broadcast(VictimState);
 	}
 	
