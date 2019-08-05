@@ -1,0 +1,63 @@
+{
+  "build": {
+    "tasks": [
+      {
+        "name": "codegen",
+        "description": "required by spatial worker build build-config.",
+        "steps": [{"name": "No-op", "command": "echo", "arguments": ["No-op."]}]
+      },
+      {
+        "name": "build",
+        "description": "required by spatial worker build build-config.",
+        "steps": [{"name": "No-op", "command": "echo", "arguments": ["No-op."]}]
+      },
+      {
+        "name": "clean",
+        "description": "required by spatial worker build build-config.",
+        "steps": [{"name": "No-op", "command": "echo", "arguments": ["No-op."]}]
+      }
+    ]
+  },
+  "bridge": {
+    "worker_attribute_set": {
+      "attributes": [
+        "DatabaseSyncWorker"
+      ]
+    },
+    "entity_interest": {
+      "range_entity_interest": {
+        "radius": 50
+      }
+    },
+    "component_delivery": {
+      "default": "RELIABLE_ORDERED",
+      "checkout_all_initially": true
+    }
+  },
+  "managed": {
+    "windows": {
+      "artifact_name": "DatabaseSyncWorker@Windows.zip",
+      "command": "DatabaseSyncWorker.exe",
+		"arguments": [
+		"receptionist",
+		"--spatialos-host", "${IMPROBABLE_RECEPTIONIST_HOST}",
+		"--spatialos-port", "${IMPROBABLE_RECEPTIONIST_PORT}",
+		"--worker-name", "${IMPROBABLE_WORKER_ID}",
+		"--logfile", "${IMPROBABLE_LOG_FILE}",
+		"--postgres-from-worker-flags"
+	  ]
+    },
+    "linux": {
+      "artifact_name": "DatabaseSyncWorker@Linux.zip",
+      "command": "DatabaseSyncWorker",
+		"arguments": [
+		"receptionist",
+		"--spatialos-host", "${IMPROBABLE_RECEPTIONIST_HOST}",
+		"--spatialos-port", "${IMPROBABLE_RECEPTIONIST_PORT}",
+		"--worker-name", "${IMPROBABLE_WORKER_ID}",
+		"--logfile", "${IMPROBABLE_LOG_FILE}",
+		"--postgres-from-worker-flags"
+	  ]
+    }
+  }
+}

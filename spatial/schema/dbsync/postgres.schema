@@ -1,0 +1,15 @@
+package improbable.postgres;
+
+type CreateTableAttribute {
+    list<string> setup = 1;
+}
+
+type PrimaryKeyAttribute {}
+
+type IndexAttribute {
+    string index_command = 1;
+}
+
+type FieldTypeAttribute {
+    string type = 1;
+}
