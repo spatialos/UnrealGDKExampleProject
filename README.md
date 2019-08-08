@@ -49,16 +49,6 @@ This repository contains a set of helper scripts to get you started.
 
 We have released the GDK for Unreal this early in development because we want your feedback. Please come and talk to us about the software and the documentation via: [Discord](https://discordapp.com/channels/311273633307951114/339471548647866368) - [Forums](https://forums.improbable.io/) - [GitHub issues in this repository](https://github.com/spatialos/UnrealGDK/issues).
 
-#### Where to get the GDK and related projects
-
-The GDK and related projects are available on GitHub.
-
-- [GDK: github.com/spatialos/UnrealGDK](https://github.com/spatialos/UnrealGDK)
-- [The SpatialOS Unreal Engine](https://github.com/improbableio/UnrealEngine/tree/4.20-SpatialOSUnrealGDK)
-  **NOTE:** This link may give you a 404. See the [Unreal GDK documentation](https://docs.improbable.io/unreal/alpha/content/get-started/build-unreal-fork) for more information.
-- [Third-Person Shooter](https://github.com/spatialos/UnrealGDKThirdPersonShooter) (Not actively developed)
-- [The Test Suite](https://github.com/spatialos/UnrealGDKTestSuite)
-
 #### Public contributors
 
 We are not currently accepting public contributions. However, we are accepting [issues](https://github.com/spatialos/UnrealGDK/issues) and we do want your feedback.
