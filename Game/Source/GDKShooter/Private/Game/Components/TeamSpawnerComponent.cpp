@@ -75,6 +75,32 @@ void UTeamSpawnerComponent::RequestSpawn(APlayerController* Controller)
 		// This is a respawn, we either grant another player character, or a spectator pawn
 		if (!bAllowRespawning)
 		{
+			APlayerStart* PlayerStart = PlayerStartPIE ? PlayerStartPIE : TeamStartPoints[TeamId];
+
+			if (AGameModeBase* GameMode = GetWorld()->GetAuthGameMode())
+			{
+				APawn* SpecPawn = nullptr;
+
+				//Hardcoded path for the specbot BP, probably a better place to reference this
+				static const FString Path = TEXT("Blueprint'/Game/Blueprints/SpecBot/BP_SpecBot.BP_SpecBot_C'");
+				const TSubclassOf<AActor> BPSpecClass = Cast<UClass>(StaticLoadObject(UObject::StaticClass(), nullptr, *Path));
+
+				if (BPSpecClass != nullptr)
+				{
+					FRotator StartRotation(ForceInit);
+					StartRotation.Yaw = PlayerStart->GetActorRotation().Yaw;
+					FVector StartLocation = PlayerStart->GetActorLocation();
+					FTransform Transform = FTransform(StartRotation, StartLocation);
+
+					FActorSpawnParameters SpawnInfo;
+					SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+					SpawnInfo.ObjectFlags |= RF_Transient;
+					SpecPawn = Cast<APawn>(GetWorld()->SpawnActor(BPSpecClass, &Transform, SpawnInfo));
+				}
+
+				Controller->Possess(SpecPawn);
+			}
+
 			return;
 		}
 	}
