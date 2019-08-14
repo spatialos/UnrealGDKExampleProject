@@ -10,6 +10,7 @@
 #include "Components/MetaDataComponent.h"
 #include "Components/GDKMovementComponent.h"
 #include "Components/TeamComponent.h"
+#include "Testing/Components/TestingComponent.h"
 #include "Weapons/Holdable.h"
 #include "TimerManager.h"
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
@@ -28,6 +29,9 @@ public:
 	AGDKCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(Category = Character, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		UTestingComponent* TestComponent;
 	
 protected:
 	virtual void BeginPlay() override;

@@ -17,6 +17,8 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
+	TestComponent = CreateDefaultSubobject<UTestingComponent>(TEXT("Testing"));
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	EquippedComponent = CreateDefaultSubobject<UEquippedComponent>(TEXT("Equipment"));

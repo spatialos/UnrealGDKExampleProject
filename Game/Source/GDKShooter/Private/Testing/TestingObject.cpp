@@ -5,6 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "TestingConstants.h"
+#include "Characters/GDKCharacter.h"
 
 // Sets default values
 ATestingObject::ATestingObject(const FObjectInitializer& ObjectInitializer)
@@ -16,20 +17,19 @@ ATestingObject::ATestingObject(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = true;
 	CubeMesh = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("CubeMesh"));
 	this->SetRootComponent(CubeMesh);
-
-	TestProperty = TestingConstants::DEFAULT_TESTING_PROPERTY_VALUE;
-}
-
-void ATestingObject::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
-{
-	DOREPLIFETIME(ATestingObject, TestProperty);
 }
 
 // Called when the game starts or when spawned
 void ATestingObject::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	AGDKCharacter* PlayerCharacter = Cast<AGDKCharacter>(this->GetWorld()->GetFirstPlayerController()->GetPawn());
+	if (PlayerCharacter != nullptr && PlayerCharacter->Role == ROLE_AutonomousProxy)
+	{
+		PlayerCharacter->TestComponent->Server_MarkActorAsCheckedOutByClient(this);
+	}
+
 }
 
 // Called every frame
@@ -38,9 +38,3 @@ void ATestingObject::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-void ATestingObject::SetTestProperty(const FString& NewTestPropertyValue)
-{
-	TestProperty = NewTestPropertyValue;
-}
-
