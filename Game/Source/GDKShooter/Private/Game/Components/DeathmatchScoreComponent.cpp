@@ -6,7 +6,7 @@
 #include "SpatialWorkerConnection.h"
 #include "ExternalSchemaCodegen/improbable/database_sync/CommandErrors.h"
 
-// Path format to store the score is in the format "profiles.UnrealWorker.players.<playerId>.score.(AllTimeKills or AllTimeDeaths)"
+// Path format to store the score is in the format "profiles.UnrealWorker.players.<PlayerName>.score.(AllTimeKills or AllTimeDeaths)"
 namespace DBPaths
 {
 	static const FString kPlayersRoot = TEXT("profiles.UnrealWorker.players.");
@@ -224,16 +224,16 @@ void UDeathmatchScoreComponent::UpdateScoreFromPath(const FString &Path, int64 N
 	FString workingPath = *Path;
 	if (workingPath.RemoveFromStart(DBPaths::kPlayersRoot))
 	{
-		FString playerId;
-		if (workingPath.Split(".", &playerId, &workingPath))
+		FString PlayerName;
+		if (workingPath.Split(".", &PlayerName, &workingPath))
 		{
 			if (workingPath.RemoveFromStart(DBPaths::kScoreFolder + "."))
 			{
 				if (workingPath.Compare(DBPaths::kAllTimeKills) == 0)
 				{
-					if (PlayerScoreMap.Contains(playerId))
+					if (PlayerScoreMap.Contains(PlayerName))
 					{
-						PlayerScoreArray[PlayerScoreMap[playerId]].AllTimeKills = NewCount;
+						PlayerScoreArray[PlayerScoreMap[PlayerName]].AllTimeKills = NewCount;
 						return;	
 					}
 					else
@@ -243,9 +243,9 @@ void UDeathmatchScoreComponent::UpdateScoreFromPath(const FString &Path, int64 N
 				}
 				else if (workingPath.Compare(DBPaths::kAllTimeDeaths) == 0)
 				{
-					if (PlayerScoreMap.Contains(playerId))
+					if (PlayerScoreMap.Contains(PlayerName))
 					{
-						PlayerScoreArray[PlayerScoreMap[playerId]].AllTimeDeaths = NewCount;
+						PlayerScoreArray[PlayerScoreMap[PlayerName]].AllTimeDeaths = NewCount;
 						return;
 					}
 					else
@@ -265,8 +265,8 @@ void UDeathmatchScoreComponent::RequestCreateItemFromPath(const FString &Path)
 	FString workingPath = *Path;
 	if (workingPath.RemoveFromStart(DBPaths::kPlayersRoot))
 	{
-		FString playerId;
-		if (workingPath.Split(".", &playerId, &workingPath))
+		FString PlayerName;
+		if (workingPath.Split(".", &PlayerName, &workingPath))
 		{
 			if (workingPath.RemoveFromStart(DBPaths::kScoreFolder + "."))
 			{
