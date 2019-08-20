@@ -43,7 +43,7 @@ public:
 	UDeathmatchScoreComponent();
 
 	UFUNCTION(BlueprintCallable)
-		void RecordKill(FString KillerId, FString VictimId);
+		void RecordKill(const FString Killer, const FString Victim);
 
 	UFUNCTION(BlueprintCallable)
 		void RecordNewPlayer(APlayerState* PlayerState);
