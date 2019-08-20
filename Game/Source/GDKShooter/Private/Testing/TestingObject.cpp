@@ -24,12 +24,15 @@ void ATestingObject::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AGDKCharacter* PlayerCharacter = Cast<AGDKCharacter>(this->GetWorld()->GetFirstPlayerController()->GetPawn());
-	if (PlayerCharacter != nullptr && PlayerCharacter->Role == ROLE_AutonomousProxy)
+	APlayerController* Controller = this->GetWorld()->GetFirstPlayerController();
+	if (Controller != nullptr)
 	{
-		PlayerCharacter->TestComponent->Server_MarkActorAsCheckedOutByClient(this);
+		AGDKCharacter* PlayerCharacter = Cast<AGDKCharacter>(Controller->GetPawn());
+		if (PlayerCharacter != nullptr && PlayerCharacter->Role == ROLE_AutonomousProxy)
+		{
+			PlayerCharacter->TestComponent->Server_MarkActorAsCheckedOutByClient(this);
+		}
 	}
-
 }
 
 // Called every frame

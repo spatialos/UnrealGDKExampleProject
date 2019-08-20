@@ -12,8 +12,13 @@ class SpawningCommon
 public:
 
 	template< class T >
-	static AActor* SpawnActorAtOrigin();
+	static AActor* SpawnActorAtOrigin()
+	{
+		UWorld* World = SpatialAutomationCommon::GetActiveGameWorld();
+		AActor* SpawnedObject = World->SpawnActor<T>();
 
+		return SpawnedObject;
+	}
 };
 
 #endif // WITH_DEV_AUTOMATION_TESTS

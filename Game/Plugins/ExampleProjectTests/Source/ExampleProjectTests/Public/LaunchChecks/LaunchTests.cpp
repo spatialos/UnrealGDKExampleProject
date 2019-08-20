@@ -9,7 +9,8 @@
 
 SPATIAL_TEST(PlayerControllerGetsCreated, Launch)
 {
-	SpatialAutomationCommon::StartPIE();
+	ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false));
+	ADD_LATENT_AUTOMATION_COMMAND(FEngineWaitLatentCommand(SpatialAutomationCommon::kDefaultPlayerJoinDelay));
 
 	ADD_LATENT_AUTOMATION_COMMAND(TestIfAtLeastGivenNumberOfActorsExist(AGDKPlayerController::StaticClass(), 1, this));
 
@@ -34,7 +35,8 @@ LATENT_TEST_COMMAND_ONE_PARAMETER(FGSMIsSetUpCorrectly, Test)
 
 SPATIAL_TEST(GSMIsSetUpCorrectly, Launch)
 {
-	SpatialAutomationCommon::StartPIE();
+	ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false));
+	ADD_LATENT_AUTOMATION_COMMAND(FEngineWaitLatentCommand(SpatialAutomationCommon::kDefaultPlayerJoinDelay));
 
 	ADD_LATENT_AUTOMATION_COMMAND(FGSMIsSetUpCorrectly(this));
 

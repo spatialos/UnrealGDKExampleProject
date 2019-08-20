@@ -60,7 +60,8 @@ LATENT_TEST_COMMAND_ONE_PARAMETER(FSpawnNonReplicatedObject, Test)
 
 SPATIAL_TEST(ReplicatedObjectSpawnsCorrectly, Spawning)
 {
-	SpatialAutomationCommon::StartPIE();
+	ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false));
+	ADD_LATENT_AUTOMATION_COMMAND(FEngineWaitLatentCommand(SpatialAutomationCommon::kDefaultPlayerJoinDelay));
 
 	ADD_LATENT_AUTOMATION_COMMAND(FSpawnReplicatedObject(this));
 
@@ -69,7 +70,8 @@ SPATIAL_TEST(ReplicatedObjectSpawnsCorrectly, Spawning)
 
 SPATIAL_TEST(NonReplicatedObjectSpawnsCorrectly, Spawning)
 {
-	SpatialAutomationCommon::StartPIE();
+	ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false));
+	ADD_LATENT_AUTOMATION_COMMAND(FEngineWaitLatentCommand(SpatialAutomationCommon::kDefaultPlayerJoinDelay));
 
 	ADD_LATENT_AUTOMATION_COMMAND(FSpawnNonReplicatedObject(this));
 

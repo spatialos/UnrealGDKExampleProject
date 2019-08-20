@@ -5,7 +5,7 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-const float SpatialAutomationCommon::kDefaultPlayerJoinDelay = 12.0f;
+const float SpatialAutomationCommon::kDefaultPlayerJoinDelay = 20.0f;
 
 /**
  * Retrieves the active world for the game (i.e the world for the game currently being played).
