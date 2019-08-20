@@ -233,14 +233,7 @@ void UDeathmatchScoreComponent::UpdateScoreFromPath(const FString &Path, int64 N
 				{
 					if (PlayerScoreMap.Contains(playerId))
 					{
-						for (int i = 0; i < PlayerScoreArray.Num(); ++i)
-						{
-							if (PlayerScoreArray[i].PlayerName == playerId)
-							{
-								PlayerScoreArray[i].AllTimeKills = NewCount;
-								break;
-							}
-						}
+						PlayerScoreArray[PlayerScoreMap[playerId]].AllTimeKills = NewCount;
 						return;	
 					}
 					else
@@ -252,14 +245,7 @@ void UDeathmatchScoreComponent::UpdateScoreFromPath(const FString &Path, int64 N
 				{
 					if (PlayerScoreMap.Contains(playerId))
 					{
-						for (int i = 0; i < PlayerScoreArray.Num(); ++i)
-						{
-							if (PlayerScoreArray[i].PlayerName == playerId)
-							{
-								PlayerScoreArray[i].AllTimeDeaths = NewCount;
-								break;
-							}
-						}
+						PlayerScoreArray[PlayerScoreMap[playerId]].AllTimeDeaths = NewCount;
 						return;
 					}
 					else
