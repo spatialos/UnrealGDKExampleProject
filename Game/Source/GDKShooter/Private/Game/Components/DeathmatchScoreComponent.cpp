@@ -34,7 +34,7 @@ void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 	}
 }
 
-void UDeathmatchScoreComponent::RecordKill(const FString Killer, const FString Victim)
+void UDeathmatchScoreComponent::RecordKill(const FString& Killer, const FString& Victim)
 {
 	if (Killer != Victim && PlayerScoreMap.Contains(Killer))
 	{
