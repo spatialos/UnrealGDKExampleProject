@@ -4,8 +4,6 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-#endif // WITH_DEV_AUTOMATION_TESTS
-
 template< class T >
 AActor* SpawningCommon::SpawnActorAtOrigin()
 {
@@ -14,3 +12,5 @@ AActor* SpawningCommon::SpawnActorAtOrigin()
 
 	return SpawnedObject;
 }
+
+#endif // WITH_DEV_AUTOMATION_TESTS
