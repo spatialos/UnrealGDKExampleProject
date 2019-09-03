@@ -6,9 +6,9 @@ public class ExampleProjectTests : ModuleRules
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PrivateIncludePaths.Add("ExampleProjectTests/Private");
+		PrivateIncludePaths.Add("ExampleProjectTests/Public");
 
-        PrivateDependencyModuleNames.AddRange(new string[] {
+		PrivateDependencyModuleNames.AddRange(new string[] {
             "Core",
             "Engine",
             "UnrealEd",
