@@ -1,11 +1,11 @@
 agent_queue_id: trigger-pipelines
-description: Add a description...
+description: Nightly build and deployment of Unreal Example project
 github:
   branch_configuration: []
-  default_branch: master
+  default_branch: feature/ci
   pull_request_branch_filter_configuration: []
 teams:
 - name: Everyone
   permission: BUILD_AND_READ
-- name: Your own team, see https://buildkite.com/organizations/improbable/teams
+- name: gbu/develop/unreal
   permission: MANAGE_BUILD_AND_READ
