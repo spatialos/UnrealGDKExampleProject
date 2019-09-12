@@ -31,6 +31,8 @@ common: &common
 # These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
 
 steps:
-  - label: "build :bash:"
-    command: "ci/build.sh"
+    - label: "build-and-deploy-:windows:"
+    command: powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1
     <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
+    artifact_paths:
+      - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
