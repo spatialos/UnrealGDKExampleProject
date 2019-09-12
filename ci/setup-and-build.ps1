@@ -82,10 +82,16 @@ pushd "$game_home"
         popd
     Finish-Event "download-unreal-engine" "build-unreal-gdk-example-project-:windows:"
 
-    # Allow the GDK plugin to find the engine
-    $unreal_path = "$($game_home)\UnrealEngine"
-    [Environment]::SetEnvironmentVariable("UNREAL_HOME", "$unreal_path", "Machine")
-    $env:UNREAL_HOME = [System.Environment]::GetEnvironmentVariable("UNREAL_HOME", "Machine")
+    Start-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
+  
+        $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "$game_home\FindEngine.bat"
+
+        if ($find_engine_process.ExitCode -ne 0) {
+            Write-Log "Failed to find Unreal Engine. Error: $($find_engine_process.ExitCode)"
+            Throw "Failed to find Unreal Eng"
+        }
+
+    Finish-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
 
     # Set LINUX_MULTIARCH_ROOT and then reload it for this script
     $clang_path = "$($unreal_path)\ClangToolchain\"
