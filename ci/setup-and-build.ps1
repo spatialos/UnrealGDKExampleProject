@@ -85,12 +85,12 @@ pushd "$game_home"
 
     Start-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
         pushd $engine_directory
-            $unreal_version_selector_path = "$unreal_version\Engine\Binaries\Win64\UnrealVersionSelector-Win64-Shipping.exe"
+            $unreal_version_selector_path = "Engine\Binaries\Win64\UnrealVersionSelector-Win64-Shipping.exe"
 
             $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath $unreal_version_selector_path -ArgumentList @(`
                 "-switchversionsilent", `
                 "$game_home\Game\GDKShooter.uproject", `
-                "$engine_directory\$unreal_version"
+                "$engine_directory"
             )
       
             if ($find_engine_process.ExitCode -ne 0) {
