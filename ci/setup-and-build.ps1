@@ -54,9 +54,10 @@ pushd "$game_home"
 
     Start-Event "download-unreal-engine" "build-unreal-gdk-example-project-:windows:"
         ## Create an UnrealEngine directory if it doesn't already exist
-        New-Item -Name "UnrealEngine" -ItemType Directory -Force
+        $engine_directory = "UnrealEngine"
+        New-Item -Name $engine_directory -ItemType Directory -Force
 
-        pushd "UnrealEngine"
+        pushd $engine_directory
             Write-Log "Downloading the Unreal Engine artifacts from GCS"
             $gcs_unreal_location = "$($unreal_version).zip"
 
@@ -83,14 +84,20 @@ pushd "$game_home"
     Finish-Event "download-unreal-engine" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
-  
-        $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "$game_home\FindEngine.bat"
+        pushd $engine_directory
+            $unreal_version_selector_path = "$unreal_version\Engine\Binaries\Win64\UnrealVersionSelector-Win64-Shipping.exe"
 
-        if ($find_engine_process.ExitCode -ne 0) {
-            Write-Log "Failed to find Unreal Engine. Error: $($find_engine_process.ExitCode)"
-            Throw "Failed to find Unreal Eng"
-        }
-
+            $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath $unreal_version_selector_path -ArgumentList @(`
+                "-switchversionsilent", `
+                "$game_home\Game\GDKShooter.uproject", `
+                "$engine_directory\$unreal_version"
+            )
+      
+            if ($find_engine_process.ExitCode -ne 0) {
+                Write-Log "Failed to set Unreal Engine association for the project. Error: $($find_engine_process.ExitCode)"
+                Throw "Failed to set Engine association"
+            }
+        popd
     Finish-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
 
     # Set LINUX_MULTIARCH_ROOT and then reload it for this script
