@@ -46,42 +46,14 @@ pushd "$game_home"
         popd
     Finish-Event "set-up-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
 
-    # Fetch the version of Unreal Engine we need from the GDK
-    pushd "$($gdk_home)/ci"
-        $unreal_version = Get-Content -Path "unreal-engine.version" -Raw
-        Write-Log "Using Unreal Engine version: $unreal_version"
-    popd
+    # Use the cached engine version or set it up if it has not been cached yet.
+    Start-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
-    Start-Event "download-unreal-engine" "build-unreal-gdk-example-project-:windows:"
-        ## Create an UnrealEngine directory if it doesn't already exist
-        $engine_directory = "UnrealEngine"
-        New-Item -Name $engine_directory -ItemType Directory -Force
+        $engine_directory = "$game_home\UnrealEngine-Cache"
+        &"$($gdk_home)\ci\get-engine.ps1" -engine_cache_directory "$engine_directory"
 
-        pushd $engine_directory
-            Write-Log "Downloading the Unreal Engine artifacts from GCS"
-            $gcs_unreal_location = "$($unreal_version).zip"
+    Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
-            $gsu_proc = Start-Process -Wait -PassThru -NoNewWindow "gsutil" -ArgumentList @(`
-                "cp", `
-                "gs://$($gcs_publish_bucket)/$($gcs_unreal_location)", `
-                "$($unreal_version).zip" `
-            )
-            if ($gsu_proc.ExitCode -ne 0) {
-                Write-Log "Failed to download Engine artifacts. Error: $($gsu_proc.ExitCode)"
-                Throw "Failed to download Engine artifacts"
-            }
-
-            Write-Log "Unzipping Unreal Engine"
-            $zip_proc = Start-Process -Wait -PassThru -NoNewWindow "7z" -ArgumentList @(`
-            "x", `
-            "$($unreal_version).zip" `
-            )
-            if ($zip_proc.ExitCode -ne 0) {
-                Write-Log "Failed to unzip Unreal Engine. Error: $($zip_proc.ExitCode)"
-                Throw "Failed to unzip Unreal Engine."
-            }
-        popd
-    Finish-Event "download-unreal-engine" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
         pushd $engine_directory
@@ -100,18 +72,6 @@ pushd "$game_home"
         popd
     Finish-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
 
-    # Set LINUX_MULTIARCH_ROOT and then reload it for this script
-    $clang_path = "$($unreal_path)\ClangToolchain\"
-    [Environment]::SetEnvironmentVariable("LINUX_MULTIARCH_ROOT", $clang_path, "Machine")
-    $env:LINUX_MULTIARCH_ROOT = [System.Environment]::GetEnvironmentVariable("LINUX_MULTIARCH_ROOT", "Machine")
-
-    Start-Event "install-unreal-engine-prerequisites" "build-unreal-gdk-example-project-:windows:"
-        # This runs an opaque exe downloaded in the previous step that does *some stuff* that UE needs to occur.
-        # Trapping error codes on this is tricky, because it doesn't always return 0 on success, and frankly, we just don't know what it _will_ return.
-        Start-Process -Wait -PassThru -NoNewWindow -FilePath "$($unreal_path)\Engine\Extras\Redist\en-us\UE4PrereqSetup_x64.exe" -ArgumentList @(`
-            "/quiet" `
-        )
-    Finish-Event "install-unreal-engine-prerequisites" "build-unreal-gdk-example-project-:windows:"
 
     $build_script_path = "$($gdk_home)\SpatialGDK\Build\Scripts\BuildWorker.bat"
 
