@@ -2,7 +2,7 @@ param(
   [string] $game_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
   [string] $gdk_repo = "git@github.com:spatialos/UnrealGDK.git",
   [string] $gcs_publish_bucket = "io-internal-infra-unreal-artifacts-production/UnrealEngine",
-  [string] $gdk_branch_name = "master",
+  [string] $gdk_branch_name = "$env:GDK_BRANCH",
   [string] $deployment_launch_configuration = "one_worker_test.json",
   [string] $deployment_snapshot_path = "snapshots/FPS-Start_Small.snapshot",
   [string] $deployment_cluster_region = "eu",
