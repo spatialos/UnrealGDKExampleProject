@@ -36,7 +36,7 @@ common: &common
 
 steps:
   - label: "build-and-deploy-:windows:"
-    command: powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1 $$GDK_BRANCH
+    command: powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1
     env:
       GDK_BRANCH: "master"
     <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
