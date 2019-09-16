@@ -2,7 +2,6 @@ param(
   [string] $game_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
   [string] $gdk_repo = "git@github.com:spatialos/UnrealGDK.git",
   [string] $gcs_publish_bucket = "io-internal-infra-unreal-artifacts-production/UnrealEngine",
-  [string] $gdk_branch_name = "$env:GDK_BRANCH",
   [string] $deployment_launch_configuration = "one_worker_test.json",
   [string] $deployment_snapshot_path = "snapshots/FPS-Start_Small.snapshot",
   [string] $deployment_cluster_region = "eu",
@@ -10,6 +9,10 @@ param(
 )
 
 . "$PSScriptRoot\common.ps1"
+
+# When a build is launched custom environment variables can be specified.
+# Parse them here to use the set value or the default.
+$gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 
 $gdk_home = "$game_home\Game\Plugins\UnrealGDK"
 

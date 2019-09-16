@@ -40,4 +40,19 @@ function Finish-Event() {
     ) | Out-Null
 }
 
+## Checks whether the specified environment variable has been set. If it has, return its value. Else return the default value.
+function Get-Env-Variable-Value-Or-Default() {
+    param(
+        [string] $environment_variable_name,
+        [string] $default_value
+    )
+
+    If (Test-Path env:$environment_variable_name) {
+        $environment_varibale_value = Get-Content -Path env:$environment_variable_name
+        return $environment_varibale_value
+    } Else {
+        return $default_value
+    }
+}
+
 $ErrorActionPreference = 'Stop'
