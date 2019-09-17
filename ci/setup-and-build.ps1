@@ -52,16 +52,16 @@ pushd "$game_home"
     # Use the cached engine version or set it up if it has not been cached yet.
     Start-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
-        $engine_cache = "$game_home\UnrealEngine-Cache"
-        $engine_symlink = "$game_home\UnrealEngine"
-        &"$($gdk_home)\ci\get-engine.ps1" -engine_cache_directory "$engine_cache" -unreal_path "$engine_symlink"
+        $engine_cache_path = "$game_home\..\..\.."
+        $engine_directory = "$game_home\UnrealEngine"
+        &"$($gdk_home)\ci\get-engine.ps1" -engine_cache_path "$engine_cache_path" -unreal_path "$engine_directory"
 
     Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
 
     Start-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
-        pushd $engine_symlink
-            $unreal_version_selector_path = "Engine\Binaries\Win64\UnrealVersionSelector-Win64-Shipping.exe"
+        pushd $engine_directory
+            $unreal_version_selector_path = "Engine\Binaries\Win64\UnrealVersionSelector.exe"
 
             $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath $unreal_version_selector_path -ArgumentList @(`
                 "-switchversionsilent", `

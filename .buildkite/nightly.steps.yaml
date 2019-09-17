@@ -27,8 +27,6 @@ common: &common
       - exit_status: -1
         limit: 3
   plugins:
-    - git-clean#v0.0.1:
-        flags: "-ffdx --exclude=UnrealEngine --exclude=UnrealEngine-Cache"
     - ca-johnson/taskkill#v4.1: ~
 
 # NOTE: step labels turn into commit-status names like {org}/{repo}/{pipeline}/{step-label}, lower-case and hyphenated.
