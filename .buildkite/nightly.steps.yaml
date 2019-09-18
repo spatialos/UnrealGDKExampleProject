@@ -19,7 +19,7 @@ common: &common
     # See also: https://github.com/improbable/platform/blob/master/docs/product-groups/dev-workflow/buildkite/how-to-deploy-release-permissions.md
     - "permission_set=builder"
     - "platform=windows"
-    - "queue=v3-1568802231-92c2230a1c9c5b8c-------z"
+    - "queue=v3-1568808922-92c2230a1c9c5b8c-------z"
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
     automatic:
