@@ -5,7 +5,7 @@ param(
   [string] $deployment_launch_configuration = "one_worker_test.json",
   [string] $deployment_snapshot_path = "snapshots/FPS-Start_Small.snapshot",
   [string] $deployment_cluster_region = "eu",
-  [string] $project_name = "demo"
+  [string] $project_name = "unreal_gdk"
 )
 
 . "$PSScriptRoot\common.ps1"
