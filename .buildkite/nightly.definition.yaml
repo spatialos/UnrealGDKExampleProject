@@ -2,7 +2,7 @@ agent_queue_id: trigger-pipelines
 description: Nightly build and deployment of Unreal Example project
 github:
   branch_configuration: []
-  default_branch: feature/ci
+  default_branch: master
   pull_request_branch_filter_configuration: []
 teams:
 - name: Everyone
