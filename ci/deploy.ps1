@@ -1,8 +1,9 @@
 . "$PSScriptRoot\common.ps1"
 
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
-    # Use the shortened commit hash gathered during GDK plugin clone 
-    $deployment_name = "example_project_$($gdk_commit_hash)"
+    # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment
+    $date_and_time = Get-Date -Format "MMdd_HHmm"
+    $deployment_name = "exampleproject_${date_and_time}_$($gdk_commit_hash)"
     $assembly_name = "$($deployment_name)_asm"
 
 pushd "spatial"
