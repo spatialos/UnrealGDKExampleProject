@@ -20,6 +20,7 @@ pushd "spatial"
         "cloud", `
         "upload", `
         "$assembly_name", `
+        "--project_name=$project_name", `
         "--log_level=debug", `
         "--force"
     )
@@ -30,7 +31,7 @@ pushd "spatial"
         "$assembly_name", `
         "$deployment_launch_configuration", `
         "$deployment_name", `
-        "--project_name=$project_name"
+        "--project_name=$project_name", `
         "--snapshot=$deployment_snapshot_path", `
         "--cluster_region=$deployment_cluster_region", `
         "--log_level=debug"
