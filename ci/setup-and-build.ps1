@@ -41,9 +41,6 @@ pushd "$exampleproject_home"
 
     Start-Event "set-up-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
         pushd $gdk_home
-            # Set the required variables for the GDK's setup script to use
-            $msbuild_exe = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\MSBuild.exe"
-
             # Invoke the GDK's setup script
             &"$($gdk_home)\ci\setup-gdk.ps1"
         popd
