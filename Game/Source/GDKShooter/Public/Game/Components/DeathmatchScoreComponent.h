@@ -43,7 +43,7 @@ public:
 	UDeathmatchScoreComponent();
 
 	UFUNCTION(BlueprintCallable)
-		void RecordKill(int32 KillerId, int32 VictimId);
+		void RecordKill(const FString& Killer, const FString& Victim);
 
 	UFUNCTION(BlueprintCallable)
 		void RecordNewPlayer(APlayerState* PlayerState);
@@ -65,6 +65,6 @@ protected:
 
 	// A map from player name to score, to make it easier to update scores
 	UPROPERTY()
-		TMap<int32, int32> PlayerScoreMap;
+		TMap<FString, int32> PlayerScoreMap;
 		
 };

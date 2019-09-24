@@ -18,7 +18,7 @@ void UDeathmatchScoreComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 {
-	if (!PlayerScoreMap.Contains(PlayerState->PlayerId))
+	if (!PlayerScoreMap.Contains(PlayerState->GetPlayerName()))
 	{
 		FPlayerScore NewPlayerScore;
 		NewPlayerScore.PlayerId = PlayerState->PlayerId;
@@ -30,11 +30,11 @@ void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 		NewPlayerScore.AllTimeDeaths = 0;	// TUTORIAL-TODO: Get this value from persistene storage
 
 		int32 Index = PlayerScoreArray.Add(NewPlayerScore);
-		PlayerScoreMap.Emplace(NewPlayerScore.PlayerId, Index);
+		PlayerScoreMap.Emplace(NewPlayerScore.PlayerName, Index);
 	}
 }
 
-void UDeathmatchScoreComponent::RecordKill(const int32 Killer, const int32 Victim)
+void UDeathmatchScoreComponent::RecordKill(const FString& Killer, const FString& Victim)
 {
 	if (Killer != Victim && PlayerScoreMap.Contains(Killer))
 	{
