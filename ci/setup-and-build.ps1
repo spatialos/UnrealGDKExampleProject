@@ -13,6 +13,7 @@ param(
 # When a build is launched custom environment variables can be specified.
 # Parse them here to use the set value or the default.
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
+$launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "false"
 
 $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 
@@ -128,5 +129,5 @@ pushd "$exampleproject_home"
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
     # Deploy the project to SpatialOS
-    &$PSScriptRoot"\deploy.ps1"
+    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment"
 popd
