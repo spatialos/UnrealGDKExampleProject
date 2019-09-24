@@ -147,5 +147,5 @@ pushd "$exampleproject_home"
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
     # Deploy the project to SpatialOS
-    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment"
+    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name"
 popd

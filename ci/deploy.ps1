@@ -1,5 +1,6 @@
 param(
-  [string] $launch_deployment = "false"
+  [string] $launch_deployment = "false",
+  [string] $gdk_branch_name
 )
 
 . "$PSScriptRoot\common.ps1"
@@ -71,6 +72,53 @@ pushd "spatial"
                 Write-Log "Failed to launch a Spatial cloud deployment. Error: $($launch_deployment_process.ExitCode)"
                 Throw "Deployment launch failed"
             }
+
+            # Send a Slack notification with a link to the new deployment and to the build.
+            # Read Slack webhook URL from the vault.
+            $slack_webhook_url = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=ci/improbable/unreal-gdk-slack-web-hook)"
+
+            $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
+            $build_url = "$env:BUILDKITE_BUILD_URL"
+
+            $json_message = [ordered]@{
+                text = "Example Project build succeeded and a deployment has been launched."
+                attachments= @(
+                        @{
+                            fallback = "Find deployment here: $deployment_url and build here: $build_url"
+                            fields= @(
+                                    @{
+                                        title = "GDK branch"
+                                        value = "$gdk_branch_name"
+                                        short = "true"
+                                    }
+                                    @{
+                                        title = "Example Project branch"
+                                        value = "$env:BUILDKITE_BRANCH"
+                                        short = "true"
+                                    }
+                                )
+                            actions= @(
+                                    @{
+                                        type = "button"
+                                        text = "take me to deployment"
+                                        url = "$deployment_url"
+                                        style = "primary"
+                                    }
+                                    @{
+                                        type = "button"
+                                        text = "take me to build"
+                                        url = "$build_url"
+                                        style = "primary"
+                                    }
+                                )
+                        }
+                    )
+                }
+
+            $json_request = $json_message | ConvertTo-Json -Depth 10
+
+            Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
+
         }
         else {
             Write-Log 'By default, deployment will not be launched. To launch a deployment, pass in the following environment variable when starting a build from BuildKite: START_DEPLOYMENT="true"'
