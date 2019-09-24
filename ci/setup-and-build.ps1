@@ -1,5 +1,5 @@
 param(
-  [string] $game_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
+  [string] $exampleproject_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
   [string] $gdk_repo = "git@github.com:spatialos/UnrealGDK.git",
   [string] $gcs_publish_bucket = "io-internal-infra-unreal-artifacts-production/UnrealEngine",
   [string] $deployment_launch_configuration = "one_worker_test.json",
@@ -14,9 +14,9 @@ param(
 # Parse them here to use the set value or the default.
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 
-$gdk_home = "$game_home\Game\Plugins\UnrealGDK"
+$gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 
-pushd "$game_home"
+pushd "$exampleproject_home"
     Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
         pushd "Game"
             New-Item -Name "Plugins" -ItemType Directory -Force
@@ -52,8 +52,8 @@ pushd "$game_home"
     # Use the cached engine version or set it up if it has not been cached yet.
     Start-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
-        $engine_cache_path = "$game_home\..\..\.."
-        $engine_directory = "$game_home\UnrealEngine"
+        $engine_cache_path = "$exampleproject_home\..\..\.."
+        $engine_directory = "$exampleproject_home\UnrealEngine"
         &"$($gdk_home)\ci\get-engine.ps1" -engine_cache_path "$engine_cache_path" -unreal_path "$engine_directory"
 
     Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
@@ -65,7 +65,7 @@ pushd "$game_home"
 
             $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath $unreal_version_selector_path -ArgumentList @(`
                 "-switchversionsilent", `
-                "$game_home\Game\GDKShooter.uproject", `
+                "$exampleproject_home\Game\GDKShooter.uproject", `
                 "$engine_directory"
             )
       
@@ -103,17 +103,17 @@ pushd "$game_home"
     Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
         pushd "UnrealEngine/Engine/Binaries/Win64"
             Start-Process -Wait -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
-                "$($game_home)/Game/GDKShooter.uproject", `
+                "$($exampleproject_home)/Game/GDKShooter.uproject", `
                 "-run=GenerateSchemaAndSnapshots", `
                 "-MapPaths=`"/Maps/FPS-Start_Small`""
             )
 
             $core_gdk_schema_path = "$($gdk_home)\SpatialGDK\Extras\schema\*"
             $schema_std_lib_path = "$($gdk_home)\SpatialGDK\Binaries\ThirdParty\Improbable\Programs\schema\*"
-            New-Item -Path "$($game_home)\spatial\schema\unreal" -Name "gdk" -ItemType Directory -Force
-            New-Item -Path "$($game_home)\spatial" -Name "\build\dependencies\schema\standard_library" -ItemType Directory -Force
-            Copy-Item "$($core_gdk_schema_path)" -Destination "$($game_home)\spatial\schema\unreal\gdk" -Force -Recurse
-            Copy-Item "$($schema_std_lib_path)" -Destination "$($game_home)\spatial\build\dependencies\schema\standard_library" -Force -Recurse
+            New-Item -Path "$($exampleproject_home)\spatial\schema\unreal" -Name "gdk" -ItemType Directory -Force
+            New-Item -Path "$($exampleproject_home)\spatial" -Name "\build\dependencies\schema\standard_library" -ItemType Directory -Force
+            Copy-Item "$($core_gdk_schema_path)" -Destination "$($exampleproject_home)\spatial\schema\unreal\gdk" -Force -Recurse
+            Copy-Item "$($schema_std_lib_path)" -Destination "$($exampleproject_home)\spatial\build\dependencies\schema\standard_library" -Force -Recurse
         popd
     Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
 
