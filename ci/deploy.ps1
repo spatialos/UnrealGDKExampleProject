@@ -18,7 +18,7 @@ pushd "spatial"
             Write-Log "Failed to build worker configurations for the project. Error: $($build_configs_process.ExitCode)"
             Throw "Failed to build worker configurations"
         }
-    Finish-Event "clone-gdk-plugin" "deploy-unreal-gdk-example-project-:windows:"
+    Finish-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
 
     Start-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
         $prepare_for_run_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
