@@ -48,8 +48,8 @@ function Get-Env-Variable-Value-Or-Default() {
     )
 
     If (Test-Path env:$environment_variable_name) {
-        $environment_varibale_value = Get-Content -Path env:$environment_variable_name
-        return $environment_varibale_value
+        $environment_variable_value = Get-Content -Path env:$environment_variable_name
+        return $environment_variable_value
     } Else {
         return $default_value
     }
