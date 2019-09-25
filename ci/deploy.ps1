@@ -101,7 +101,7 @@ pushd "spatial"
                             actions= @(
                                     @{
                                         type = "button"
-                                        text = "take me to deployment"
+                                        text = "Take me to the deployment"
                                         url = "$deployment_url"
                                         style = "primary"
                                     }
