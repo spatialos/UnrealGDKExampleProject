@@ -50,9 +50,8 @@ pushd "$exampleproject_home"
     # Use the cached engine version or set it up if it has not been cached yet.
     Start-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
-        $engine_cache_path = "$exampleproject_home\..\..\.."
         $engine_directory = "$exampleproject_home\UnrealEngine"
-        &"$($gdk_home)\ci\get-engine.ps1" -engine_cache_path "$engine_cache_path" -unreal_path "$engine_directory"
+        &"$($gdk_home)\ci\get-engine.ps1" -unreal_path "$engine_directory"
 
     Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
