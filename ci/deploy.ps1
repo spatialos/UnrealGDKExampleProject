@@ -55,7 +55,7 @@ pushd "spatial"
 
     Start-Event "launching-deployment" "deploy-unreal-gdk-example-project-:windows:"
         # Determine whether deployment should be launched (by default it is not)
-        If($launch_deployment -eq "true") {
+        if ($launch_deployment -eq "true") {
             $launch_deployment_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
                 "cloud", `
                 "launch", `
