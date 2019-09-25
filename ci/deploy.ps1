@@ -54,7 +54,7 @@ pushd "spatial"
     Finish-Event "upload-assemblies" "deploy-unreal-gdk-example-project-:windows:"
 
     Start-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
-        # Determine whether deployment should be launched (by default it is not)
+        # Determine whether deployment should be launched (it will by default)
         if ($launch_deployment -eq "true") {
             $launch_deployment_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
                 "cloud", `
@@ -65,7 +65,8 @@ pushd "spatial"
                 "--project_name=$project_name", `
                 "--snapshot=$deployment_snapshot_path", `
                 "--cluster_region=$deployment_cluster_region", `
-                "--log_level=debug"
+                "--log_level=debug", `
+                "--tags=ttl_1_hours"
             )
 
             if ($launch_deployment_process.ExitCode -ne 0) {
@@ -122,7 +123,7 @@ pushd "spatial"
 
         }
         else {
-            Write-Log 'By default, deployment will not be launched. To launch a deployment, pass in the following environment variable when starting a build from BuildKite: START_DEPLOYMENT="true"'
+            Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
 
     Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
