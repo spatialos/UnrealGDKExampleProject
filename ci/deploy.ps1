@@ -107,7 +107,7 @@ pushd "spatial"
                                     }
                                     @{
                                         type = "button"
-                                        text = "take me to build"
+                                        text = "Take me to the build"
                                         url = "$build_url"
                                         style = "primary"
                                     }
