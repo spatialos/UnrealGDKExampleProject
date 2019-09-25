@@ -37,7 +37,7 @@ pushd "spatial"
         }
     Finish-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
 
-    Start-Event "uploading-assemblies" "deploy-unreal-gdk-example-project-:windows:"
+    Start-Event "upload-assemblies" "deploy-unreal-gdk-example-project-:windows:"
         $upload_assemblies_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
             "cloud", `
             "upload", `
@@ -51,9 +51,9 @@ pushd "spatial"
             Write-Log "Failed to upload assemblies to cloud. Error: $($upload_assemblies_process.ExitCode)"
             Throw "Failed to upload assemblies"
         }
-    Finish-Event "uploading-assemblies" "deploy-unreal-gdk-example-project-:windows:"
+    Finish-Event "upload-assemblies" "deploy-unreal-gdk-example-project-:windows:"
 
-    Start-Event "launching-deployment" "deploy-unreal-gdk-example-project-:windows:"
+    Start-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
         # Determine whether deployment should be launched (by default it is not)
         If($launch_deployment -eq "true") {
             $launch_deployment_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
@@ -125,7 +125,7 @@ pushd "spatial"
             Write-Log 'By default, deployment will not be launched. To launch a deployment, pass in the following environment variable when starting a build from BuildKite: START_DEPLOYMENT="true"'
         }
 
-    Finish-Event "launching-deployment" "deploy-unreal-gdk-example-project-:windows:"
+    Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
 
 popd
 Finish-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
