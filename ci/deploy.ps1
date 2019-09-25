@@ -74,8 +74,9 @@ pushd "spatial"
             }
 
             # Send a Slack notification with a link to the new deployment and to the build.
-            # Read Slack webhook URL from the vault.
-            $slack_webhook_url = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
+            # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
+            $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
+            $slack_webhook_url = $slack_webhook_url | ConvertFrom-Json | %{$_.url}
 
             $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
             $build_url = "$env:BUILDKITE_BUILD_URL"
