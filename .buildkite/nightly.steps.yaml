@@ -1,9 +1,11 @@
 common: &common
   agents:
+    - "agent_count=1"
     - "capable_of_building=gdk-for-unreal"
     - "environment=production"
     - "permission_set=builder"
     - "platform=windows"
+    - "scaler_version=2"
     - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v3-1569490589-f9345a43b21a6cec-------z}"
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
