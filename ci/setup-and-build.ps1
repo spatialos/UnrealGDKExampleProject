@@ -15,7 +15,7 @@ param(
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 
-$gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
+$gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
 
 pushd "$exampleproject_home"
     Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
@@ -50,7 +50,7 @@ pushd "$exampleproject_home"
     # Use the cached engine version or set it up if it has not been cached yet.
     Start-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
-        $engine_directory = "$exampleproject_home\UnrealEngine"
+        $engine_directory = "${exampleproject_home}\UnrealEngine"
         &"$($gdk_home)\ci\get-engine.ps1" -unreal_path "$engine_directory"
 
     Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
@@ -62,7 +62,7 @@ pushd "$exampleproject_home"
 
             $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath $unreal_version_selector_path -ArgumentList @(`
                 "-switchversionsilent", `
-                "$exampleproject_home\Game\GDKShooter.uproject", `
+                "${exampleproject_home}\Game\GDKShooter.uproject", `
                 "$engine_directory"
             )
 
@@ -105,6 +105,7 @@ pushd "$exampleproject_home"
                 "-MapPaths=`"/Maps/FPS-Start_Small`""
             )
 
+            # TODO this is also being done as part of setup.bat. We should look into calling setup.bat instead of this, but need to make sure it doesn't brake if called after setup-gdk.ps1
             $core_gdk_schema_path = "$($gdk_home)\SpatialGDK\Extras\schema\*"
             $schema_std_lib_path = "$($gdk_home)\SpatialGDK\Binaries\ThirdParty\Improbable\Programs\schema\*"
             New-Item -Path "$($exampleproject_home)\spatial\schema\unreal" -Name "gdk" -ItemType Directory -Force

@@ -1,6 +1,6 @@
 param(
   [string] $launch_deployment = "false",
-  [string] $gdk_branch_name
+  [string] $gdk_branch_name = "master"
 )
 
 . "$PSScriptRoot\common.ps1"
