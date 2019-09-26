@@ -105,7 +105,7 @@ pushd "$exampleproject_home"
                 "-MapPaths=`"/Maps/FPS-Start_Small`""
             )
 
-            # TODO this is also being done as part of setup.bat. We should look into calling setup.bat instead of this, but need to make sure it doesn't brake if called after setup-gdk.ps1
+            # TODO (GV-29) this is also being done as part of setup.bat. We should look into calling setup.bat instead of this, but need to make sure it doesn't brake if called after setup-gdk.ps1
             $core_gdk_schema_path = "$($gdk_home)\SpatialGDK\Extras\schema\*"
             $schema_std_lib_path = "$($gdk_home)\SpatialGDK\Binaries\ThirdParty\Improbable\Programs\schema\*"
             New-Item -Path "$($exampleproject_home)\spatial\schema\unreal" -Name "gdk" -ItemType Directory -Force
