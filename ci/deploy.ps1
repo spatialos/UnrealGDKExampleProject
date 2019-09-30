@@ -80,13 +80,15 @@ pushd "spatial"
             $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
 
             $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
+            $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/tree/${gdk_commit_hash}"
             $build_url = "$env:BUILDKITE_BUILD_URL"
 
             $json_message = [ordered]@{
-                text = "Example Project build succeeded and a deployment has been launched."
+                text = "Example Project build created by $env:BUILDKITE_BUILD_CREATOR succeeded and a deployment has been launched."
                 attachments= @(
                         @{
                             fallback = "Find deployment here: $deployment_url and build here: $build_url"
+                            color = "good"
                             fields= @(
                                     @{
                                         title = "GDK branch"
@@ -104,6 +106,12 @@ pushd "spatial"
                                         type = "button"
                                         text = "Take me to the deployment"
                                         url = "$deployment_url"
+                                        style = "primary"
+                                    }
+                                    @{
+                                        type = "button"
+                                        text = "Take me to the GDK commit"
+                                        url = "$gdk_commit_url"
                                         style = "primary"
                                     }
                                     @{
