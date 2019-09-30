@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Utils/SnapshotGenerationTemplate.h"
+#include <WorkerSDK/improbable/c_worker.h>
+
 #include "DeploymentSnapshotTemplate.generated.h"
 
 

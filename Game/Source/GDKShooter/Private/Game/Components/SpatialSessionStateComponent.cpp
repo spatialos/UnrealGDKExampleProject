@@ -33,7 +33,7 @@ void USpatialSessionStateComponent::SendStateUpdate(EGDKSessionProgress SessionP
 	Worker_EntityId target_entity_id = SessionEntityId;
 	Worker_ComponentUpdate component_update = {};
 	component_update.component_id = SessionComponentId;
-	component_update.schema_type = Schema_CreateComponentUpdate(SessionComponentId);
+	component_update.schema_type = Schema_CreateComponentUpdate();
 	Schema_Object* fields_object = Schema_GetComponentUpdateFields(component_update.schema_type);
 	Schema_AddInt32(fields_object, 1, SessionState);
 	SpatialNetDriver->Connection->SendComponentUpdate(target_entity_id, &component_update);

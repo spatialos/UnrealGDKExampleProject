@@ -28,13 +28,13 @@ bool UDeploymentSnapshotTemplate::WriteToSnapshotOutput(Worker_SnapshotOutputStr
 	// Serialize Session component data
 	Worker_ComponentData SessionComponentData{};
 	SessionComponentData.component_id = 1000;
-	SessionComponentData.schema_type = Schema_CreateComponentData(1000);
+	SessionComponentData.schema_type = Schema_CreateComponentData();
 	Schema_Object* SessionComponentDataObject = Schema_GetComponentDataFields(SessionComponentData.schema_type);
 	Schema_AddInt32(SessionComponentDataObject, 1, 1);
 
 	Worker_ComponentData DeploymentComponentData{};
 	DeploymentComponentData.component_id = 1001;
-	DeploymentComponentData.schema_type = Schema_CreateComponentData(1001);
+	DeploymentComponentData.schema_type = Schema_CreateComponentData();
 
 	Components.Add(SpatialGDK::Position(SpatialGDK::Origin).CreatePositionData());
 	Components.Add(SpatialGDK::Metadata(TEXT("Session")).CreateMetadataData());
@@ -46,7 +46,8 @@ bool UDeploymentSnapshotTemplate::WriteToSnapshotOutput(Worker_SnapshotOutputStr
 	SessionEntity.component_count = Components.Num();
 	SessionEntity.components = Components.GetData();
 
-	bool success = Worker_SnapshotOutputStream_WriteEntity(OutputStream, &SessionEntity) != 0;
+	Worker_SnapshotOutputStream_WriteEntity(OutputStream, &SessionEntity);
+	bool success = Worker_SnapshotOutputStream_GetState(OutputStream).stream_state == WORKER_STREAM_STATE_GOOD;
 	if (success) {
 		NextEntityId++;
 	}
