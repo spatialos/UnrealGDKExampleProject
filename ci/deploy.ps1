@@ -84,7 +84,7 @@ pushd "spatial"
             $build_url = "$env:BUILDKITE_BUILD_URL"
 
             $json_message = [ordered]@{
-                text = "Example Project build created by $env:BUILDKITE_BUILD_CREATOR succeeded and a deployment has been launched."
+                text = "Example Project build succeeded and a deployment has been launched."
                 attachments= @(
                         @{
                             fallback = "Find deployment here: $deployment_url and build here: $build_url"
