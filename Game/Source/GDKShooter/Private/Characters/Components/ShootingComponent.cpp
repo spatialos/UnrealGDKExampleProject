@@ -33,7 +33,8 @@ void UShootingComponent::BeginPlay()
 
 	if (!bHasTraceProvider)
 	{
-		UE_LOG(LogGDK, Error, TEXT("Shooting Component Exists without a Trace Providing component, please add an Actor Component that implements ITraceProvider."));
+		UE_LOG(LogGDK, Error, TEXT("Shooting Component on %s exists without a Trace Providing component, please add an Actor Component that implements ITraceProvider."),
+			*GetPathNameSafe(GetOwner()));
 	}
 }
 
