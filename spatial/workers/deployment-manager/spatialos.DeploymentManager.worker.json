@@ -21,11 +21,6 @@
         "DeploymentManager"
       ]
     },
-    "entity_interest": {
-      "range_entity_interest": {
-        "radius": 500
-      }
-    },
     "component_delivery": {
       "default": "RELIABLE_ORDERED",
       "checkoutAllInitially": true

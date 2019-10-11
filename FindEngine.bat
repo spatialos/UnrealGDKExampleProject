@@ -7,7 +7,7 @@ set UNREAL_ENGINE=""
 set UPROJECT=""
 
 rem First find the .uproject
-for /f "delims=" %%A in (' powershell -Command "Get-ChildItem %~dp0 -Depth 1 -Filter *.uproject -File | %% {$_.FullName}" ') do set UPROJECT="%%A"
+for /f "delims=" %%A in (' powershell -Command "Get-ChildItem '%~dp0' -Depth 1 -Filter *.uproject -File | %% {$_.FullName}" ') do set UPROJECT="%%A"
 
 if %UPROJECT%=="" (
     echo Error: Could not find uproject. Please make sure you have passed in the project directory correctly.
@@ -18,7 +18,7 @@ if %UPROJECT%=="" (
 echo Using uproject: %UPROJECT%
 
 rem Get the Engine association from the uproject.
-for /f "delims=" %%A in (' powershell -Command "(Get-Content %UPROJECT% | ConvertFrom-Json).EngineAssociation" ') do set ENGINE_ASSOCIATION=%%A
+for /f "delims=" %%A in (' powershell -Command "(Get-Content '%UPROJECT%' | ConvertFrom-Json).EngineAssociation" ') do set ENGINE_ASSOCIATION=%%A
 
 echo Engine association for uproject is: %ENGINE_ASSOCIATION%
 

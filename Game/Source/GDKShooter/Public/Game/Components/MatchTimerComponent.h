@@ -12,4 +12,6 @@ class GDKSHOOTER_API UMatchTimerComponent : public UTimerComponent
 {
 	GENERATED_BODY()
 	
+protected:
+	virtual void BeginPlay() override;
 };

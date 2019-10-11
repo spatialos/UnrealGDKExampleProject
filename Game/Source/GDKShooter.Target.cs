@@ -9,7 +9,5 @@ public class GDKShooterTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		ExtraModuleNames.Add("GDKShooter");
-		// TODO: UNR-1791 for long-term fix
-		GlobalDefinitions.Add("UE_ALLOW_MAP_OVERRIDE_IN_SHIPPING=1");
 	}
 }
