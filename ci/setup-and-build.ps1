@@ -55,7 +55,6 @@ pushd "$exampleproject_home"
 
     Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
-
     Start-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
         pushd $engine_directory
             $unreal_version_selector_path = "Engine\Binaries\Win64\UnrealVersionSelector.exe"
@@ -104,14 +103,6 @@ pushd "$exampleproject_home"
                 "-run=GenerateSchemaAndSnapshots", `
                 "-MapPaths=`"/Maps/FPS-Start_Small`""
             )
-
-            # TODO (GV-29) this is also being done as part of setup.bat. We should look into calling setup.bat instead of this, but need to make sure it doesn't brake if called after setup-gdk.ps1
-            $core_gdk_schema_path = "$($gdk_home)\SpatialGDK\Extras\schema\*"
-            $schema_std_lib_path = "$($gdk_home)\SpatialGDK\Binaries\ThirdParty\Improbable\Programs\schema\*"
-            New-Item -Path "$($exampleproject_home)\spatial\schema\unreal" -Name "gdk" -ItemType Directory -Force
-            New-Item -Path "$($exampleproject_home)\spatial" -Name "\build\dependencies\schema\standard_library" -ItemType Directory -Force
-            Copy-Item "$($core_gdk_schema_path)" -Destination "$($exampleproject_home)\spatial\schema\unreal\gdk" -Force -Recurse
-            Copy-Item "$($schema_std_lib_path)" -Destination "$($exampleproject_home)\spatial\build\dependencies\schema\standard_library" -Force -Recurse
         popd
     Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
 
