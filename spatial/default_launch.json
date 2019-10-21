@@ -15,7 +15,7 @@
         {
           "name": "bridge_soft_handover_enabled",
           "value": "false"
-        },
+        }
       ],
     "snapshots": {
       "snapshot_write_period_seconds": 0
