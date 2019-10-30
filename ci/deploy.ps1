@@ -90,7 +90,7 @@ pushd "spatial"
             $build_url = "$env:BUILDKITE_BUILD_URL"
             
             $json_message = [ordered]@{
-                text = $(if (Test-Path env:BUILDKITE_NIGHTLY_BUILD) {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded and a deployment has been launched."
+                text = $(if (Test-Path env:BUILDKITE_NIGHTLY_BUILD) {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded (and a deployment may have been launched)."
                 attachments= @(
                         @{
                             fallback = "Find build here: $build_url and potential deployment here: $deployment_url"
@@ -140,11 +140,11 @@ pushd "spatial"
                                     }
                 $json_message["attachments"]["actions"].Add($deployment_button)
             }
+
+            $json_request = $json_message | ConvertTo-Json -Depth 10
+
+            Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
         }
-
-        $json_request = $json_message | ConvertTo-Json -Depth 10
-
-        Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
         
     Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
 
