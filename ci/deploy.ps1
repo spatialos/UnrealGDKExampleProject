@@ -78,66 +78,68 @@ pushd "spatial"
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
 
-        # Send a Slack notification with a link to the new deployment and to the build.
-        # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
-        $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
-        $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
+        if ($env:BUILDKITE_BRANCH -eq "master") {
+            # Send a Slack notification with a link to the new deployment and to the build.
+            # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
+            $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
+            $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
 
-        $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
-        $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/commit/${gdk_commit_hash}"
-        $project_commit_url = "https://github.com/spatialos/UnrealGDKExampleProject/commit/$env:BUILDKITE_COMMIT"
-        $build_url = "$env:BUILDKITE_BUILD_URL"
-        
-        $json_message = [ordered]@{
-            text = (if (Test-Path env:BUILDKITE_NIGHTLY_BUILD) {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded and a deployment has been launched."
-            attachments= @(
-                    @{
-                        fallback = "Find build here: $build_url and potential deployment here: $deployment_url"
-                        color = "good"
-                        fields = @(
-                                @{
-                                    title = "GDK branch"
-                                    value = "$gdk_branch_name"
-                                    short = "true"
-                                }
-                                @{
-                                    title = "Example Project branch"
-                                    value = "$env:BUILDKITE_BRANCH"
-                                    short = "true"
-                                }
-                            )
-                        actions = @(
-                                @{
-                                    type = "button"
-                                    text = "See GDK commit"
-                                    url = "$gdk_commit_url"
-                                    style = "primary"
-                                }
-                                @{
-                                    type = "button"
-                                    text = "See project commit"
-                                    url = "$project_commit_url"
-                                    style = "primary"
-                                }
-                                @{
-                                    type = "button"
-                                    text = "See BK build"
-                                    url = "$build_url"
-                                    style = "primary"
-                                }
-                            )
-                    }
-                )
+            $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
+            $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/commit/${gdk_commit_hash}"
+            $project_commit_url = "https://github.com/spatialos/UnrealGDKExampleProject/commit/$env:BUILDKITE_COMMIT"
+            $build_url = "$env:BUILDKITE_BUILD_URL"
+            
+            $json_message = [ordered]@{
+                text = $(if (Test-Path env:BUILDKITE_NIGHTLY_BUILD) {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded and a deployment has been launched."
+                attachments= @(
+                        @{
+                            fallback = "Find build here: $build_url and potential deployment here: $deployment_url"
+                            color = "good"
+                            fields = @(
+                                    @{
+                                        title = "GDK branch"
+                                        value = "$gdk_branch_name"
+                                        short = "true"
+                                    }
+                                    @{
+                                        title = "Example Project branch"
+                                        value = "$env:BUILDKITE_BRANCH"
+                                        short = "true"
+                                    }
+                                )
+                            actions = @(
+                                    @{
+                                        type = "button"
+                                        text = "See GDK commit"
+                                        url = "$gdk_commit_url"
+                                        style = "primary"
+                                    }
+                                    @{
+                                        type = "button"
+                                        text = "See project commit"
+                                        url = "$project_commit_url"
+                                        style = "primary"
+                                    }
+                                    @{
+                                        type = "button"
+                                        text = "See BK build"
+                                        url = "$build_url"
+                                        style = "primary"
+                                    }
+                                )
+                        }
+                    )
+                }
+
+            if ($launch_deployment -eq "true") {
+                $deployment_button = @{
+                                        type = "button"
+                                        text = "See deployment"
+                                        url = "$deployment_url"
+                                        style = "primary"
+                                    }
+                $json_message["attachments"]["actions"].Add($deployment_button)
             }
-        
-        if ($launch_deployment -eq "true") {
-            $deployment_button = @{
-                                    type = "button"
-                                    text = "See deployment"
-                                    url = "$deployment_url"
-                                    style = "primary"
-                                }
-            $json_message["attachments"]["actions"].Add($deployment_button)
         }
 
         $json_request = $json_message | ConvertTo-Json -Depth 10
