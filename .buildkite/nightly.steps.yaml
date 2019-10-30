@@ -23,4 +23,4 @@ steps:
     <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
-      - "C:/Users/buildkite-agent/AppData/Roaming/Unreal Engine/AutomationTool/Logs/*"
+      - "C:/Users/buildkite-agent/AppData/Roaming/Unreal Engine/AutomationTool/Logs/C+b+1+unrealgdkexampleproject-nightly+UnrealEngine/*"

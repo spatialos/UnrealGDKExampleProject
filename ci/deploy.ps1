@@ -92,9 +92,9 @@ pushd "spatial"
             text = (if (Test-Path env:BUILDKITE_NIGHTLY_BUILD) {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded and a deployment has been launched."
             attachments= @(
                     @{
-                        fallback = "Find deployment here: $deployment_url and build here: $build_url"
+                        fallback = "Find build here: $build_url and potential deployment here: $deployment_url"
                         color = "good"
-                        fields= @(
+                        fields = @(
                                 @{
                                     title = "GDK branch"
                                     value = "$gdk_branch_name"
@@ -106,7 +106,7 @@ pushd "spatial"
                                     short = "true"
                                 }
                             )
-                        actions= @(
+                        actions = @(
                                 @{
                                     type = "button"
                                     text = "See GDK commit"
@@ -121,12 +121,6 @@ pushd "spatial"
                                 }
                                 @{
                                     type = "button"
-                                    text = "See deployment"
-                                    url = "$deployment_url"
-                                    style = "primary"
-                                }
-                                @{
-                                    type = "button"
                                     text = "See BK build"
                                     url = "$build_url"
                                     style = "primary"
@@ -135,6 +129,16 @@ pushd "spatial"
                     }
                 )
             }
+        
+        if ($launch_deployment -eq "true") {
+            $deployment_button = @{
+                                    type = "button"
+                                    text = "See deployment"
+                                    url = "$deployment_url"
+                                    style = "primary"
+                                }
+            $json_message["attachments"]["actions"].Add($deployment_button)
+        }
 
         $json_request = $json_message | ConvertTo-Json -Depth 10
 
