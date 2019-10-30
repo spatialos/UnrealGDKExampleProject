@@ -73,74 +73,73 @@ pushd "spatial"
                 Write-Log "Failed to launch a Spatial cloud deployment. Error: $($launch_deployment_process.ExitCode)"
                 Throw "Deployment launch failed"
             }
-
-            # Send a Slack notification with a link to the new deployment and to the build.
-            # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
-            $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
-            $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
-
-            $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
-            $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/commit/${gdk_commit_hash}"
-            $project_commit_url = "https://github.com/spatialos/UnrealGDKExampleProject/commit/$env:BUILDKITE_COMMIT"
-            $build_url = "$env:BUILDKITE_BUILD_URL"
-
-            $json_message = [ordered]@{
-                text = $(if (Test-Path env:BUILDKITE_NIGHTLY_BUILD) {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded and a deployment has been launched."
-                attachments= @(
-                        @{
-                            fallback = "Find deployment here: $deployment_url and build here: $build_url"
-                            color = "good"
-                            fields= @(
-                                    @{
-                                        title = "GDK branch"
-                                        value = "$gdk_branch_name"
-                                        short = "true"
-                                    }
-                                    @{
-                                        title = "Example Project branch"
-                                        value = "$env:BUILDKITE_BRANCH"
-                                        short = "true"
-                                    }
-                                )
-                            actions= @(
-                                    @{
-                                        type = "button"
-                                        text = "See GDK commit"
-                                        url = "$gdk_commit_url"
-                                        style = "primary"
-                                    }
-                                    @{
-                                        type = "button"
-                                        text = "See project commit"
-                                        url = "$project_commit_url"
-                                        style = "primary"
-                                    }
-                                    @{
-                                        type = "button"
-                                        text = "See deployment"
-                                        url = "$deployment_url"
-                                        style = "primary"
-                                    }
-                                    @{
-                                        type = "button"
-                                        text = "See BK build"
-                                        url = "$build_url"
-                                        style = "primary"
-                                    }
-                                )
-                        }
-                    )
-                }
-
-            $json_request = $json_message | ConvertTo-Json -Depth 10
-
-            Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
-
         }
         else {
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
 
+        # Send a Slack notification with a link to the new deployment and to the build.
+        # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
+        $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
+        $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
+
+        $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
+        $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/commit/${gdk_commit_hash}"
+        $project_commit_url = "https://github.com/spatialos/UnrealGDKExampleProject/commit/$env:BUILDKITE_COMMIT"
+        $build_url = "$env:BUILDKITE_BUILD_URL"
+        
+        $json_message = [ordered]@{
+            text = $(if (Test-Path env:BUILDKITE_NIGHTLY_BUILD) {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded and a deployment has been launched."
+            attachments= @(
+                    @{
+                        fallback = "Find deployment here: $deployment_url and build here: $build_url"
+                        color = "good"
+                        fields= @(
+                                @{
+                                    title = "GDK branch"
+                                    value = "$gdk_branch_name"
+                                    short = "true"
+                                }
+                                @{
+                                    title = "Example Project branch"
+                                    value = "$env:BUILDKITE_BRANCH"
+                                    short = "true"
+                                }
+                            )
+                        actions= @(
+                                @{
+                                    type = "button"
+                                    text = "See GDK commit"
+                                    url = "$gdk_commit_url"
+                                    style = "primary"
+                                }
+                                @{
+                                    type = "button"
+                                    text = "See project commit"
+                                    url = "$project_commit_url"
+                                    style = "primary"
+                                }
+                                @{
+                                    type = "button"
+                                    text = "See deployment"
+                                    url = "$deployment_url"
+                                    style = "primary"
+                                }
+                                @{
+                                    type = "button"
+                                    text = "See BK build"
+                                    url = "$build_url"
+                                    style = "primary"
+                                }
+                            )
+                    }
+                )
+            }
+
+        $json_request = $json_message | ConvertTo-Json -Depth 10
+
+        Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
+        
     Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
 
 popd
