@@ -80,11 +80,12 @@ pushd "spatial"
             $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
 
             $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
-            $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/tree/${gdk_commit_hash}"
+            $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/commit/${gdk_commit_hash}"
+            $project_commit_url = "https://github.com/spatialos/UnrealGDKExampleProject/commit/$env:BUILDKITE_COMMIT"
             $build_url = "$env:BUILDKITE_BUILD_URL"
 
             $json_message = [ordered]@{
-                text = "Example Project build created by $env:BUILDKITE_BUILD_CREATOR succeeded and a deployment has been launched."
+                text = $(if (Test-Path env:BUILDKITE_NIGHTLY_BUILD) {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded and a deployment has been launched."}
                 attachments= @(
                         @{
                             fallback = "Find deployment here: $deployment_url and build here: $build_url"
@@ -104,19 +105,25 @@ pushd "spatial"
                             actions= @(
                                     @{
                                         type = "button"
-                                        text = "Take me to the deployment"
-                                        url = "$deployment_url"
-                                        style = "primary"
-                                    }
-                                    @{
-                                        type = "button"
-                                        text = "Take me to the GDK commit"
+                                        text = "See GDK commit"
                                         url = "$gdk_commit_url"
                                         style = "primary"
                                     }
                                     @{
                                         type = "button"
-                                        text = "Take me to the build"
+                                        text = "See project commit"
+                                        url = "$project_commit_url"
+                                        style = "primary"
+                                    }
+                                    @{
+                                        type = "button"
+                                        text = "See deployment"
+                                        url = "$deployment_url"
+                                        style = "primary"
+                                    }
+                                    @{
+                                        type = "button"
+                                        text = "See BK build"
                                         url = "$build_url"
                                         style = "primary"
                                     }
