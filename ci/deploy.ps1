@@ -138,7 +138,7 @@ pushd "spatial"
                                         url = "$deployment_url"
                                         style = "primary"
                                     }
-                $json_message["attachments"]["actions"].Add($deployment_button)
+                $json_message["attachments"][0]["actions"].Add($deployment_button)
             }
 
             $json_request = $json_message | ConvertTo-Json -Depth 10
