@@ -90,7 +90,7 @@ pushd "spatial"
             $build_url = "$env:BUILDKITE_BUILD_URL"
             
             $json_message = [ordered]@{
-                text = $(if (Test-Path env:BUILDKITE_NIGHTLY_BUILD) {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded (and a deployment may have been launched)."
+                text = $(if (Test-Path env:BUILDKITE_NIGHTLY_BUILD -And $env:BUILDKITE_NIGHTLY_BUILD -eq "true") {"Nightly build of Example Project"} else {"Example Project build by $env:BUILDKITE_BUILD_CREATOR"}) + " succeeded."
                 attachments= @(
                         @{
                             fallback = "Find build here: $build_url and potential deployment here: $deployment_url"
@@ -138,7 +138,7 @@ pushd "spatial"
                                         url = "$deployment_url"
                                         style = "primary"
                                     }
-                $json_message["attachments"][0]["actions"].Add($deployment_button)
+                $json_message["attachments"][0]["actions"] += ($deployment_button)
             }
 
             $json_request = $json_message | ConvertTo-Json -Depth 10
