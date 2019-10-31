@@ -103,27 +103,27 @@ pushd "spatial"
                                         short = "true"
                                     }
                                     @{
-                                        title = "GDK branch"
-                                        value = "$gdk_branch_name"
+                                        title = "Example Project branch"
+                                        value = "$env:BUILDKITE_BRANCH"
                                         short = "true"
                                     }
                                     @{
-                                        title = "Example Project branch"
-                                        value = "$env:BUILDKITE_BRANCH"
+                                        title = "GDK branch"
+                                        value = "$gdk_branch_name"
                                         short = "true"
                                     }
                                 )
                             actions = @(
                                     @{
                                         type = "button"
-                                        text = ":github: View GDK commit"
-                                        url = "$gdk_commit_url"
+                                        text = ":github: View project commit"
+                                        url = "$project_commit_url"
                                         style = "primary"
                                     }
                                     @{
                                         type = "button"
-                                        text = ":github: View project commit"
-                                        url = "$project_commit_url"
+                                        text = ":github: View GDK commit"
+                                        url = "$gdk_commit_url"
                                         style = "primary"
                                     }
                                     @{
