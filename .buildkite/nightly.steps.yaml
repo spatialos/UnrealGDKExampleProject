@@ -3,7 +3,7 @@ common: &common
     - "agent_count=1"
     - "capable_of_building=gdk-for-unreal"
     - "environment=production"
-    - "machine_type=quad-high-cpu"
+    - "machine_type=quad"
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
@@ -17,14 +17,10 @@ common: &common
   plugins:
     - ca-johnson/taskkill#v4.1: ~
 
-env:
-  FASTBUILD_CACHE_PATH: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\fastbuild"
-  FASTBUILD_CACHE_MODE: rw
-  FASTBUILD_BROKERAGE_PATH: "\\\\fastbuild-brokerage.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba"
-
 steps:
   - label: "build-and-deploy-:windows:"
     command: powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1
     <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
+      - "C:/Users/buildkite-agent/AppData/Roaming/Unreal Engine/AutomationTool/Logs/C+b+1+unrealgdkexampleproject-nightly+UnrealEngine/*"
