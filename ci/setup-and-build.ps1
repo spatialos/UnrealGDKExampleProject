@@ -8,21 +8,6 @@ param(
   [string] $project_name = "unreal_gdk"
 )
 
-# Temporary explicit disabling of FASTbuild
-# Get the PATH variable
-$path = [System.Environment]::GetEnvironmentVariable(
-    'PATH',
-    'Machine'
-)
-# Remove FASTbuild path
-$path = ($path.Split(';') | Where-Object { $_ -NotLike "*/fastbuild" }) -join ';'
-# Set PATH to version without FASTbuild
-[System.Environment]::SetEnvironmentVariable(
-    'PATH',
-    $path,
-    'Machine'
-)
-
 . "$PSScriptRoot\common.ps1"
 
 # When a build is launched custom environment variables can be specified.
