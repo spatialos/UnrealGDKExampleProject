@@ -10,6 +10,21 @@ param(
 
 . "$PSScriptRoot\common.ps1"
 
+# Temporary explicit disabling of FASTbuild
+# Get the PATH variable
+$path = [System.Environment]::GetEnvironmentVariable(
+    'PATH',
+    'Machine'
+)
+# Remove FASTbuild path
+$path = ($path.Split(';') | Where-Object { $_ -ne 'c:/program files/fastbuild' }) -join ';'
+# Set PATH to version without FASTbuild
+[System.Environment]::SetEnvironmentVariable(
+    'PATH',
+    $path,
+    'Machine'
+)
+
 # When a build is launched custom environment variables can be specified.
 # Parse them here to use the set value or the default.
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
