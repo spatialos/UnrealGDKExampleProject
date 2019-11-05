@@ -79,6 +79,14 @@ pushd "spatial"
 
         if ($env:BUILDKITE_BRANCH -eq "master" -or $env:BUILDKITE_SLACK_NOTIFY -eq "true") {
             # Send a Slack notification with a link to the new deployment and to the build.
+
+            # Build Slack text
+            if ($env:BUILDKITE_NIGHTLY_BUILD -eq "true") {
+                $slack_text = ":night_with_stars: Nightly build of *Example Project* succeeded."
+            } else {
+                $slack_text = "*Example Project* build by $env:BUILDKITE_BUILD_CREATOR succeeded."
+            }
+
             # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
             $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
             $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
@@ -88,8 +96,7 @@ pushd "spatial"
             $project_commit_url = "https://github.com/spatialos/UnrealGDKExampleProject/commit/$env:BUILDKITE_COMMIT"
             $build_url = "$env:BUILDKITE_BUILD_URL"
             $json_message = [ordered]@{
-                text = $(if ($env:BUILDKITE_NIGHTLY_BUILD -eq "true") {":night_with_stars: Nightly build of *Example Project*"} `
-                        else {"*Example Project* build by $env:BUILDKITE_BUILD_CREATOR"}) + " completed succesfully."
+                text = "$slack_text"
                 attachments= @(
                         @{
                             fallback = "Find build here: $build_url and potential deployment here: $deployment_url"
