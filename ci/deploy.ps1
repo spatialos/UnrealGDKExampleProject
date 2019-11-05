@@ -116,19 +116,19 @@ pushd "spatial"
                             actions = @(
                                     @{
                                         type = "button"
-                                        text = ":github: View project commit"
+                                        text = ":github: Project commit"
                                         url = "$project_commit_url"
                                         style = "primary"
                                     }
                                     @{
                                         type = "button"
-                                        text = ":github: View GDK commit"
+                                        text = ":github: GDK commit"
                                         url = "$gdk_commit_url"
                                         style = "primary"
                                     }
                                     @{
                                         type = "button"
-                                        text = ":buildkite: View build"
+                                        text = ":buildkite: BK build"
                                         url = "$build_url"
                                         style = "primary"
                                     }
