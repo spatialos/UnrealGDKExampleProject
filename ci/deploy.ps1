@@ -78,7 +78,7 @@ pushd "spatial"
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
 
-        if ($env:BUILDKITE_BRANCH -eq "master" -Or ((Test-Path env:BUILDKITE_SLACK_NOTIFY) -And $env:BUILDKITE_SLACK_NOTIFY -eq "true")) {
+        if ($env:BUILDKITE_BRANCH -eq "master" -Or $env:BUILDKITE_SLACK_NOTIFY -eq "true") {
             # Send a Slack notification with a link to the new deployment and to the build.
             # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
             $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
