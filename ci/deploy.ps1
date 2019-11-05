@@ -74,7 +74,7 @@ pushd "spatial"
                 Throw "Deployment launch failed"
             }
         }
-        else {
+        } else {
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
 
