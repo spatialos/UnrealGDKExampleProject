@@ -73,7 +73,6 @@ pushd "spatial"
                 Write-Log "Failed to launch a Spatial cloud deployment. Error: $($launch_deployment_process.ExitCode)"
                 Throw "Deployment launch failed"
             }
-        }
         } else {
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
