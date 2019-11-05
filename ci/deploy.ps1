@@ -88,7 +88,6 @@ pushd "spatial"
             $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/commit/${gdk_commit_hash}"
             $project_commit_url = "https://github.com/spatialos/UnrealGDKExampleProject/commit/$env:BUILDKITE_COMMIT"
             $build_url = "$env:BUILDKITE_BUILD_URL"
-            
             $json_message = [ordered]@{
                 text = $(if ($env:BUILDKITE_NIGHTLY_BUILD -eq "true") {":night_with_stars: Nightly build of *Example Project*"} `
                         else {"*Example Project* build by $env:BUILDKITE_BUILD_CREATOR"}) + " completed succesfully."
