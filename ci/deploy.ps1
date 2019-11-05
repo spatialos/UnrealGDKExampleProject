@@ -151,7 +151,6 @@ pushd "spatial"
 
             Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
         }
-        
     Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
 
 popd
