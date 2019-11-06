@@ -145,7 +145,7 @@ pushd "spatial"
             if ($launch_deployment -eq "true") {
                 $deployment_button = @{
                                         type = "button"
-                                        text = ":cloud: View deployment"
+                                        text = ":cloud: Deployment"
                                         url = "$deployment_url"
                                         style = "primary"
                                     }
