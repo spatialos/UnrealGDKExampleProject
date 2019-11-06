@@ -104,7 +104,7 @@ pushd "spatial"
                             fields = @(
                                     @{
                                         title = "Build Message"
-                                        value = "$env:BUILDKITE_MESSAGE"
+                                        value = "$env:BUILDKITE_MESSAGE".Substring(0, 64)
                                         short = "true"
                                     }
                                     @{
