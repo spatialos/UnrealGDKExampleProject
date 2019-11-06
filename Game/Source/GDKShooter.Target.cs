@@ -9,5 +9,10 @@ public class GDKShooterTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		ExtraModuleNames.Add("GDKShooter");
+
+		if (Target.Platform == UnrealTargetPlatform.IOS)
+		{
+			GlobalDefinitions.Add("FORCE_ANSI_ALLOCATOR=1");
+		}
 	}
 }
