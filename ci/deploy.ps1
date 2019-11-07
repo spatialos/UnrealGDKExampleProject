@@ -104,7 +104,7 @@ pushd "spatial"
                             fields = @(
                                     @{
                                         title = "Build Message"
-                                        value = "$env:BUILDKITE_MESSAGE".(0, [System.Math]::Min(64, "$env:BUILDKITE_MESSAGE".Length)) 
+                                        value = "$env:BUILDKITE_MESSAGE".SubString(0, [System.Math]::Min(64, "$env:BUILDKITE_MESSAGE".Length)) 
                                         short = "true"
                                     }
                                     @{
