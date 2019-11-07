@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against
 GDK_BRANCH_LOCAL="${GDK_BRANCH:-master}"
-git archive --remote=git@github.com:spatialos/UnrealGDK.git $GDK_BRANCH_LOCAL ci/unreal-engine.version
+curl https://raw.githubusercontent.com/spatialos/UnrealGDK/$GDK_BRANCH_LOCAL/ci/unreal-engine.version -o ci/unreal-engine.version
 
 # This script generates steps for each engine version listed in unreal-engine.version in the GDK, and adds those to generated_base.steps.yaml
 # The steps are based on the template in nightly.template.steps.yaml
