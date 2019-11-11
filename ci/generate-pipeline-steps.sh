@@ -22,7 +22,8 @@ if [ -z "${ENGINE_VERSION}" ]; then
         else
             REPLACE_STRING=REPLACE_STRING+"s/BUILDKITE_SLACK_NOTIFY_PLACEHOLDER/false/g"
         fi
-        sed "$REPLACE_STRING" ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
+        sed $REPLACE_STRING ci/nightly.template.steps.yaml
+        sed $REPLACE_STRING ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
     done
 else
     echo "Generating steps for the specified engine version: $ENGINE_VERSION" 
