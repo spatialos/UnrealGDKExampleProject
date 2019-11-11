@@ -18,10 +18,11 @@ if [ -z "${ENGINE_VERSION}" ]; then
         REPLACE_STRING="s/ENGINE_COMMIT_HASH_PLACEHOLDER/$commit_hash/g"
         if [ "$FIRST_VERSION" = true ]; then
             FIRST_VERSION=false
-            REPLACE_STRING=REPLACE_STRING+"; s/BUILDKITE_SLACK_NOTIFY_PLACEHOLDER/$BUILDKITE_SLACK_NOTIFY_LOCAL/g"
+            REPLACE_STRING="$REPLACE_STRING; s/BUILDKITE_SLACK_NOTIFY_PLACEHOLDER/$BUILDKITE_SLACK_NOTIFY_LOCAL/g"
         else
-            REPLACE_STRING=REPLACE_STRING+"; s/BUILDKITE_SLACK_NOTIFY_PLACEHOLDER/false/g"
+            REPLACE_STRING="$REPLACE_STRING; s/BUILDKITE_SLACK_NOTIFY_PLACEHOLDER/false/g"
         fi
+        echo $REPLACE_STRING
         sed $REPLACE_STRING ci/nightly.template.steps.yaml
         sed $REPLACE_STRING ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
     done
