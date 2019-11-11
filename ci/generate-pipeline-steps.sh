@@ -22,6 +22,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
         else
             sed "s/BUILDKITE_SLACK_NOTIFY_PLACEHOLDER/false/g" ci/nightly.template.temp.steps.yaml > ci/nightly.template.temp.steps.yaml
         fi
+        cat ci/nightly.template.temp.steps.yaml
         cat ci/nightly.template.temp.steps.yaml | buildkite-agent pipeline upload
     done
 else
