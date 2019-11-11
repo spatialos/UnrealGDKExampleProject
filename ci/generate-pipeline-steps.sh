@@ -15,12 +15,12 @@ if [ -z "${ENGINE_VERSION}" ]; then
     FIRST_VERSION=true
     IFS=$'\n'
     for commit_hash in $(cat < ci/unreal-engine.version); do
-        REPLACE_STRING="s/ENGINE_COMMIT_HASH_PLACEHOLDER/$commit_hash/g"
+        REPLACE_STRING="s|ENGINE_COMMIT_HASH_PLACEHOLDER|$commit_hash|g"
         if [ "$FIRST_VERSION" = true ]; then
             FIRST_VERSION=false
-            REPLACE_STRING="$REPLACE_STRING; s/BUILDKITE_SLACK_NOTIFY_PLACEHOLDER/$BUILDKITE_SLACK_NOTIFY_LOCAL/g"
+            REPLACE_STRING="$REPLACE_STRING; s|BUILDKITE_SLACK_NOTIFY_PLACEHOLDER|$BUILDKITE_SLACK_NOTIFY_LOCAL|g"
         else
-            REPLACE_STRING="$REPLACE_STRING; s/BUILDKITE_SLACK_NOTIFY_PLACEHOLDER/false/g"
+            REPLACE_STRING="$REPLACE_STRING; s|BUILDKITE_SLACK_NOTIFY_PLACEHOLDER|false|g"
         fi
         echo $REPLACE_STRING
         sed $REPLACE_STRING ci/nightly.template.steps.yaml
@@ -28,5 +28,5 @@ if [ -z "${ENGINE_VERSION}" ]; then
     done
 else
     echo "Generating steps for the specified engine version: $ENGINE_VERSION" 
-    sed "s/ENGINE_COMMIT_HASH_PLACEHOLDER/$ENGINE_VERSION/g" ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
+    sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|$ENGINE_VERSION|g" ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
 fi
