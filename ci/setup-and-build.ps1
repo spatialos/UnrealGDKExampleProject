@@ -35,7 +35,7 @@ pushd "$exampleproject_home"
     Start-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
         pushd $gdk_home
             # Get the short commit hash of this gdk build for later use in assembly name
-            $gdk_commit_hash = (git rev-parse HEAD).Substring(0,7)
+            $gdk_commit_hash = (git rev-parse HEAD).Substring(0,6)
             Write-Log "GDK at commit: $gdk_commit_hash on branch $gdk_branch_name"
         popd
     Finish-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
