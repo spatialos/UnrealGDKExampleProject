@@ -16,9 +16,9 @@ if [ -z "${ENGINE_VERSION}" ]; then
     for commit_hash in $(cat < ci/unreal-engine.version); do
         REPLACE_STRING="s|ENGINE_COMMIT_HASH_PLACEHOLDER|$commit_hash|g; s|STEP_NUMBER_PLACEHOLDER|$STEP_NUMBER|g"
         sed $REPLACE_STRING ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
-        STEP_NUMBER=STEP_NUMBER+1
+        STEP_NUMBER=$((STEP_NUMBER+1))
     done
-    STEP_NUMBER=STEP_NUMBER-1
+    STEP_NUMBER=$((STEP_NUMBER-1))
     buildkite-agent meta-data set "engine-version-count" "$STEP_NUMBER"
 else
     echo "Generating steps for the specified engine version: $ENGINE_VERSION" 
