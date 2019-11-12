@@ -5,8 +5,9 @@ set -euo pipefail
 GDK_BRANCH_LOCAL="${GDK_BRANCH:-master}"
 curl https://raw.githubusercontent.com/spatialos/UnrealGDK/$GDK_BRANCH_LOCAL/ci/unreal-engine.version -o ci/unreal-engine.version
 
-# This script generates steps for each engine version listed in unreal-engine.version in the GDK, and adds those to generated_base.steps.yaml
-# The steps are based on the template in nightly.template.steps.yaml
+# This script generates BuildKite steps for each engine version we want to test against.
+# We retrieve these engine versions from the unreal-engine.version file in the UnrealGDK repository.
+# The steps are based on the template in nightly.template.steps.yaml.
 
 if [ -z "${ENGINE_VERSION}" ]; then 
     echo "Generating build steps for each engine version listed in unreal-engine.version"
