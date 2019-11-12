@@ -3,9 +3,9 @@
 
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
-$engine_version_count = buildkite-agent metadata get "engine-version-count"
-$project_name = buildkite-agent metadata get "project-name"
-$gdk_commit_hash = buildkite-agent metadata get "gdk_commit_hash"
+$engine_version_count = buildkite-agent meta-data get "engine-version-count"
+$project_name = buildkite-agent meta-data get "project-name"
+$gdk_commit_hash = buildkite-agent meta-data get "gdk_commit_hash"
 
 # Send a Slack notification with a link to the new deployment and to the build.
 Start-Event "slack-notify" "slack-notify"
