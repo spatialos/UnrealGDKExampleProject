@@ -72,7 +72,7 @@ Start-Event "slack-notify" "slack-notify"
 
     if ($launch_deployment -eq "true") {
         for ($i = 0; $i -lt $engine_version_count; $i++){
-            $deployment_name = buildkite-agent metadata get "deployment-name-$($i+1)"
+            $deployment_name = buildkite-agent meta-data get "deployment-name-$($i+1)"
             $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
             $deployment_button = @{
                                 type = "button"
