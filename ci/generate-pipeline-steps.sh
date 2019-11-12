@@ -24,5 +24,3 @@ else
     echo "Generating steps for the specified engine version: $ENGINE_VERSION" 
     sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|$ENGINE_VERSION|g" ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
 fi
-
-buildkite-agent pipeline upload ci/nightly-slack.steps.yaml
