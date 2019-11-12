@@ -18,12 +18,10 @@ common: &common
     - ca-johnson/taskkill#v4.1: ~
 
 steps:
-  - label: "build-and-deploy-:windows:-ENGINE_COMMIT_HASH_PLACEHOLDER"
-    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
+  - wait: ~
+    continue_on_failure: true
+
+  - label: "slack-notify"
+    if: build.env("BUILDKITE_SLACK_NOTIFY") == "true" || build.branch == "master"
+    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/slack-notify.ps1"
     <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
-    artifact_paths:
-      - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
-    env:
-      ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
-      BUILDKITE_SLACK_NOTIFY: "BUILDKITE_SLACK_NOTIFY_PLACEHOLDER"
-      STEP_NUMBER: "STEP_NUMBER_PLACEHOLDER"
