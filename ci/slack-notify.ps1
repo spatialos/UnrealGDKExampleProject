@@ -1,4 +1,3 @@
-
 . "$PSScriptRoot\common.ps1"
 
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
