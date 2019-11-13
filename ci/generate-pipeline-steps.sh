@@ -11,6 +11,9 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
     NUMBER_OF_TRIES=$((NUMBER_OF_TRIES+1))
     echo "Trying to download unreal-engine.version from GitHub's UnrealGDK repository, try: $NUMBER_OF_TRIES, timeout: $CURL_TIMEOUT ..."
     curl -L -m $CURL_TIMEOUT https://raw.githubusercontent.com/spatialos/UnrealGDK/$GDK_BRANCH_LOCAL/ci/unreal-engine.version -o ci/unreal-engine.version
+    if [ $? -eq 0 ]; then
+        break
+    fi
 done
 
 # This script generates BuildKite steps for each engine version we want to test against.
