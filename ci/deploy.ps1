@@ -67,7 +67,7 @@ pushd "spatial"
                 "--cluster_region=$deployment_cluster_region", `
                 "--log_level=debug", `
                 "--tags=ttl_1_hours", `
-                "--deployment_description=`"Engine commit: $($env:ENGINE_COMMIT_HASH)`" `
+                "--deployment_description=`"Engine commit: $($env:ENGINE_COMMIT_HASH)`"" `
             )
 
             if ($launch_deployment_process.ExitCode -ne 0) {
