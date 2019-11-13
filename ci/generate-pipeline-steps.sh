@@ -3,7 +3,13 @@ set -euo pipefail
 
 # Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against
 GDK_BRANCH_LOCAL="${GDK_BRANCH:-master}"
-curl https://raw.githubusercontent.com/spatialos/UnrealGDK/$GDK_BRANCH_LOCAL/ci/unreal-engine.version -o ci/unreal-engine.version
+NUMBER_OF_TRIES=0
+while [ $NUMBER_OF_TRIES -lt 5 ]; do
+    CURL_TIMEOUT=$((10<<NUMBER_OF_TRIES))
+    NUMBER_OF_TRIES=$((NUMBER_OF_TRIES+1))
+    echo "Trying to download unreal-engine.version from GitHub's UnrealGDK repository, try: $NUMBER_OF_TRIES, timeout: $CURL_TIMEOUT ..."
+    curl -L -m $CURL_TIMEOUT https://raw.githubusercontent.com/spatialos/UnrealGDK/$GDK_BRANCH_LOCAL/ci/unreal-engine.version -o ci/unreal-engine.version
+done
 
 # This script generates BuildKite steps for each engine version we want to test against.
 # We retrieve these engine versions from the unreal-engine.version file in the UnrealGDK repository.
