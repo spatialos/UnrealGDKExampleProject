@@ -2,6 +2,8 @@
 set -euo pipefail
 
 # Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against
+# This is not the pinnacle of engineering, as we rely on GitHub's web interface to download the file, but it seems like GitHub disallows git archive
+# which would be our other option for downloading a single file
 GDK_BRANCH_LOCAL="${GDK_BRANCH:-master}"
 NUMBER_OF_TRIES=0
 while [ $NUMBER_OF_TRIES -lt 5 ]; do
