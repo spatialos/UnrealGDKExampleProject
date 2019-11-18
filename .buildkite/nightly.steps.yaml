@@ -1,3 +1,15 @@
+script_runner: &script_runner
+  agents:
+  - "agent_count=8"
+  - "capable_of_building=platform"
+  - "environment=production"
+  - "machine_type=quarter"
+  - "permission_set=builder"
+  - "platform=linux"
+  - "queue=${CI_LINUX_BUILDER_QUEUE:-v3-1572524284-e64831bf1e88b227-------z}"
+  - "scaler_version=2"
+  - "working_hours_time_zone=london"
+
 common: &common
   agents:
     - "agent_count=1"
@@ -7,7 +19,7 @@ common: &common
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v3-1572610922-3d03d5c2f13b7fa4-------z}" # Has FASTbuild disabled
+    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-2019-11-07-bk3700-fbffad576b9676d7}" # Has FASTbuild disabled
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
     automatic:
@@ -17,9 +29,21 @@ common: &common
   plugins:
     - ca-johnson/taskkill#v4.1: ~
 
+# NOTE: step labels turn into commit-status names like {org}/{repo}/{pipeline}/{step-label}, lower-case and hyphenated.
+# These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
+
 steps:
-  - label: "build-and-deploy-:windows:"
-    command: powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1
+  - label: "generate-pipeline-steps"
+    commands: 
+      - "chmod -R +rwx ci"
+      - "ci/generate-pipeline-steps.sh"
+    env:
+      ENGINE_VERSION: "${ENGINE_VERSION}"
+    <<: *script_runner
+
+  - wait
+
+  - label: "slack-notify"
+    if: build.env("SLACK_NOTIFY") == "true" || build.branch == "master"
+    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/slack-notify.ps1"
     <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
-    artifact_paths:
-      - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
