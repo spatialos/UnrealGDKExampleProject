@@ -24,3 +24,6 @@ steps:
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "C:/b/1/unrealgdkexampleproject-nightly/UnrealEngine/Engine/Intermediate/Build/fbuild.bff"
+      - "C:/b/1/unrealgdkexampleproject-nightly/Game/Intermediate/Build/Linux/B4D820EA/UE4Server/Development/GDKShooter/*"
+      - "C:/b/1/unrealgdkexampleproject-nightly/Game/Intermediate/Build/Linux/B4D820EA/GDKShooterServer/Development/GDKShooter/*"
+      
