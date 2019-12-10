@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void DisableSpawning() { bSpawningEnabled = false; }
 
+	UFUNCTION(BlueprintCallable)
+		bool IsSpawningEnabled() { return bSpawningEnabled; }
+
 protected:
 	AActor* GetSpawnPoint(APlayerController* Controller);
 

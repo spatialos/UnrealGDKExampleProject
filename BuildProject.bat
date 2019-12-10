@@ -28,8 +28,8 @@ set GDK_DIRECTORY=%UNREAL_ENGINE%\Engine\Plugins\UnrealGDK
 echo Building worker with GDK located at %GDK_DIRECTORY%
 
 call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME%Server Linux Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
-call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME%SimulatedPlayer Linux Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
-call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME% Win64 Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
+rem call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME%SimulatedPlayer Linux Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
+rem call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME% Win64 Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
 echo All builds succeeded.
 
 pause
