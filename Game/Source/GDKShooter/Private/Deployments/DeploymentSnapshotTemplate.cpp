@@ -36,7 +36,7 @@ bool UDeploymentSnapshotTemplate::WriteToSnapshotOutput(Worker_SnapshotOutputStr
 	DeploymentComponentData.component_id = 1001;
 	DeploymentComponentData.schema_type = Schema_CreateComponentData();
 
-	Components.Add(SpatialGDK::Position(SpatialGDK::Origin).CreatePositionData());
+	Components.Add(SpatialGDK::Position(SpatialGDK::SpatialOrigin).CreatePositionData());
 	Components.Add(SpatialGDK::Metadata(TEXT("Session")).CreateMetadataData());
 	Components.Add(SpatialGDK::Persistence().CreatePersistenceData());
 	Components.Add(SpatialGDK::EntityAcl(AnyWorkerPermission, ComponentWriteAcl).CreateEntityAclData());
