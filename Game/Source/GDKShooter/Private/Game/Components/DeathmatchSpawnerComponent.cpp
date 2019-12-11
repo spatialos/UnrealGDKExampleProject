@@ -1,9 +1,9 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "DeathmatchSpawnerComponent.h"
+#include "Game/Components/DeathmatchSpawnerComponent.h"
 
 #include "Characters/Components/MetaDataComponent.h"
-#include "Components/TeamComponent.h"
+#include "Characters/Components/TeamComponent.h"
 #include "Engine/World.h"
 #include "Game/Components/PlayerPublisher.h"
 #include "GameFramework/GameModeBase.h"

@@ -1,10 +1,10 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "DeploymentSnapshotTemplate.h"
+#include "Deployments/DeploymentSnapshotTemplate.h"
 
 #include "SpatialCommonTypes.h"
 #include "SpatialConstants.h"
-#include "StandardLibrary.h"
+#include "Schema/StandardLibrary.h"
 
 bool UDeploymentSnapshotTemplate::WriteToSnapshotOutput(Worker_SnapshotOutputStream* OutputStream, Worker_EntityId& NextEntityId)
 {

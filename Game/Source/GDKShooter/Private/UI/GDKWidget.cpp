@@ -1,9 +1,9 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "GDKWidget.h"
-#include "Components/ControllerEventsComponent.h"
-#include "Components/GDKMovementComponent.h"
-#include "Components/HealthComponent.h"
+#include "UI/GDKWidget.h"
+#include "Controllers/Components/ControllerEventsComponent.h"
+#include "Characters/Components/GDKMovementComponent.h"
+#include "Characters/Components/HealthComponent.h"
 #include "Game/Components/LobbyTimerComponent.h"
 #include "Game/Components/MatchTimerComponent.h"
 #include "Game/Components/PlayerCountingComponent.h"

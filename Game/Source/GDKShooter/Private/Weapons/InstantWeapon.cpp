@@ -1,12 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "InstantWeapon.h"
+#include "Weapons/InstantWeapon.h"
 
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
 #include "GDKLogging.h"
-#include "UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 
 
 AInstantWeapon::AInstantWeapon()

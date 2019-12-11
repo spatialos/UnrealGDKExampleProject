@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "Engine/NetDriver.h"
 #include "GameFramework/Actor.h"
-#include "SpatialNetDriver.h"
-#include "SpatialPackageMapClient.h"
-#include "Connection/SpatialWorkerConnection.h"
+#include "EngineClasses/SpatialNetDriver.h"
+#include "EngineClasses/SpatialPackageMapClient.h"
+#include "Interop/Connection/SpatialWorkerConnection.h"
 
 
 DEFINE_LOG_CATEGORY(LogGDK);

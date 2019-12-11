@@ -1,11 +1,11 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "Holdable.h"
-#include "GDKLogging.h"
-#include "Components/EquippedComponent.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "UnrealNetwork.h"
+#include "Weapons/Holdable.h"
 
+#include "Characters/Components/EquippedComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "GDKLogging.h"
+#include "Net/UnrealNetwork.h"
 
 AHoldable::AHoldable()
 {

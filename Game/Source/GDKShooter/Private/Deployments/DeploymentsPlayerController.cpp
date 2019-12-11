@@ -1,10 +1,10 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "DeploymentsPlayerController.h"
+#include "Deployments/DeploymentsPlayerController.h"
 
-#include "SpatialGameInstance.h"
+#include "EngineClasses/SpatialGameInstance.h"
 #include "TimerManager.h"
-#include "SpatialWorkerConnection.h"
+#include "Interop/Connection/SpatialWorkerConnection.h"
 
 #include "GDKLogging.h"
 

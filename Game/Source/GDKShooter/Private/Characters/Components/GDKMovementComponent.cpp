@@ -1,10 +1,10 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "Components/GDKMovementComponent.h"
+#include "Characters/Components/GDKMovementComponent.h"
 
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
-#include "UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 #include "GDKLogging.h"
 
 // Use the first custom movement flag slot in the character for sprinting.

@@ -1,11 +1,11 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "HealthComponent.h"
-#include "Components/ControllerEventsComponent.h"
-#include "Components/ScorePublisher.h"
+#include "Characters/Components/HealthComponent.h"
+#include "Controllers/Components/ControllerEventsComponent.h"
+#include "Game/Components/ScorePublisher.h"
 #include "GameFramework/Pawn.h"
-#include "TeamComponent.h"
-#include "UnrealNetwork.h"
+#include "Characters/Components/TeamComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent()
 {

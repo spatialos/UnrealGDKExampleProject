@@ -1,7 +1,7 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "MatchStateComponent.h"
-#include "UnrealNetwork.h"
+#include "Game/Components/MatchStateComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "GameFramework/Actor.h"
 
 UMatchStateComponent::UMatchStateComponent()

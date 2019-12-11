@@ -1,6 +1,6 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "ShootingComponent.h"
+#include "Characters/Components/ShootingComponent.h"
 #include "CollisionQueryParams.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"

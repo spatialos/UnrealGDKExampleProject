@@ -1,6 +1,6 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "ControllerEventsComponent.h"
+#include "Controllers/Components/ControllerEventsComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerState.h"
 

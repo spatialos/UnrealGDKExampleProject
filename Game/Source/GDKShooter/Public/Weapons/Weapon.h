@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraShake.h"
-#include "Components/GDKMovementComponent.h"
-#include "Components/ShootingComponent.h"
+#include "Characters/Components/GDKMovementComponent.h"
+#include "Characters/Components/ShootingComponent.h"
 #include "GameFramework/Actor.h"
 #include "Holdable.h"
 #include "Materials/Material.h"

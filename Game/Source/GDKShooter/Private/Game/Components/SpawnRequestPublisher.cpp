@@ -1,6 +1,6 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "SpawnRequestPublisher.h"
+#include "Game/Components/SpawnRequestPublisher.h"
 
 
 USpawnRequestPublisher::USpawnRequestPublisher()
