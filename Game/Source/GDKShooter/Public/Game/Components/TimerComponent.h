@@ -43,7 +43,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		bool bAutoStart = false;
 	UPROPERTY(EditDefaultsOnly)
-		int32 DefaultTimerDuration = 300;
+		int32 DefaultTimerDuration = 7200;
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 		bool bIsTimerRunning = false;

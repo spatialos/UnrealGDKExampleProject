@@ -8,7 +8,7 @@ param(
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment
     $date_and_time = Get-Date -Format "MMdd_HHmm"
-    $deployment_name = "exampleproject_${date_and_time}_$($gdk_commit_hash)"
+    $deployment_name = "exampleproject$($env:STEP_NUMBER)_${date_and_time}_$($gdk_commit_hash)"
     $assembly_name = "$($deployment_name)_asm"
 
 pushd "spatial"
@@ -66,7 +66,8 @@ pushd "spatial"
                 "--snapshot=$deployment_snapshot_path", `
                 "--cluster_region=$deployment_cluster_region", `
                 "--log_level=debug", `
-                "--tags=ttl_1_hours"
+                "--tags=ttl_1_hours", `
+                "--deployment_description=`"Engine commit: $($env:ENGINE_COMMIT_HASH)`"" `
             )
 
             if ($launch_deployment_process.ExitCode -ne 0) {
@@ -74,66 +75,12 @@ pushd "spatial"
                 Throw "Deployment launch failed"
             }
 
-            # Send a Slack notification with a link to the new deployment and to the build.
-            # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
-            $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
-            $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
-
-            $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
-            $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/tree/${gdk_commit_hash}"
-            $build_url = "$env:BUILDKITE_BUILD_URL"
-
-            $json_message = [ordered]@{
-                text = "Example Project build created by $env:BUILDKITE_BUILD_CREATOR succeeded and a deployment has been launched."
-                attachments= @(
-                        @{
-                            fallback = "Find deployment here: $deployment_url and build here: $build_url"
-                            color = "good"
-                            fields= @(
-                                    @{
-                                        title = "GDK branch"
-                                        value = "$gdk_branch_name"
-                                        short = "true"
-                                    }
-                                    @{
-                                        title = "Example Project branch"
-                                        value = "$env:BUILDKITE_BRANCH"
-                                        short = "true"
-                                    }
-                                )
-                            actions= @(
-                                    @{
-                                        type = "button"
-                                        text = "Take me to the deployment"
-                                        url = "$deployment_url"
-                                        style = "primary"
-                                    }
-                                    @{
-                                        type = "button"
-                                        text = "Take me to the GDK commit"
-                                        url = "$gdk_commit_url"
-                                        style = "primary"
-                                    }
-                                    @{
-                                        type = "button"
-                                        text = "Take me to the build"
-                                        url = "$build_url"
-                                        style = "primary"
-                                    }
-                                )
-                        }
-                    )
-                }
-
-            $json_request = $json_message | ConvertTo-Json -Depth 10
-
-            Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
-
-        }
-        else {
+            buildkite-agent meta-data set "deployment-name-$($env:STEP_NUMBER)" "$deployment_name"
+            buildkite-agent meta-data set "project-name" "$project_name"
+            buildkite-agent meta-data set "gdk-commit-hash" "$gdk_commit_hash)"
+        } else {
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
-
     Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
 
 popd
