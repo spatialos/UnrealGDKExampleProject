@@ -77,7 +77,7 @@ pushd "spatial"
 
             buildkite-agent meta-data set "deployment-name-$($env:STEP_NUMBER)" "$deployment_name"
             buildkite-agent meta-data set "project-name" "$project_name"
-            buildkite-agent meta-data set "gdk-commit-hash" "$gdk_commit_hash)"
+            buildkite-agent meta-data set "gdk-commit-hash" "$gdk_commit_hash"
         } else {
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
