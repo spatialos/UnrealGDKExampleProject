@@ -59,6 +59,8 @@ void AGDKPlayerController::BeginPlay()
 
 void AGDKPlayerController::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
 	if (GetPawn())
 	{
 		LatestPawnYaw = GetPawn()->GetActorRotation().Yaw;
