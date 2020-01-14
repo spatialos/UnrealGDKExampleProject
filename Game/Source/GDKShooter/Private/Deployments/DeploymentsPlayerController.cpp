@@ -13,6 +13,7 @@ void ADeploymentsPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ActivateTouchInterface(nullptr);
 	bShowMouseCursor = true;
 
 	QueryPIT();

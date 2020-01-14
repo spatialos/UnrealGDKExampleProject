@@ -8,6 +8,7 @@
 #include "Characters/Components/EquippedComponent.h"
 #include "Characters/Components/HealthComponent.h"
 #include "Characters/Components/MetaDataComponent.h"
+#include "EngineClasses/SpatialNetDriver.h"
 #include "Interop/Connection/SpatialWorkerConnection.h"
 #include "Game/Components/ScorePublisher.h"
 #include "Game/Components/SpawnRequestPublisher.h"
@@ -16,7 +17,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "EngineClasses/SpatialNetDriver.h"
+#include "GameFramework/TouchInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapons/Holdable.h"
 #include "Weapons/Projectile.h"
@@ -58,6 +59,8 @@ void AGDKPlayerController::BeginPlay()
 
 void AGDKPlayerController::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
 	if (GetPawn())
 	{
 		LatestPawnYaw = GetPawn()->GetActorRotation().Yaw;
@@ -108,10 +111,12 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode)
 	if (bIsUIMode)
 	{
 		SetInputMode(FInputModeGameAndUI());
+		ActivateTouchInterface(nullptr);
 	}
 	else
 	{
 		SetInputMode(FInputModeGameOnly());
+		CreateTouchInterface();
 	}
 
 	if (GetPawn())
