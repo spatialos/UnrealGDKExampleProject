@@ -102,13 +102,13 @@ public:
 	UFUNCTION()
 		void BlockUsing(bool bBlock);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void StartPrimaryUse();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void StopPrimaryUse();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void StartSecondaryUse();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void StopSecondaryUse();
 
 	UFUNCTION()
