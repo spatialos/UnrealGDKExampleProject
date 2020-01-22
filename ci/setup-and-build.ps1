@@ -137,6 +137,40 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
+    Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
+        Rename-Item -Path "C:\Program Files\fastbuild\FBuild.exe" -NewName "FBuild.tmp"
+        $unreal_uat_path = "${exampleproject_home}\UnrealEngine\Engine\Build\BatchFiles\RunUAT.bat"
+        $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList @(`
+            "-ScriptsForProject=$($exampleproject_home)/Game/GDKShooter.uproject", `
+            "BuildCookRun", `
+            "-nocompileeditor", `
+            "-nop4", `
+            "-project=$($exampleproject_home)/Game/GDKShooter.uproject", `
+            "-cook", `
+            "-stage", `
+            "-archive", `
+            "-archivedirectory=$($exampleproject_home)/cooked-android", `
+            "-package", `
+            "-clientconfig=Development", `
+            "-ue4exe=$($exampleproject_home)/UnrealEngine/Engine/Binaries/Win64/UE4Editor-Cmd.exe", `
+            "-pak", `
+            "-prereqs", `
+            "-nodebuginfo", `
+            "-targetplatform=Android", `
+            "-cookflavor=Multi", `
+            "-build", `
+            "-utf8output", `
+            "-compile"
+        )       
+        $build_server_handle = $build_server_proc.Handle
+        Wait-Process -Id (Get-Process -InputObject $build_server_proc).id
+        Rename-Item -Path "C:\Program Files\fastbuild\FBuild.tmp" -NewName "FBuild.exe"
+        if ($build_server_proc.ExitCode -ne 0) {
+            Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
+            Throw "Failed to build Android Development Client"
+        }
+    Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
+
     # Deploy the project to SpatialOS
     &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name"
 popd
