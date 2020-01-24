@@ -20,7 +20,8 @@ done
 # We retrieve these engine versions from the unreal-engine.version file in the UnrealGDK repository.
 # The steps are based on the template in nightly.template.steps.yaml.
 
-MAXIMUM_ENGINE_VERSIONS_LOCAL=${MAXIMUM_ENGINE_VERSIONS:-10}
+# Default to only testing the first version listed in the unreal-engine.version file
+MAXIMUM_ENGINE_VERSIONS_LOCAL=${MAXIMUM_ENGINE_VERSIONS:-1}
 if [ -z "${ENGINE_VERSION}" ]; then 
     echo "Generating build steps for the first $MAXIMUM_ENGINE_VERSIONS_LOCAL engine versions listed in unreal-engine.version"
     STEP_NUMBER=1
