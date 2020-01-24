@@ -20,11 +20,15 @@ done
 # We retrieve these engine versions from the unreal-engine.version file in the UnrealGDK repository.
 # The steps are based on the template in nightly.template.steps.yaml.
 
+MAXIMUM_ENGINE_VERSIONS_LOCAL=${MAXIMUM_ENGINE_VERSIONS:-10}
 if [ -z "${ENGINE_VERSION}" ]; then 
-    echo "Generating build steps for each engine version listed in unreal-engine.version"
+    echo "Generating build steps for the first $MAXIMUM_ENGINE_VERSIONS_LOCAL engine versions listed in unreal-engine.version"
     STEP_NUMBER=1
     IFS=$'\n'
     for commit_hash in $(cat < ci/unreal-engine.version); do
+        if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSIONS_LOCAL)); then
+            break
+        fi
         REPLACE_STRING="s|ENGINE_COMMIT_HASH_PLACEHOLDER|$commit_hash|g; s|STEP_NUMBER_PLACEHOLDER|$STEP_NUMBER|g"
         sed $REPLACE_STRING ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))

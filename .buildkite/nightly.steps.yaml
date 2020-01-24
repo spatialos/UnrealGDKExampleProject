@@ -38,6 +38,7 @@ steps:
       - "chmod -R +rwx ci"
       - "ci/generate-pipeline-steps.sh"
     env:
+      MAXIMUM_ENGINE_VERSIONS: "${MAXIMUM_ENGINE_VERSIONS:-1}"
       ENGINE_VERSION: "${ENGINE_VERSION}"
     <<: *script_runner
 
