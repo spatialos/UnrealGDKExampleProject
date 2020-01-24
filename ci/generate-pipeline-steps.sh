@@ -21,13 +21,13 @@ done
 # The steps are based on the template in nightly.template.steps.yaml.
 
 # Default to only testing the first version listed in the unreal-engine.version file
-MAXIMUM_ENGINE_VERSIONS_LOCAL=${MAXIMUM_ENGINE_VERSIONS:-1}
+MAXIMUM_ENGINE_VERSION_COUNT_LOCAL=${MAXIMUM_ENGINE_VERSION_COUNT:-1}
 if [ -z "${ENGINE_VERSION}" ]; then 
-    echo "Generating build steps for the first $MAXIMUM_ENGINE_VERSIONS_LOCAL engine versions listed in unreal-engine.version"
+    echo "Generating build steps for the first $MAXIMUM_ENGINE_VERSION_COUNT_LOCAL engine versions listed in unreal-engine.version"
     STEP_NUMBER=1
     IFS=$'\n'
     for commit_hash in $(cat < ci/unreal-engine.version); do
-        if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSIONS_LOCAL)); then
+        if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
             break
         fi
         REPLACE_STRING="s|ENGINE_COMMIT_HASH_PLACEHOLDER|$commit_hash|g; s|STEP_NUMBER_PLACEHOLDER|$STEP_NUMBER|g"
