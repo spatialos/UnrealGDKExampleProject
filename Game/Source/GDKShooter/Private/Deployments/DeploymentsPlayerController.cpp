@@ -16,8 +16,8 @@ void ADeploymentsPlayerController::BeginPlay()
 	ActivateTouchInterface(nullptr);
 	bShowMouseCursor = true;
     
-    auto SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
-    auto SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
+	auto SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
+	auto SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
 	if (!SpatialWorkerConnection) {
 		UE_LOG(LogGDK, Log, TEXT("Failure: failed to get SpatialWorkerConnection"));
 		return;
