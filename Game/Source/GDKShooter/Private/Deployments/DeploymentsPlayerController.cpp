@@ -12,10 +12,10 @@
 void ADeploymentsPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	ActivateTouchInterface(nullptr);
 	bShowMouseCursor = true;
-    
+	
 	auto SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
 	auto SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
 	if (!SpatialWorkerConnection) {
@@ -40,11 +40,11 @@ void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
 FDeploymentInfo Parse(const Worker_Alpha_LoginTokenDetails LoginToken)
 {
 	FDeploymentInfo DeploymentInfo;
-
+	
 	DeploymentInfo.DeploymentId = UTF8_TO_TCHAR(LoginToken.deployment_id);
 	DeploymentInfo.DeploymentName = UTF8_TO_TCHAR(LoginToken.deployment_name);
 	DeploymentInfo.LoginToken = UTF8_TO_TCHAR(LoginToken.login_token);
-
+	
 	for (int i = 0; i < (int)LoginToken.tag_count; i++)
 	{
 		FString tag = UTF8_TO_TCHAR(LoginToken.tags[i]);
@@ -72,26 +72,26 @@ bool ADeploymentsPlayerController::Populate(const Worker_Alpha_LoginTokensRespon
 	{
 		DeploymentArray.Add(Parse(Deployments->login_tokens[i]));
 	}
-
-
+	
+	
 	DeploymentArray.Sort([](const FDeploymentInfo& lhs, const FDeploymentInfo& rhs)
-	{
+						 {
 		return lhs.DeploymentName.Compare(rhs.DeploymentName) < 0;
 	});
-
+	
 	OnDeploymentsReceived.Broadcast(DeploymentArray);
-    return true;
+	return true;
 }
 
 void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 {
-    auto SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
-    auto SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
-    if (!SpatialWorkerConnection) {
+	auto SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
+	auto SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
+	if (!SpatialWorkerConnection) {
 		UE_LOG(LogGDK, Log, TEXT("Failure: failed to get SpatialWorkerConnection"));
 		return;
 	}
-    
+	
 	const auto& DevAuthConfig = SpatialWorkerConnection->DevAuthConfig;
 	FURL TravelURL;
 	TravelURL.Host = DevAuthConfig.LocatorHost;
@@ -100,7 +100,7 @@ void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 	TravelURL.AddOption(*FString::Printf(TEXT("login=%s"), *LoginToken));
 	
 	OnLoadingStarted.Broadcast();
-
+	
 	ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false);
 }
 
