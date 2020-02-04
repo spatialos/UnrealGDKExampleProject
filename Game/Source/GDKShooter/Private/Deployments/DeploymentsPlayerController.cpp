@@ -25,7 +25,9 @@ void ADeploymentsPlayerController::BeginPlay()
 
 	auto SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
 	// Register a callback function into SpatialWorkerConnection so it can trigger a custom function written by user when it receive login token from spatial cloud.
-	SpatialWorkerConnection->RegisterOnLoginTokensCallback(std::bind(&ADeploymentsPlayerController::Populate, this, std::placeholders::_1));
+	SpatialWorkerConnection->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
+		return Populate(Deployments);
+	});
 	// We need to call this function to load devAuthToken from command line parameters.
 	// User should input devAuthToken as one of command line parameters.
 	SpatialWorkerConnection->TrySetupConnectionConfigFromCommandLine(SpatialWorkerType);
