@@ -19,7 +19,7 @@ void ADeploymentsPlayerController::BeginPlay()
 	auto SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
 	auto SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
 	if (!SpatialWorkerConnection) {
-		UE_LOG(LogGDK, Log, TEXT("Failure: failed to get SpatialWorkerConnection"));
+		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
 		return;
 	}
 
@@ -88,7 +88,7 @@ void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 	auto SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
 	auto SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
 	if (!SpatialWorkerConnection) {
-		UE_LOG(LogGDK, Log, TEXT("Failure: failed to get SpatialWorkerConnection"));
+		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
 		return;
 	}
 
