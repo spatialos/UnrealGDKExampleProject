@@ -138,7 +138,7 @@ pushd "$exampleproject_home"
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
-        $unreal_uat_path = ${exampleproject_home}\UnrealEngine\Engine|Build\BatchFiles\RunUAT.bat
+        $unreal_uat_path = ${exampleproject_home}/UnrealEngine/Engine/Build/BatchFiles/RunUAT.bat
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList @(`
             "-ScriptsForProject=$($exampleproject_home)/Game/GDKShooter.uproject", `
             "BuildCookRun", `
