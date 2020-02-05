@@ -151,7 +151,7 @@ pushd "$exampleproject_home"
             "-archivedirectory=$($exampleproject_home)/cooked-android", `
             "-package", `
             "-clientconfig=Development", `
-            "-ue4exe=$($exampleproject_home)/UnrealEngine/Engine/Binaries/Win64/UE4Editor-Win64-DevelopmentGame-Cmd.exe", `
+            "-ue4exe=$($exampleproject_home)/UnrealEngine/Engine/Binaries/Win64/UE4Editor-Cmd.exe", `
             "-pak", `
             "-prereqs", `
             "-nodebuginfo", `
