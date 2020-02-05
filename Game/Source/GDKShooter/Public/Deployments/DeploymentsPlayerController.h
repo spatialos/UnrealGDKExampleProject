@@ -47,7 +47,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
-	bool Populate(const Worker_Alpha_LoginTokensResponse* Deployments);
+	void Populate(const Worker_Alpha_LoginTokensResponse* Deployments);
 	FString LatestPIToken;
 	const char * LatestPITokenData;
 

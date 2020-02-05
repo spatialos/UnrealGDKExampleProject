@@ -27,7 +27,8 @@ void ADeploymentsPlayerController::BeginPlay()
 	FString SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
 	// Register a callback function into SpatialWorkerConnection so it can trigger a custom function written by user when it receive login token from spatial cloud.
 	SpatialWorkerConnection->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
-		return Populate(Deployments);
+		Populate(Deployments);
+		return true;
 	});
 	// We need to call this function to load devAuthToken from command line parameters.
 	// User should input devAuthToken as one of command line parameters.
@@ -68,7 +69,7 @@ FDeploymentInfo Parse(const Worker_Alpha_LoginTokenDetails LoginToken)
 	return DeploymentInfo;
 }
 
-bool ADeploymentsPlayerController::Populate(const Worker_Alpha_LoginTokensResponse* Deployments)
+void ADeploymentsPlayerController::Populate(const Worker_Alpha_LoginTokensResponse* Deployments)
 {
 	TArray<FDeploymentInfo> DeploymentArray;
 	for (int i = 0; i < (int)Deployments->login_token_count; i++)
@@ -83,7 +84,6 @@ bool ADeploymentsPlayerController::Populate(const Worker_Alpha_LoginTokensRespon
 	});
 
 	OnDeploymentsReceived.Broadcast(DeploymentArray);
-	return true;
 }
 
 void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
