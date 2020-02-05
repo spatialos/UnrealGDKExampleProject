@@ -77,7 +77,7 @@ bool ADeploymentsPlayerController::Populate(const Worker_Alpha_LoginTokensRespon
 
 
 	DeploymentArray.Sort([](const FDeploymentInfo& lhs, const FDeploymentInfo& rhs)
-						 {
+	{
 		return lhs.DeploymentName.Compare(rhs.DeploymentName) < 0;
 	});
 
