@@ -16,14 +16,15 @@ void ADeploymentsPlayerController::BeginPlay()
 	ActivateTouchInterface(nullptr);
 	bShowMouseCursor = true;
 
-	auto SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
-	auto SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
-	if (!SpatialWorkerConnection) {
+	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
+	USpatialWorkerConnection* SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
+	if (SpatialWorkerConnection == nullptr)
+	{
 		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
 		return;
 	}
 
-	auto SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
+	FString SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
 	// Register a callback function into SpatialWorkerConnection so it can trigger a custom function written by user when it receive login token from spatial cloud.
 	SpatialWorkerConnection->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
 		return Populate(Deployments);
@@ -87,14 +88,15 @@ bool ADeploymentsPlayerController::Populate(const Worker_Alpha_LoginTokensRespon
 
 void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 {
-	auto SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
-	auto SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
-	if (!SpatialWorkerConnection) {
+	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
+	USpatialWorkerConnection* SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
+	if (SpatialWorkerConnection == nullptr)
+	{
 		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
 		return;
 	}
 
-	const auto& DevAuthConfig = SpatialWorkerConnection->DevAuthConfig;
+	const FDevAuthConfig& DevAuthConfig = SpatialWorkerConnection->DevAuthConfig;
 	FURL TravelURL;
 	TravelURL.Host = DevAuthConfig.LocatorHost;
 	TravelURL.AddOption(TEXT("locator"));
