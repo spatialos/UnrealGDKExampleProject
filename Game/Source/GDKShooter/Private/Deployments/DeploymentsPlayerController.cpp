@@ -25,19 +25,27 @@ void ADeploymentsPlayerController::BeginPlay()
 	}
 
 	FString SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
-	// Register a callback function into SpatialWorkerConnection so it can trigger a custom function written by user when it receive login token from spatial cloud.
 	SpatialWorkerConnection->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
 		Populate(Deployments);
 		return true;
 	});
-	// We need to call this function to load devAuthToken from command line parameters.
-	// User should input devAuthToken as one of command line parameters.
+	
+	// Attempts to load the devAuthToken from the command line.
+	// If it has not been set, SpatialWorkerConnection would be failed to get PIT.
 	SpatialWorkerConnection->TrySetupConnectionConfigFromCommandLine(SpatialWorkerType);
 	SpatialWorkerConnection->Connect(true, 0);
 }
 
 void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
 {
+	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
+	USpatialWorkerConnection* SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
+	if (SpatialWorkerConnection == nullptr)
+	{
+		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
+		return;
+	}
+	SpatialWorkerConnection->RegisterOnLoginTokensCallback([](const Worker_Alpha_LoginTokensResponse* Deployments){return false;});
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
