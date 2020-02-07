@@ -51,9 +51,14 @@ public:
 	FString LatestPIToken;
 	const char * LatestPITokenData;
 
+	FTimerHandle QueryDeploymentsTimer;
+	
 	UFUNCTION(BlueprintCallable)
 		void JoinDeployment(const FString& LoginToken);
 
 	UFUNCTION(BlueprintCallable)
 		void SetLoadingScreen(UUserWidget* LoadingScreen);
+	
+private:
+	void ScheduleRefreshDeployments();
 };

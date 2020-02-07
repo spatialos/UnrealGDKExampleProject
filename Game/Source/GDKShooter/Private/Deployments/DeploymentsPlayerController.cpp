@@ -27,6 +27,10 @@ void ADeploymentsPlayerController::BeginPlay()
 	FString SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
 	SpatialWorkerConnection->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
 		Populate(Deployments);
+		if (!GetWorld()->GetTimerManager().IsTimerActive(QueryDeploymentsTimer))
+		{
+			GetWorld()->GetTimerManager().SetTimer(QueryDeploymentsTimer, this,  &ADeploymentsPlayerController::ScheduleRefreshDeployments, 10.0f, true, 0.0f);
+		}
 		return true;
 	});
 	
@@ -119,4 +123,17 @@ void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 void ADeploymentsPlayerController::SetLoadingScreen(UUserWidget* LoadingScreen)
 {
 	GetGameInstance()->GetGameViewportClient()->AddViewportWidgetContent(LoadingScreen->TakeWidget());
+}
+
+void ADeploymentsPlayerController::ScheduleRefreshDeployments()
+{
+	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
+	USpatialWorkerConnection* SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
+	if (SpatialWorkerConnection == nullptr)
+	{
+		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
+		return;
+	}
+	
+	SpatialWorkerConnection->ReuqestDeploymentLoginTokens();
 }
