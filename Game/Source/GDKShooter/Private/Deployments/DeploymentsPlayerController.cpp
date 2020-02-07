@@ -135,5 +135,5 @@ void ADeploymentsPlayerController::ScheduleRefreshDeployments()
 		return;
 	}
 	
-	SpatialWorkerConnection->ReuqestDeploymentLoginTokens();
+	SpatialWorkerConnection->RequestDeploymentLoginTokens();
 }
