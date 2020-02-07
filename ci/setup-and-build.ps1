@@ -137,10 +137,6 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
-    Start-Event "prep-android" "build-unreal-gdk-example-project-:windows:"
-        Set-Content -Path C:\Android\android-sdk\licenses\android-sdk-license -Value '24333f8a63b6825ea9c5514f83c2829b004d1fee'
-    Finish-Event "prep-android" "build-unreal-gdk-example-project-:windows:"
-
     Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
         $unreal_uat_path = "${exampleproject_home}\UnrealEngine\Engine\Build\BatchFiles\RunUAT.bat"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList @(`
