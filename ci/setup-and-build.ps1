@@ -138,9 +138,7 @@ pushd "$exampleproject_home"
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "prep-android" "build-unreal-gdk-example-project-:windows:"
-        $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath cmd.exe -ArgumentList @(`
-            "yes | \"/K\"C:\Android\sdk\tools\bin\sdkmanager.bat --licenses"
-        )
+        $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath "yes | C:\Android\sdk\tools\bin\sdkmanager.bat --licenses"
         $build_server_handle = $build_server_proc.Handle
         Wait-Process -Id (Get-Process -InputObject $build_server_proc).id
 
