@@ -137,6 +137,19 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
+    Start-Event "prep-android" "build-unreal-gdk-example-project-:windows:"
+        $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath cmd.exe -ArgumentList @(`
+            "yes | \"/K\"C:\Android\sdk\tools\bin\sdkmanager.bat --licenses"
+        )
+        $build_server_handle = $build_server_proc.Handle
+        Wait-Process -Id (Get-Process -InputObject $build_server_proc).id
+
+        if ($build_server_proc.ExitCode -ne 0) {
+            Write-Log "Failed to accept android license"
+            Throw "Failed to accept android license"
+        }
+    Finish-Event "prep-android" "build-unreal-gdk-example-project-:windows:"
+
     Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
         $unreal_uat_path = "${exampleproject_home}\UnrealEngine\Engine\Build\BatchFiles\RunUAT.bat"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList @(`
