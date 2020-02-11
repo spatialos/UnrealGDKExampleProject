@@ -52,7 +52,7 @@ public:
 	const char * LatestPITokenData;
 
 	FTimerHandle QueryDeploymentsTimer;
-	
+
 	UFUNCTION(BlueprintCallable)
 		void JoinDeployment(const FString& LoginToken);
 
