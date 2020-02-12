@@ -17,12 +17,7 @@ void ADeploymentsPlayerController::BeginPlay()
 	bShowMouseCursor = true;
 
 	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
-	USpatialWorkerConnection* SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
-	if (SpatialWorkerConnection == nullptr)
-	{
-		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
-		return;
-	}
+	SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
 
 	FString SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
 	SpatialWorkerConnection->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
@@ -42,14 +37,8 @@ void ADeploymentsPlayerController::BeginPlay()
 
 void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
 {
-	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
-	USpatialWorkerConnection* SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
-	if (SpatialWorkerConnection == nullptr)
-	{
-		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
-		return;
-	}
-	SpatialWorkerConnection->RegisterOnLoginTokensCallback([](const Worker_Alpha_LoginTokensResponse* Deployments){return false;});
+	if (SpatialWorkerConnection != nullptr)
+		SpatialWorkerConnection->RegisterOnLoginTokensCallback([](const Worker_Alpha_LoginTokensResponse* Deployments){return false;});
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
@@ -100,11 +89,9 @@ void ADeploymentsPlayerController::Populate(const Worker_Alpha_LoginTokensRespon
 
 void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 {
-	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
-	USpatialWorkerConnection* SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
 	if (SpatialWorkerConnection == nullptr)
 	{
-		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
+		UE_LOG(LogGDK, Error, TEXT("Failure: failed to Join Deployment caused by SpatialWorkerConnection is nullptr"));
 		return;
 	}
 
@@ -127,13 +114,6 @@ void ADeploymentsPlayerController::SetLoadingScreen(UUserWidget* LoadingScreen)
 
 void ADeploymentsPlayerController::ScheduleRefreshDeployments()
 {
-	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
-	USpatialWorkerConnection* SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
-	if (SpatialWorkerConnection == nullptr)
-	{
-		UE_LOG(LogGDK, Error, TEXT("Failure: failed to get SpatialWorkerConnection"));
-		return;
-	}
-	
-	SpatialWorkerConnection->RequestDeploymentLoginTokens();
+	if (SpatialWorkerConnection != nullptr)
+		SpatialWorkerConnection->RequestDeploymentLoginTokens();
 }
