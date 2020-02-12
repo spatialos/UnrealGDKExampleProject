@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "Runtime/Online/HTTP/Public/Http.h"
 #include <WorkerSDK/improbable/c_worker.h>
 
 #include "DeploymentsPlayerController.generated.h"
@@ -27,12 +28,52 @@ struct FDeploymentInfo {
 		bool bAvailable = false;
 };
 
-UCLASS()
+USTRUCT()
+struct FRequest_Auth {
+	GENERATED_BODY()
+	UPROPERTY() FString playerID;
+
+	FRequest_Auth() {}
+};
+
+USTRUCT()
+struct FResponse_Auth {
+	GENERATED_BODY()
+	UPROPERTY() FString playerIdentityToken;
+
+	FResponse_Auth() {}
+};
+
+USTRUCT()
+struct FResponse_CreateTicket {
+	GENERATED_BODY()
+	UPROPERTY() FString ticketID;
+
+	FResponse_CreateTicket() {}
+};
+
+USTRUCT()
+struct FResponse_GetDeployment {
+	GENERATED_BODY()
+	UPROPERTY() FString deploymentID;
+	UPROPERTY() FString loginToken;
+
+	FResponse_GetDeployment() {}
+};
+
+UCLASS(Config=Game)
 class GDKSHOOTER_API ADeploymentsPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
 public:
+	FHttpModule* Http;
+
+	UPROPERTY(Config)
+	FString FakeAuthTarget;
+
+	UPROPERTY(Config)
+	FString FrontendTarget;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeploymentsEvent, const TArray<FDeploymentInfo>&, DeploymentList);
 	UPROPERTY(BlueprintAssignable)
@@ -61,9 +102,43 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetLoadingScreen(UUserWidget* LoadingScreen);
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerIdentityTokenEvent, const FString&, PlayerIdentityToken);
+	UPROPERTY(BlueprintAssignable)
+		FPlayerIdentityTokenEvent OnPITCreationSucceeded;
+	UPROPERTY(BlueprintAssignable)
+		FPlayerIdentityTokenEvent OnPITCreationFailed;
+
+	UFUNCTION(BlueprintCallable)
+		void CreatePlayerIdentityToken(const FString& PlayerID);
+	void OnPITResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOpenMatchTicketEvent, const FString&, TicketID);
+	UPROPERTY(BlueprintAssignable)
+		FOpenMatchTicketEvent OnOpenMatchTicketCreationSucceeded;
+	UPROPERTY(BlueprintAssignable)
+		FOpenMatchTicketEvent OnOpenMatchTicketCreationFailed;
+
+	UFUNCTION(BlueprintCallable)
+		void CreateOpenMatchTicket(const FString& PlayerIdentityToken);
+	void OnOpenMatchTicketCreationResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOpenMatchDeploymentEvent, const FString&, DeploymentID, const FString&, LoginToken);
+	UPROPERTY(BlueprintAssignable)
+		FOpenMatchDeploymentEvent OnOpenMatchDeploymentMatched;
+	UPROPERTY(BlueprintAssignable)
+		FOpenMatchDeploymentEvent OnOpenMatchDeploymentMatchFailure;
+
+	UFUNCTION(BlueprintCallable)
+		void GetOpenMatchDeployment(const FString& PlayerIdentityToken, const FString& TicketID);
+	void OnOpenMatchDeploymentResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
 private:
-
 	void QueryPIT();
+	bool ResponseIsValid(FHttpResponsePtr Response, bool bWasSuccessful);
 
+	template<typename TStruct>
+	FString StructToJsonString(TStruct& Input);
 	
+	template<typename TStruct>
+	void JsonStringToStruct(FString Input, TStruct& Output);
 };

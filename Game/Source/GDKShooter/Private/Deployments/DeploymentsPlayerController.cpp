@@ -2,6 +2,8 @@
 
 #include "DeploymentsPlayerController.h"
 
+#include "Json.h"
+#include "JsonUtilities.h"
 #include "SpatialGameInstance.h"
 #include "TimerManager.h"
 #include "SpatialWorkerConnection.h"
@@ -14,6 +16,7 @@ void ADeploymentsPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	bShowMouseCursor = true;
+	Http = &FHttpModule::Get();
 
 	QueryPIT();
 }
@@ -152,3 +155,105 @@ void ADeploymentsPlayerController::SetLoadingScreen(UUserWidget* LoadingScreen)
 {
 	GetGameInstance()->GetGameViewportClient()->AddViewportWidgetContent(LoadingScreen->TakeWidget());
 }
+
+void ADeploymentsPlayerController::CreatePlayerIdentityToken(const FString& PlayerID)
+{
+	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &ADeploymentsPlayerController::OnPITResponseReceived);
+	Request->SetURL(FakeAuthTarget);
+	Request->SetVerb("POST");
+	Request->SetHeader("Content-Type", "application/json");
+	FRequest_Auth req;
+	req.playerID = PlayerID;
+	Request->SetContentAsString(StructToJsonString<FRequest_Auth>(req));
+	Request->ProcessRequest();
+}
+
+void ADeploymentsPlayerController::OnPITResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (!ResponseIsValid(Response, bWasSuccessful)) {
+		OnPITCreationFailed.Broadcast("");
+		return;
+	}
+
+	FResponse_Auth resp;
+	JsonStringToStruct(Response->GetContentAsString(), resp);
+
+	LatestPIToken = resp.playerIdentityToken;
+	OnPITCreationSucceeded.Broadcast(resp.playerIdentityToken);
+}
+
+void ADeploymentsPlayerController::CreateOpenMatchTicket(const FString& PlayerIdentityToken)
+{
+	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &ADeploymentsPlayerController::OnOpenMatchTicketCreationResponseReceived);
+	Request->SetURL(FrontendTarget);
+	Request->SetVerb("POST");
+	Request->SetHeader("Content-Type", "application/json");
+	Request->SetHeader("player-identity-token", PlayerIdentityToken);
+	Request->SetContentAsString("{}");
+	Request->ProcessRequest();
+}
+
+void ADeploymentsPlayerController::OnOpenMatchTicketCreationResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (!ResponseIsValid(Response, bWasSuccessful)) {
+		OnOpenMatchTicketCreationFailed.Broadcast("");
+		return;
+	}
+
+	FResponse_CreateTicket resp;
+	JsonStringToStruct(Response->GetContentAsString(), resp);
+
+	OnOpenMatchTicketCreationSucceeded.Broadcast(resp.ticketID);
+}
+
+void ADeploymentsPlayerController::GetOpenMatchDeployment(const FString& PlayerIdentityToken, const FString& TicketID)
+{
+	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &ADeploymentsPlayerController::OnOpenMatchDeploymentResponseReceived);
+	Request->SetURL(FrontendTarget + TicketID);
+	Request->SetVerb("GET");
+	Request->SetHeader("Content-Type", "application/json");
+	Request->SetHeader("player-identity-token", PlayerIdentityToken);
+	Request->ProcessRequest();
+}
+
+void ADeploymentsPlayerController::OnOpenMatchDeploymentResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (!ResponseIsValid(Response, bWasSuccessful)) {
+		OnOpenMatchDeploymentMatchFailure.Broadcast("", "");
+		return;
+	}
+
+	FResponse_GetDeployment resp;
+	JsonStringToStruct(Response->GetContentAsString(), resp);
+
+	OnOpenMatchDeploymentMatched.Broadcast(resp.deploymentID, resp.loginToken);
+}
+
+bool ADeploymentsPlayerController::ResponseIsValid(FHttpResponsePtr Response, bool bWasSuccessful) {
+	if (!bWasSuccessful || !Response.IsValid()) {
+		return false;
+	}
+	if (EHttpResponseCodes::IsOk(Response->GetResponseCode())) {
+		return true;
+	}
+	UE_LOG(LogGDK, Warning, TEXT("Http Response returned error code: %d"), Response->GetResponseCode());
+	return false;
+}
+
+template<typename TStruct>
+FString ADeploymentsPlayerController::StructToJsonString(TStruct& Input)
+{
+	FString Output;
+	FJsonObjectConverter::UStructToJsonObjectString<TStruct>(Input, Output);
+	return Output;
+}
+
+template <typename TStruct>
+void ADeploymentsPlayerController::JsonStringToStruct(FString Input, TStruct& Output)
+{
+	FJsonObjectConverter::JsonObjectStringToUStruct<TStruct>(Input, &Output, 0, 0);
+}
+
