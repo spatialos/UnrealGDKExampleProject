@@ -164,7 +164,7 @@ void ADeploymentsPlayerController::CreatePlayerIdentityToken(const FString& Play
 	Request->SetVerb("POST");
 	Request->SetHeader("Content-Type", "application/json");
 	FRequest_Auth Req;
-	Req.playerID = PlayerID;
+	Req.PlayerID = PlayerID;
 	Request->SetContentAsString(StructToJsonString<FRequest_Auth>(Req));
 	Request->ProcessRequest();
 }
@@ -180,8 +180,8 @@ void ADeploymentsPlayerController::OnPITResponseReceived(FHttpRequestPtr Request
 	FResponse_Auth Resp;
 	JsonStringToStruct(Response->GetContentAsString(), Resp);
 
-	LatestPIToken = Resp.playerIdentityToken;
-	OnPITCreationSucceeded.Broadcast(Resp.playerIdentityToken);
+	LatestPIToken = Resp.PlayerIdentityToken;
+	OnPITCreationSucceeded.Broadcast(Resp.PlayerIdentityToken);
 }
 
 void ADeploymentsPlayerController::CreateOpenMatchTicket(const FString& PlayerIdentityToken)
@@ -207,7 +207,7 @@ void ADeploymentsPlayerController::OnOpenMatchTicketCreationResponseReceived(FHt
 	FResponse_CreateTicket Resp;
 	JsonStringToStruct(Response->GetContentAsString(), Resp);
 
-	OnOpenMatchTicketCreationSucceeded.Broadcast(Resp.ticketID);
+	OnOpenMatchTicketCreationSucceeded.Broadcast(Resp.TicketID);
 }
 
 void ADeploymentsPlayerController::GetOpenMatchDeployment(const FString& PlayerIdentityToken, const FString& TicketID)
@@ -232,10 +232,11 @@ void ADeploymentsPlayerController::OnOpenMatchDeploymentResponseReceived(FHttpRe
 	FResponse_GetDeployment Resp;
 	JsonStringToStruct(Response->GetContentAsString(), Resp);
 
-	OnOpenMatchDeploymentMatched.Broadcast(Resp.deploymentID, Resp.loginToken);
+	OnOpenMatchDeploymentMatched.Broadcast(Resp.DeploymentID, Resp.LoginToken);
 }
 
-bool ADeploymentsPlayerController::ResponseIsValid(FHttpResponsePtr Response, bool bWasSuccessful) {
+bool ADeploymentsPlayerController::ResponseIsValid(FHttpResponsePtr Response, bool bWasSuccessful)
+{
 	if (!bWasSuccessful || !Response.IsValid())
 	{
 		return false;

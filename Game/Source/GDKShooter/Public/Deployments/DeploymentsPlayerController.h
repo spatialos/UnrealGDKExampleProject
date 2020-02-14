@@ -31,7 +31,7 @@ struct FDeploymentInfo {
 USTRUCT()
 struct FRequest_Auth {
 	GENERATED_BODY()
-	UPROPERTY() FString playerID;
+	UPROPERTY() FString PlayerID;
 
 	FRequest_Auth() {}
 };
@@ -39,7 +39,7 @@ struct FRequest_Auth {
 USTRUCT()
 struct FResponse_Auth {
 	GENERATED_BODY()
-	UPROPERTY() FString playerIdentityToken;
+	UPROPERTY() FString PlayerIdentityToken;
 
 	FResponse_Auth() {}
 };
@@ -47,7 +47,7 @@ struct FResponse_Auth {
 USTRUCT()
 struct FResponse_CreateTicket {
 	GENERATED_BODY()
-	UPROPERTY() FString ticketID;
+	UPROPERTY() FString TicketID;
 
 	FResponse_CreateTicket() {}
 };
@@ -55,8 +55,8 @@ struct FResponse_CreateTicket {
 USTRUCT()
 struct FResponse_GetDeployment {
 	GENERATED_BODY()
-	UPROPERTY() FString deploymentID;
-	UPROPERTY() FString loginToken;
+	UPROPERTY() FString DeploymentID;
+	UPROPERTY() FString LoginToken;
 
 	FResponse_GetDeployment() {}
 };
