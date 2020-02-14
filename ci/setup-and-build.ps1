@@ -139,6 +139,8 @@ pushd "$exampleproject_home"
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
+        $fastbuild_path = $env:FASTBUILD_EXE_PATH
+        $env:FASTBUILD_EXE_PATH = ""
         $unreal_uat_path = "${exampleproject_home}\UnrealEngine\Engine\Build\BatchFiles\RunUAT.bat"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList @(`
             "-ScriptsForProject=$($exampleproject_home)/Game/GDKShooter.uproject", `
@@ -164,7 +166,7 @@ pushd "$exampleproject_home"
         )       
         $build_server_handle = $build_server_proc.Handle
         Wait-Process -Id (Get-Process -InputObject $build_server_proc).id
-
+        $env:FASTBUILD_EXE_PATH = $fastbuild_path
         if ($build_server_proc.ExitCode -ne 0) {
             Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
