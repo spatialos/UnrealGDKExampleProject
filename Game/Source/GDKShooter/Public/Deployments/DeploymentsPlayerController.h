@@ -77,13 +77,13 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeploymentsEvent, const TArray<FDeploymentInfo>&, DeploymentList);
 	UPROPERTY(BlueprintAssignable)
-		FDeploymentsEvent OnDeploymentsReceived;
+	FDeploymentsEvent OnDeploymentsReceived;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLoadingEvent);
 	UPROPERTY(BlueprintAssignable)
-		FLoadingEvent OnLoadingStarted;
+	FLoadingEvent OnLoadingStarted;
 	UPROPERTY(BlueprintAssignable)
-		FLoadingEvent OnLoadingFailed;
+	FLoadingEvent OnLoadingFailed;
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
@@ -97,39 +97,39 @@ public:
 	FTimerHandle QueryDeploymentsTimer;
 
 	UFUNCTION(BlueprintCallable)
-		void JoinDeployment(const FString& LoginToken);
+	void JoinDeployment(const FString& LoginToken);
 
 	UFUNCTION(BlueprintCallable)
-		void SetLoadingScreen(UUserWidget* LoadingScreen);
+	void SetLoadingScreen(UUserWidget* LoadingScreen);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerIdentityTokenEvent, const FString&, PlayerIdentityToken);
 	UPROPERTY(BlueprintAssignable)
-		FPlayerIdentityTokenEvent OnPITCreationSucceeded;
+	FPlayerIdentityTokenEvent OnPITCreationSucceeded;
 	UPROPERTY(BlueprintAssignable)
-		FPlayerIdentityTokenEvent OnPITCreationFailed;
+	FPlayerIdentityTokenEvent OnPITCreationFailed;
 
 	UFUNCTION(BlueprintCallable)
-		void CreatePlayerIdentityToken(const FString& PlayerID);
+	void CreatePlayerIdentityToken(const FString& PlayerID);
 	void OnPITResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOpenMatchTicketEvent, const FString&, TicketID);
 	UPROPERTY(BlueprintAssignable)
-		FOpenMatchTicketEvent OnOpenMatchTicketCreationSucceeded;
+	FOpenMatchTicketEvent OnOpenMatchTicketCreationSucceeded;
 	UPROPERTY(BlueprintAssignable)
-		FOpenMatchTicketEvent OnOpenMatchTicketCreationFailed;
+	FOpenMatchTicketEvent OnOpenMatchTicketCreationFailed;
 
 	UFUNCTION(BlueprintCallable)
-		void CreateOpenMatchTicket(const FString& PlayerIdentityToken);
+	void CreateOpenMatchTicket(const FString& PlayerIdentityToken);
 	void OnOpenMatchTicketCreationResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOpenMatchDeploymentEvent, const FString&, DeploymentID, const FString&, LoginToken);
 	UPROPERTY(BlueprintAssignable)
-		FOpenMatchDeploymentEvent OnOpenMatchDeploymentMatched;
+	FOpenMatchDeploymentEvent OnOpenMatchDeploymentMatched;
 	UPROPERTY(BlueprintAssignable)
-		FOpenMatchDeploymentEvent OnOpenMatchDeploymentMatchFailure;
+	FOpenMatchDeploymentEvent OnOpenMatchDeploymentMatchFailure;
 
 	UFUNCTION(BlueprintCallable)
-		void GetOpenMatchDeployment(const FString& PlayerIdentityToken, const FString& TicketID);
+	void GetOpenMatchDeployment(const FString& PlayerIdentityToken, const FString& TicketID);
 	void OnOpenMatchDeploymentResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 private:

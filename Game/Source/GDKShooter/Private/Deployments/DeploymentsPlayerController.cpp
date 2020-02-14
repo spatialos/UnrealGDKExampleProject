@@ -163,24 +163,25 @@ void ADeploymentsPlayerController::CreatePlayerIdentityToken(const FString& Play
 	Request->SetURL(FakeAuthTarget);
 	Request->SetVerb("POST");
 	Request->SetHeader("Content-Type", "application/json");
-	FRequest_Auth req;
-	req.playerID = PlayerID;
-	Request->SetContentAsString(StructToJsonString<FRequest_Auth>(req));
+	FRequest_Auth Req;
+	Req.playerID = PlayerID;
+	Request->SetContentAsString(StructToJsonString<FRequest_Auth>(Req));
 	Request->ProcessRequest();
 }
 
 void ADeploymentsPlayerController::OnPITResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	if (!ResponseIsValid(Response, bWasSuccessful)) {
+	if (!ResponseIsValid(Response, bWasSuccessful))
+	{
 		OnPITCreationFailed.Broadcast("");
 		return;
 	}
 
-	FResponse_Auth resp;
-	JsonStringToStruct(Response->GetContentAsString(), resp);
+	FResponse_Auth Resp;
+	JsonStringToStruct(Response->GetContentAsString(), Resp);
 
-	LatestPIToken = resp.playerIdentityToken;
-	OnPITCreationSucceeded.Broadcast(resp.playerIdentityToken);
+	LatestPIToken = Resp.playerIdentityToken;
+	OnPITCreationSucceeded.Broadcast(Resp.playerIdentityToken);
 }
 
 void ADeploymentsPlayerController::CreateOpenMatchTicket(const FString& PlayerIdentityToken)
@@ -197,15 +198,16 @@ void ADeploymentsPlayerController::CreateOpenMatchTicket(const FString& PlayerId
 
 void ADeploymentsPlayerController::OnOpenMatchTicketCreationResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	if (!ResponseIsValid(Response, bWasSuccessful)) {
+	if (!ResponseIsValid(Response, bWasSuccessful))
+	{
 		OnOpenMatchTicketCreationFailed.Broadcast("");
 		return;
 	}
 
-	FResponse_CreateTicket resp;
-	JsonStringToStruct(Response->GetContentAsString(), resp);
+	FResponse_CreateTicket Resp;
+	JsonStringToStruct(Response->GetContentAsString(), Resp);
 
-	OnOpenMatchTicketCreationSucceeded.Broadcast(resp.ticketID);
+	OnOpenMatchTicketCreationSucceeded.Broadcast(Resp.ticketID);
 }
 
 void ADeploymentsPlayerController::GetOpenMatchDeployment(const FString& PlayerIdentityToken, const FString& TicketID)
@@ -221,25 +223,30 @@ void ADeploymentsPlayerController::GetOpenMatchDeployment(const FString& PlayerI
 
 void ADeploymentsPlayerController::OnOpenMatchDeploymentResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	if (!ResponseIsValid(Response, bWasSuccessful)) {
+	if (!ResponseIsValid(Response, bWasSuccessful))
+	{
 		OnOpenMatchDeploymentMatchFailure.Broadcast("", "");
 		return;
 	}
 
-	FResponse_GetDeployment resp;
-	JsonStringToStruct(Response->GetContentAsString(), resp);
+	FResponse_GetDeployment Resp;
+	JsonStringToStruct(Response->GetContentAsString(), Resp);
 
-	OnOpenMatchDeploymentMatched.Broadcast(resp.deploymentID, resp.loginToken);
+	OnOpenMatchDeploymentMatched.Broadcast(Resp.deploymentID, Resp.loginToken);
 }
 
 bool ADeploymentsPlayerController::ResponseIsValid(FHttpResponsePtr Response, bool bWasSuccessful) {
-	if (!bWasSuccessful || !Response.IsValid()) {
+	if (!bWasSuccessful || !Response.IsValid())
+	{
 		return false;
 	}
-	if (EHttpResponseCodes::IsOk(Response->GetResponseCode())) {
+
+	if (EHttpResponseCodes::IsOk(Response->GetResponseCode()))
+	{
 		return true;
 	}
-	UE_LOG(LogGDK, Warning, TEXT("Http Response returned error code: %d"), Response->GetResponseCode());
+
+	UE_LOG(LogGDK, Warning, TEXT("HTTP Response returned error code %d: %s"), Response->GetResponseCode(), *Response->GetContentAsString());
 	return false;
 }
 
