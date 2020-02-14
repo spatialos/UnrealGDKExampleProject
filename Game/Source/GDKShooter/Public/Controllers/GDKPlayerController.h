@@ -19,7 +19,6 @@ class GDKSHOOTER_API AGDKPlayerController : public APlayerController
 public:
 	AGDKPlayerController();
 
-	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
 	FPawnEvent& OnPawn() { return PawnEvent; }
