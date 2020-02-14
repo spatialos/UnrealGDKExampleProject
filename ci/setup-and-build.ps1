@@ -12,7 +12,7 @@ param(
 
 # When a build is launched custom environment variables can be specified.
 # Parse them here to use the set value or the default.
-$gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
+$gdk_branch_name = "feature/MBL-9-android-ci"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 
 $gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
