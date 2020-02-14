@@ -51,7 +51,7 @@ pushd "$exampleproject_home"
     Start-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
         $engine_directory = "${exampleproject_home}\UnrealEngine"
-		$Env:ENGINE_COMMIT_HASH = "UnrealEngine-563ab3d7d71f3dd15ff4ff6d66e4dd1977d4a824"
+		$Env:ENGINE_COMMIT_HASH = "UnrealEngine-f2eb00f747a5dcc7477d0f014c6efa0553dc4b30"
         &"$($gdk_home)\ci\get-engine.ps1" -unreal_path "$engine_directory"
 
     Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
