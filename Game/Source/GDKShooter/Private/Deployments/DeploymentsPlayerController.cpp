@@ -16,7 +16,6 @@ void ADeploymentsPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	bShowMouseCursor = true;
-	Http = &FHttpModule::Get();
 
 	QueryPIT();
 }
@@ -158,7 +157,7 @@ void ADeploymentsPlayerController::SetLoadingScreen(UUserWidget* LoadingScreen)
 
 void ADeploymentsPlayerController::CreatePlayerIdentityToken(const FString& PlayerID)
 {
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest> Request = FModuleManager::GetModulePtr<FHttpModule>("Http")->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &ADeploymentsPlayerController::OnPITResponseReceived);
 	Request->SetURL(FakeAuthTarget);
 	Request->SetVerb("POST");
@@ -186,7 +185,7 @@ void ADeploymentsPlayerController::OnPITResponseReceived(FHttpRequestPtr Request
 
 void ADeploymentsPlayerController::CreateOpenMatchTicket(const FString& PlayerIdentityToken)
 {
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest> Request = FModuleManager::GetModulePtr<FHttpModule>("Http")->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &ADeploymentsPlayerController::OnOpenMatchTicketCreationResponseReceived);
 	Request->SetURL(FrontendTarget);
 	Request->SetVerb("POST");
@@ -212,7 +211,7 @@ void ADeploymentsPlayerController::OnOpenMatchTicketCreationResponseReceived(FHt
 
 void ADeploymentsPlayerController::GetOpenMatchDeployment(const FString& PlayerIdentityToken, const FString& TicketID)
 {
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest> Request = FModuleManager::GetModulePtr<FHttpModule>("Http")->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &ADeploymentsPlayerController::OnOpenMatchDeploymentResponseReceived);
 	Request->SetURL(FrontendTarget + TicketID);
 	Request->SetVerb("GET");

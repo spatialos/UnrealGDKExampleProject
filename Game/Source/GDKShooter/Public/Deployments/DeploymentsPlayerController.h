@@ -67,8 +67,6 @@ class GDKSHOOTER_API ADeploymentsPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	FHttpModule* Http;
-
 	UPROPERTY(Config)
 	FString FakeAuthTarget;
 
