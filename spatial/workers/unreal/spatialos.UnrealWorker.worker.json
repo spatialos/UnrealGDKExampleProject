@@ -84,7 +84,7 @@
       "arguments": [
         "${IMPROBABLE_WORKER_ID}",
         "${IMPROBABLE_LOG_FILE}",
-        "ThirdPersonExampleMap",
+        "FPS-Start_Tiny",
         "+appName",
         "${IMPROBABLE_PROJECT_NAME}",
         "+receptionistHost",
