@@ -3,7 +3,7 @@
 #include "DeploymentsPlayerController.h"
 
 #include "Json.h"
-#include "JsonUtilities.h"
+#include "JsonUtilities/Public/JsonObjectConverter.h"
 #include "SpatialGameInstance.h"
 #include "TimerManager.h"
 #include "SpatialWorkerConnection.h"
