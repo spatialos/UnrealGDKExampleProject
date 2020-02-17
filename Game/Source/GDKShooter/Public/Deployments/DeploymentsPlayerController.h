@@ -11,7 +11,8 @@
 #include "DeploymentsPlayerController.generated.h"
 
 USTRUCT(BlueprintType)
-struct FDeploymentInfo {
+struct FDeploymentInfo
+{
 	GENERATED_BODY()
 
 		UPROPERTY(BlueprintReadOnly)
@@ -29,34 +30,48 @@ struct FDeploymentInfo {
 };
 
 USTRUCT()
-struct FRequest_Auth {
+struct FRequest_Auth
+{
 	GENERATED_BODY()
-	UPROPERTY() FString PlayerID;
+
+	UPROPERTY()
+	FString PlayerID;
 
 	FRequest_Auth() {}
 };
 
 USTRUCT()
-struct FResponse_Auth {
+struct FResponse_Auth
+{
 	GENERATED_BODY()
-	UPROPERTY() FString PlayerIdentityToken;
+
+	UPROPERTY()
+	FString PlayerIdentityToken;
 
 	FResponse_Auth() {}
 };
 
 USTRUCT()
-struct FResponse_CreateTicket {
+struct FResponse_CreateTicket
+{
 	GENERATED_BODY()
-	UPROPERTY() FString TicketID;
+
+	UPROPERTY()
+	FString TicketID;
 
 	FResponse_CreateTicket() {}
 };
 
 USTRUCT()
-struct FResponse_GetDeployment {
+struct FResponse_GetDeployment
+{
 	GENERATED_BODY()
-	UPROPERTY() FString DeploymentID;
-	UPROPERTY() FString LoginToken;
+
+	UPROPERTY()
+	FString DeploymentID;
+
+	UPROPERTY()
+	FString LoginToken;
 
 	FResponse_GetDeployment() {}
 };
@@ -132,7 +147,7 @@ public:
 
 private:
 	void QueryPIT();
-	bool ResponseIsValid(FHttpResponsePtr Response, bool bWasSuccessful);
+	bool ResponseIsValid(FHttpResponsePtr Response, bool bWasSuccessful) const;
 
 	template<typename TStruct>
 	FString StructToJsonString(TStruct& Input);

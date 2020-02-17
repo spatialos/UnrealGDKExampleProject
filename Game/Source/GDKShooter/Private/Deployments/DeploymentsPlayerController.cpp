@@ -160,8 +160,8 @@ void ADeploymentsPlayerController::CreatePlayerIdentityToken(const FString& Play
 	TSharedRef<IHttpRequest> Request = FModuleManager::GetModulePtr<FHttpModule>("Http")->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &ADeploymentsPlayerController::OnPITResponseReceived);
 	Request->SetURL(FakeAuthTarget);
-	Request->SetVerb("POST");
-	Request->SetHeader("Content-Type", "application/json");
+	Request->SetVerb(TEXT("POST"));
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
 	FRequest_Auth Req;
 	Req.PlayerID = PlayerID;
 	Request->SetContentAsString(StructToJsonString<FRequest_Auth>(Req));
@@ -172,7 +172,7 @@ void ADeploymentsPlayerController::OnPITResponseReceived(FHttpRequestPtr Request
 {
 	if (!ResponseIsValid(Response, bWasSuccessful))
 	{
-		OnPITCreationFailed.Broadcast("");
+		OnPITCreationFailed.Broadcast(TEXT(""));
 		return;
 	}
 
@@ -188,10 +188,10 @@ void ADeploymentsPlayerController::CreateOpenMatchTicket(const FString& PlayerId
 	TSharedRef<IHttpRequest> Request = FModuleManager::GetModulePtr<FHttpModule>("Http")->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &ADeploymentsPlayerController::OnOpenMatchTicketCreationResponseReceived);
 	Request->SetURL(FrontendTarget);
-	Request->SetVerb("POST");
-	Request->SetHeader("Content-Type", "application/json");
-	Request->SetHeader("player-identity-token", PlayerIdentityToken);
-	Request->SetContentAsString("{}");
+	Request->SetVerb(TEXT("POST"));
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	Request->SetHeader(TEXT("player-identity-token"), PlayerIdentityToken);
+	Request->SetContentAsString(TEXT("{}"));
 	Request->ProcessRequest();
 }
 
@@ -199,7 +199,7 @@ void ADeploymentsPlayerController::OnOpenMatchTicketCreationResponseReceived(FHt
 {
 	if (!ResponseIsValid(Response, bWasSuccessful))
 	{
-		OnOpenMatchTicketCreationFailed.Broadcast("");
+		OnOpenMatchTicketCreationFailed.Broadcast(TEXT(""));
 		return;
 	}
 
@@ -214,9 +214,9 @@ void ADeploymentsPlayerController::GetOpenMatchDeployment(const FString& PlayerI
 	TSharedRef<IHttpRequest> Request = FModuleManager::GetModulePtr<FHttpModule>("Http")->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &ADeploymentsPlayerController::OnOpenMatchDeploymentResponseReceived);
 	Request->SetURL(FrontendTarget + TicketID);
-	Request->SetVerb("GET");
-	Request->SetHeader("Content-Type", "application/json");
-	Request->SetHeader("player-identity-token", PlayerIdentityToken);
+	Request->SetVerb(TEXT("GET"));
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	Request->SetHeader(TEXT("player-identity-token"), PlayerIdentityToken);
 	Request->ProcessRequest();
 }
 
@@ -224,7 +224,7 @@ void ADeploymentsPlayerController::OnOpenMatchDeploymentResponseReceived(FHttpRe
 {
 	if (!ResponseIsValid(Response, bWasSuccessful))
 	{
-		OnOpenMatchDeploymentMatchFailure.Broadcast("", "");
+		OnOpenMatchDeploymentMatchFailure.Broadcast(TEXT(""), TEXT(""));
 		return;
 	}
 
@@ -234,7 +234,7 @@ void ADeploymentsPlayerController::OnOpenMatchDeploymentResponseReceived(FHttpRe
 	OnOpenMatchDeploymentMatched.Broadcast(Resp.DeploymentID, Resp.LoginToken);
 }
 
-bool ADeploymentsPlayerController::ResponseIsValid(FHttpResponsePtr Response, bool bWasSuccessful)
+bool ADeploymentsPlayerController::ResponseIsValid(FHttpResponsePtr Response, bool bWasSuccessful) const
 {
 	if (!bWasSuccessful || !Response.IsValid())
 	{
