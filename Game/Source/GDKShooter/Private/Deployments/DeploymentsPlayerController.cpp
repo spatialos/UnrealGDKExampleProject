@@ -7,8 +7,8 @@
 #include "SpatialGameInstance.h"
 #include "TimerManager.h"
 #include "SpatialWorkerConnection.h"
-
 #include "GDKLogging.h"
+#include "ModuleManager.h"
 
 
 void ADeploymentsPlayerController::BeginPlay()
