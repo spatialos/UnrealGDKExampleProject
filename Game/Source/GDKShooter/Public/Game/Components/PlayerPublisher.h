@@ -24,6 +24,7 @@ class GDKSHOOTER_API UPlayerPublisher : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable)
 	void PublishPlayer(APlayerState* PlayerState, EPlayerProgress Progress) { PlayerEvent.Broadcast(PlayerState, Progress); }
 
 	UPROPERTY(BlueprintAssignable)
