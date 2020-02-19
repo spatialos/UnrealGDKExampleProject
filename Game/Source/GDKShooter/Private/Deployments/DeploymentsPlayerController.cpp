@@ -38,7 +38,9 @@ void ADeploymentsPlayerController::BeginPlay()
 void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
 {
 	if (SpatialWorkerConnection != nullptr)
+	{
 		SpatialWorkerConnection->RegisterOnLoginTokensCallback([](const Worker_Alpha_LoginTokensResponse* Deployments){return false;});
+	}
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
@@ -115,5 +117,7 @@ void ADeploymentsPlayerController::SetLoadingScreen(UUserWidget* LoadingScreen)
 void ADeploymentsPlayerController::ScheduleRefreshDeployments()
 {
 	if (SpatialWorkerConnection != nullptr)
+	{
 		SpatialWorkerConnection->RequestDeploymentLoginTokens();
+	}
 }

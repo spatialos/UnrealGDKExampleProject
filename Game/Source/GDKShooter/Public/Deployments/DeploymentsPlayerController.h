@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
-#include <WorkerSDK/improbable/c_worker.h>
 
 #include "DeploymentsPlayerController.generated.h"
 
