@@ -23,6 +23,7 @@ steps:
     <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
+      - "cooked-android/*"
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
       STEP_NUMBER: "STEP_NUMBER_PLACEHOLDER"
