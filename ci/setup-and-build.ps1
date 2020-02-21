@@ -161,10 +161,12 @@ pushd "$exampleproject_home"
             "-build", `
             "-utf8output", `
             "-compile"
-        )       
+        )
+
         $build_server_handle = $build_server_proc.Handle
         Wait-Process -Id (Get-Process -InputObject $build_server_proc).id
         Rename-Item -Path "C:\Program Files\fastbuild\FBuild.tmp" -NewName "FBuild.exe"
+
         if ($build_server_proc.ExitCode -ne 0) {
             Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
