@@ -27,3 +27,4 @@ steps:
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
       STEP_NUMBER: "STEP_NUMBER_PLACEHOLDER"
+      UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.$($env:CI_ENVIRONMENT)-intinf-eu1.i8e.io\\samba\\ddc"
