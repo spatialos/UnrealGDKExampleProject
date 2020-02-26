@@ -4,7 +4,7 @@
 
 #include "SpatialGameInstance.h"
 #include "TimerManager.h"
-#include "SpatialWorkerConnection.h"
+#include "SpatialConnectionManager.h"
 
 #include "GDKLogging.h"
 
@@ -17,10 +17,10 @@ void ADeploymentsPlayerController::BeginPlay()
 	bShowMouseCursor = true;
 
 	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
-	SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
+	SpatialConnectionManager = SpatialGameInstance->GetSpatialConnectionManager();
 
 	FString SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
-	SpatialWorkerConnection->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
+	SpatialConnectionManager->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
 		Populate(Deployments);
 		if (!GetWorld()->GetTimerManager().IsTimerActive(QueryDeploymentsTimer))
 		{
@@ -31,14 +31,14 @@ void ADeploymentsPlayerController::BeginPlay()
 	
 	// Attempts to load the devAuthToken from the command line.
 	// If it has not been set, SpatialWorkerConnection will fail to retrieve a PIT.
-	SpatialWorkerConnection->TrySetupConnectionConfigFromCommandLine(SpatialWorkerType);
-	SpatialWorkerConnection->Connect(true, 0);
+	SpatialConnectionManager->TrySetupConnectionConfigFromCommandLine(SpatialWorkerType);
+	SpatialConnectionManager->Connect(true, 0);
 }
 
 void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
 {
-	if (SpatialWorkerConnection != nullptr)
-		SpatialWorkerConnection->RegisterOnLoginTokensCallback([](const Worker_Alpha_LoginTokensResponse* Deployments){return false;});
+	if (SpatialConnectionManager != nullptr)
+		SpatialConnectionManager->RegisterOnLoginTokensCallback([](const Worker_Alpha_LoginTokensResponse* Deployments){return false;});
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
@@ -89,13 +89,13 @@ void ADeploymentsPlayerController::Populate(const Worker_Alpha_LoginTokensRespon
 
 void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 {
-	if (SpatialWorkerConnection == nullptr)
+	if (SpatialConnectionManager == nullptr)
 	{
 		UE_LOG(LogGDK, Error, TEXT("Failure: failed to Join Deployment caused by SpatialWorkerConnection is nullptr"));
 		return;
 	}
 
-	const FDevAuthConfig& DevAuthConfig = SpatialWorkerConnection->DevAuthConfig;
+	const FDevAuthConfig& DevAuthConfig = SpatialConnectionManager->DevAuthConfig;
 	FURL TravelURL;
 	TravelURL.Host = DevAuthConfig.LocatorHost;
 	TravelURL.AddOption(TEXT("locator"));
@@ -114,6 +114,6 @@ void ADeploymentsPlayerController::SetLoadingScreen(UUserWidget* LoadingScreen)
 
 void ADeploymentsPlayerController::ScheduleRefreshDeployments()
 {
-	if (SpatialWorkerConnection != nullptr)
-		SpatialWorkerConnection->RequestDeploymentLoginTokens();
+	if (SpatialConnectionManager != nullptr)
+		SpatialConnectionManager->RequestDeploymentLoginTokens();
 }

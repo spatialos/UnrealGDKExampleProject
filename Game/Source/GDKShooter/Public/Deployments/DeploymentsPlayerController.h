@@ -9,7 +9,7 @@
 
 #include "DeploymentsPlayerController.generated.h"
 
-class USpatialWorkerConnection;
+class USpatialConnectionManager;
 
 USTRUCT(BlueprintType)
 struct FDeploymentInfo {
@@ -54,7 +54,7 @@ public:
 	const char * LatestPITokenData;
 
 	FTimerHandle QueryDeploymentsTimer;
-	USpatialWorkerConnection* SpatialWorkerConnection = nullptr;
+	USpatialConnectionManager* SpatialConnectionManager = nullptr;
 
 	UFUNCTION(BlueprintCallable)
 		void JoinDeployment(const FString& LoginToken);
