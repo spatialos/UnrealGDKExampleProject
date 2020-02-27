@@ -44,19 +44,6 @@ AGDKPlayerController::AGDKPlayerController()
 
 }
 
-void AGDKPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (PlayerState)
-	{
-		if (UPlayerPublisher* PlayerPublisher = Cast<UPlayerPublisher>(GetWorld()->GetGameState()->GetComponentByClass(UPlayerPublisher::StaticClass())))
-		{
-			PlayerPublisher->PublishPlayer(PlayerState, EPlayerProgress::Connected);
-		}
-	}
-}
-
 void AGDKPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
