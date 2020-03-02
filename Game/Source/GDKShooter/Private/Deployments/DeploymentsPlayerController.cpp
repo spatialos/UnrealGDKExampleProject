@@ -31,7 +31,7 @@ void ADeploymentsPlayerController::BeginPlay()
 	// Attempts to load the devAuthToken from the command line.
 	// If it has not been set, SpatialWorkerConnection will fail to retrieve a PIT.
 	SpatialWorkerConnection->TrySetupConnectionConfigFromCommandLine(SpatialWorkerType);
-	SpatialWorkerConnection->Connect(true, 0);
+	SpatialWorkerConnection->Connect(true);
 }
 
 void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
@@ -94,11 +94,11 @@ void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 		return;
 	}
 
-	const FDevAuthConfig& DevAuthConfig = SpatialWorkerConnection->DevAuthConfig;
+	const FLocatorConfig& LocatorConfig = SpatialWorkerConnection->LocatorConfig;
 	FURL TravelURL;
-	TravelURL.Host = DevAuthConfig.LocatorHost;
+	TravelURL.Host = LocatorConfig.LocatorHost;
 	TravelURL.AddOption(TEXT("locator"));
-	TravelURL.AddOption(*FString::Printf(TEXT("playeridentity=%s"), *DevAuthConfig.PlayerIdentityToken));
+	TravelURL.AddOption(*FString::Printf(TEXT("playeridentity=%s"), *LocatorConfig.PlayerIdentityToken));
 	TravelURL.AddOption(*FString::Printf(TEXT("login=%s"), *LoginToken));
 
 	OnLoadingStarted.Broadcast();
