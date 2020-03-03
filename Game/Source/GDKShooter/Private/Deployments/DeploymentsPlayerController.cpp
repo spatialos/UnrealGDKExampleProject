@@ -28,9 +28,6 @@ void ADeploymentsPlayerController::BeginPlay()
 		return true;
 	});
 	
-	// Attempts to load the devAuthToken from the command line.
-	// If it has not been set, SpatialWorkerConnection will fail to retrieve a PIT.
-	SpatialWorkerConnection->TrySetupConnectionConfigFromCommandLine(SpatialWorkerType);
 	SpatialWorkerConnection->Connect(true);
 }
 
