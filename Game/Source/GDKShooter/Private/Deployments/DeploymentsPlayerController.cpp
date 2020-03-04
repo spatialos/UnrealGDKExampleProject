@@ -28,7 +28,7 @@ void ADeploymentsPlayerController::BeginPlay()
 		return true;
 	});
 	
-	SpatialWorkerConnection->Connect(true);
+	SpatialWorkerConnection->Connect(true, 0);
 }
 
 void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
