@@ -7,7 +7,7 @@ common: &common
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-2020-02-14-bk8202-b661030c18138bee}" # Has FASTbuild disabled
+    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-2020-02-14-bk8202-b661030c18138bee}"
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
     automatic:
@@ -24,6 +24,7 @@ steps:
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "cooked-android/**/*"
+      - "Game/Saved/Cooked/**/GDKShooter/Metadata/CookedIniVersion.txt"
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
       STEP_NUMBER: "STEP_NUMBER_PLACEHOLDER"
