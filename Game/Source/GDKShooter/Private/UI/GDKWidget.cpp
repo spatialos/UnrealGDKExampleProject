@@ -4,6 +4,7 @@
 #include "Components/ControllerEventsComponent.h"
 #include "Components/GDKMovementComponent.h"
 #include "Components/HealthComponent.h"
+#include "EngineClasses/SpatialGameInstance.h"
 #include "Game/Components/LobbyTimerComponent.h"
 #include "Game/Components/MatchTimerComponent.h"
 #include "Game/Components/PlayerCountingComponent.h"
@@ -105,6 +106,11 @@ void UGDKWidget::LeaveGame(const FString& TargetMap)
 
 	FURL TravelURL;
 	TravelURL.Map = *TargetMap;
+
+	if (USpatialGameInstance* GameInstance = Cast<USpatialGameInstance>(GetGameInstance()))
+	{
+		GameInstance->GetSpatialWorkerConnection()->DestroyConnection();
+	}
 
 	GetOwningPlayer()->ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false /*bSeamless*/);
 
