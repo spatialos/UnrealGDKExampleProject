@@ -4,6 +4,7 @@
 
 #include "SpatialGameInstance.h"
 #include "TimerManager.h"
+#include "SpatialGDKSettings.h"
 #include "SpatialWorkerConnection.h"
 
 #include "GDKLogging.h"
@@ -18,6 +19,12 @@ void ADeploymentsPlayerController::BeginPlay()
 	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
 	SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
 
+	if (SpatialWorkerConnection == nullptr)
+	{
+		// We might not be using spatial networking in which case SpatialWorkerConnection will not exist so we should just return
+		return;
+	}
+
 	FString SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
 	SpatialWorkerConnection->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
 		Populate(Deployments);
@@ -28,7 +35,10 @@ void ADeploymentsPlayerController::BeginPlay()
 		return true;
 	});
 	
-	SpatialWorkerConnection->Connect(true, 0);
+	if (GetDefault<USpatialGDKSettings>()->bUseDevelopmentAuthenticationFlow)
+	{
+		SpatialWorkerConnection->Connect(true, 0);
+	}
 }
 
 void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
