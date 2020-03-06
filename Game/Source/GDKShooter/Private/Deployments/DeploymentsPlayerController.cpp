@@ -5,6 +5,7 @@
 #include "SpatialGameInstance.h"
 #include "TimerManager.h"
 #include "SpatialConnectionManager.h"
+#include "SpatialGDKSettings.h"
 
 #include "GDKLogging.h"
 
@@ -19,6 +20,12 @@ void ADeploymentsPlayerController::BeginPlay()
 	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
 	SpatialConnectionManager = SpatialGameInstance->GetSpatialConnectionManager();
 
+	if (SpatialConnectionManager == nullptr)
+	{
+		// We might not be using spatial networking in which case SpatialConnectionManager will not exist so we should just return
+		return;
+	}
+
 	FString SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
 	SpatialConnectionManager->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
 		Populate(Deployments);
@@ -32,7 +39,11 @@ void ADeploymentsPlayerController::BeginPlay()
 	// Attempts to load the devAuthToken from the command line.
 	// If it has not been set, SpatialWorkerConnection will fail to retrieve a PIT.
 	SpatialConnectionManager->TrySetupConnectionConfigFromCommandLine(SpatialWorkerType);
-	SpatialConnectionManager->Connect(true, 0);
+
+	if (GetDefault<USpatialGDKSettings>()->bUseDevelopmentAuthenticationFlow)
+	{
+		SpatialConnectionManager->Connect(true, 0);
+	}
 }
 
 void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
