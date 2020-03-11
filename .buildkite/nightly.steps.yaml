@@ -10,7 +10,7 @@ script_runner: &script_runner
   - "scaler_version=2"
   - "working_hours_time_zone=london"
 
-common: &common
+windows: &windows
   agents:
     - "agent_count=1"
     - "capable_of_building=gdk-for-unreal"
@@ -46,4 +46,4 @@ steps:
   - label: "slack-notify"
     if: build.env("SLACK_NOTIFY") == "true" || build.branch == "master"
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/slack-notify.ps1"
-    <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
+    <<: *windows # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.

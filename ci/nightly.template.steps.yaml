@@ -1,4 +1,4 @@
-common: &common
+windows: &windows
   agents:
     - "agent_count=1"
     - "capable_of_building=gdk-for-unreal"
@@ -17,13 +17,40 @@ common: &common
   plugins:
     - ca-johnson/taskkill#v4.1: ~
 
+macos: &macos
+  agents:
+    - "capable_of_building=gdk-for-unreal"
+    - "environment=production"
+    - "permission_set=builder"
+    - "platform=macos"
+    - "queue=${DARWIN_BUILDER_QUEUE:-v4-1583945310-80cddf5c-d}"
+  timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
+  retry:
+    automatic:
+        # This is designed to trap and retry failures because agent lost connection. Agent exits with -1 in this case.
+      - exit_status: -1
+        limit: 3
+
 steps:
   - label: "build-and-deploy-:windows:-ENGINE_COMMIT_HASH_PLACEHOLDER"
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
-    <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
+    <<: *windows # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "cooked-android/**/*"
+    env:
+      ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
+      STEP_NUMBER: "STEP_NUMBER_PLACEHOLDER"
+      UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
+
+
+  - label: "build-:darwin:-ENGINE_COMMIT_HASH_PLACEHOLDER"
+    command: "./ci/setup-and-build.sh"
+    <<: *macos # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
+    artifact_paths:
+      - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
+      - "cooked-mac/**/*"
+      - "cooked-ios/**/*"
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
       STEP_NUMBER: "STEP_NUMBER_PLACEHOLDER"
