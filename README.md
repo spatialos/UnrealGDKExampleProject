@@ -18,11 +18,11 @@ In addition to the Example Project, the GDK also contains:
 * [The GDK plugin](https://github.com/spatialos/UnrealGDK)
 
 ## About the Example Project 
-The Example Project contains gameplay and assets that are representative of a basic first-person shooter running on SpatialOS. If you want to make your own project from scratch, use the Starter Template by following the [Starter Template guide](https://docs.improbable.io/unreal/alpha/content/get-started/gdk-template) in the GDK for Unreal documentation.
+The Example Project contains gameplay and assets that are representative of a basic first-person shooter running on SpatialOS. If you want to make your own project from scratch, use the Starter Template by following the [Starter Template guide](https://documentation.improbable.io/gdk-for-unreal/docs/sample-projects-starter-template-introduction) in the GDK for Unreal documentation.
 
-For setup instructions, follow the [Example Project guide](https://docs.improbable.io/unreal/latest/content/get-started/example-project/exampleproject-intro)  in the GDK for Unreal documentation. 
+For setup instructions, follow the [Example Project guide](https://documentation.improbable.io/gdk-for-unreal/docs/sample-projects-example-project-introduction) in the GDK for Unreal documentation. 
 
-For more information, see the [SpatialOS GDK for Unreal documentation](https://docs.improbable.io/unreal/latest/).
+For more information, see the [SpatialOS GDK for Unreal documentation](https://documentation.improbable.io/gdk-for-unreal/docs).
 
 #### Game controls
 
@@ -55,4 +55,4 @@ We have released the GDK for Unreal this early in development because we want yo
 
 We are not currently accepting public contributions. However, we are accepting [issues](https://github.com/spatialos/UnrealGDK/issues) and we do want your feedback.
 
-&copy; 2019 Improbable
+&copy; 2020 Improbable
