@@ -4,6 +4,7 @@
 
 #include "SpatialGameInstance.h"
 #include "TimerManager.h"
+#include "SpatialGDKSettings.h"
 #include "SpatialWorkerConnection.h"
 
 #include "GDKLogging.h"
@@ -15,79 +16,36 @@ void ADeploymentsPlayerController::BeginPlay()
 
 	bShowMouseCursor = true;
 
-	QueryPIT();
+	USpatialGameInstance* SpatialGameInstance = GetGameInstance<USpatialGameInstance>();
+	SpatialWorkerConnection = SpatialGameInstance->GetSpatialWorkerConnection();
+
+	if (SpatialWorkerConnection == nullptr)
+	{
+		// We might not be using spatial networking in which case SpatialWorkerConnection will not exist so we should just return
+		return;
+	}
+
+	FString SpatialWorkerType = SpatialGameInstance->GetSpatialWorkerType().ToString();
+	SpatialWorkerConnection->RegisterOnLoginTokensCallback([this](const Worker_Alpha_LoginTokensResponse* Deployments){
+		Populate(Deployments);
+		if (!GetWorld()->GetTimerManager().IsTimerActive(QueryDeploymentsTimer))
+		{
+			GetWorld()->GetTimerManager().SetTimer(QueryDeploymentsTimer, this,  &ADeploymentsPlayerController::ScheduleRefreshDeployments, 10.0f, true, 0.0f);
+		}
+		return true;
+	});
+	
+	if (GetDefault<USpatialGDKSettings>()->bUseDevelopmentAuthenticationFlow)
+	{
+		SpatialWorkerConnection->Connect(true, 0);
+	}
 }
 
 void ADeploymentsPlayerController::EndPlay(const EEndPlayReason::Type Reason)
 {
+	if (SpatialWorkerConnection != nullptr)
+		SpatialWorkerConnection->RegisterOnLoginTokensCallback([](const Worker_Alpha_LoginTokensResponse* Deployments){return false;});
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
-}
-
-void OnLoginTokens(void* UserData, const Worker_Alpha_LoginTokensResponse* LoginTokens)
-{
-	ADeploymentsPlayerController* contoller = static_cast<ADeploymentsPlayerController*>(UserData);
-	if (LoginTokens->status.code == WORKER_CONNECTION_STATUS_CODE_SUCCESS)
-	{
-		UE_LOG(LogGDK, Log, TEXT("Success: Login Token Count %d"), LoginTokens->login_token_count);
-		contoller->Populate(LoginTokens);
-	}
-	else
-	{
-		UE_LOG(LogGDK, Log, TEXT("Failure: Error %s"), UTF8_TO_TCHAR(LoginTokens->status.detail));
-	}
-}
-
-void OnPlayerIdentityToken(void* UserData, const Worker_Alpha_PlayerIdentityTokenResponse* PIToken)
-{
-	if (PIToken->status.code == WORKER_CONNECTION_STATUS_CODE_SUCCESS)
-	{
-		UE_LOG(LogGDK, Log, TEXT("Success: Received PIToken: %s"), UTF8_TO_TCHAR(PIToken->player_identity_token));
-		ADeploymentsPlayerController* controller = static_cast<ADeploymentsPlayerController*>(UserData);
-		controller->LatestPITokenData = PIToken->player_identity_token;
-		controller->LatestPIToken = UTF8_TO_TCHAR(PIToken->player_identity_token);
-
-		if (!controller->GetWorld()->GetTimerManager().IsTimerActive(controller->QueryDeploymentsTimer))
-		{
-			controller->GetWorld()->GetTimerManager().SetTimer(controller->QueryDeploymentsTimer, controller, &ADeploymentsPlayerController::QueryDeployments, 5.0f, true, 0.0f);
-		}
-	}
-	else
-	{
-		UE_LOG(LogGDK, Log, TEXT("Failure: Error %s"), UTF8_TO_TCHAR(PIToken->status.detail));
-		ADeploymentsPlayerController* controller = static_cast<ADeploymentsPlayerController*>(UserData);
-
-		if (controller->GetWorld()->GetTimerManager().IsTimerActive(controller->QueryDeploymentsTimer))
-		{
-			controller->GetWorld()->GetTimerManager().ClearTimer(controller->QueryDeploymentsTimer);
-		}
-	}
-}
-
-void ADeploymentsPlayerController::QueryDeployments()
-{
-	Worker_Alpha_LoginTokensRequest* LTParams = new Worker_Alpha_LoginTokensRequest();
-	LTParams->player_identity_token = LatestPITokenData;
-	LTParams->worker_type = "UnrealClient";
-	Worker_Alpha_LoginTokensResponseFuture* LTFuture = Worker_Alpha_CreateDevelopmentLoginTokensAsync("locator.improbable.io", 444, LTParams);
-	Worker_Alpha_LoginTokensResponseFuture_Get(LTFuture, nullptr, this, OnLoginTokens);
-}
-
-void ADeploymentsPlayerController::QueryPIT()
-{
-	Worker_Alpha_PlayerIdentityTokenRequest* PITParams = new Worker_Alpha_PlayerIdentityTokenRequest();
-	// Replace this string with a dev auth token, see docs for information on how to generate one of these
-	PITParams->development_authentication_token = "REPLACE ME";
-	PITParams->player_id = "Player Id";
-	PITParams->display_name = "";
-	PITParams->metadata = "";
-	PITParams->use_insecure_connection = false;
-	
-	Worker_Alpha_PlayerIdentityTokenResponseFuture* PITFuture = Worker_Alpha_CreateDevelopmentPlayerIdentityTokenAsync("locator.improbable.io", 444, PITParams);
-
-	if (PITFuture != nullptr)
-	{
-		Worker_Alpha_PlayerIdentityTokenResponseFuture_Get(PITFuture, nullptr, this, OnPlayerIdentityToken);
-	}
 }
 
 FDeploymentInfo Parse(const Worker_Alpha_LoginTokenDetails LoginToken)
@@ -137,12 +95,19 @@ void ADeploymentsPlayerController::Populate(const Worker_Alpha_LoginTokensRespon
 
 void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 {
+	if (SpatialWorkerConnection == nullptr)
+	{
+		UE_LOG(LogGDK, Error, TEXT("Failure: failed to Join Deployment caused by SpatialWorkerConnection is nullptr"));
+		return;
+	}
+
+	const FLocatorConfig& LocatorConfig = SpatialWorkerConnection->LocatorConfig;
 	FURL TravelURL;
-	TravelURL.Host = TEXT("locator.improbable.io");
+	TravelURL.Host = LocatorConfig.LocatorHost;
 	TravelURL.AddOption(TEXT("locator"));
-	TravelURL.AddOption(*FString::Printf(TEXT("playeridentity=%s"), *LatestPIToken));
+	TravelURL.AddOption(*FString::Printf(TEXT("playeridentity=%s"), *LocatorConfig.PlayerIdentityToken));
 	TravelURL.AddOption(*FString::Printf(TEXT("login=%s"), *LoginToken));
-	
+
 	OnLoadingStarted.Broadcast();
 
 	ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false);
@@ -151,4 +116,10 @@ void ADeploymentsPlayerController::JoinDeployment(const FString& LoginToken)
 void ADeploymentsPlayerController::SetLoadingScreen(UUserWidget* LoadingScreen)
 {
 	GetGameInstance()->GetGameViewportClient()->AddViewportWidgetContent(LoadingScreen->TakeWidget());
+}
+
+void ADeploymentsPlayerController::ScheduleRefreshDeployments()
+{
+	if (SpatialWorkerConnection != nullptr)
+		SpatialWorkerConnection->RequestDeploymentLoginTokens();
 }
