@@ -9,10 +9,6 @@
       {
         "name": "bridge_soft_handover_enabled",
         "value": "false"
-      },
-      {
-        "name": "enable_chunk_interest",
-        "value": "false"
       }
     ],
     "dimensions": {
