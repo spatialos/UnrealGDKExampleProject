@@ -1,3 +1,10 @@
+---
+agent_transients: &agent_transients
+  # This is designed to trap and retry failures because agent lost
+  # connection. Agent exits with -1 in this case.
+  exit_status: -1
+  limit: 3
+
 windows: &windows
   agents:
     - "agent_count=1"
@@ -11,9 +18,7 @@ windows: &windows
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
     automatic:
-        # This is designed to trap and retry failures because agent lost connection. Agent exits with -1 in this case.
-      - exit_status: -1
-        limit: 3
+      - <<: *agent_transients
   plugins:
     - ca-johnson/taskkill#v4.1: ~
 
@@ -24,12 +29,10 @@ macos: &macos
     - "permission_set=builder"
     - "platform=macos"
     - "queue=${DARWIN_BUILDER_QUEUE:-v4-9c6ee0ef-d}"
-  timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
+  timeout_in_minutes: 60
   retry:
     automatic:
-        # This is designed to trap and retry failures because agent lost connection. Agent exits with -1 in this case.
-      - exit_status: -1
-        limit: 3
+      - <<: *agent_transients
 
 steps:
   - label: "build-and-deploy-:windows:-ENGINE_COMMIT_HASH_PLACEHOLDER"

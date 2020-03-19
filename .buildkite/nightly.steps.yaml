@@ -1,14 +1,24 @@
+---
+agent_transients: &agent_transients
+  # This is designed to trap and retry failures because agent lost
+  # connection. Agent exits with -1 in this case.
+  exit_status: -1
+  limit: 3
+
 script_runner: &script_runner
   agents:
-  - "agent_count=8"
-  - "capable_of_building=platform"
-  - "environment=production"
-  - "machine_type=quarter"
-  - "permission_set=builder"
-  - "platform=linux"
-  - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-2019-12-12-bk5225-daecba805768d787}"
-  - "scaler_version=2"
-  - "working_hours_time_zone=london"
+    - "agent_count=8"
+    - "capable_of_building=platform"
+    - "environment=production"
+    - "machine_type=quarter"
+    - "permission_set=builder"
+    - "platform=linux"
+    - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-2019-12-12-bk5225-daecba805768d787}"
+    - "scaler_version=2"
+    - "working_hours_time_zone=london"
+  retry:
+    automatic:
+      - <<: *agent_transients
 
 windows: &windows
   agents:
@@ -23,9 +33,7 @@ windows: &windows
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
     automatic:
-        # This is designed to trap and retry failures because agent lost connection. Agent exits with -1 in this case.
-      - exit_status: -1
-        limit: 3
+      - <<: *agent_transients
   plugins:
     - ca-johnson/taskkill#v4.1: ~
 
