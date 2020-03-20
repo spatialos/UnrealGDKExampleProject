@@ -2,7 +2,7 @@
 
 set -e -u -o pipefail
 if [[ -n "${DEBUG-}" ]]; then
-  set -x
+    set -x
 fi
 
 GDK_REPO="${1:-git@github.com:spatialos/UnrealGDK.git}"
@@ -55,8 +55,17 @@ pushd "$(dirname "$0")"
         pushd "Engine/Binaries/Mac"
             UE4Editor.app/Contents/MacOS/UE4Editor \
                 "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+                -run=CookAndGenerateSchema \
+                -targetplatform=Mac \
+                -SkipShaderCompile \
+                -unversioned \
+                -map="/Maps/FPS-Start_Small"
+
+            UE4Editor.app/Contents/MacOS/UE4Editor \
+                "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
                 -run=GenerateSchemaAndSnapshots \
-                -MapPaths="/Maps/FPS-Start_Small"
+                -MapPaths="/Maps/FPS-Start_Small" \
+                -SkipSchema
         popd
     popd
 
@@ -80,7 +89,8 @@ pushd "$(dirname "$0")"
         -targetplatform=Mac \
         -build \
         -utf8output \
-        -compile
+        -compile \
+        -iterative
 
     echo "--- build-ios-client"
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \

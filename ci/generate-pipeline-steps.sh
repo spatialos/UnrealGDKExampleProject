@@ -1,6 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+BUILDKITE_TEMPLATE_FILE=ci/nightly-win.template.steps.yaml
+if [[ -n "${MAC_BUILD:-}" ]]; then
+    BUILDKITE_TEMPLATE_FILE=ci/nightly-mac.template.steps.yaml
+fi
+
 # Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against
 # This is not the pinnacle of engineering, as we rely on GitHub's web interface to download the file, but it seems like GitHub disallows git archive
 # which would be our other option for downloading a single file
@@ -41,5 +46,5 @@ if [ -z "${ENGINE_VERSION}" ]; then
     buildkite-agent meta-data set "engine-version-count" "$STEP_NUMBER"
 else
     echo "Generating steps for the specified engine version: $ENGINE_VERSION" 
-    sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|$ENGINE_VERSION|g" ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
+    sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|$ENGINE_VERSION|g" "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
 fi
