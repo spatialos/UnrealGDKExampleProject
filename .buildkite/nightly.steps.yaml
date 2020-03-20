@@ -6,7 +6,7 @@ script_runner: &script_runner
   - "machine_type=quarter"
   - "permission_set=builder"
   - "platform=linux"
-  - "queue=${CI_LINUX_BUILDER_QUEUE:-v3-1572524284-e64831bf1e88b227-------z}"
+  - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-2019-12-12-bk5225-daecba805768d787}"
   - "scaler_version=2"
   - "working_hours_time_zone=london"
 
@@ -19,7 +19,7 @@ common: &common
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-2019-11-07-bk3700-fbffad576b9676d7}" # Has FASTbuild disabled
+    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-2020-02-14-bk8202-b661030c18138bee}"
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
     automatic:

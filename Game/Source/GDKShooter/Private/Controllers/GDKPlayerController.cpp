@@ -16,6 +16,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/TouchInterface.h"
 #include "SpatialNetDriver.h"
 #include "UnrealNetwork.h"
 #include "Weapons/Holdable.h"
@@ -97,10 +98,12 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode)
 	if (bIsUIMode)
 	{
 		SetInputMode(FInputModeGameAndUI());
+		ActivateTouchInterface(nullptr);
 	}
 	else
 	{
 		SetInputMode(FInputModeGameOnly());
+		CreateTouchInterface();
 	}
 
 	if (GetPawn())
