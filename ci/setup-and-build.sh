@@ -5,6 +5,8 @@ if [[ -n "${DEBUG-}" ]]; then
     set -x
 fi
 
+source /opt/improbable/environment
+
 GDK_REPO="${1:-git@github.com:spatialos/UnrealGDK.git}"
 GCS_PUBLISH_BUCKET="${2:-io-internal-infra-unreal-artifacts-production/UnrealEngine}"
 
