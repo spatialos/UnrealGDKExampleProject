@@ -6,7 +6,7 @@
 UDeathmatchScoreComponent::UDeathmatchScoreComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UDeathmatchScoreComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -13,7 +13,7 @@ AHoldable::AHoldable()
 	PrimaryActorTick.bCanEverTick = false;
 
 	bReplicates = true;
-	bReplicateMovement = true;
+	SetReplicatingMovement(true);
 
 	LocationComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	SetRootComponent(LocationComponent);

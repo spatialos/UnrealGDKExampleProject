@@ -6,7 +6,7 @@
 
 UMetaDataComponent::UMetaDataComponent()
 {
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UMetaDataComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -10,7 +10,7 @@
 UEquippedComponent::UEquippedComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 }
 
 

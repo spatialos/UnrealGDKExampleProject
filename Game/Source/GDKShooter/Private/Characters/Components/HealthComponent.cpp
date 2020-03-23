@@ -11,7 +11,7 @@ UHealthComponent::UHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 
 	MaxHealth = 100.f;
 	CurrentHealth = MaxHealth;

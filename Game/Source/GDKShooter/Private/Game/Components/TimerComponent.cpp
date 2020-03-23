@@ -8,7 +8,7 @@
 UTimerComponent::UTimerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UTimerComponent::BeginPlay()
