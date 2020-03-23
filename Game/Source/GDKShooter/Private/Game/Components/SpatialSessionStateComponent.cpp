@@ -8,9 +8,6 @@
 #include "Interop/SpatialStaticComponentView.h"
 #include "Interop/Connection/SpatialWorkerConnection.h"
 
-//#include <WorkerSDK/improbable/c_schema.h>
-//#include <WorkerSDK/improbable/c_worker.h>
-
 void USpatialSessionStateComponent::SendStateUpdate(EGDKSessionProgress SessionProgressState)
 {
 	// Only send the state update if we're using Spatial networking and if we have authority over the session entity.
