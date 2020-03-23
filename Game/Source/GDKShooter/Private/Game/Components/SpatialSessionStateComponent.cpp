@@ -1,15 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "SpatialSessionStateComponent.h"
+#include "Game/Components/SpatialSessionStateComponent.h"
 
 #include "Engine/World.h"
-#include "UnrealNetwork.h"
-#include "SpatialNetDriver.h"
-#include "SpatialStaticComponentView.h"
-#include "SpatialWorkerConnection.h"
-
-#include <WorkerSDK/improbable/c_schema.h>
-#include <WorkerSDK/improbable/c_worker.h>
+#include "Net/UnrealNetwork.h"
+#include "EngineClasses/SpatialNetDriver.h"
+#include "Interop/SpatialStaticComponentView.h"
+#include "Interop/Connection/SpatialWorkerConnection.h"
 
 void USpatialSessionStateComponent::SendStateUpdate(EGDKSessionProgress SessionProgressState)
 {

@@ -1,6 +1,6 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "MatchTimerComponent.h"
+#include "Game/Components/MatchTimerComponent.h"
 #include "Misc/CommandLine.h"
 
 void UMatchTimerComponent::BeginPlay()

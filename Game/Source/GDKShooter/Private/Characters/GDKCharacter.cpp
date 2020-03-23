@@ -1,12 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "GDKCharacter.h"
+#include "Characters/GDKCharacter.h"
 
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "SpatialNetDriver.h"
-#include "UnrealNetwork.h"
+#include "EngineClasses/SpatialNetDriver.h"
+#include "Net/UnrealNetwork.h"
 #include "GDKLogging.h"
 #include "Controllers/GDKPlayerController.h"
 #include "Controllers/Components/ControllerEventsComponent.h"

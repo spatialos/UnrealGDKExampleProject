@@ -1,7 +1,7 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "TeamComponent.h"
-#include "UnrealNetwork.h"
+#include "Characters/Components/TeamComponent.h"
+#include "Net/UnrealNetwork.h"
 
 #include "Engine/World.h"
 
@@ -9,7 +9,7 @@
 UTeamComponent::UTeamComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UTeamComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

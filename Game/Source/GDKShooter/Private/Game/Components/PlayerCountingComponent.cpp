@@ -1,14 +1,14 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "PlayerCountingComponent.h"
-#include "UnrealNetwork.h"
+#include "Game/Components/PlayerCountingComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "GDKLogging.h"
 
 
 UPlayerCountingComponent::UPlayerCountingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UPlayerCountingComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

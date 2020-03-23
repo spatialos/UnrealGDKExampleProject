@@ -1,10 +1,10 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "Components/GDKMovementComponent.h"
+#include "Characters/Components/GDKMovementComponent.h"
 
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
-#include "UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 #include "GDKLogging.h"
 
 // Use the first custom movement flag slot in the character for sprinting.
@@ -27,9 +27,9 @@ UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectIni
 	MaxWalkSpeed = 250;
 	MaxWalkSpeedCrouched = 125;
 	MaxAcceleration = 1000;
-	bReplicates = true;
 	JumpZVelocity = 600.f;
 	AirControl = 0.2f;
+	SetIsReplicatedByDefault(true);
 }
 
 void UGDKMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)

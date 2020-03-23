@@ -1,7 +1,7 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "EquippedComponent.h"
-#include "UnrealNetwork.h"
+#include "Characters/Components/EquippedComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "GDKLogging.h"
 #include "Engine/World.h"
 #include "Weapons/Holdable.h"
@@ -10,7 +10,7 @@
 UEquippedComponent::UEquippedComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 }
 
 

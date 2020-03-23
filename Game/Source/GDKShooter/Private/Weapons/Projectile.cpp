@@ -1,12 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "Projectile.h"
+#include "Weapons/Projectile.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 #include "GDKLogging.h"
-#include "UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 
 AProjectile::AProjectile(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -14,7 +14,7 @@ AProjectile::AProjectile(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 
 	bReplicates = true;
-	bReplicateMovement = true;
+	SetReplicatingMovement(true);
 	SetRemoteRoleForBackwardsCompat(ROLE_SimulatedProxy);
 
 	CollisionComp = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("SphereComp"));
@@ -45,7 +45,7 @@ AProjectile::AProjectile(const FObjectInitializer& ObjectInitializer) : Super(Ob
 void AProjectile::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	CollisionComp->MoveIgnoreActors.Add(Instigator);
+	CollisionComp->MoveIgnoreActors.Add(GetInstigator());
 	MovementComp->OnProjectileStop.AddDynamic(this, &AProjectile::OnStop);
 	MovementComp->OnProjectileBounce.AddDynamic(this, &AProjectile::OnBounce);
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::BeginOverlap);
@@ -161,7 +161,7 @@ void AProjectile::Explode()
 		return;
 	}
 
-	bCanBeDamaged = false;
+	SetCanBeDamaged(false);
 	bExploded = true;
 	MovementComp->StopMovementImmediately();
 	SetLifeSpan(2.0f);

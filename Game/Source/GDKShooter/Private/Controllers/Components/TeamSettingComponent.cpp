@@ -1,6 +1,6 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "TeamSettingComponent.h"
+#include "Controllers/Components/TeamSettingComponent.h"
 #include "GDKLogging.h"
 #include "AIController.h"
 
