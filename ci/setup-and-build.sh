@@ -24,7 +24,7 @@ pushd "$(dirname "$0")"
     popd
 
     echo "--- get-head-gdk-commit"
-    pushd ${GDK_HOME}
+    pushd "${GDK_HOME}"
         # Get the short commit hash of this gdk build for later use in assembly name
         GDK_COMMIT_HASH=$(git rev-parse HEAD | cut -c1-6)
         echo "GDK at commit: ${GDK_COMMIT_HASH} on branch ${GDK_BRANCH_NAME}"
@@ -37,7 +37,7 @@ pushd "$(dirname "$0")"
     ENGINE_DIRECTORY="${EXAMPLEPROJECT_HOME}/UnrealEngine"
     "${GDK_HOME}/ci/get-engine.sh" "${ENGINE_DIRECTORY}"
 
-    pushd ${ENGINE_DIRECTORY}
+    pushd "${ENGINE_DIRECTORY}"
         echo "--- create-xcode-project"
         Engine/Build/BatchFiles/Mac/Build.sh \
             -projectfiles \
