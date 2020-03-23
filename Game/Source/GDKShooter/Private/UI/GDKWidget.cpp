@@ -9,6 +9,8 @@
 #include "Game/Components/MatchTimerComponent.h"
 #include "Game/Components/PlayerCountingComponent.h"
 #include "GameFramework/GameStateBase.h"
+#include "Interop/Connection/SpatialConnectionManager.h"
+#include "Interop/Connection/SpatialWorkerConnection.h"
 #include "Weapons/InstantWeapon.h"
 
 // Register listeners on AGDKPlayerController and AGDKGameState
@@ -109,7 +111,7 @@ void UGDKWidget::LeaveGame(const FString& TargetMap)
 
 	if (USpatialGameInstance* GameInstance = Cast<USpatialGameInstance>(GetGameInstance()))
 	{
-		GameInstance->GetSpatialWorkerConnection()->DestroyConnection();
+		GameInstance->GetSpatialConnectionManager()->GetWorkerConnection()->DestroyConnection();
 	}
 
 	GetOwningPlayer()->ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false /*bSeamless*/);
