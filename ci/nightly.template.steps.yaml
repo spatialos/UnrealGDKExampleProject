@@ -35,7 +35,7 @@ macos: &macos
       - <<: *agent_transients
 
 steps:
-  - label: "build-and-deploy-:windows:-${ENGINE_COMMIT_HASH}"
+  - label: "build-and-deploy-BUILKDITE_AGENT_PLACEHOLDER-${ENGINE_COMMIT_HASH}"
     command: ${BUILDKITE_COMMAND}
     <<: *BUILKDITE_AGENT_PLACEHOLDER 
     artifact_paths:
