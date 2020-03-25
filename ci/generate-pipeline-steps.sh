@@ -1,9 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
-BUILDKITE_TEMPLATE_FILE=ci/nightly-win.template.steps.yaml
+BUILDKITE_TEMPLATE_FILE=ci/nightly.template.steps.yaml
+
 if [[ -n "${MAC_BUILD:-}" ]]; then
-    BUILDKITE_TEMPLATE_FILE=ci/nightly-mac.template.steps.yaml
+    export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
+    REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g"
+else
+    export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
+    REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g"
 fi
 
 # Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against
@@ -31,20 +36,21 @@ if [ -z "${ENGINE_VERSION}" ]; then
     echo "Generating build steps for the first ${MAXIMUM_ENGINE_VERSION_COUNT_LOCAL} engine versions listed in unreal-engine.version"
     STEP_NUMBER=1
     IFS=$'\n'
-    for commit_hash in $(cat < ci/unreal-engine.version); do
+    for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
         if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
             break
         fi
-        # 4.24 temporary measure
-        REPLACE_STRING="s|ENGINE_COMMIT_HASH_PLACEHOLDER|HEAD 4.24-SpatialOSUnrealGDK|g; s|STEP_NUMBER_PLACEHOLDER|$STEP_NUMBER|g"
-        sed $REPLACE_STRING ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
+        export COMMIT_HASH="HEAD 4.24-SpatialOSUnrealGDK"
+        export STEP_NUMBER
+        sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
     # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
     # The number of engine versions we are dealing with is therefore the counting variable from the above loop minus one.
     STEP_NUMBER=$((STEP_NUMBER-1))
-    buildkite-agent meta-data set "engine-version-count" "$STEP_NUMBER"
+    buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 else
     echo "Generating steps for the specified engine version: $ENGINE_VERSION" 
-    sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|$ENGINE_VERSION|g" "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+    export ENGINE_COMMIT_HASH=${ENGINE_VERSION}
+    sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
 fi

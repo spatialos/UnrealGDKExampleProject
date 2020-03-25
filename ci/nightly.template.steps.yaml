@@ -22,14 +22,28 @@ windows: &windows
   plugins:
     - ca-johnson/taskkill#v4.1: ~
 
+macos: &macos
+  agents:
+    - "capable_of_building=gdk-for-unreal"
+    - "environment=production"
+    - "permission_set=builder"
+    - "platform=macos"
+    - "queue=${DARWIN_BUILDER_QUEUE:-v4-9c6ee0ef-d}"
+  timeout_in_minutes: 60
+  retry:
+    automatic:
+      - <<: *agent_transients
+
 steps:
-  - label: "build-and-deploy-:windows:-ENGINE_COMMIT_HASH_PLACEHOLDER"
-    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
-    <<: *windows # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
+  - label: "build-and-deploy-:windows:-${ENGINE_COMMIT_HASH}"
+    command: ${BUILDKITE_COMMAND}
+    <<: *BUILKDITE_AGENT_PLACEHOLDER 
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "cooked-android/**/*"
+      - "cooked-mac/**/*"
+      - "cooked-ios/**/*"
     env:
-      ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
-      STEP_NUMBER: "STEP_NUMBER_PLACEHOLDER"
+      ENGINE_COMMIT_HASH: "${ENGINE_COMMIT_HASH}"
+      STEP_NUMBER: "${STEP_NUMBER}"
       UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
