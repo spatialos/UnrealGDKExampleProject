@@ -52,7 +52,8 @@ pushd "$(dirname "$0")"
     pushd "${EXAMPLEPROJECT_HOME}/Game/Plugins/"
         git clone ${GDK_REPO} \
             --branch ${GDK_BRANCH_NAME}  \
-            --single-branch
+            --single-branch \
+            --depth 1
     popd
 
     echo "--- print-head-gdk-commit"
