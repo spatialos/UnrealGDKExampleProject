@@ -18,13 +18,13 @@ common: &common
     - ca-johnson/taskkill#v4.1: ~
 
 steps:
-#  - label: "build-and-deploy-:windows:-ENGINE_COMMIT_HASH_PLACEHOLDER"
-#    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
-#    <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
-#    artifact_paths:
-#      - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
-#      - "cooked-android/**/*"
-#    env:
-#      ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
-#      STEP_NUMBER: "STEP_NUMBER_PLACEHOLDER"
-#      UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
+  - label: "build-and-deploy-:windows:-ENGINE_COMMIT_HASH_PLACEHOLDER"
+    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
+    <<: *common # This folds the YAML named anchor into this step. Overrides, if any, should follow, not precede.
+    artifact_paths:
+      - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
+      - "cooked-android/**/*"
+    env:
+      ENGINE_COMMIT_HASH: "HEAD 4.24-SpatialOSUnrealGDK" # this is fine
+      STEP_NUMBER: "STEP_NUMBER_PLACEHOLDER"
+      UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
