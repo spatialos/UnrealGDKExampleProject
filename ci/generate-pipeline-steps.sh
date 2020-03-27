@@ -30,7 +30,8 @@ if [ -z "${ENGINE_VERSION}" ]; then
         if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
             break
         fi
-        REPLACE_STRING="s|ENGINE_COMMIT_HASH_PLACEHOLDER|$commit_hash|g; s|STEP_NUMBER_PLACEHOLDER|$STEP_NUMBER|g"
+        # 4.24 temporary measure
+        REPLACE_STRING="s|ENGINE_COMMIT_HASH_PLACEHOLDER|HEAD 4.24-SpatialOSUnrealGDK|g; s|STEP_NUMBER_PLACEHOLDER|$STEP_NUMBER|g"
         sed $REPLACE_STRING ci/nightly.template.steps.yaml | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
