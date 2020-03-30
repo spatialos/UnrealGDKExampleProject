@@ -15,6 +15,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FDamageTakenEvent, float, Value, F
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathCauserEvent, const AController*, Instigator);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathEvent);
 
+UENUM(BlueprintType)
+enum EDamageType
+{
+	Normal		UMETA(DisplayName = "Normal"),
+	Radial		UMETA(DisplayName = "Radial"),
+	Point		UMETA(DisplayName = "Point")
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GDKSHOOTER_API UHealthComponent : public UActorComponent
 {
@@ -30,7 +38,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
-		virtual void TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+		virtual void TakeDamage(float Damage, EDamageType DamageType, FVector Source, FVector Impact, AController* EventInstigator, AActor* DamageCauser);
 
 	UFUNCTION(BlueprintCallable)
 		bool GrantShield(float Value);

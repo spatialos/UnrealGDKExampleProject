@@ -167,8 +167,34 @@ float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 
+	FVector Source;
+	FVector Impact;
+
+	EDamageType DamageType;
+
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		FPointDamageEvent* const PointDamageEvent = (FPointDamageEvent*)&DamageEvent;
+		DamageType = EDamageType::Point;
+		Source = DamageCauser ? DamageCauser->GetActorLocation() : GetOwner()->GetActorLocation() - PointDamageEvent->ShotDirection;
+		Impact = PointDamageEvent->HitInfo.ImpactPoint;
+	}
+	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+	{
+		FRadialDamageEvent* const RadialDamageEvent = (FRadialDamageEvent*)&DamageEvent;
+		DamageType = EDamageType::Radial;
+		Impact = GetOwner()->GetActorLocation();
+		Source = RadialDamageEvent->Origin;
+	}
+	else
+	{
+		DamageType = EDamageType::Normal;
+		Source = DamageCauser ? DamageCauser->GetActorLocation() : GetOwner()->GetActorLocation();
+		Impact = GetOwner()->GetActorLocation();
+	}
+
+	HealthComponent->TakeDamage(ActualDamage, DamageType, Source, Impact, EventInstigator, DamageCauser);
 }
 
 FGenericTeamId AGDKCharacter::GetGenericTeamId() const
