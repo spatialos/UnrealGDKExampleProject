@@ -98,11 +98,17 @@ pushd "$exampleproject_home"
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
         pushd "UnrealEngine/Engine/Binaries/Win64"
-            Start-Process -Wait -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
+            $schema_gen_proc = Start-Process -Wait -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
                 "$($exampleproject_home)/Game/GDKShooter.uproject", `
                 "-run=GenerateSchemaAndSnapshots", `
                 "-MapPaths=`"/Maps/FPS-Start_Small`""
             )
+            $schema_gen_handle = $schema_gen_proc.Handle
+            Wait-Process -Id (Get-Process -InputObject $schema_gen_proc).id
+            if ($schema_gen_proc.ExitCode -ne 0) {
+                Write-Log "Failed to generate schema. Error: $($schema_gen_proc.ExitCode)"
+                Throw "Failed to generate schema"
+            }
         popd
     Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
 
