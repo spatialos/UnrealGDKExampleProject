@@ -88,7 +88,7 @@ pushd "$exampleproject_home"
         # This works around an issue whereby Wait-Process would fail to find build_editor_proc 
         $build_editor_handle = $build_editor_proc.Handle
 
-        Wait-Process -Id (Get-Process -InputObject $build_editor_proc).id
+        Wait-Process -InputObject $build_editor_proc
         if ($build_editor_proc.ExitCode -ne 0) {
             Write-Log "Failed to build Win64 Development Editor. Error: $($build_editor_proc.ExitCode)"
             Throw "Failed to build Win64 Development Editor"
@@ -104,7 +104,7 @@ pushd "$exampleproject_home"
                 "-MapPaths=`"/Maps/FPS-Start_Small`""
             )
             $schema_gen_handle = $schema_gen_proc.Handle
-            Wait-Process -Id (Get-Process -InputObject $schema_gen_proc).id
+            Wait-Process -InputObject $schema_gen_proc
             if ($schema_gen_proc.ExitCode -ne 0) {
                 Write-Log "Failed to generate schema. Error: $($schema_gen_proc.ExitCode)"
                 Throw "Failed to generate schema"
@@ -120,7 +120,7 @@ pushd "$exampleproject_home"
             "GDKShooter.uproject"
         )       
         $build_client_handle = $build_client_proc.Handle
-        Wait-Process -Id (Get-Process -InputObject $build_client_proc).id
+        Wait-Process -InputObject $build_client_proc
         if ($build_client_proc.ExitCode -ne 0) {
             Write-Log "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
             Throw "Failed to build Win64 Development Client"
@@ -135,7 +135,7 @@ pushd "$exampleproject_home"
             "GDKShooter.uproject"
         )       
         $build_server_handle = $build_server_proc.Handle
-        Wait-Process -Id (Get-Process -InputObject $build_server_proc).id
+        Wait-Process -InputObject $build_server_proc
 
         if ($build_server_proc.ExitCode -ne 0) {
             Write-Log "Failed to build Linux Development Server. Error: $($build_server_proc.ExitCode)"
@@ -169,7 +169,7 @@ pushd "$exampleproject_home"
         )
 
         $build_server_handle = $build_server_proc.Handle
-        Wait-Process -Id (Get-Process -InputObject $build_server_proc).id
+        Wait-Process -InputObject $build_server_proc
 
         if ($build_server_proc.ExitCode -ne 0) {
             Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
