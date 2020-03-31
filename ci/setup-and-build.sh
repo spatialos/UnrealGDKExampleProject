@@ -13,7 +13,6 @@ run_uat() {
     CLIENT_CONFIG="${3}"
     TARGET_PLATFORM="${4}"
     ARCHIVE_DIRECTORY="${5}"
-    ADDITIONAL_UAT_FLAGS="${6:-}"
 
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \
         -ScriptsForProject="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
@@ -34,8 +33,7 @@ run_uat() {
         -targetplatform="${TARGET_PLATFORM}" \
         -build \
         -utf8output \
-        -compile \
-        "${ADDITIONAL_UAT_FLAGS}"
+        -compile
 }
 
 
@@ -103,7 +101,6 @@ pushd "$(dirname "$0")"
         "Development" \
         "Mac" \
         "${EXAMPLEPROJECT_HOME}/cooked-mac"
-        "-iterative"
 
     echo "--- build-ios-client"
     run_uat \
