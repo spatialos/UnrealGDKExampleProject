@@ -57,13 +57,13 @@ pushd "$exampleproject_home"
     Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
-        pushd $engine_directory
+        pushd $unreal_engine_symlink_dir
             $unreal_version_selector_path = "Engine\Binaries\Win64\UnrealVersionSelector.exe"
 
             $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath $unreal_version_selector_path -ArgumentList @(`
                 "-switchversionsilent", `
                 "${exampleproject_home}\Game\GDKShooter.uproject", `
-                "$engine_directory"
+                "$unreal_engine_symlink_dir"
             )
 
             if ($find_engine_process.ExitCode -ne 0) {
