@@ -13,6 +13,7 @@ run_uat() {
     CLIENT_CONFIG="${3}"
     TARGET_PLATFORM="${4}"
     ARCHIVE_DIRECTORY="${5}"
+    ADDITIONAL_UAT_FLAGS="${6:-}"
 
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \
         -ScriptsForProject="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
@@ -33,7 +34,8 @@ run_uat() {
         -targetplatform="${TARGET_PLATFORM}" \
         -build \
         -utf8output \
-        -compile
+        -compile \
+        "${ADDITIONAL_UAT_FLAGS}"
 }
 
 
@@ -89,8 +91,17 @@ pushd "$(dirname "$0")"
         pushd "Engine/Binaries/Mac"
             UE4Editor.app/Contents/MacOS/UE4Editor \
                 "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+                -run=CookAndGenerateSchema \
+                -targetplatform=MacNoEditor \
+                -SkipShaderCompile \
+                -unversioned \
+                -map="/Maps/FPS-Start_Small"
+
+            UE4Editor.app/Contents/MacOS/UE4Editor \
+                "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
                 -run=GenerateSchemaAndSnapshots \
-                -MapPaths="/Maps/FPS-Start_Small"
+                -MapPaths="/Maps/FPS-Start_Small" \
+                -SkipSchema
         popd
     popd
 
@@ -100,7 +111,8 @@ pushd "$(dirname "$0")"
         "${EXAMPLEPROJECT_HOME}" \
         "Development" \
         "Mac" \
-        "${EXAMPLEPROJECT_HOME}/cooked-mac"
+        "${EXAMPLEPROJECT_HOME}/cooked-mac" \
+        "-iterative"
 
     echo "--- build-ios-client"
     run_uat \
