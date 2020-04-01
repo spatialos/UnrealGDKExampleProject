@@ -98,7 +98,7 @@ pushd "$exampleproject_home"
 
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
-        pushd "UnrealEngine/Engine/Binaries/Win64"
+        pushd "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
             Start-Process -Wait -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
                 "$($exampleproject_home)/Game/GDKShooter.uproject", `
                 "-run=GenerateSchemaAndSnapshots", `
@@ -139,7 +139,7 @@ pushd "$exampleproject_home"
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
-        $unreal_uat_path = "${exampleproject_home}\UnrealEngine\Engine\Build\BatchFiles\RunUAT.bat"
+        $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList @(`
             "-ScriptsForProject=$($exampleproject_home)/Game/GDKShooter.uproject", `
             "BuildCookRun", `
@@ -152,7 +152,7 @@ pushd "$exampleproject_home"
             "-archivedirectory=$($exampleproject_home)/cooked-android", `
             "-package", `
             "-clientconfig=Development", `
-            "-ue4exe=$($exampleproject_home)/UnrealEngine/Engine/Binaries/Win64/UE4Editor-Cmd.exe", `
+            "-ue4exe=$($unreal_engine_symlink_dir)/Engine/Binaries/Win64/UE4Editor-Cmd.exe", `
             "-pak", `
             "-prereqs", `
             "-nodebuginfo", `
