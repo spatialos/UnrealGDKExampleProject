@@ -14,7 +14,7 @@ run_uat() {
     TARGET_PLATFORM="${4}"
     ARCHIVE_DIRECTORY="${5}"
     ADDITIONAL_UAT_FLAGS="${6:-}"
-
+echo "test"
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \
         -ScriptsForProject="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
         BuildCookRun \
