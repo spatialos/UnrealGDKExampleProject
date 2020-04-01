@@ -5,7 +5,9 @@ param(
   [string] $deployment_launch_configuration = "one_worker_test.json",
   [string] $deployment_snapshot_path = "snapshots/FPS-Start_Small.snapshot",
   [string] $deployment_cluster_region = "eu",
-  [string] $project_name = "unreal_gdk"
+  [string] $project_name = "unreal_gdk",
+  [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
+  [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine"
 )
 
 . "$PSScriptRoot\common.ps1"
@@ -50,8 +52,7 @@ pushd "$exampleproject_home"
     # Use the cached engine version or set it up if it has not been cached yet.
     Start-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
-        $engine_directory = "${exampleproject_home}\UnrealEngine"
-        &"$($gdk_home)\ci\get-engine.ps1" -unreal_path "$engine_directory"
+        &"$($gdk_home)\ci\get-engine.ps1" -unreal_path "$unreal_engine_symlink_dir"
 
     Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
