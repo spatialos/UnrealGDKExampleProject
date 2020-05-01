@@ -80,6 +80,10 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 		if (InstigatorPlayerState != nullptr)
 		{
 			InstigatorPlayerId = InstigatorPlayerState->PlayerId;
+			if (const UTeamComponent* TeamComponent = InstigatorPlayerState->FindComponentByClass<UTeamComponent>())
+			{
+				InstigatorTeamId = TeamComponent->GetTeam();
+			}
 		}
 	}
 	if (IGenericTeamAgentInterface* InstgatorTeam = Cast<IGenericTeamAgentInterface>(EventInstigator))
@@ -214,7 +218,7 @@ void UHealthComponent::OnRep_CurrentHealth()
 	}
 }
 
-void UHealthComponent::MulticastDamageTaken_Implementation(float Value, FVector Source, FVector Impact, int32 PlayerId, FGenericTeamId TeamId)
+void UHealthComponent::MulticastDamageTaken_Implementation(float Value, FVector Source, FVector Impact, int32 InstigatorPlayerId, FGenericTeamId InstigatorTeamId)
 {
-	DamageTaken.Broadcast(Value, Source, Impact, PlayerId, TeamId);
+	DamageTaken.Broadcast(Value, Source, Impact, InstigatorPlayerId, InstigatorTeamId);
 }

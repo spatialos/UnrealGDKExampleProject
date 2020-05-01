@@ -27,7 +27,7 @@ public:
 		void SetTeam(FGenericTeamId NewTeamId) { TeamId = NewTeamId; }
 
 	UFUNCTION(BlueprintPure)
-		FGenericTeamId GetTeam() { return TeamId; }
+	FGenericTeamId GetTeam() const { return TeamId; }
 
 	//Negative or Zero as a Team Id is not considered a valid team
 	UFUNCTION(BlueprintPure)
