@@ -18,7 +18,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RequestSpawn(APlayerController* Controller);
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 NumTeams = 2;
 
 protected:
