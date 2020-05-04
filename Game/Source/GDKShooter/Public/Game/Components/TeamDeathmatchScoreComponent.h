@@ -44,6 +44,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RecordNewPlayer(APlayerState* PlayerState);
 
+	UFUNCTION(BlueprintCallable)
+	void RemovePlayer(APlayerState* PlayerState);
+
 	UFUNCTION(BlueprintPure)
 	TArray<FTeamScore>& TeamScores() { return TeamScoreArray; }
 

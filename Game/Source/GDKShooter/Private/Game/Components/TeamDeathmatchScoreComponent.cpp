@@ -58,6 +58,29 @@ void UTeamDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 	}
 }
 
+void UTeamDeathmatchScoreComponent::RemovePlayer(APlayerState* PlayerState)
+{
+	if (PlayerScoreMap.Contains(PlayerState->PlayerId))
+	{
+		if (const UTeamComponent* TeamComponent = PlayerState->FindComponentByClass<UTeamComponent>())
+		{
+			const uint8 TeamId = TeamComponent->GetTeam().GetId();
+			if (TeamScoreMap.Contains(TeamId))
+			{
+				TArray<FPlayerScore>* PlayerScores = &TeamScoreArray[TeamScoreMap[TeamId]].PlayerScores;
+				PlayerScores->RemoveAt(PlayerScoreMap[PlayerState->PlayerId]);
+				for (int i = 0; i < PlayerScores->Num(); i++)
+				{
+					int32 PlayerId = (*PlayerScores)[i].PlayerId;
+					PlayerScoreMap[PlayerId] = i;
+				}
+			}
+		}
+
+		PlayerScoreMap.Remove(PlayerState->PlayerId);
+	}
+}
+
 void UTeamDeathmatchScoreComponent::RecordKill(APlayerState* KillerState, APlayerState* VictimState)
 {
 	if (PlayerScoreMap.Contains(KillerState->PlayerId))
