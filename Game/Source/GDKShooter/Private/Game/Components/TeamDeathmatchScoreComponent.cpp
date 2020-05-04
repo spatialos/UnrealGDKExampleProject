@@ -47,8 +47,7 @@ void UTeamDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 			else
 			{
 				// Existing Team.
-				FTeamScore ExistingTeamScore = TeamScoreArray[TeamScoreMap[TeamId]];
-				int32 PlayerIndex = ExistingTeamScore.PlayerScores.Add(NewPlayerScore);
+				int32 PlayerIndex = TeamScoreArray[TeamScoreMap[TeamId]].PlayerScores.Add(NewPlayerScore);
 				PlayerScoreMap.Emplace(NewPlayerScore.PlayerId, PlayerIndex);
 			}
 		}
