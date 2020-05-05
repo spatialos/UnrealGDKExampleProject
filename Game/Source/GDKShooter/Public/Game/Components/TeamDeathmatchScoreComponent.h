@@ -14,16 +14,19 @@ struct FTeamScore
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FGenericTeamId TeamId;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FName TeamName;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int32 TotalKills;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int32 TotalDeaths;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<FPlayerScore> PlayerScores;
 };
 

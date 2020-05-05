@@ -13,19 +13,18 @@
 #include "GameFramework/PlayerController.h"
 #include "Game/Components/PlayerPublisher.h"
 #include "GDKLogging.h"
+#include "Math/NumericLimits.h"
 
 UTeamDeathmatchSpawnerComponent::UTeamDeathmatchSpawnerComponent()
 {	
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UTeamDeathmatchSpawnerComponent::BeginPlay()
+void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
 {
-	Super::BeginPlay();
-
-	for (int i = 0; i < NumTeams; i++)
+	for (FGenericTeamId TeamId : TeamIds)
 	{
-		TeamAssignments.Add(i, 0);
+		TeamAssignments.Add(TeamId.GetId(), 0);
 	}
 
 	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
@@ -102,17 +101,28 @@ void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller
 	}
 }
 
+void UTeamDeathmatchSpawnerComponent::PlayerDisconnected(APlayerController* Controller)
+{
+	if (SpawnedPlayers.Contains(Controller))
+	{
+		TeamAssignments[SpawnedPlayers[Controller]] -= 1;
+		SpawnedPlayers.Remove(Controller);
+	}
+}
+
 int32 UTeamDeathmatchSpawnerComponent::GetSmallestTeam()
 {
-	int32 SmallestTeam = 0;
-	int32 SmallestTeamSize = TeamAssignments[SmallestTeam];
-	for (int i = 1; i < NumTeams; i++)
+	int32 SmallestTeam = -1;
+	int32 SmallestTeamSize = TNumericLimits<int32>::Max();
+
+	for (auto& Entry : TeamAssignments)
 	{
-		if (TeamAssignments[i] < SmallestTeamSize)
+		if (Entry.Value < SmallestTeamSize)
 		{
-			SmallestTeamSize = TeamAssignments[i];
-			SmallestTeam = i;
+			SmallestTeamSize = Entry.Value;
+			SmallestTeam = Entry.Key;
 		}
 	}
+
 	return SmallestTeam;
 }

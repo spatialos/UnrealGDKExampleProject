@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GenericTeamAgentInterface.h"
 #include "TeamDeathmatchSpawnerComponent.generated.h"
 
 
@@ -16,14 +17,15 @@ public:
 	UTeamDeathmatchSpawnerComponent();
 
 	UFUNCTION(BlueprintCallable)
+	void SetTeams(TArray<FGenericTeamId> TeamIds);
+
+	UFUNCTION(BlueprintCallable)
 	void RequestSpawn(APlayerController* Controller);
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 NumTeams = 2;
+	UFUNCTION(BlueprintCallable)
+	void PlayerDisconnected(APlayerController* Controller);
 
 protected:
-	virtual void BeginPlay() override;		
-
 	int32 GetSmallestTeam();
 
 	TArray<class APlayerStart*> PlayerStarts;
