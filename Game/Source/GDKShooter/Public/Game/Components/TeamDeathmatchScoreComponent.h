@@ -14,10 +14,11 @@ struct FTeamScore
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FGenericTeamId TeamId;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FName TeamName;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
@@ -40,6 +41,9 @@ class GDKSHOOTER_API UTeamDeathmatchScoreComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UTeamDeathmatchScoreComponent();
+
+	UFUNCTION(BlueprintCallable)
+	void SetTeamScores(TArray<FTeamScore> InitialTeamScores);
 
 	UFUNCTION(BlueprintCallable)
 	void RecordKill(APlayerState* KillerState, APlayerState* VictimState);

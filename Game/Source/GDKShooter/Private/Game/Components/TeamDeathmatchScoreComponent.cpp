@@ -18,6 +18,15 @@ void UTeamDeathmatchScoreComponent::GetLifetimeReplicatedProps(TArray<FLifetimeP
 	DOREPLIFETIME(UTeamDeathmatchScoreComponent, TeamScoreArray);
 }
 
+void UTeamDeathmatchScoreComponent::SetTeamScores(TArray<FTeamScore> InitialTeamScores)
+{
+	for (FTeamScore Team : InitialTeamScores)
+	{
+		int32 TeamIndex = TeamScoreArray.Add(Team);
+		TeamScoreMap.Emplace(Team.TeamId, TeamIndex);
+	}
+}
+
 void UTeamDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 {
 	if (!PlayerScoreMap.Contains(PlayerState->PlayerId))
@@ -33,9 +42,11 @@ void UTeamDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 			const uint8 TeamId = TeamComponent->GetTeam().GetId();
 			if (!TeamScoreMap.Contains(TeamId))
 			{
+				UE_LOG(LogTemp, Error, TEXT("UTeamDeathmatchScoreComponent::RecordNewPlayer Attempted to record %s who is on an unknown team %d. Use SetTeamScores first."), *GetNameSafe(PlayerState), TeamId);
 				// New Team.
 				FTeamScore NewTeamScore;
 				NewTeamScore.TeamId = TeamComponent->GetTeam();
+				NewTeamScore.TeamName = FName(*FString::Printf(TEXT("Team %d"), NewTeamScore.TeamId));
 				NewTeamScore.TotalKills = 0;
 				NewTeamScore.TotalDeaths = 0;
 				int32 PlayerIndex = NewTeamScore.PlayerScores.Add(NewPlayerScore);
