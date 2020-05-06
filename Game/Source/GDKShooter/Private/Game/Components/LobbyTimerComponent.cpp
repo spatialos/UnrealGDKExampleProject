@@ -1,6 +1,6 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "LobbyTimerComponent.h"
+#include "Game/Components/LobbyTimerComponent.h"
 #include "GDKLogging.h"
 #include "GameFramework/Actor.h"
 #include "Misc/CommandLine.h"

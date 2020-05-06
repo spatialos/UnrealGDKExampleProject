@@ -1,11 +1,11 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "TeamSpawnerComponent.h"
+#include "Game/Components/TeamSpawnerComponent.h"
 
-#include "Components/MetaDataComponent.h"
-#include "Components/TeamComponent.h"
+#include "Characters/Components/MetaDataComponent.h"
+#include "Characters/Components/TeamComponent.h"
 #include "EngineUtils.h"
-#include "Components/PlayerPublisher.h"
+#include "Game/Components/PlayerPublisher.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerController.h"

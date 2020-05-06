@@ -1,14 +1,14 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "TimerComponent.h"
+#include "Game/Components/TimerComponent.h"
 #include "Engine/World.h"
 #include "GDKLogging.h"
-#include "UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 
 UTimerComponent::UTimerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UTimerComponent::BeginPlay()

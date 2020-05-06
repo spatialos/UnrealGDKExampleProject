@@ -5,14 +5,16 @@ param(
   [string] $deployment_launch_configuration = "one_worker_test.json",
   [string] $deployment_snapshot_path = "snapshots/FPS-Start_Small.snapshot",
   [string] $deployment_cluster_region = "eu",
-  [string] $project_name = "unreal_gdk"
+  [string] $project_name = "unreal_gdk",
+  [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
+  [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine"
 )
 
 . "$PSScriptRoot\common.ps1"
 
 # When a build is launched custom environment variables can be specified.
 # Parse them here to use the set value or the default.
-$gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
+$gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "0.9.0"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 
 $gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
@@ -50,19 +52,18 @@ pushd "$exampleproject_home"
     # Use the cached engine version or set it up if it has not been cached yet.
     Start-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
-        $engine_directory = "${exampleproject_home}\UnrealEngine"
-        &"$($gdk_home)\ci\get-engine.ps1" -unreal_path "$engine_directory"
+        &"$($gdk_home)\ci\get-engine.ps1" -unreal_path "$unreal_engine_symlink_dir"
 
     Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
-        pushd $engine_directory
+        pushd $unreal_engine_symlink_dir
             $unreal_version_selector_path = "Engine\Binaries\Win64\UnrealVersionSelector.exe"
 
             $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath $unreal_version_selector_path -ArgumentList @(`
                 "-switchversionsilent", `
                 "${exampleproject_home}\Game\GDKShooter.uproject", `
-                "$engine_directory"
+                "$unreal_engine_symlink_dir"
             )
 
             if ($find_engine_process.ExitCode -ne 0) {
@@ -88,7 +89,7 @@ pushd "$exampleproject_home"
         # This works around an issue whereby Wait-Process would fail to find build_editor_proc 
         $build_editor_handle = $build_editor_proc.Handle
 
-        Wait-Process -Id (Get-Process -InputObject $build_editor_proc).id
+        Wait-Process -InputObject $build_editor_proc
         if ($build_editor_proc.ExitCode -ne 0) {
             Write-Log "Failed to build Win64 Development Editor. Error: $($build_editor_proc.ExitCode)"
             Throw "Failed to build Win64 Development Editor"
@@ -97,12 +98,18 @@ pushd "$exampleproject_home"
 
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
-        pushd "UnrealEngine/Engine/Binaries/Win64"
-            Start-Process -Wait -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
+        pushd "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
+            $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
                 "$($exampleproject_home)/Game/GDKShooter.uproject", `
                 "-run=GenerateSchemaAndSnapshots", `
                 "-MapPaths=`"/Maps/FPS-Start_Small`""
             )
+            $schema_gen_handle = $schema_gen_proc.Handle
+            Wait-Process -InputObject $schema_gen_proc
+            if ($schema_gen_proc.ExitCode -ne 0) {
+                Write-Log "Failed to generate schema. Error: $($schema_gen_proc.ExitCode)"
+                Throw "Failed to generate schema"
+            }
         popd
     Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
 
@@ -114,7 +121,7 @@ pushd "$exampleproject_home"
             "GDKShooter.uproject"
         )       
         $build_client_handle = $build_client_proc.Handle
-        Wait-Process -Id (Get-Process -InputObject $build_client_proc).id
+        Wait-Process -InputObject $build_client_proc
         if ($build_client_proc.ExitCode -ne 0) {
             Write-Log "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
             Throw "Failed to build Win64 Development Client"
@@ -129,13 +136,47 @@ pushd "$exampleproject_home"
             "GDKShooter.uproject"
         )       
         $build_server_handle = $build_server_proc.Handle
-        Wait-Process -Id (Get-Process -InputObject $build_server_proc).id
+        Wait-Process -InputObject $build_server_proc
 
         if ($build_server_proc.ExitCode -ne 0) {
             Write-Log "Failed to build Linux Development Server. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Linux Development Server"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
+
+    Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
+        $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
+        $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList @(`
+            "-ScriptsForProject=$($exampleproject_home)/Game/GDKShooter.uproject", `
+            "BuildCookRun", `
+            "-nocompileeditor", `
+            "-nop4", `
+            "-project=$($exampleproject_home)/Game/GDKShooter.uproject", `
+            "-cook", `
+            "-stage", `
+            "-archive", `
+            "-archivedirectory=$($exampleproject_home)/cooked-android", `
+            "-package", `
+            "-clientconfig=Development", `
+            "-ue4exe=$($unreal_engine_symlink_dir)/Engine/Binaries/Win64/UE4Editor-Cmd.exe", `
+            "-pak", `
+            "-prereqs", `
+            "-nodebuginfo", `
+            "-targetplatform=Android", `
+            "-cookflavor=Multi", `
+            "-build", `
+            "-utf8output", `
+            "-compile"
+        )
+
+        $build_server_handle = $build_server_proc.Handle
+        Wait-Process -InputObject $build_server_proc
+
+        if ($build_server_proc.ExitCode -ne 0) {
+            Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
+            Throw "Failed to build Android Development Client"
+        }
+    Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
 
     # Deploy the project to SpatialOS
     &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name"

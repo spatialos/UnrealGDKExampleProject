@@ -1,6 +1,6 @@
  // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "CrossServerPawn.h"
+#include "GameFramework/CrossServerPawn.h"
 
 float ACrossServerPawn::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {

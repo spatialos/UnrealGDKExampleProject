@@ -1,6 +1,6 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "FirstPersonTraceProvider.h"
+#include "Characters/Components/FirstPersonTraceProvider.h"
 #include "GDKLogging.h"
 
 UFirstPersonTraceProvider::UFirstPersonTraceProvider()

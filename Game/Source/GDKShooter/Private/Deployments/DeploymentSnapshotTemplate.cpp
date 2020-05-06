@@ -1,10 +1,10 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "DeploymentSnapshotTemplate.h"
+#include "Deployments/DeploymentSnapshotTemplate.h"
 
 #include "SpatialCommonTypes.h"
 #include "SpatialConstants.h"
-#include "StandardLibrary.h"
+#include "Schema/StandardLibrary.h"
 
 bool UDeploymentSnapshotTemplate::WriteToSnapshotOutput(Worker_SnapshotOutputStream* OutputStream, Worker_EntityId& NextEntityId)
 {
@@ -36,7 +36,7 @@ bool UDeploymentSnapshotTemplate::WriteToSnapshotOutput(Worker_SnapshotOutputStr
 	DeploymentComponentData.component_id = 1001;
 	DeploymentComponentData.schema_type = Schema_CreateComponentData();
 
-	Components.Add(SpatialGDK::Position(SpatialGDK::Origin).CreatePositionData());
+	Components.Add(SpatialGDK::Position(SpatialGDK::DeploymentOrigin).CreatePositionData());
 	Components.Add(SpatialGDK::Metadata(TEXT("Session")).CreateMetadataData());
 	Components.Add(SpatialGDK::Persistence().CreatePersistenceData());
 	Components.Add(SpatialGDK::EntityAcl(AnyWorkerPermission, ComponentWriteAcl).CreateEntityAclData());

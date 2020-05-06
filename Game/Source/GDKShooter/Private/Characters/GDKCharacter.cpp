@@ -1,12 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "GDKCharacter.h"
+#include "Characters/GDKCharacter.h"
 
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "SpatialNetDriver.h"
-#include "UnrealNetwork.h"
+#include "EngineClasses/SpatialNetDriver.h"
+#include "Net/UnrealNetwork.h"
 #include "GDKLogging.h"
 #include "Controllers/GDKPlayerController.h"
 #include "Controllers/Components/ControllerEventsComponent.h"
@@ -48,6 +48,9 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
+	PlayerInputComponent->BindAxis("TurnRate", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &APawn::AddControllerPitchInput);
+    
 	PlayerInputComponent->BindAction<FBoolean>("Sprint", IE_Pressed, GDKMovementComponent, &UGDKMovementComponent::SetWantsToSprint, true);
 	PlayerInputComponent->BindAction<FBoolean>("Sprint", IE_Released, GDKMovementComponent, &UGDKMovementComponent::SetWantsToSprint, false);
 	PlayerInputComponent->BindAction<FBoolean>("Crouch", IE_Pressed, this, &AGDKCharacter::Crouch, true);

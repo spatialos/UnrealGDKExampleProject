@@ -1,6 +1,6 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "ProjectileWeapon.h"
+#include "Weapons/ProjectileWeapon.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"

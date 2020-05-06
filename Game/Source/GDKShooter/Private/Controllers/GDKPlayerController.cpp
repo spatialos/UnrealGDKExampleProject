@@ -4,11 +4,12 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
-#include "Components/ControllerEventsComponent.h"
-#include "Components/EquippedComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/MetaDataComponent.h"
-#include "Connection/SpatialWorkerConnection.h"
+#include "Controllers/Components/ControllerEventsComponent.h"
+#include "Characters/Components/EquippedComponent.h"
+#include "Characters/Components/HealthComponent.h"
+#include "Characters/Components/MetaDataComponent.h"
+#include "EngineClasses/SpatialNetDriver.h"
+#include "Interop/Connection/SpatialWorkerConnection.h"
 #include "Game/Components/ScorePublisher.h"
 #include "Game/Components/SpawnRequestPublisher.h"
 #include "Game/Components/PlayerPublisher.h"
@@ -16,8 +17,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "SpatialNetDriver.h"
-#include "UnrealNetwork.h"
+#include "GameFramework/TouchInterface.h"
+#include "Net/UnrealNetwork.h"
 #include "Weapons/Holdable.h"
 #include "Weapons/Projectile.h"
 #include "Weapons/Weapon.h"
@@ -97,10 +98,12 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode)
 	if (bIsUIMode)
 	{
 		SetInputMode(FInputModeGameAndUI());
+		ActivateTouchInterface(nullptr);
 	}
 	else
 	{
 		SetInputMode(FInputModeGameOnly());
+		CreateTouchInterface();
 	}
 
 	if (GetPawn())

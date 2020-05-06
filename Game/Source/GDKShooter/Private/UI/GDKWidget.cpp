@@ -1,15 +1,17 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "GDKWidget.h"
-#include "Components/ControllerEventsComponent.h"
-#include "Components/GDKMovementComponent.h"
-#include "Components/HealthComponent.h"
-#include "EngineClasses/SpatialGameInstance.h"
+#include "UI/GDKWidget.h"
+#include "Controllers/Components/ControllerEventsComponent.h"
+#include "Characters/Components/GDKMovementComponent.h"
+#include "Characters/Components/HealthComponent.h"
 #include "Game/Components/LobbyTimerComponent.h"
 #include "Game/Components/MatchTimerComponent.h"
 #include "Game/Components/PlayerCountingComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "Weapons/InstantWeapon.h"
+
+#include "EngineClasses/SpatialGameInstance.h"
+#include "Interop/Connection/SpatialConnectionManager.h"
 
 // Register listeners on AGDKPlayerController and AGDKGameState
 void UGDKWidget::NativeConstruct()
@@ -109,7 +111,7 @@ void UGDKWidget::LeaveGame(const FString& TargetMap)
 
 	if (USpatialGameInstance* GameInstance = Cast<USpatialGameInstance>(GetGameInstance()))
 	{
-		GameInstance->GetSpatialWorkerConnection()->DestroyConnection();
+		GameInstance->GetSpatialConnectionManager()->DestroyConnection();
 	}
 
 	GetOwningPlayer()->ClientTravel(TravelURL.ToString(), TRAVEL_Absolute, false /*bSeamless*/);

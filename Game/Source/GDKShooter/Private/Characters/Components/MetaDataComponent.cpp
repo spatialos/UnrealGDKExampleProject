@@ -1,12 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "MetaDataComponent.h"
-#include "UnrealNetwork.h"
+#include "Characters/Components/MetaDataComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "GDKLogging.h"
 
 UMetaDataComponent::UMetaDataComponent()
 {
-	bReplicates = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UMetaDataComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

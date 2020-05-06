@@ -1,13 +1,13 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "Weapon.h"
+#include "Weapons/Weapon.h"
 
 #include "Engine/World.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "CollisionQueryParams.h"
 #include "Kismet/GameplayStatics.h"
 #include "GDKLogging.h"
-#include "UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 
 
 AWeapon::AWeapon()

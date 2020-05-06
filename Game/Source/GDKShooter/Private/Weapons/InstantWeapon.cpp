@@ -1,12 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "InstantWeapon.h"
+#include "Weapons/InstantWeapon.h"
 
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
 #include "GDKLogging.h"
-#include "UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 
 
 AInstantWeapon::AInstantWeapon()
@@ -61,7 +61,7 @@ void AInstantWeapon::DoFire_Implementation()
 	{
 		ServerDidHit(HitInfo);
 		SpawnFX(HitInfo, true);  // Spawn the hit fx locally
-		AnnounceShot(HitInfo.HitActor ? HitInfo.HitActor->bCanBeDamaged : false);
+		AnnounceShot(HitInfo.HitActor ? HitInfo.HitActor->CanBeDamaged() : false);
 	}
 	else
 	{

@@ -1,15 +1,12 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "SpatialSessionStateComponent.h"
+#include "Game/Components/SpatialSessionStateComponent.h"
 
 #include "Engine/World.h"
-#include "UnrealNetwork.h"
-#include "SpatialNetDriver.h"
-#include "SpatialStaticComponentView.h"
-#include "SpatialWorkerConnection.h"
-
-#include <WorkerSDK/improbable/c_schema.h>
-#include <WorkerSDK/improbable/c_worker.h>
+#include "Net/UnrealNetwork.h"
+#include "EngineClasses/SpatialNetDriver.h"
+#include "Interop/SpatialStaticComponentView.h"
+#include "Interop/Connection/SpatialWorkerConnection.h"
 
 void USpatialSessionStateComponent::SendStateUpdate(EGDKSessionProgress SessionProgressState)
 {
@@ -31,7 +28,7 @@ void USpatialSessionStateComponent::SendStateUpdate(EGDKSessionProgress SessionP
 	int SessionState = static_cast<int>(SessionProgressState) + 1;
 
 	Worker_EntityId target_entity_id = SessionEntityId;
-	Worker_ComponentUpdate component_update = {};
+	FWorkerComponentUpdate component_update = {};
 	component_update.component_id = SessionComponentId;
 	component_update.schema_type = Schema_CreateComponentUpdate();
 	Schema_Object* fields_object = Schema_GetComponentUpdateFields(component_update.schema_type);

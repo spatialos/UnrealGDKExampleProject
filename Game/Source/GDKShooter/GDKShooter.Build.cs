@@ -8,6 +8,8 @@ public class GDKShooter : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
+		bLegacyPublicIncludePaths = false;
+
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
