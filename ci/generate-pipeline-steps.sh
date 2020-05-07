@@ -40,8 +40,8 @@ if [ -z "${ENGINE_VERSION}" ]; then
         if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
             break
         fi
-        # 4.24 temporary measure
-        export ENGINE_COMMIT_HASH="HEAD 4.24-SpatialOSUnrealGDK"
+
+        export ENGINE_COMMIT_HASH="${COMMIT_HASH}"
         export STEP_NUMBER
         sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))
