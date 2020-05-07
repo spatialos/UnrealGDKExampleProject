@@ -15,9 +15,12 @@
 #include "GDKLogging.h"
 #include "Math/NumericLimits.h"
 
+DEFINE_LOG_CATEGORY(LogTeamDeathmatchSpawnerComponent)
+
 UTeamDeathmatchSpawnerComponent::UTeamDeathmatchSpawnerComponent()
 {	
 	PrimaryComponentTick.bCanEverTick = false;
+	bUseTeamPlayerStarts = true;
 }
 
 void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
@@ -30,7 +33,21 @@ void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
 	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
 	{
 		APlayerStart* PlayerStart = *It;
-		PlayerStarts.Add(PlayerStart);
+		if (bUseTeamPlayerStarts)
+		{
+			if (UTeamComponent* TeamComponent = PlayerStart->FindComponentByClass<UTeamComponent>())
+			{
+				PlayerStarts.Add(PlayerStart);
+			}
+			else
+			{
+				UE_LOG(LogTeamDeathmatchSpawnerComponent, Log, TEXT("SetTeams ignoring %s as it does not have a TeamComponent"), *GetNameSafe(PlayerStart));
+			}
+		}
+		else
+		{
+			PlayerStarts.Add(PlayerStart);
+		}
 	}
 }
 
@@ -50,8 +67,12 @@ void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller
 		TeamAssignments[TeamId] += 1;
 	}
 
-	APlayerStart* PlayerStart = PlayerStarts[NextPlayerStart];
-	NextPlayerStart = (NextPlayerStart + 1) % PlayerStarts.Num();
+	APlayerStart* PlayerStart = bUseTeamPlayerStarts ? GetNextTeamPlayerStart(FGenericTeamId(TeamId)) : GetNextPlayerStart();
+	if (PlayerStart == nullptr)
+	{
+		UE_LOG(LogTeamDeathmatchSpawnerComponent, Error, TEXT("No player start available for %s (team %d)"), *GetNameSafe(Controller), TeamId);
+		return;
+	}
 
 	if (AGameModeBase* GameMode = GetWorld()->GetAuthGameMode())
 	{
@@ -63,7 +84,7 @@ void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller
 
 		if (!NewPawn)
 		{
-			UE_LOG(LogGDK, Error, TEXT("Null Pawn Returned from SpawnDefaultPawn"));
+			UE_LOG(LogTeamDeathmatchSpawnerComponent, Error, TEXT("Null Pawn Returned from SpawnDefaultPawn"));
 			return;
 		}
 
@@ -79,7 +100,7 @@ void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller
 		}
 		else
 		{
-			UE_LOG(LogGDK, Error, TEXT("TeamComponent Required on Character"));
+			UE_LOG(LogTeamDeathmatchSpawnerComponent, Error, TEXT("TeamComponent Required on Character"));
 		}
 
 		if (Controller->PlayerState != nullptr)
@@ -90,7 +111,7 @@ void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller
 			}
 			else
 			{
-				UE_LOG(LogGDK, Error, TEXT("TeamComponent Required on PlayerState"));
+				UE_LOG(LogTeamDeathmatchSpawnerComponent, Error, TEXT("TeamComponent Required on PlayerState"));
 			}
 
 			if (UPlayerPublisher* PlayerPublisher = Cast<UPlayerPublisher>(GetWorld()->GetGameState()->GetComponentByClass(UPlayerPublisher::StaticClass())))
@@ -125,4 +146,29 @@ int32 UTeamDeathmatchSpawnerComponent::GetSmallestTeam()
 	}
 
 	return SmallestTeam;
+}
+
+APlayerStart* UTeamDeathmatchSpawnerComponent::GetNextTeamPlayerStart(FGenericTeamId Team)
+{
+	for (int i = 0; i < PlayerStarts.Num(); i++)
+	{
+		int index = (i + NextTeamPlayerStart.FindOrAdd(Team, 0)) % PlayerStarts.Num();
+		if (const UTeamComponent* TeamComponent = PlayerStarts[index]->FindComponentByClass<UTeamComponent>())
+		{
+			if (TeamComponent->GetTeam() == Team)
+			{
+				NextTeamPlayerStart[Team] = index + 1;
+				return PlayerStarts[index];
+			}
+		}
+	}
+	return nullptr;
+}
+
+APlayerStart* UTeamDeathmatchSpawnerComponent::GetNextPlayerStart()
+{
+	APlayerStart* PlayerStart = PlayerStarts[NextPlayerStart];
+	NextPlayerStart = (NextPlayerStart + 1) % PlayerStarts.Num();
+	
+	return PlayerStart;
 }
