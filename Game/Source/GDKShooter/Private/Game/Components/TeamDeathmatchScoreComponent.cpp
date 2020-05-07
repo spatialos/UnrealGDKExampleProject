@@ -47,8 +47,7 @@ void UTeamDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 				FTeamScore NewTeamScore;
 				NewTeamScore.TeamId = TeamComponent->GetTeam();
 				NewTeamScore.TeamName = FName(*FString::Printf(TEXT("Team %d"), NewTeamScore.TeamId));
-				NewTeamScore.TotalKills = 0;
-				NewTeamScore.TotalDeaths = 0;
+				NewTeamScore.TeamScore = 0;
 				int32 PlayerIndex = NewTeamScore.PlayerScores.Add(NewPlayerScore);
 				PlayerScoreMap.Emplace(NewPlayerScore.PlayerId, PlayerIndex);
 
@@ -100,7 +99,6 @@ void UTeamDeathmatchScoreComponent::RecordKill(APlayerState* KillerState, APlaye
 		const uint8 KillerTeamId = KillerState->FindComponentByClass<UTeamComponent>()->GetTeam().GetId();
 
 		++TeamScoreArray[TeamScoreMap[KillerTeamId]].PlayerScores[PlayerScoreMap[KillerId]].Kills;
-		++TeamScoreArray[TeamScoreMap[KillerTeamId]].TotalKills;
 	}
 
 	if (PlayerScoreMap.Contains(VictimState->PlayerId))
@@ -109,7 +107,6 @@ void UTeamDeathmatchScoreComponent::RecordKill(APlayerState* KillerState, APlaye
 		const uint8 VictimTeamId = VictimState->FindComponentByClass<UTeamComponent>()->GetTeam().GetId();
 
 		++TeamScoreArray[TeamScoreMap[VictimTeamId]].PlayerScores[PlayerScoreMap[VictimId]].Deaths;
-		++TeamScoreArray[TeamScoreMap[VictimTeamId]].TotalDeaths;
 	}
 }
 
@@ -128,4 +125,21 @@ void UTeamDeathmatchScoreComponent::OnRep_TeamScores()
 	}
 
 	ScoreEvent.Broadcast(TeamScoreArray);
+}
+
+int32 UTeamDeathmatchScoreComponent::GetTeamScore(FGenericTeamId TeamId)
+{
+	if (TeamScoreMap.Contains(TeamId.GetId()))
+	{
+		return TeamScoreArray[TeamScoreMap[TeamId.GetId()]].TeamScore;
+	}
+	return -1;
+}
+
+void UTeamDeathmatchScoreComponent::SetTeamScore(FGenericTeamId TeamId, int32 TeamScore)
+{
+	if (TeamScoreMap.Contains(TeamId.GetId()))
+	{
+		TeamScoreArray[TeamScoreMap[TeamId.GetId()]].TeamScore = TeamScore;
+	}
 }

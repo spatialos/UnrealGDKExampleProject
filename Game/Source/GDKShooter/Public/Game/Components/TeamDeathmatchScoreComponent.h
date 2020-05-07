@@ -22,10 +22,7 @@ public:
 	FName TeamName;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int32 TotalKills;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int32 TotalDeaths;
+	int32 TeamScore;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<FPlayerScore> PlayerScores;
@@ -56,6 +53,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	TArray<FTeamScore>& TeamScores() { return TeamScoreArray; }
+
+	UFUNCTION(BlueprintPure)
+	int32 GetTeamScore(FGenericTeamId TeamId);
+
+	UFUNCTION(BlueprintCallable)
+	void SetTeamScore(FGenericTeamId TeamId, int32 TeamScore);
 
 	UPROPERTY(BlueprintAssignable)
 	FTeamScoreChangeEvent ScoreEvent;
