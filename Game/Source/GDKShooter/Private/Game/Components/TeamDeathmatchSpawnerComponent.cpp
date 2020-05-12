@@ -21,6 +21,7 @@ UTeamDeathmatchSpawnerComponent::UTeamDeathmatchSpawnerComponent()
 {	
 	PrimaryComponentTick.bCanEverTick = false;
 	bUseTeamPlayerStarts = true;
+	NextPlayerStart = 0;
 }
 
 void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
