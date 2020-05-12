@@ -37,11 +37,11 @@ void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
 		{
 			if (UTeamComponent* TeamComponent = PlayerStart->FindComponentByClass<UTeamComponent>())
 			{
-				PlayerStarts.Add(PlayerStart);
+				TeamPlayerStarts.Add(PlayerStart);
 			}
 			else
 			{
-				UE_LOG(LogTeamDeathmatchSpawnerComponent, Log, TEXT("SetTeams ignoring %s as it does not have a TeamComponent"), *GetNameSafe(PlayerStart));
+				PlayerStarts.Add(PlayerStart);
 			}
 		}
 		else
@@ -66,8 +66,20 @@ void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller
 		SpawnedPlayers.Add(Controller, TeamId);
 		TeamAssignments[TeamId] += 1;
 	}
+	APlayerStart* PlayerStart;
 
-	APlayerStart* PlayerStart = bUseTeamPlayerStarts ? GetNextTeamPlayerStart(FGenericTeamId(TeamId)) : GetNextPlayerStart();
+	if (bUseTeamPlayerStarts)
+	{
+		PlayerStart = GetNextTeamPlayerStart(FGenericTeamId(TeamId));
+		if (PlayerStart == nullptr)
+		{
+			PlayerStart = GetNextPlayerStart();
+		}
+	}
+	else
+	{
+		PlayerStart = GetNextPlayerStart();
+	}
 	if (PlayerStart == nullptr)
 	{
 		UE_LOG(LogTeamDeathmatchSpawnerComponent, Error, TEXT("No player start available for %s (team %d)"), *GetNameSafe(Controller), TeamId);
@@ -150,15 +162,15 @@ int32 UTeamDeathmatchSpawnerComponent::GetSmallestTeam()
 
 APlayerStart* UTeamDeathmatchSpawnerComponent::GetNextTeamPlayerStart(FGenericTeamId Team)
 {
-	for (int i = 0; i < PlayerStarts.Num(); i++)
+	for (int i = 0; i < TeamPlayerStarts.Num(); i++)
 	{
-		int index = (i + NextTeamPlayerStart.FindOrAdd(Team, 0)) % PlayerStarts.Num();
-		if (const UTeamComponent* TeamComponent = PlayerStarts[index]->FindComponentByClass<UTeamComponent>())
+		int index = (i + NextTeamPlayerStart.FindOrAdd(Team, 0)) % TeamPlayerStarts.Num();
+		if (const UTeamComponent* TeamComponent = TeamPlayerStarts[index]->FindComponentByClass<UTeamComponent>())
 		{
 			if (TeamComponent->GetTeam() == Team)
 			{
 				NextTeamPlayerStart[Team] = index + 1;
-				return PlayerStarts[index];
+				return TeamPlayerStarts[index];
 			}
 		}
 	}

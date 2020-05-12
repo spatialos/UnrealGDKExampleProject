@@ -37,6 +37,7 @@ protected:
 	class APlayerStart* GetNextPlayerStart();
 
 	TArray<class APlayerStart*> PlayerStarts;
+	TArray<class APlayerStart*> TeamPlayerStarts;
 	TMap<int32, int32> TeamAssignments;
 	TMap<APlayerController*, int32> SpawnedPlayers;
 	TMap<FGenericTeamId, int32> NextTeamPlayerStart;
