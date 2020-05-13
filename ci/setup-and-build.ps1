@@ -99,18 +99,6 @@ pushd "$exampleproject_home"
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
         pushd "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
-            $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
-                "$($exampleproject_home)/Game/GDKShooter.uproject", `
-                "-run=GenerateSnapshot", `
-                "-MapPaths=`"/Maps/FPS-Start_Small`""
-            )
-            $snapshot_gen_handle = $snapshot_gen_proc.Handle
-            Wait-Process -InputObject $snapshot_gen_proc
-            if ($snapshot_gen_proc.ExitCode -ne 0) {
-                Write-Log "Failed to generate snapshot. Error: $($snapshot_gen_proc.ExitCode)"
-                Throw "Failed to generate snapshot"
-            }
-            
             $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
                 "$($exampleproject_home)/Game/GDKShooter.uproject", `
                 "-run=CookAndGenerateSchema", `
@@ -123,6 +111,18 @@ pushd "$exampleproject_home"
             if ($schema_gen_proc.ExitCode -ne 0) {
                 Write-Log "Failed to generate schema. Error: $($schema_gen_proc.ExitCode)"
                 Throw "Failed to generate schema"
+            }
+            
+            $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
+                "$($exampleproject_home)/Game/GDKShooter.uproject", `
+                "-run=GenerateSnapshot", `
+                "-MapPaths=`"/Maps/FPS-Start_Small`""
+            )
+            $snapshot_gen_handle = $snapshot_gen_proc.Handle
+            Wait-Process -InputObject $snapshot_gen_proc
+            if ($snapshot_gen_proc.ExitCode -ne 0) {
+                Write-Log "Failed to generate snapshot. Error: $($snapshot_gen_proc.ExitCode)"
+                Throw "Failed to generate snapshot"
             }
         popd
     Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
