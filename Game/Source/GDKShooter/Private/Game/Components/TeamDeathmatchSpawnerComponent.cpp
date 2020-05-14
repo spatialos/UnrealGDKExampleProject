@@ -67,7 +67,7 @@ void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller
 		SpawnedPlayers.Add(Controller, TeamId);
 		TeamAssignments[TeamId] += 1;
 	}
-	APlayerStart* PlayerStart;
+	APlayerStart* PlayerStart = nullptr;
 
 	if (bUseTeamPlayerStarts)
 	{
