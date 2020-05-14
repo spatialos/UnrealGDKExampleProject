@@ -14,6 +14,7 @@
 #include "Game/Components/PlayerPublisher.h"
 #include "GDKLogging.h"
 #include "Math/NumericLimits.h"
+#include "Math/UnrealMathUtility.h"
 
 DEFINE_LOG_CATEGORY(LogTeamDeathmatchSpawnerComponent)
 
@@ -21,6 +22,7 @@ UTeamDeathmatchSpawnerComponent::UTeamDeathmatchSpawnerComponent()
 {	
 	PrimaryComponentTick.bCanEverTick = false;
 	bUseTeamPlayerStarts = true;
+	bShufflePlayerStarts = true;
 	NextPlayerStart = 0;
 }
 
@@ -50,6 +52,13 @@ void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
 			PlayerStarts.Add(PlayerStart);
 		}
 	}
+
+	if (bUseTeamPlayerStarts)
+	{
+		ShufflePlayerStartArray(TeamPlayerStarts);
+	}
+
+	ShufflePlayerStartArray(PlayerStarts);
 }
 
 void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller)
@@ -180,4 +189,18 @@ APlayerStart* UTeamDeathmatchSpawnerComponent::GetNextPlayerStart()
 	NextPlayerStart = (NextPlayerStart + 1) % PlayerStarts.Num();
 	
 	return PlayerStart;
+}
+
+
+void UTeamDeathmatchSpawnerComponent::ShufflePlayerStartArray(TArray<APlayerStart*> Array)
+{
+	int32 LastIndex = Array.Num() - 1;
+	for (int32 i = 0; i <= LastIndex; ++i)
+	{
+		int32 Index = FMath::RandRange(i, LastIndex);
+		if (i != Index)
+		{
+			Array.Swap(i, Index);
+		}
+	}
 }
