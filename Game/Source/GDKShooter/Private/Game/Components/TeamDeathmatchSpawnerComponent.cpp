@@ -72,12 +72,8 @@ void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller
 	if (bUseTeamPlayerStarts)
 	{
 		PlayerStart = GetNextTeamPlayerStart(FGenericTeamId(TeamId));
-		if (PlayerStart == nullptr)
-		{
-			PlayerStart = GetNextPlayerStart();
-		}
 	}
-	else
+	if (PlayerStart == nullptr)
 	{
 		PlayerStart = GetNextPlayerStart();
 	}
