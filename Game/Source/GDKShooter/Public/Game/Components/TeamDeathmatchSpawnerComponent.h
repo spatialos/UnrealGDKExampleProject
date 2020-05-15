@@ -7,6 +7,7 @@
 #include "GenericTeamAgentInterface.h"
 #include "TeamDeathmatchSpawnerComponent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogTeamDeathmatchSpawnerComponent, Log, All)
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GDKSHOOTER_API UTeamDeathmatchSpawnerComponent : public UActorComponent
@@ -25,11 +26,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PlayerDisconnected(APlayerController* Controller);
 
+	// When Enabled, will spawn players at players starts that have a UTeamComponent which matches the players team.
+	UPROPERTY(EditDefaultsOnly)
+	bool bUseTeamPlayerStarts;
+
 protected:
 	int32 GetSmallestTeam();
 
+	class APlayerStart* GetNextTeamPlayerStart(FGenericTeamId Team);
+	class APlayerStart* GetNextPlayerStart();
+
 	TArray<class APlayerStart*> PlayerStarts;
+	TArray<class APlayerStart*> TeamPlayerStarts;
 	TMap<int32, int32> TeamAssignments;
 	TMap<APlayerController*, int32> SpawnedPlayers;
-	int32 NextPlayerStart = 0;
+	TMap<FGenericTeamId, int32> NextTeamPlayerStart;
+	int32 NextPlayerStart;
 };
