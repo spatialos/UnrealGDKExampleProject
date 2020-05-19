@@ -9,16 +9,22 @@ UTeamSettingComponent::UTeamSettingComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UTeamSettingComponent::BeginPlay()
+void UTeamSettingComponent::UpdateTeam(FGenericTeamId InTeamId)
 {
-	Super::BeginPlay();	
+	TeamId = InTeamId;
 	if (AAIController* OwningController = Cast<AAIController>(GetOwner()))
 	{
 		OwningController->SetGenericTeamId(TeamId);
 	}
-	else 
+	else
 	{
 		UE_LOG(LogGDK, Error, TEXT("TeamSettingComponent is designed to work with AIControllers, will not work with %s"), *GetOwner()->GetName());
 	}
+}
+
+void UTeamSettingComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	UpdateTeam(TeamId);
 }
 

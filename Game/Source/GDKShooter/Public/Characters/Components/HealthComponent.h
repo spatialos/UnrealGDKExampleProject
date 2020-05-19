@@ -13,6 +13,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFloatValue, float, Current, float, Max);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FDamageTakenEvent, float, Value, FVector, Source, FVector, Impact, int32, InstigatorPlayerId, FGenericTeamId, InstigatorTeamId);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathCauserEvent, const AController*, Instigator);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDamageCauserEvent, const AController*, Instigator);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathEvent);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -70,6 +71,8 @@ public:
 		FDamageTakenEvent DamageTaken;
 	UPROPERTY(BlueprintAssignable)
 		FDeathCauserEvent AuthoritativeDeath;
+	UPROPERTY(BlueprintAssignable)
+		FDamageCauserEvent AuthoritativeDamage;
 	UPROPERTY(BlueprintAssignable)
 		FDeathEvent Death;
 
