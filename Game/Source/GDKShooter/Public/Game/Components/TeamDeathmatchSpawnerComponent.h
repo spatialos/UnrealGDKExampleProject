@@ -30,8 +30,13 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	bool bUseTeamPlayerStarts;
 
+	// When Enabled, will shuffle player starts to avoid 2 consecutive spawns being next to each other.
+	UPROPERTY(EditDefaultsOnly)
+	bool bShufflePlayerStarts;
+
 protected:
 	int32 GetSmallestTeam();
+	void ShufflePlayerStartArray(TArray<class APlayerStart*> Array);
 
 	class APlayerStart* GetNextTeamPlayerStart(FGenericTeamId Team);
 	class APlayerStart* GetNextPlayerStart();
