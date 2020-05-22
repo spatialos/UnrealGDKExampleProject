@@ -4,11 +4,13 @@
 
 #include "Characters/Components/MetaDataComponent.h"
 #include "Characters/Components/TeamComponent.h"
+#include "Controllers/GDKPlayerController.h"
 #include "Engine/World.h"
 #include "Game/Components/PlayerPublisher.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
 #include "GDKLogging.h"
+#include "Game/GDKPlayerStartBase.h"
 
 UDeathmatchSpawnerComponent::UDeathmatchSpawnerComponent()
 {
@@ -65,20 +67,15 @@ void UDeathmatchSpawnerComponent::SpawnCharacter(APlayerController* Controller)
 		return;
 	}
 
-	if (AGameModeBase* GameMode = GetWorld()->GetAuthGameMode())
+	AGDKPlayerStartBase* PlayerStart = Cast<AGDKPlayerStartBase>(SpawnPoint);
+	if (PlayerStart)
 	{
-		APawn* NewPawn = nullptr;
-
-		NewPawn = GameMode->SpawnDefaultPawnFor(Controller, SpawnPoint);
-
-		Controller->Possess(NewPawn);
-
-		if (UMetaDataComponent* StateMetaData = Cast<UMetaDataComponent>(Controller->PlayerState->GetComponentByClass(UMetaDataComponent::StaticClass())))
+		// Yuck... Have to tell the controller to migrate, and at this point, its spawn position tells where it is load balanced.
+		if (auto GDKController = Cast<AGDKPlayerController>(Controller))
 		{
-			if (UMetaDataComponent* MetaData = Cast<UMetaDataComponent>(NewPawn->GetComponentByClass(UMetaDataComponent::StaticClass())))
-			{
-				MetaData->SetMetaData(StateMetaData->GetMetaData());
-			}
+			GDKController->SetSpawnLocation(SpawnPoint->GetActorLocation());
+			GDKController->ForceNetUpdate();
 		}
+		PlayerStart->SpawnCharacter(Controller);
 	}
 }

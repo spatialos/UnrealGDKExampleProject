@@ -17,6 +17,9 @@ class GDKSHOOTER_API AGDKPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+
+	using APlayerController::SetSpawnLocation;
+
 	AGDKPlayerController();
 
 	virtual void Tick(float DeltaTime) override;
