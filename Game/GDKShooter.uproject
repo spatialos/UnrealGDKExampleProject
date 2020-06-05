@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "",
+	"EngineAssociation": "{1DB0A154-4921-CFA4-02DA-DFB0AB3E4B7A}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -12,7 +12,8 @@
 				"Engine",
 				"SpatialGDK",
 				"UMG",
-				"CoreUObject"
+				"CoreUObject",
+				"AIModule"
 			]
 		},
 		{
