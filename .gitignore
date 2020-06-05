@@ -15,6 +15,9 @@
 **/Intermediate/
 **/Saved/
 
+# Built data for maps
+*_BuiltData.uasset
+
 # SpatialOS files
 logs
 build/

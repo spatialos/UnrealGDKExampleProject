@@ -46,6 +46,8 @@ macos: &macos
       - <<: *agent_transients
       - <<: *bk_system_error
       - <<: *bk_interrupted_by_signal
+  plugins:
+  - ssh://git@github.com/improbable/apple-codesigning-plugin#v0.1.3: ~
 
 steps:
   - label: "build-and-deploy-BUILKDITE_AGENT_PLACEHOLDER-${ENGINE_COMMIT_HASH}"

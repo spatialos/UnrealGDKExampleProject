@@ -7,6 +7,20 @@
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "TeamComponent.generated.h"
 
+// Struct for holding information about a team
+USTRUCT(BlueprintType)
+struct FGDKTeamInfo
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FGenericTeamId Id;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FName Name;
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTeamChangedEvent, FGenericTeamId, Team);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -27,7 +41,7 @@ public:
 		void SetTeam(FGenericTeamId NewTeamId) { TeamId = NewTeamId; }
 
 	UFUNCTION(BlueprintPure)
-		FGenericTeamId GetTeam() { return TeamId; }
+	FGenericTeamId GetTeam() const { return TeamId; }
 
 	//Negative or Zero as a Team Id is not considered a valid team
 	UFUNCTION(BlueprintPure)
