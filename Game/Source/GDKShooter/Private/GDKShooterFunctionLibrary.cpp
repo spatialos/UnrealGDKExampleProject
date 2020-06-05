@@ -1,6 +1,5 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-
 #include "GDKShooterFunctionLibrary.h"
 #include "GameFramework/Pawn.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"

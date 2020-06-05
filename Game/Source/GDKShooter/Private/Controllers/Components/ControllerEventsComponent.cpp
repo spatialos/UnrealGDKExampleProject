@@ -23,7 +23,7 @@ void UControllerEventsComponent::Death_Implementation(const AController* Killer)
 		}
 		else
 		{
-			ClientInformOfDeath(TEXT(""), -1);
+			ClientInformOfDeath(TEXT("") /*PlayerName/*, -1 /*PlayerID*/);
 		}
 	}
 }
