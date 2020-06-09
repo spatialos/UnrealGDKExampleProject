@@ -161,6 +161,8 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 		{
 			GetOwner()->GetWorldTimerManager().SetTimer(ArmourRegenerationHandle, this, &UHealthComponent::RegenerateArmour, ArmourRegenInterval, true, ArmourRegenCooldown);
 		}
+
+		AuthoritativeDamage.Broadcast(EventInstigator);
 	}
 }
 
