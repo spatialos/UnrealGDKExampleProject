@@ -74,6 +74,11 @@ void UTimerComponent::OnRep_TimerFinished()
 
 void UTimerComponent::DecrementTimer()
 {
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
 	TimeLeft--;
 
 	if (TimeLeft <= 0)
