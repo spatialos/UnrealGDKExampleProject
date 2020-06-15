@@ -8,6 +8,7 @@
 #include "Game/Components/MatchStateComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Controllers/GDKPlayerController.h"
+#include "Game/Components/TeamDeathmatchScoreComponent.h"
 #include "GDKWidget.generated.h"
 
 /**
@@ -63,6 +64,10 @@ protected:
 	// Called when the game state RepNotifies a new scoreboard
 	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")
 		void OnPlayerScoresUpdated(const TArray<FPlayerScore>& Scores);
+
+	// Called when the game state RepNotifies a new team scoreboard
+	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")
+	void OnTeamScoresUpdated(const TArray<FTeamScore>& Scores);
 
 	// Called each time the game state changes
 	UFUNCTION(BlueprintImplementableEvent, Category = "GDK")

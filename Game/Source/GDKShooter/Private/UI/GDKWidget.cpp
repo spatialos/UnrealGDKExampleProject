@@ -12,6 +12,7 @@
 
 #include "EngineClasses/SpatialGameInstance.h"
 #include "Interop/Connection/SpatialConnectionManager.h"
+#include "Game/Components/TeamDeathmatchScoreComponent.h"
 
 // Register listeners on AGDKPlayerController and AGDKGameState
 void UGDKWidget::NativeConstruct()
@@ -48,6 +49,12 @@ void UGDKWidget::NativeConstruct()
 	{
 		Deathmatch->ScoreEvent.AddDynamic(this, &UGDKWidget::OnPlayerScoresUpdated);
 		OnPlayerScoresUpdated(Deathmatch->PlayerScores());
+	}
+
+	if (UTeamDeathmatchScoreComponent* TeamDeathmatch = GetWorld()->GetGameState()->FindComponentByClass<UTeamDeathmatchScoreComponent>())
+	{
+		TeamDeathmatch->ScoreEvent.AddDynamic(this, &UGDKWidget::OnTeamScoresUpdated);
+		OnTeamScoresUpdated(TeamDeathmatch->TeamScores());
 	}
 
 	if (UPlayerCountingComponent* PlayerCounter = Cast<UPlayerCountingComponent>(GetWorld()->GetGameState()->GetComponentByClass(UPlayerCountingComponent::StaticClass())))
