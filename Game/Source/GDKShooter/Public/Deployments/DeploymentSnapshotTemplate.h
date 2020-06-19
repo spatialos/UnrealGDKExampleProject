@@ -15,7 +15,5 @@ class GDKSHOOTER_API UDeploymentSnapshotTemplate : public USnapshotGenerationTem
 	GENERATED_BODY()
 
 public:
-
-	bool WriteToSnapshotOutput(Worker_SnapshotOutputStream* OutputStream, Worker_EntityId& NextEntityId) override;
-		
+	bool WriteToSnapshotOutput(Worker_SnapshotOutputStream* OutputStream, Worker_EntityId& NextEntityId) override;	
 };

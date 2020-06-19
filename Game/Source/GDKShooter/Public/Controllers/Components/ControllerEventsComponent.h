@@ -19,22 +19,26 @@ public:
 	UControllerEventsComponent();
 
 	UFUNCTION(CrossServer, Reliable)
-		void Death(const AController* Killer);
+	void Death(const AController* Killer);
+
 	UFUNCTION(CrossServer, Reliable)
-		void Kill(const AController* Victim);
+	void Kill(const AController* Victim);
 
 	UPROPERTY(BlueprintAssignable)
-		FControllerEvent DeathEvent;
+	FControllerEvent DeathEvent;
+
 	UPROPERTY(BlueprintAssignable)
-		FControllerEvent KillEvent;
+	FControllerEvent KillEvent;
 
 	UFUNCTION(Client, Reliable)
-		void ClientInformOfKill(const FString& VictimName, int32 VictimId);
+	void ClientInformOfKill(const FString& VictimName, int32 VictimId);
+
 	UFUNCTION(Client, Reliable)
-		void ClientInformOfDeath(const FString& KillerName, int32 KillerId);
+	void ClientInformOfDeath(const FString& KillerName, int32 KillerId);
 	
 	UPROPERTY(BlueprintAssignable)
-		FKillDetailsEvent KillDetailsEvent;
+	FKillDetailsEvent KillDetailsEvent;
+
 	UPROPERTY(BlueprintAssignable)
-		FKillDetailsEvent DeathDetailsEvent;
+	FKillDetailsEvent DeathDetailsEvent;
 };

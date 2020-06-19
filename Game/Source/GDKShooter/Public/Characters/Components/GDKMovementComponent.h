@@ -33,32 +33,34 @@ public:
 
 	// Returns true if the character is actually sprinting.
 	UFUNCTION(BlueprintPure, Category = "Sprint")
-		bool IsSprinting() const;
+	bool IsSprinting() const;
 
 	// Set whether the character is allowed to sprint
 	UFUNCTION(BlueprintCallable, Category = "Sprint")
-		void SetSprintEnabled(bool bSprintEnabled);
+	void SetSprintEnabled(bool bSprintEnabled);
 	
 	// Set if the character should be aiming
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
-		void ServerSetAiming(bool NewValue);
+	void ServerSetAiming(bool NewValue);
+
 	UFUNCTION(BlueprintCallable)
-		void SetAiming(bool NewValue);
+	void SetAiming(bool NewValue);
 
 	// Returns true if the character is aiming.
 	UFUNCTION(BlueprintPure, Category = "Aiming")
-		bool IsAiming() const;
+	bool IsAiming() const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Aiming")
-		FAimingUpdated OnAimingUpdated;
+	FAimingUpdated OnAimingUpdated;
 
 	UPROPERTY(BlueprintAssignable, Category = "Sprint")
-		FSprintingUpdated SprintingUpdated;
+	FSprintingUpdated SprintingUpdated;
 
 	UFUNCTION(BlueprintCallable, Category = "Aiming")
-		void SetAimingRotationModifier(float NewAimingRotationModifier) { AimingRotationModifier = NewAimingRotationModifier; }
+	void SetAimingRotationModifier(float NewAimingRotationModifier) { AimingRotationModifier = NewAimingRotationModifier; }
+
 	UFUNCTION(BlueprintPure, Category = "Aiming")
-		float GetAimingRotationModifier() { return AimingRotationModifier; }
+	float GetAimingRotationModifier() { return AimingRotationModifier; }
 
 	// Returns the max speed of the character, modified if sprinting.
 	virtual float GetMaxSpeed() const override;
@@ -68,25 +70,25 @@ public:
 
 	// True if movement direction is within SprintDirectionTolerance of the look direction.
 	UFUNCTION(BlueprintPure)
-		bool IsMovingForward() const;
+	bool IsMovingForward() const;
 	
-		// Multiply max speed by this factor when sprinting.
+	// Multiply max speed by this factor when sprinting.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character Movement: Walking")
-		float MaxJogSpeed;
+	float MaxJogSpeed;
 
 	/** Overriding this method to stop crouching when falling */
 	virtual bool CanCrouchInCurrentState() const override;
 
 	// Set if the character is busy
 	UFUNCTION(BlueprintCallable)
-		void SetIsBusy(bool bBusy) { bIsBusy = bBusy; }
+	void SetIsBusy(bool bBusy) { bIsBusy = bBusy; }
 
 	// Set if the character is busy
 	UFUNCTION(BlueprintPure)
-		bool IsBusy() const { return bIsBusy; }
+	bool IsBusy() const { return bIsBusy; }
 
 	UFUNCTION(BlueprintCallable)
-		void SetGravityScale(float NewScale) { GravityScale = NewScale; }
+	void SetGravityScale(float NewScale) { GravityScale = NewScale; }
 
 private:
 
@@ -102,10 +104,10 @@ private:
 
 	// If true, the player is aiming, should therefore move slower, and should not be allowed to sprint.
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_IsAiming)
-		bool bIsAiming;
+	bool bIsAiming;
 
 	UFUNCTION()
-		void OnRep_IsAiming();
+	void OnRep_IsAiming();
 
 	float AimingRotationModifier = 1;
 
@@ -118,20 +120,20 @@ private:
 
 	// Multiply max speed by this factor when sprinting.
 	UPROPERTY(EditAnywhere, Category = "Character Movement: Walking")
-		float MaxSprintSpeed;
+	float MaxSprintSpeed;
 
 	// Multiply acceleration by this factor when sprinting.
 	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")
-		float SprintAcceleration;
+	float SprintAcceleration;
 
 	// Tolerance between forward and move direction within which the character can sprint.
 	// Represents the minimum magnitude of the dot product between the vectors.
 	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")
-		float SprintDirectionTolerance;
+	float SprintDirectionTolerance;
 
 	// Multiply acceleration by this factor when aiming.
 	UPROPERTY(EditAnywhere, Category = "Character Movement (General Settings)")
-		float JogAcceleration;
+	float JogAcceleration;
 };
 
 class FSavedMove_GDKMovement : public FSavedMove_Character

@@ -18,16 +18,16 @@ public:
 	UDeathmatchSpawnerComponent();
 
 	UFUNCTION(BlueprintCallable)
-		void RequestSpawn(APlayerController* Controller);
+	void RequestSpawn(APlayerController* Controller);
 
 	UFUNCTION(BlueprintCallable)
-		void EnableSpawning() { bSpawningEnabled = true; }
+	void EnableSpawning() { bSpawningEnabled = true; }
 
 	UFUNCTION(BlueprintCallable)
-		void DisableSpawning() { bSpawningEnabled = false; }
+	void DisableSpawning() { bSpawningEnabled = false; }
 
 	UFUNCTION(BlueprintCallable)
-		bool IsSpawningEnabled() { return bSpawningEnabled; }
+	bool IsSpawningEnabled() { return bSpawningEnabled; }
 
 protected:
 	AActor* GetSpawnPoint(APlayerController* Controller);
