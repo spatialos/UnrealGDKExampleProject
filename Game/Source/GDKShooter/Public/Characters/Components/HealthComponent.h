@@ -31,13 +31,13 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
-		virtual void TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	virtual void TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 
 	UFUNCTION(BlueprintCallable)
-		bool GrantShield(float Value);
+	bool GrantShield(float Value);
 
 	UFUNCTION(BlueprintCallable)
-		bool GrantHealth(float Value);
+	bool GrantHealth(float Value);
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCurrentHealth() const
@@ -64,76 +64,79 @@ public:
 	}
 
 	UPROPERTY(BlueprintAssignable)
-		FFloatValue HealthUpdated;
+	FFloatValue HealthUpdated;
+
 	UPROPERTY(BlueprintAssignable)
-		FFloatValue ArmourUpdated;
+	FFloatValue ArmourUpdated;
+
 	UPROPERTY(BlueprintAssignable)
-		FDamageTakenEvent DamageTaken;
+	FDamageTakenEvent DamageTaken;
+
 	UPROPERTY(BlueprintAssignable)
-		FDeathCauserEvent AuthoritativeDeath;
+	FDeathCauserEvent AuthoritativeDeath;
+
 	UPROPERTY(BlueprintAssignable)
-		FDamageCauserEvent AuthoritativeDamage;
+	FDamageCauserEvent AuthoritativeDamage;
+
 	UPROPERTY(BlueprintAssignable)
-		FDeathEvent Death;
+	FDeathEvent Death;
 
 protected:
-
 	// Notifies all clients that a the character has been hit and from what direction.
 	UFUNCTION(NetMulticast, Unreliable)
-		void MulticastDamageTaken(float Value, FVector Source, FVector Impact, int32 InstigatorPlayerId, FGenericTeamId InstigatorTeamId);
+	void MulticastDamageTaken(float Value, FVector Source, FVector Impact, int32 InstigatorPlayerId, FGenericTeamId InstigatorTeamId);
 
 	UFUNCTION()
-		void OnRep_CurrentHealth();
+	void OnRep_CurrentHealth();
 
 	UFUNCTION()
-		void OnRep_CurrentArmour();
+	void OnRep_CurrentArmour();
 
 	// Max health this character can have.
 	UPROPERTY(EditDefaultsOnly, Category = "Health", meta = (ClampMin = "1"))
-		float MaxHealth;
+	float MaxHealth;
 
 	// Current health of the character, can be at most MaxHealth.
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CurrentHealth, Category = "Health")
-		float CurrentHealth;
+	float CurrentHealth;
 
 	// Max armour this character can have.
 	UPROPERTY(EditDefaultsOnly, Category = "Health", meta = (ClampMin = "1"))
-		float MaxArmour;
+	float MaxArmour;
 
 	// Current armour of the character, can be at most MaxArmour.
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CurrentArmour, Category = "Health")
-		float CurrentArmour;
+	float CurrentArmour;
 
 	FTimerHandle HealthRegenerationHandle;
 
 	UFUNCTION()
-		void RegenerateHealth();
+	void RegenerateHealth();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float HealthRegenValue;
+	float HealthRegenValue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float HealthRegenCooldown;
+	float HealthRegenCooldown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float HealthRegenInterval;
+	float HealthRegenInterval;
 
 	FTimerHandle ArmourRegenerationHandle;
 
 	UFUNCTION()
-		void RegenerateArmour();
+	void RegenerateArmour();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float ArmourRegenValue;
+	float ArmourRegenValue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float ArmourRegenCooldown;
+	float ArmourRegenCooldown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float ArmourRegenInterval;
+	float ArmourRegenInterval;
 	
 	// When hit by radial damage, we assume the impact point is the owner's actor location plus this value
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		FVector RadialDamageImpactOffset;
-	
+	FVector RadialDamageImpactOffset;
 };

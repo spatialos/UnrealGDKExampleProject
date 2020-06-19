@@ -24,5 +24,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGenericTeamId TeamId = FGenericTeamId::NoTeam;
-	
 };

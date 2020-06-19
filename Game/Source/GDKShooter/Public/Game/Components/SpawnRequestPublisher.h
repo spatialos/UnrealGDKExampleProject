@@ -17,11 +17,10 @@ public:
 	USpawnRequestPublisher();
 
 	UPROPERTY(BlueprintAssignable)
-		FSpawnRequest OnSpawnRequest;
+	FSpawnRequest OnSpawnRequest;
 
 	void RequestSpawn(APlayerController* Controller) { OnSpawnRequest.Broadcast(Controller); }
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-		bool bAutoConnect;
-
+	bool bAutoConnect;
 };

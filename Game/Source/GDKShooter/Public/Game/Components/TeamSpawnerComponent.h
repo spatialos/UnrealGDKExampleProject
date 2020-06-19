@@ -18,13 +18,13 @@ public:
 	UTeamSpawnerComponent();
 
 	UFUNCTION(BlueprintCallable)
-		void RequestSpawn(APlayerController* Controller);
+	void RequestSpawn(APlayerController* Controller);
 
 	UPROPERTY(EditDefaultsOnly)
-		int32 TeamCapacity = 3;
+	int32 TeamCapacity = 3;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		bool bAllowRespawning = true;
+	bool bAllowRespawning = true;
 
 protected:
 	void BeginPlay() override;

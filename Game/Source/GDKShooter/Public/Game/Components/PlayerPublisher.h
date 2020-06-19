@@ -28,6 +28,5 @@ public:
 	void PublishPlayer(APlayerState* PlayerState, EPlayerProgress Progress) { PlayerEvent.Broadcast(PlayerState, Progress); }
 
 	UPROPERTY(BlueprintAssignable)
-		FPlayerEvent PlayerEvent;
-	
+	FPlayerEvent PlayerEvent;
 };
