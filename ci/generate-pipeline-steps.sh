@@ -11,10 +11,20 @@ else
     REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g"
 fi
 
-# Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against
+# Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against.
 # This is not the pinnacle of engineering, as we rely on GitHub's web interface to download the file, but it seems like GitHub disallows git archive
-# which would be our other option for downloading a single file
-GDK_BRANCH_LOCAL="${GDK_BRANCH:-master}"
+# which would be our other option for downloading a single file.
+GDK_BRANCH_LOCAL="${GDK_BRANCH:-}"
+if [ -z "${GDK_BRANCH_LOCAL}" ]; then
+    GDK_REPO_HEADS=$(git ls-remote --heads "git@github.com:spatialos/UnrealGDK.git" $BUILDKITE_BRANCH)
+    EXAMPLEPROJECT_REPO_HEAD='refs/heads/${BUILDKITE_BRANCH}'
+    if [[ $GDK_REPO_HEADS =~ $EXAMPLEPROJECT_REPO_HEAD ]]; then
+        GDK_BRANCH_LOCAL=$EXAMPLEPROJECT_REPO_HEAD
+    else
+        GDK_BRANCH_LOCAL="master"
+    fi
+fi
+
 NUMBER_OF_TRIES=0
 while [ $NUMBER_OF_TRIES -lt 5 ]; do
     CURL_TIMEOUT=$((10<<NUMBER_OF_TRIES))
@@ -51,7 +61,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
     STEP_NUMBER=$((STEP_NUMBER-1))
     buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 else
-    echo "Generating steps for the specified engine version: $ENGINE_VERSION" 
+    echo "Generating steps for the specified engine version: $ENGINE_VERSION"
     export ENGINE_COMMIT_HASH=${ENGINE_VERSION}
     sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
 fi
