@@ -21,7 +21,7 @@ if [ -z "${GDK_BRANCH_LOCAL}" ]; then
     if [[ $GDK_REPO_HEADS =~ $EXAMPLEPROJECT_REPO_HEAD ]]; then
         GDK_BRANCH_LOCAL=$EXAMPLEPROJECT_REPO_HEAD
     else
-        GDK_VERSION=$(cat ../UnrealGDKVersion.txt)
+        GDK_VERSION=$(cat UnrealGDKVersion.txt)
         if [ -z "${GDK_VERSION}" ]; then
             GDK_BRANCH_LOCAL="master"
         else
