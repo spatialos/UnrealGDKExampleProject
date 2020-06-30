@@ -77,6 +77,5 @@ FInstantHitInfo UShootingComponent::DoLineTrace(FVector Direction, AActor* Actor
 	OutHitInfo.HitActor = HitResult.GetActor();
 
 	OutHitInfo.bDidHit = true;
-
 	return OutHitInfo;
 }
