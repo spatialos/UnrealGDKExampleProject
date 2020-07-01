@@ -13,7 +13,7 @@ struct FGDKMetaData {
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
-		int32 Customization;
+	int32 Customization;
 };
 
 
@@ -40,18 +40,18 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-		void SetMetaData(FGDKMetaData NewMetaData);
+	void SetMetaData(FGDKMetaData NewMetaData);
 
 	UPROPERTY(BlueprintAssignable)
-		FMetaDataUpdated MetaDataUpdated;
+	FMetaDataUpdated MetaDataUpdated;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MetaData)
-		FGDKMetaData MetaData;
+	FGDKMetaData MetaData;
 
 	UPROPERTY(BlueprintReadOnly, BlueprintReadOnly, Replicated)
-		bool bMetaDataAvailable = false;
+	bool bMetaDataAvailable = false;
 	
 	UFUNCTION()
-		void OnRep_MetaData();
+	void OnRep_MetaData();
 };

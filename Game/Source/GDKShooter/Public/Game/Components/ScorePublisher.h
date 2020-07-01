@@ -28,5 +28,4 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FDeathOfState DeathEvent;
-
 };

@@ -33,24 +33,24 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-		UHealthComponent* HealthComponent;
+	UHealthComponent* HealthComponent;
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-		UGDKMovementComponent* GDKMovementComponent;
+	UGDKMovementComponent* GDKMovementComponent;
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-		UEquippedComponent* EquippedComponent;
+	UEquippedComponent* EquippedComponent;
 	
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-		UMetaDataComponent* MetaDataComponent;
+	UMetaDataComponent* MetaDataComponent;
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-		UTeamComponent* TeamComponent;
+	UTeamComponent* TeamComponent;
 
 	UFUNCTION(BlueprintPure)
-		float GetRemotePitch() {
-			return RemoteViewPitch;
-		}
+	float GetRemotePitch() {
+		return RemoteViewPitch;
+	}
 
 	/** Handles moving forward/backward */
 	virtual void MoveForward(float Val);
@@ -59,37 +59,35 @@ protected:
 	virtual void MoveRight(float Val);
 
 	UFUNCTION(BlueprintNativeEvent)
-		void OnEquippedUpdated(AHoldable* NewHoldable);
+	void OnEquippedUpdated(AHoldable* NewHoldable);
 
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
 	virtual bool CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor = NULL) const override;
 
 	UPROPERTY(EditDefaultsOnly)
-		TArray<FName> LineOfSightSockets;
+	TArray<FName> LineOfSightSockets;
 
 	UPROPERTY(EditDefaultsOnly)
-		TEnumAsByte<ECollisionChannel> LineOfSightCollisionChannel;
+	TEnumAsByte<ECollisionChannel> LineOfSightCollisionChannel;
 
 	UPROPERTY(EditAnywhere)
-		float RagdollLifetime = 5.0f;
+	float RagdollLifetime = 5.0f;
 
 	// [client + server] Puts the player in ragdoll mode.
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-		void StartRagdoll();
+	void StartRagdoll();
 
 private:
-
 	UFUNCTION()
-		void DeleteSelf();
+	void DeleteSelf();
 
 	FTimerHandle DeletionTimer;
 	FTimerDelegate DeletionDelegate;
 	
 public:
-
 	float TakeDamage(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION(CrossServer, Reliable)
-		void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 };

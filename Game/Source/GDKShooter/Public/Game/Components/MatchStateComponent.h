@@ -26,19 +26,18 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(BlueprintAssignable)
-		FMatchEvent MatchEvent;
+	FMatchEvent MatchEvent;
 	
 	UFUNCTION(BlueprintCallable)
-		void SetMatchState(EMatchState NewState);
+	void SetMatchState(EMatchState NewState);
 
 	UFUNCTION(BlueprintPure)
-		EMatchState GetCurrentState() { return CurrentState; }
+	EMatchState GetCurrentState() { return CurrentState; }
 
 protected:
-
 	UPROPERTY(ReplicatedUsing=OnRep_State)
-		EMatchState CurrentState;
+	EMatchState CurrentState;
 
 	UFUNCTION()
-		void OnRep_State() { MatchEvent.Broadcast(CurrentState); }
+	void OnRep_State() { MatchEvent.Broadcast(CurrentState); }
 };

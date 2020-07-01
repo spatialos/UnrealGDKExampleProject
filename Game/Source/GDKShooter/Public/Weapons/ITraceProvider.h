@@ -14,10 +14,11 @@ class GDKSHOOTER_API UTraceProvider : public UInterface
 class GDKSHOOTER_API ITraceProvider
 {
 	GENERATED_BODY()
+
 public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trace Provider")
+	FVector GetLineTraceStart() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trace Provider")
-		FVector GetLineTraceStart() const;
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trace Provider")
-		FVector GetLineTraceDirection() const;
+	FVector GetLineTraceDirection() const;
 };

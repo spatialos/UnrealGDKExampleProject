@@ -14,16 +14,16 @@ struct FInstantHitInfo
 {
 	GENERATED_USTRUCT_BODY()
 
-		// Location of the hit in world space.
-		UPROPERTY(BlueprintReadOnly)
-		FVector Location;
+	// Location of the hit in world space.
+	UPROPERTY(BlueprintReadOnly)
+	FVector Location;
 
 	// Actor that was hit, or nullptr if nothing was hit.
 	UPROPERTY(BlueprintReadOnly)
-		AActor* HitActor;
+	AActor* HitActor;
 
 	UPROPERTY(BlueprintReadOnly)
-		bool bDidHit;
+	bool bDidHit;
 
 	FInstantHitInfo() :
 		Location(FVector{ 0,0,0 }),
@@ -44,7 +44,7 @@ public:
 	void BeginPlay();
 
 	UPROPERTY(BlueprintAssignable)
-		FShotEvent ShotEvent;
+	FShotEvent ShotEvent;
 
 	void FireShot(AWeapon* Weapon, bool bHit) { ShotEvent.Broadcast(Weapon, bHit); }
 
@@ -63,19 +63,17 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-		FInstantHitInfo DoLineTrace(FVector Direction, AActor* ActorToIgnore = nullptr);
+	FInstantHitInfo DoLineTrace(FVector Direction, AActor* ActorToIgnore = nullptr);
 	
 protected:
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting")
-		TScriptInterface<ITraceProvider> TraceProvider;
+	TScriptInterface<ITraceProvider> TraceProvider;
 
 	// Maximum range of the weapon's hitscan.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooting")
-		float MaxRange;
+	float MaxRange;
 	
 	// Channel to use for raytrace on shot
 	UPROPERTY(EditAnywhere, Category = "Shooting")
-		TEnumAsByte<ECollisionChannel> TraceChannel = ECC_WorldStatic;
-
+	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_WorldStatic;
 };

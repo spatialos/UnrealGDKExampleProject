@@ -3,7 +3,7 @@ param(
   [string] $gdk_repo = "git@github.com:spatialos/UnrealGDK.git",
   [string] $gcs_publish_bucket = "io-internal-infra-unreal-artifacts-production/UnrealEngine",
   [string] $deployment_launch_configuration = "one_worker_test.json",
-  [string] $deployment_snapshot_path = "snapshots/FPS-Start_Small.snapshot",
+  [string] $deployment_snapshot_path = "snapshots/Control_small.snapshot",
   [string] $deployment_cluster_region = "eu",
   [string] $project_name = "unreal_gdk",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
@@ -76,6 +76,7 @@ pushd "$exampleproject_home"
 
     $build_script_path = "$($gdk_home)\SpatialGDK\Build\Scripts\BuildWorker.bat"
 
+
     Start-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
         # Build the project editor to allow the snapshot and schema commandlet to run
         $build_editor_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
@@ -104,7 +105,7 @@ pushd "$exampleproject_home"
                 "-run=CookAndGenerateSchema", `
                 "-targetplatform=LinuxServer", `
                 "-SkipShaderCompile", `
-                "-map=`"/Maps/FPS-Start_Small`""
+                "-map=`"/Maps/Control_small`""
             )
             $schema_gen_handle = $schema_gen_proc.Handle
             Wait-Process -InputObject $schema_gen_proc
@@ -116,7 +117,7 @@ pushd "$exampleproject_home"
             $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
                 "$($exampleproject_home)/Game/GDKShooter.uproject", `
                 "-run=GenerateSnapshot", `
-                "-MapPaths=`"/Maps/FPS-Start_Small`""
+                "-MapPaths=`"/Maps/Control_small`""
             )
             $snapshot_gen_handle = $snapshot_gen_proc.Handle
             Wait-Process -InputObject $snapshot_gen_proc

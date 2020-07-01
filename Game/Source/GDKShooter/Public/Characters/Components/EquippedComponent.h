@@ -41,84 +41,86 @@ protected:
 // Held Items
 public:
 	UFUNCTION(BlueprintPure)
-		AHoldable* CurrentlyHeldItem() const;
+	AHoldable* CurrentlyHeldItem() const;
 
 	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerRequestEquip(int32 Index);
+	void ServerRequestEquip(int32 Index);
 
 	UFUNCTION(BlueprintCallable)
-		void QuickToggle();
+	void QuickToggle();
 
 	UFUNCTION(BlueprintCallable)
-		void ToggleMode();
+	void ToggleMode();
 
 	UFUNCTION(BlueprintCallable)
-		void ScrollUp();
+	void ScrollUp();
 
 	UFUNCTION(BlueprintCallable)
-		void ScrollDown();
+	void ScrollDown();
 
 	bool HasHoldableAtIndex(int32 Index);
 
 	UPROPERTY(BlueprintAssignable)
-		FHoldableUpdated HoldableUpdated;
+	FHoldableUpdated HoldableUpdated;
 
 	UFUNCTION(BlueprintCallable)
-		bool Grant(AHoldable* NewHoldable);
+	bool Grant(AHoldable* NewHoldable);
 
 protected:
 	UFUNCTION()
-		void OnRep_HeldUpdate();
+	void OnRep_HeldUpdate();
 
 	UFUNCTION()
-		virtual void LocallyActivate(AHoldable* Holdable);
+	virtual void LocallyActivate(AHoldable* Holdable);
 
 	UPROPERTY()
-		AHoldable* LocallyActiveHoldable;
+	AHoldable* LocallyActiveHoldable;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, ReplicatedUsing = OnRep_HeldUpdate)
-		int CurrentHeldIndex;
+	int CurrentHeldIndex;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, ReplicatedUsing = OnRep_HeldUpdate)
-		TArray<AHoldable*> HeldItems;
+	TArray<AHoldable*> HeldItems;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated)
-		bool bHeldItemsInitialised;
+	bool bHeldItemsInitialised;
 
 	UFUNCTION()
-		bool HasAnyEmptySlots();
+	bool HasAnyEmptySlots();
 
 	UFUNCTION()
-		int GetNextAvailableSlot();
+	int GetNextAvailableSlot();
 
 	UFUNCTION()
-		bool AlreadyHas(AHoldable* NewHoldable);
+	bool AlreadyHas(AHoldable* NewHoldable);
 
 // Using Logic
 public:
 	UFUNCTION()
-		void SetIsSprinting(bool bNewSprinting) { bIsSprinting = bNewSprinting; }
+	void SetIsSprinting(bool bNewSprinting) { bIsSprinting = bNewSprinting; }
 
 	UFUNCTION()
-		void BlockUsing(bool bBlock);
+	void BlockUsing(bool bBlock);
 
 	UFUNCTION(BlueprintCallable)
-		void StartPrimaryUse();
+	void StartPrimaryUse();
+
 	UFUNCTION(BlueprintCallable)
-		void StopPrimaryUse();
+	void StopPrimaryUse();
+
 	UFUNCTION(BlueprintCallable)
-		void StartSecondaryUse();
+	void StartSecondaryUse();
+
 	UFUNCTION(BlueprintCallable)
-		void StopSecondaryUse();
+	void StopSecondaryUse();
 
 	UFUNCTION()
-		void ForceCooldown(float Cooldown);
+	void ForceCooldown(float Cooldown);
 
 	UPROPERTY(EditDefaultsOnly)
-		float SprintRecoveryTime = 0.2f;
+	float SprintRecoveryTime = 0.2f;
 
 protected:
-
 	// Is using holdables blocked by e.g. Menus being open
 	bool bBlockUsing;
 	// Are we currently busy using an item, used to e.g. block sprinting
@@ -129,5 +131,4 @@ protected:
 
 	int32 LastCachedIndex = -1;
 	int32 CurrentCachedIndex = -1;
-
 };

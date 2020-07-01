@@ -32,32 +32,30 @@ public:
 	UTeamComponent();
 
 	UPROPERTY(BlueprintAssignable)
-		FTeamChangedEvent TeamChanged;
+	FTeamChangedEvent TeamChanged;
 
 	UFUNCTION(BlueprintPure)
-		virtual bool CanDamageActor(AActor* OtherActor);
+	virtual bool CanDamageActor(AActor* OtherActor);
 
 	UFUNCTION(BlueprintCallable)
-		void SetTeam(FGenericTeamId NewTeamId) { TeamId = NewTeamId; }
+	void SetTeam(FGenericTeamId NewTeamId) { TeamId = NewTeamId; }
 
 	UFUNCTION(BlueprintPure)
 	FGenericTeamId GetTeam() const { return TeamId; }
 
 	//Negative or Zero as a Team Id is not considered a valid team
 	UFUNCTION(BlueprintPure)
-		bool HasTeam() { return TeamId != FGenericTeamId::NoTeam; }
+	bool HasTeam() { return TeamId != FGenericTeamId::NoTeam; }
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-		bool bAllowFriendlyFire;
+	bool bAllowFriendlyFire;
 
 protected:
-
 	UPROPERTY(ReplicatedUsing = OnRep_TeamId, EditDefaultsOnly)
-		FGenericTeamId TeamId = FGenericTeamId::NoTeam;
+	FGenericTeamId TeamId = FGenericTeamId::NoTeam;
 
 	UFUNCTION()
-		void OnRep_TeamId() { TeamChanged.Broadcast(TeamId); };
+	void OnRep_TeamId() { TeamChanged.Broadcast(TeamId); };
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
 };
