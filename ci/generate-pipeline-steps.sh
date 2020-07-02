@@ -27,7 +27,7 @@ if [ -z "${GDK_BRANCH_LOCAL}" ]; then
         if [ -z "${GDK_VERSION}" ]; then
             GDK_BRANCH_LOCAL="master"
         else
-            GDK_BRANCH_LOCAL=$GDK_VERSION
+            GDK_BRANCH_LOCAL="${GDK_VERSION}"
         fi
     fi
 fi
