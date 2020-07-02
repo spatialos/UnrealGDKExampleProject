@@ -68,7 +68,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
     STEP_NUMBER=$((STEP_NUMBER-1))
     buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 else
-    echo "Generating steps for the specified engine version: $ENGINE_VERSION"
+    echo "Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH=${ENGINE_VERSION}
     sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
 fi
