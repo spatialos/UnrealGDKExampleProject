@@ -21,7 +21,7 @@ if [ -z "${GDK_BRANCH_LOCAL}" ]; then
     GDK_REPO_HEADS=$(git ls-remote --heads "git@github.com:spatialos/UnrealGDK.git" "${BUILDKITE_BRANCH}")
     EXAMPLEPROJECT_REPO_HEAD="refs/heads/${BUILDKITE_BRANCH}"
     if echo "${GDK_REPO_HEADS}" | grep -qF "${EXAMPLEPROJECT_REPO_HEAD}"; then
-        GDK_BRANCH_LOCAL="${EXAMPLEPROJECT_REPO_HEAD}"
+        GDK_BRANCH_LOCAL="${BUILDKITE_BRANCH}"
     else
         GDK_VERSION=$(cat UnrealGDKVersion.txt)
         if [ -z "${GDK_VERSION}" ]; then
