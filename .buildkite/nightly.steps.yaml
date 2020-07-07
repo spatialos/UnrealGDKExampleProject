@@ -1,69 +1,129 @@
 ---
-# This is designed to trap and retry failures because agent lost
-# connection. Agent exits with -1 in this case.
-agent_transients: &agent_transients
-  exit_status: -1
-  limit: 3
-# BK system error
-bk_system_error: &bk_system_error
-  exit_status: 255
-  limit: 3
-# job was interrupted by a signal (e.g. ctrl+c etc)
-bk_interrupted_by_signal: &bk_interrupted_by_signal
-  exit_status: 15
-  limit: 3
-
-script_runner: &script_runner
-  agents:
-    - "agent_count=8"
-    - "capable_of_building=platform"
-    - "environment=production"
-    - "machine_type=quarter"
-    - "permission_set=builder"
-    - "platform=linux"
-    - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-2019-12-12-bk5225-daecba805768d787}"
-    - "scaler_version=2"
-    - "working_hours_time_zone=london"
-  retry:
-    automatic:
-      - <<: *agent_transients
-      - <<: *bk_system_error
-      - <<: *bk_interrupted_by_signal
-
-windows: &windows
-  agents:
-    - "agent_count=1"
-    - "capable_of_building=gdk-for-unreal"
-    - "environment=production"
-    - "machine_type=quad"
-    - "permission_set=builder"
-    - "platform=windows"
-    - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-03-26-102432-bk9951-8afe0ffb}"
-  timeout_in_minutes: 60
-  retry:
-    automatic:
-      - <<: *agent_transients
-      - <<: *bk_system_error
-      - <<: *bk_interrupted_by_signal
-  plugins:
-    - ca-johnson/taskkill#v4.1: ~
-
-# NOTE: step labels turn into commit-status names like {org}/{repo}/{pipeline}/{step-label}, lower-case and hyphenated.
-# These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
-
-steps:
-  - label: "generate-pipeline-steps"
-    commands: 
-      - "chmod -R +rwx ci"
-      - "ci/generate-pipeline-steps.sh"
-    env:
-      ENGINE_VERSION: "${ENGINE_VERSION}"
-    <<: *script_runner
-
-  - wait
-
-  - label: "slack-notify"
-    if: build.env("SLACK_NOTIFY") == "true" || build.branch == "master"
-    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/slack-notify.ps1"
-    <<: *windows
+  # This is designed to trap and retry failures because agent lost
+  # connection. Agent exits with -1 in this case.
+  agent_transients: &agent_transients
+    exit_status: -1
+    limit: 3
+  # BK system error
+  bk_system_error: &bk_system_error
+    exit_status: 255
+    limit: 3
+  # job was interrupted by a signal (e.g. ctrl+c etc)
+  bk_interrupted_by_signal: &bk_interrupted_by_signal
+    exit_status: 15
+    limit: 3
+  
+  script_runner: &script_runner
+    agents:
+      - "agent_count=8"
+      - "capable_of_building=platform"
+      - "environment=production"
+      - "machine_type=quarter"
+      - "permission_set=builder"
+      - "platform=linux"
+      - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-2019-12-12-bk5225-daecba805768d787}"
+      - "scaler_version=2"
+      - "working_hours_time_zone=london"
+    retry:
+      automatic:
+        - <<: *agent_transients
+        - <<: *bk_system_error
+        - <<: *bk_interrupted_by_signal
+  
+  windows: &windows
+    agents:
+      - "agent_count=1"
+      - "capable_of_building=gdk-for-unreal"
+      - "environment=production"
+      - "machine_type=quad"
+      - "permission_set=builder"
+      - "platform=windows"
+      - "scaler_version=2"
+      - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-07-06-132550-bk13082-f66f9113-d}"
+      - "boot_disk_size_gb=500"
+      - "experiment_normalised_upload_paths=true"
+    timeout_in_minutes: 60
+    retry:
+      automatic:
+        - <<: *agent_transients
+        - <<: *bk_system_error
+        - <<: *bk_interrupted_by_signal
+    plugins:
+      - ca-johnson/taskkill#v4.1: ~
+  
+  macos: &macos
+    agents:
+      - "capable_of_building=gdk-for-unreal"
+      - "environment=production"
+      - "permission_set=builder"
+      - "platform=macos"
+      - "queue=${DARWIN_BUILDER_QUEUE:-v4-1592331528-2736b365-d}"
+      - "experiment_normalised_upload_paths=true"
+    timeout_in_minutes: 60
+    retry:
+      automatic:
+        - <<: *agent_transients
+        - <<: *bk_system_error
+        - <<: *bk_interrupted_by_signal
+    plugins:
+    - ssh://git@github.com/improbable/apple-codesigning-plugin#v0.1.3: ~
+  
+  # NOTE: step labels turn into commit-status names like {org}/{repo}/{pipeline}/{step-label}, lower-case and hyphenated.
+  # These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
+  env:  
+      GCLOUD_PROJECT_ID: "chlorodize-bipennated-8024348"
+      GCLOUD_STORAGE_KEYWORD: "https://console.developers.google.com/storage/browser/"
+      SUCCESS_KEYWORD: "PlayerSpawn returned from server sucessfully"
+      SLACK_CHANNEL: "#mobile-buildkite"
+      ANDROID_FILENAME: "GDKShooter-armv7-es2.apk"
+      IOS_FILENAME: "GDKShooter.ipa"
+  steps:
+    - label: "generate-pipeline-steps"
+      commands: 
+        - "chmod -R +rwx ci"
+        - "ci/generate-pipeline-steps.sh"
+      env:
+        ENGINE_VERSION: "${ENGINE_VERSION}"
+      <<: *script_runner
+  
+    - wait
+  
+    - label: "prepare-environment-for-windows-${ENGINE_COMMIT_HASH}"
+      command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci\\setup-and-build.ps1"
+      <<: *windows 
+      artifact_paths:
+        - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
+        - "cooked-android/**/*"
+      env:
+        ENGINE_COMMIT_HASH: "${ENGINE_COMMIT_HASH}"
+        STEP_NUMBER: "${STEP_NUMBER}"
+        UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
+        
+    # - label: "prepare-environment-for-macos-${ENGINE_COMMIT_HASH}"
+    #   command: "ci/setup-and-build.sh"
+    #   <<: *macos 
+    #   artifact_paths:
+    #     - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
+    #     - "cooked-mac/**/*"
+    #     - "cooked-ios/**/*"
+    #   env:
+    #     ENGINE_COMMIT_HASH: "${ENGINE_COMMIT_HASH}"
+    #     STEP_NUMBER: "${STEP_NUMBER}"
+    #     UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
+  
+    - wait: ~
+    
+    - label: "auto-test-android-connect-to-spatialos${ENGINE_COMMIT_HASH}"
+      command: "python ci\\auto-test.py android"
+      <<: *windows 
+        
+    # - label: "auto-test-ios-connect-to-spatialos-from-windows-${ENGINE_COMMIT_HASH}"
+    #   command: "python ci/auto-test.py ios"
+    #   <<: *windows 
+        
+    - wait: ~
+  
+    - label: "slack-notify"
+      command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci/slack-notify.ps1"
+      <<: *windows
+  

@@ -14,6 +14,7 @@ run_uat() {
     TARGET_PLATFORM="${4}"
     ARCHIVE_DIRECTORY="${5}"
     ADDITIONAL_UAT_FLAGS="${6:-}"
+    echo "RunUAT.sh=${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh"
 
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \
         -ScriptsForProject="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
@@ -67,6 +68,12 @@ pushd "$(dirname "$0")"
 
     echo "--- set-up-engine"
     ENGINE_DIRECTORY="${EXAMPLEPROJECT_HOME}/UnrealEngine"
+    #set meta-data engine-home-mac 
+    buildkite-agent meta-data set "engine-home-mac" "$ENGINE_DIRECTORY"
+    buildkite-agent meta-data set "exampleproject-home-mac" "$EXAMPLEPROJECT_HOME"
+    
+    echo "ENGINE_DIRECTORY:$ENGINE_DIRECTORY"
+
     "${GDK_HOME}/ci/get-engine.sh" \
         "${ENGINE_DIRECTORY}" \
         "${GCS_PUBLISH_BUCKET}"
@@ -87,32 +94,35 @@ pushd "$(dirname "$0")"
             Development \
             "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
 
-        echo "--- generate-schema"
-        pushd "Engine/Binaries/Mac"
-            UE4Editor.app/Contents/MacOS/UE4Editor \
-                "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
-                -run=CookAndGenerateSchema \
-                -targetplatform=MacNoEditor \
-                -SkipShaderCompile \
-                -unversioned \
-                -map="/Maps/FPS-Start_Small"
+        # echo "--- generate-schema"
+        # pushd "Engine/Binaries/Mac"
+        #     UE4Editor.app/Contents/MacOS/UE4Editor \
+        #         "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+        #         -run=CookAndGenerateSchema \
+        #         -targetplatform=MacNoEditor \
+        #         -SkipShaderCompile \
+        #         -unversioned \
+        #         -map="/Maps/FPS-Start_Small"
 
-            UE4Editor.app/Contents/MacOS/UE4Editor \
-                "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
-                -run=GenerateSchemaAndSnapshots \
-                -MapPaths="/Maps/FPS-Start_Small" \
-                -SkipSchema
-        popd
+        #     UE4Editor.app/Contents/MacOS/UE4Editor \
+        #         "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+        #         -run=GenerateSchemaAndSnapshots \
+        #         -MapPaths="/Maps/FPS-Start_Small" \
+        #         -SkipSchema
+        # popd
     popd
 
-    echo "--- build-mac-client"
-    run_uat \
-        "${ENGINE_DIRECTORY}" \
-        "${EXAMPLEPROJECT_HOME}" \
-        "Development" \
-        "Mac" \
-        "${EXAMPLEPROJECT_HOME}/cooked-mac" \
-        "-iterative"
+    # echo "--- build-mac-client"
+    # run_uat \
+    #     "${ENGINE_DIRECTORY}" \
+    #     "${EXAMPLEPROJECT_HOME}" \
+    #     "Development" \
+    #     "Mac" \
+    #     "${EXAMPLEPROJECT_HOME}/cooked-mac" \
+    #     "-iterative"
+
+    echo "--- change-runtime-settings"
+    python "${EXAMPLEPROJECT_HOME}/ci/change_runtime_settings.py" "${EXAMPLEPROJECT_HOME}"
 
     echo "--- build-ios-client"
     run_uat \
@@ -121,4 +131,7 @@ pushd "$(dirname "$0")"
         "Development" \
         "IOS" \
         "${EXAMPLEPROJECT_HOME}/cooked-ios"
+    
+    echo "--- set-build-ios-job-id:$BUILDKITE_JOB_ID"
+    buildkite-agent meta-data set "build-ios-job-id" "$BUILDKITE_JOB_ID"
 popd

@@ -3,7 +3,7 @@ param(
   [string] $gdk_repo = "git@github.com:spatialos/UnrealGDK.git",
   [string] $gcs_publish_bucket = "io-internal-infra-unreal-artifacts-production/UnrealEngine",
   [string] $deployment_launch_configuration = "one_worker_test.json",
-  [string] $deployment_snapshot_path = "snapshots/Control_small.snapshot",
+  [string] $deployment_snapshot_path = "snapshots/FPS-Start_Small.snapshot",
   [string] $deployment_cluster_region = "eu",
   [string] $project_name = "unreal_gdk",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
@@ -19,7 +19,18 @@ $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_nam
 
 $gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
 
+
 pushd "$exampleproject_home"
+    # save env variables to meta-data
+    Start-Event "save-build-meta-data" "build-unreal-gdk-example-project-:windows:"
+        Set-Meta-Data -variable_name "deployment-launch-configuration" -variable_value "$deployment_launch_configuration"
+        Set-Meta-Data -variable_name "deployment-snapshot-path" -variable_value" $deployment_snapshot_path"
+        Set-Meta-Data -variable_name "deployment-cluster-region" -variable_value "$deployment_cluster_region"
+        Set-Meta-Data -variable_name "project-name" -variable_value "$project_name"
+        Set-Meta-Data -variable_name "engine-home-windows" -variable_value "$unreal_engine_symlink_dir"
+        Set-Meta-Data -variable_name "exampleproject-home-windows" -variable_value "$exampleproject_home"
+    Finish-Event "save-build-meta-data" "build-unreal-gdk-example-project-:windows:"
+
     Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
         pushd "Game"
             New-Item -Name "Plugins" -ItemType Directory -Force
@@ -73,9 +84,7 @@ pushd "$exampleproject_home"
         popd
     Finish-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
 
-
     $build_script_path = "$($gdk_home)\SpatialGDK\Build\Scripts\BuildWorker.bat"
-
 
     Start-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
         # Build the project editor to allow the snapshot and schema commandlet to run
@@ -99,13 +108,15 @@ pushd "$exampleproject_home"
 
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
-        pushd "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
-            $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
+        $win64_folder = "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
+        pushd $win64_folder
+            $UE4Editor=((Convert-Path .) + "\UE4Editor-Cmd.exe")
+            $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$($exampleproject_home)/Game/GDKShooter.uproject", `
                 "-run=CookAndGenerateSchema", `
                 "-targetplatform=LinuxServer", `
                 "-SkipShaderCompile", `
-                "-map=`"/Maps/Control_small`""
+                "-map=`"/Maps/FPS-Start_Small`""
             )
             $schema_gen_handle = $schema_gen_proc.Handle
             Wait-Process -InputObject $schema_gen_proc
@@ -114,10 +125,10 @@ pushd "$exampleproject_home"
                 Throw "Failed to generate schema"
             }
             
-            $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
+            $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$($exampleproject_home)/Game/GDKShooter.uproject", `
                 "-run=GenerateSnapshot", `
-                "-MapPaths=`"/Maps/Control_small`""
+                "-MapPaths=`"/Maps/FPS-Start_Small`""
             )
             $snapshot_gen_handle = $snapshot_gen_proc.Handle
             Wait-Process -InputObject $snapshot_gen_proc
@@ -159,9 +170,29 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
-    Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
-        $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
-        $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList @(`
+    Start-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
+        $proc = Start-Process -PassThru -NoNewWindow -FilePath "python" -ArgumentList @(`
+            "ci/change-runtime-settings.py", `
+            "$exampleproject_home"
+        )
+        Wait-Process -InputObject $proc
+
+        $DefaultEngine = "$exampleproject_home\Game\Config\DefaultEngine.ini"
+        $DefaultEngineContent = Get-Content -Path $DefaultEngine
+        Write-Host $DefaultEngineContent    
+    Finish-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
+    
+    # Deploy the project to SpatialOS
+    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name"
+    
+    Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"          
+        $auth_token = Get-Meta-Data -variable_name "auth-token" -default_value "0"        
+        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -default_value "0"        
+        Write-Log "auth_token: $auth_token"
+        Write-Log "deployment_name: $deployment_name"
+        $cookflavor = "Multi"
+        Set-Meta-Data -variable_name "android-flavor" -variable_value $cookflavor
+        $argumentlist = @(`
             "-ScriptsForProject=$($exampleproject_home)/Game/GDKShooter.uproject", `
             "BuildCookRun", `
             "-nocompileeditor", `
@@ -178,11 +209,16 @@ pushd "$exampleproject_home"
             "-prereqs", `
             "-nodebuginfo", `
             "-targetplatform=Android", `
-            "-cookflavor=Multi", `
+            "-cookflavor=$cookflavor", `
             "-build", `
             "-utf8output", `
-            "-compile"
+            "-compile", `
+            "-cmdline=""connect.to.spatialos -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"""
         )
+        Write-Debug "$argumentlist"
+
+        $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
+        $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList $argumentlist
 
         $build_server_handle = $build_server_proc.Handle
         Wait-Process -InputObject $build_server_proc
@@ -191,8 +227,6 @@ pushd "$exampleproject_home"
             Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
         }
+        Set-Meta-Data -variable_name "build-android-job-id" -variable_value "$env:BUILDKITE_JOB_ID"
     Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
-
-    # Deploy the project to SpatialOS
-    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name"
 popd

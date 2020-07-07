@@ -12,6 +12,17 @@ Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     $assembly_name = "$($deployment_name)_asm"
 
 pushd "spatial"
+    #generate-auth-ken need newest spatial
+    Start-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
+        $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
+            "update"
+        )
+
+        if ($build_configs_process.ExitCode -ne 0) {
+            Write-Log "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
+            Throw "Failed to update spatial"
+        }
+    Finish-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
 
     Start-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
         $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
@@ -36,6 +47,34 @@ pushd "spatial"
             Throw "Spatial prepare for run failed"
         }
     Finish-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
+    
+    Start-Event "generate-auth-token" "deploy-unreal-gdk-example-project-:windows:"
+        $DESCRIPTION = "Unreal-GDK-Token" 
+        $generate_auth_token = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -RedirectStandardOutput "devauth.txt" -ArgumentList @(`
+            "project", `
+            "auth", `
+            "dev-auth-token", `
+            "create", `
+            "--description=$DESCRIPTION", `
+            "--project_name=$project_name"
+        )
+
+        if ($generate_auth_token.ExitCode -ne 0) {
+            Write-Log "Failed to generate auth token. Error: $($generate_auth_token.ExitCode)"
+            Throw "Failed to generate auth token"
+        }
+        $DEVAUTH_CREATE = Get-Content -Path .\devauth.txt
+		Write-Host $DEVAUTH_CREATE
+		$FOUND_DEV_TOKEN = $DEVAUTH_CREATE -match 'token_secret:\\"(.+)\\"'
+		Write-Host $FOUND_DEV_TOKEN
+		Write-Host $matches[1]
+		if ($FOUND_DEV_TOKEN -eq 0) {
+			Write-Host "Failed to find dev auth token"
+			Throw "dev auth token not found"
+        }
+        $auth_token = $matches[1]
+        Set-Meta-Data -variable_name "auth-token" "$auth_token"
+    Finish-Event "generate-auth-token" "deploy-unreal-gdk-example-project-:windows:"
 
     Start-Event "upload-assemblies" "deploy-unreal-gdk-example-project-:windows:"
         $upload_assemblies_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
@@ -62,7 +101,7 @@ pushd "spatial"
                 "$assembly_name", `
                 "$deployment_launch_configuration", `
                 "$deployment_name", `
-                "--runtime_version=0.4.0", `
+                "--runtime_version=14.5.2", `
                 "--project_name=$project_name", `
                 "--snapshot=$deployment_snapshot_path", `
                 "--cluster_region=$deployment_cluster_region", `
@@ -76,9 +115,9 @@ pushd "spatial"
                 Throw "Deployment launch failed"
             }
 
-            buildkite-agent meta-data set "deployment-name-$($env:STEP_NUMBER)" "$deployment_name"
-            buildkite-agent meta-data set "project-name" "$project_name"
-            buildkite-agent meta-data set "gdk-commit-hash" "$gdk_commit_hash"
+            Set-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -variable_value "$deployment_name"
+            Set-Meta-Data -variable_name "project-name" -variable_value "$project_name"
+            Set-Meta-Data -variable_name "gdk-commit-hash" -variable_value "$gdk_commit_hash"
         } else {
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
