@@ -50,7 +50,7 @@ pushd "$exampleproject_home"
         pushd $gdk_home
             # Get the short commit hash of this gdk build for later use in assembly name
             $gdk_commit_hash = (git rev-parse HEAD).Substring(0,6)
-            Write-Log "GDK at commit: $gdk_commit_hash on branch $gdk_branch_name"
+            Write-Output "GDK at commit: $gdk_commit_hash on branch $gdk_branch_name"
         popd
     Finish-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
 
@@ -79,7 +79,7 @@ pushd "$exampleproject_home"
             )
 
             if ($find_engine_process.ExitCode -ne 0) {
-                Write-Log "Failed to set Unreal Engine association for the project. Error: $($find_engine_process.ExitCode)"
+                Write-Output "Failed to set Unreal Engine association for the project. Error: $($find_engine_process.ExitCode)"
                 Throw "Failed to set Engine association"
             }
         popd
@@ -102,7 +102,7 @@ pushd "$exampleproject_home"
 
         Wait-Process -InputObject $build_editor_proc
         if ($build_editor_proc.ExitCode -ne 0) {
-            Write-Log "Failed to build Win64 Development Editor. Error: $($build_editor_proc.ExitCode)"
+            Write-Output "Failed to build Win64 Development Editor. Error: $($build_editor_proc.ExitCode)"
             Throw "Failed to build Win64 Development Editor"
         }
     Finish-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
@@ -122,7 +122,7 @@ pushd "$exampleproject_home"
             $schema_gen_handle = $schema_gen_proc.Handle
             Wait-Process -InputObject $schema_gen_proc
             if ($schema_gen_proc.ExitCode -ne 0) {
-                Write-Log "Failed to generate schema. Error: $($schema_gen_proc.ExitCode)"
+                Write-Output "Failed to generate schema. Error: $($schema_gen_proc.ExitCode)"
                 Throw "Failed to generate schema"
             }
             
@@ -134,26 +134,26 @@ pushd "$exampleproject_home"
             $snapshot_gen_handle = $snapshot_gen_proc.Handle
             Wait-Process -InputObject $snapshot_gen_proc
             if ($snapshot_gen_proc.ExitCode -ne 0) {
-                Write-Log "Failed to generate snapshot. Error: $($snapshot_gen_proc.ExitCode)"
+                Write-Output "Failed to generate snapshot. Error: $($snapshot_gen_proc.ExitCode)"
                 Throw "Failed to generate snapshot"
             }
         popd
     Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
 
-    Start-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
-        $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
-            "GDKShooter", `
-            "Win64", `
-            "Development", `
-            "GDKShooter.uproject"
-        )       
-        $build_client_handle = $build_client_proc.Handle
-        Wait-Process -InputObject $build_client_proc
-        if ($build_client_proc.ExitCode -ne 0) {
-            Write-Log "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
-            Throw "Failed to build Win64 Development Client"
-        }
-    Finish-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
+    # Start-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
+    #     $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
+    #         "GDKShooter", `
+    #         "Win64", `
+    #         "Development", `
+    #         "GDKShooter.uproject"
+    #     )       
+    #     $build_client_handle = $build_client_proc.Handle
+    #     Wait-Process -InputObject $build_client_proc
+    #     if ($build_client_proc.ExitCode -ne 0) {
+    #         Write-Output "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
+    #         Throw "Failed to build Win64 Development Client"
+    #     }
+    # Finish-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
@@ -166,7 +166,7 @@ pushd "$exampleproject_home"
         Wait-Process -InputObject $build_server_proc
 
         if ($build_server_proc.ExitCode -ne 0) {
-            Write-Log "Failed to build Linux Development Server. Error: $($build_server_proc.ExitCode)"
+            Write-Output "Failed to build Linux Development Server. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Linux Development Server"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
@@ -189,8 +189,8 @@ pushd "$exampleproject_home"
     Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"          
         $auth_token = Get-Meta-Data -variable_name "auth-token" -default_value "0"        
         $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -default_value "0"        
-        Write-Log "auth_token: $auth_token"
-        Write-Log "deployment_name: $deployment_name"
+        Write-Output "auth_token: $auth_token"
+        Write-Output "deployment_name: $deployment_name"
         $cookflavor = "Multi"
         Set-Meta-Data -variable_name "android-flavor" -variable_value $cookflavor
         $argumentlist = @(`
@@ -225,7 +225,7 @@ pushd "$exampleproject_home"
         Wait-Process -InputObject $build_server_proc
 
         if ($build_server_proc.ExitCode -ne 0) {
-            Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
+            Write-Output "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
         }
         Set-Meta-Data -variable_name "build-android-job-id" -variable_value "$env:BUILDKITE_JOB_ID"

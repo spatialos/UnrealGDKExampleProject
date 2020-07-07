@@ -31,7 +31,7 @@ def run_command(cmds):
         return 0, 1
 
 def switch_gcloud_project(project_id):
-    event_name = "switch_gcloud_project"
+    event_name = "switch_gcloud_project:%s" % project_id
     common.start_event(event_name)
     cmds = [
         'gcloud',

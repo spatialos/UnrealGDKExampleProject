@@ -19,7 +19,7 @@ pushd "spatial"
         )
 
         if ($build_configs_process.ExitCode -ne 0) {
-            Write-Log "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
+            Write-Output "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
             Throw "Failed to update spatial"
         }
     Finish-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
@@ -31,7 +31,7 @@ pushd "spatial"
         )
 
         if ($build_configs_process.ExitCode -ne 0) {
-            Write-Log "Failed to build worker configurations for the project. Error: $($build_configs_process.ExitCode)"
+            Write-Output "Failed to build worker configurations for the project. Error: $($build_configs_process.ExitCode)"
             Throw "Failed to build worker configurations"
         }
     Finish-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
@@ -43,7 +43,7 @@ pushd "spatial"
         )
 
         if ($prepare_for_run_process.ExitCode -ne 0) {
-            Write-Log "Failed to prepare for a Spatial cloud launch. Error: $($prepare_for_run_process.ExitCode)"
+            Write-Output "Failed to prepare for a Spatial cloud launch. Error: $($prepare_for_run_process.ExitCode)"
             Throw "Spatial prepare for run failed"
         }
     Finish-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
@@ -60,7 +60,7 @@ pushd "spatial"
         )
 
         if ($generate_auth_token.ExitCode -ne 0) {
-            Write-Log "Failed to generate auth token. Error: $($generate_auth_token.ExitCode)"
+            Write-Output "Failed to generate auth token. Error: $($generate_auth_token.ExitCode)"
             Throw "Failed to generate auth token"
         }
         $DEVAUTH_CREATE = Get-Content -Path .\devauth.txt
@@ -87,7 +87,7 @@ pushd "spatial"
         )
 
         if ($upload_assemblies_process.ExitCode -ne 0) {
-            Write-Log "Failed to upload assemblies to cloud. Error: $($upload_assemblies_process.ExitCode)"
+            Write-Output "Failed to upload assemblies to cloud. Error: $($upload_assemblies_process.ExitCode)"
             Throw "Failed to upload assemblies"
         }
     Finish-Event "upload-assemblies" "deploy-unreal-gdk-example-project-:windows:"
@@ -111,7 +111,7 @@ pushd "spatial"
             )
 
             if ($launch_deployment_process.ExitCode -ne 0) {
-                Write-Log "Failed to launch a Spatial cloud deployment. Error: $($launch_deployment_process.ExitCode)"
+                Write-Output "Failed to launch a Spatial cloud deployment. Error: $($launch_deployment_process.ExitCode)"
                 Throw "Deployment launch failed"
             }
 
@@ -119,7 +119,7 @@ pushd "spatial"
             Set-Meta-Data -variable_name "project-name" -variable_value "$project_name"
             Set-Meta-Data -variable_name "gdk-commit-hash" -variable_value "$gdk_commit_hash"
         } else {
-            Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
+            Write-Output "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
     Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
 
