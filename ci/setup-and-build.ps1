@@ -3,7 +3,7 @@ param(
   [string] $gdk_repo = "git@github.com:spatialos/UnrealGDK.git",
   [string] $gcs_publish_bucket = "io-internal-infra-unreal-artifacts-production/UnrealEngine",
   [string] $deployment_launch_configuration = "one_worker_test.json",
-  [string] $deployment_snapshot_path = "snapshots/FPS-Start_Small.snapshot",
+  [string] $deployment_snapshot_path = "snapshots/Control_Small.snapshot",
   [string] $deployment_cluster_region = "eu",
   [string] $project_name = "unreal_gdk",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
@@ -116,7 +116,7 @@ pushd "$exampleproject_home"
                 "-run=CookAndGenerateSchema", `
                 "-targetplatform=LinuxServer", `
                 "-SkipShaderCompile", `
-                "-map=`"/Maps/FPS-Start_Small`""
+                "-map=`"/Maps/Control_Small`""
             )
             $schema_gen_handle = $schema_gen_proc.Handle
             Wait-Process -InputObject $schema_gen_proc
@@ -128,7 +128,7 @@ pushd "$exampleproject_home"
             $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$($exampleproject_home)/Game/GDKShooter.uproject", `
                 "-run=GenerateSnapshot", `
-                "-MapPaths=`"/Maps/FPS-Start_Small`""
+                "-MapPaths=`"/Maps/Control_Small`""
             )
             $snapshot_gen_handle = $snapshot_gen_proc.Handle
             Wait-Process -InputObject $snapshot_gen_proc

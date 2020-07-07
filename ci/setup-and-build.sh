@@ -102,12 +102,12 @@ pushd "$(dirname "$0")"
         #         -targetplatform=MacNoEditor \
         #         -SkipShaderCompile \
         #         -unversioned \
-        #         -map="/Maps/FPS-Start_Small"
+        #         -map="/Maps/Control_Small"
 
         #     UE4Editor.app/Contents/MacOS/UE4Editor \
         #         "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
         #         -run=GenerateSchemaAndSnapshots \
-        #         -MapPaths="/Maps/FPS-Start_Small" \
+        #         -MapPaths="/Maps/Control_Small" \
         #         -SkipSchema
         # popd
     popd
