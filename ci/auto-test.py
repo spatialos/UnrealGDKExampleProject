@@ -17,7 +17,6 @@ import sys
 import common
 
 
-
 def run_command(cmds):
     try:
         res = common.run_shell(cmds)
@@ -31,27 +30,29 @@ def run_command(cmds):
         print(e)
         return 0, 1
 
-# prepare gcloud env because of:
-# 1. on windows agent there are no beta component of gcloud
-# 2. there are no project_id setted both on windows and mac
-def switch_gcloud_project():
+def switch_gcloud_project(project_id):
     event_name = "switch_gcloud_project"
     common.start_event(event_name)
-    
-    # set gcloud project_id both Windows & Mac
-    gcloud_project_id = common.get_environment_variable(
-        'GCLOUD_PROJECT_ID', 'chlorodize-bipennated-8024348')
-        
     cmds = [
         'gcloud',
         'config',
         'set',
         'project',
-        gcloud_project_id
+        project_id
     ]
     run_command(cmds)
  
     common.finish_event(event_name)
+
+def get_gcloud_project():
+    cmds = [
+        'gcloud',
+        'config',
+        'get-value',
+        'project'
+    ]
+    res = common.run_shell(cmds)
+    return res.stdout.read().decode('UTF-8')
 
 def check_firebase_log(app_platform, url, device):
     filename = ''
@@ -170,10 +171,20 @@ def download_app(app_platform):
     return localpath
 
 if __name__ == "__main__":
-    switch_gcloud_project()
+    project = get_gcloud_project()
+    
+    # set gcloud project_id both Windows & Mac
+    gcloud_project_id = common.get_environment_variable(
+        'GCLOUD_PROJECT_ID', 'chlorodize-bipennated-8024348')
+
+    # set to firebase gcloud project
+    switch_gcloud_project(gcloud_project_id)
     app_platform = sys.argv[1]
     localpath = download_app(app_platform)
     succeed, total = gcloud_upload(app_platform, localpath)
+    
+    # set to buildkite infrastructure gcloud project
+    switch_gcloud_project(project)
     print('succeed=%d total=%d' % (succeed, total))
     common.set_buildkite_meta_data('firebase-%s-succeed' % app_platform, '%d' % succeed)
     common.set_buildkite_meta_data('firebase-%s-total' % app_platform, '%d' % total)
