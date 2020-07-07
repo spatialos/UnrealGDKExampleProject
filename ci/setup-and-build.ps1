@@ -3,11 +3,12 @@ param(
   [string] $gdk_repo = "git@github.com:spatialos/UnrealGDK.git",
   [string] $gcs_publish_bucket = "io-internal-infra-unreal-artifacts-production/UnrealEngine",
   [string] $deployment_launch_configuration = "one_worker_test.json",
-  [string] $deployment_snapshot_path = "snapshots/Control_Small.snapshot",
+  [string] $deployment_snapshot_path = "snapshots/default.snapshot",
   [string] $deployment_cluster_region = "eu",
   [string] $project_name = "unreal_gdk",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
-  [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine"
+  [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine",
+  [string] $runtime_version = "0.4.3" ## the runtime version of SpatialOS
 )
 
 . "$PSScriptRoot\common.ps1"
