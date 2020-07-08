@@ -117,12 +117,12 @@ def gcloud_upload(app_platform, app_path):
             total += 1
             if check_firebase_log(app_platform, gcloud_storage_url, i['axis_value']):
                 succeed += 1
+        common.finish_event(event_name)
         return succeed, total
     except Exception as e:
         print(e)
-        return 0, 1
-    finally:
         common.finish_event(event_name)
+        return 0, 1
 
 def get_gcs_and_local_path(app_platform):
     filename = ''
