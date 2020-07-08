@@ -108,5 +108,19 @@ pushd "spatial"
         }
     Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
 
+    Start-Event "add-dev-login-tag" "deploy-unreal-gdk-example-project-:windows:"
+        $add_dev_login_tag = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
+            "project", `
+            "deployment", `
+            "tags", `
+            "add", `
+            "$deployment_name", `
+            "dev_login"
+        )
+        if ($add_dev_login_tag.ExitCode -ne 0) {
+            Write-Output "Failed to add dev_login tag to the deployment. Error: $($add_dev_login_tag.ExitCode)"
+            Throw "Failed to add dev_login"
+        }
+    Finish-Event "add-dev-login-tag" "deploy-unreal-gdk-example-project-:windows:"
 popd
 Finish-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
