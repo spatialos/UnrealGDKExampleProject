@@ -20,16 +20,16 @@ public:
 	virtual void BeginPlay();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trace Provider")
-		FVector GetLineTraceStart() const;
+	FVector GetLineTraceStart() const;
+
 	virtual FVector GetLineTraceStart_Implementation() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trace Provider")
-		FVector GetLineTraceDirection() const;
+	FVector GetLineTraceDirection() const;
+
 	virtual FVector GetLineTraceDirection_Implementation() const;
 	
 protected:
-
 	UPROPERTY()
-		UCameraComponent* FirstPersonCamera;
-
+	UCameraComponent* FirstPersonCamera;
 };

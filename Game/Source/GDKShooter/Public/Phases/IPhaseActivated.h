@@ -14,10 +14,11 @@ class GDKSHOOTER_API UPhaseActivated : public UInterface
 class GDKSHOOTER_API IPhaseActivated
 {
 	GENERATED_BODY()
+
 public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Phases")
+	void SnapToPhase(int32 Phase);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Phases")
-		void SnapToPhase(int32 Phase);
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Phases")
-		void ProgressToPhase(int32 Phase);
+	void ProgressToPhase(int32 Phase);
 };

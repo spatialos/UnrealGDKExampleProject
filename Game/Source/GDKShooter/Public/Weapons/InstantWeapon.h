@@ -35,7 +35,7 @@ public:
 	void OnRenderShot(const FVector Location, bool bImpact);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void FinishedBurst();
+	void FinishedBurst();
 
 	virtual void SetIsActive(bool bNewActive) override;
 

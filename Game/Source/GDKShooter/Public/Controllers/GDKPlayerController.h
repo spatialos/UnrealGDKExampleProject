@@ -39,37 +39,37 @@ public:
 
 protected:
 	UPROPERTY(BlueprintAssignable)
-		FPawnEvent PawnEvent;
+	FPawnEvent PawnEvent;
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnNewPawn(APawn* InPawn);
+	void OnNewPawn(APawn* InPawn);
 		
 	/** Death camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* DeathCamera;
+	class UCameraComponent* DeathCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class USpringArmComponent* CameraBoom;
+	class USpringArmComponent* CameraBoom;
 
 	virtual void GetPlayerViewPoint(FVector& out_Location, FRotator& out_Rotation) const override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		float LatestPawnYaw;
+	float LatestPawnYaw;
 
 private:
 	// Requests to spawn player pawn and join play
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-		void ServerTryJoinGame();
+	void ServerTryJoinGame();
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-		void ServerRequestName(const FString& NewPlayerName);
+	void ServerRequestName(const FString& NewPlayerName);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-		void ServerRequestMetaData(const FGDKMetaData NewMetaData);
+	void ServerRequestMetaData(const FGDKMetaData NewMetaData);
 
 	// [server] Causes the character to respawn.
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-		void ServerRespawnCharacter();
+	void ServerRespawnCharacter();
 
 	// Gets a default player name based upon the worker's ID.
 	// Generates a GUID if we're not running on a SpatialOS worker.
@@ -81,9 +81,7 @@ private:
 
 	// Time for which to keep the character's body around before deleting it.
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn")
-		float DeleteCharacterDelay;
+	float DeleteCharacterDelay;
 
 	FTimerHandle RespawnTimerHandle;
-
-
 };

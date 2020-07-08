@@ -25,12 +25,10 @@ class GDKSHOOTER_API USpatialSessionStateComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	
 	UFUNCTION(BlueprintCallable)
-		void SendStateUpdate(EGDKSessionProgress SessionProgressState);
+	void SendStateUpdate(EGDKSessionProgress SessionProgressState);
 	
 protected:
 	Worker_EntityId SessionEntityId = 39;
 	Worker_ComponentId SessionComponentId = 1000;
-
 };

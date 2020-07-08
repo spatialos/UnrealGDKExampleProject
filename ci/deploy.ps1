@@ -62,6 +62,7 @@ pushd "spatial"
                 "$assembly_name", `
                 "$deployment_launch_configuration", `
                 "$deployment_name", `
+                "--runtime_version=0.4.0", `
                 "--project_name=$project_name", `
                 "--snapshot=$deployment_snapshot_path", `
                 "--cluster_region=$deployment_cluster_region", `
