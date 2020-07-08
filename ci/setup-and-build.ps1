@@ -92,6 +92,18 @@ pushd "$exampleproject_home"
 
     $build_script_path = "$($gdk_home)\SpatialGDK\Build\Scripts\BuildWorker.bat"
 
+    #generate-auth-ken need newest spatial
+    Start-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
+        $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
+            "update"
+        )
+
+        if ($build_configs_process.ExitCode -ne 0) {
+            Write-Output "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
+            Throw "Failed to update spatial"
+        }
+    Finish-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
+
     Start-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
         # Build the project editor to allow the snapshot and schema commandlet to run
         $build_editor_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`

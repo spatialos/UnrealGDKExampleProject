@@ -12,18 +12,6 @@ Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     $assembly_name = "$($deployment_name)_asm"
 
 pushd "spatial"
-    #generate-auth-ken need newest spatial
-    Start-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
-        $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
-            "update"
-        )
-
-        if ($build_configs_process.ExitCode -ne 0) {
-            Write-Output "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
-            Throw "Failed to update spatial"
-        }
-    Finish-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
-
     Start-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
         $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
             "build", `
