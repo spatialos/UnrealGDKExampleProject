@@ -114,6 +114,7 @@ pushd "spatial"
             "deployment", `
             "tags", `
             "add", `
+            "--project_name=$project_name", `
             "$deployment_name", `
             "dev_login"
         )
