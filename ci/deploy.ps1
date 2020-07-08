@@ -50,27 +50,12 @@ pushd "spatial"
     
     Start-Event "generate-auth-token" "deploy-unreal-gdk-example-project-:windows:"
         $DESCRIPTION = "Unreal-GDK-Token" 
-        $generate_auth_token = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -RedirectStandardOutput "devauth.txt" -ArgumentList @(`
-            "project", `
-            "auth", `
-            "dev-auth-token", `
-            "create", `
-            "--description=$DESCRIPTION", `
-            "--project_name=$project_name"
-        )
-
-        if ($generate_auth_token.ExitCode -ne 0) {
-            Write-Output "Failed to generate auth token. Error: $($generate_auth_token.ExitCode)"
-            Throw "Failed to generate auth token"
-        }
-        $DEVAUTH_CREATE = Get-Content -Path .\devauth.txt
-		Write-Host $DEVAUTH_CREATE
-		$FOUND_DEV_TOKEN = $DEVAUTH_CREATE -match 'token_secret:\\"(.+)\\"'
-		Write-Host $FOUND_DEV_TOKEN
-		Write-Host $matches[1]
-		if ($FOUND_DEV_TOKEN -eq 0) {
-			Write-Host "Failed to find dev auth token"
-			Throw "dev auth token not found"
+        $DEVAUTH_CREATE = spatial project auth dev-auth-token create --description=$DESCRIPTION --project_name=$project_name | Out-String
+        Write-Output $DEVAUTH_CREATE
+        $FOUND_DEV_TOKEN = $DEVAUTH_CREATE -match 'token_secret:\\"(.+)\\"'
+        if ($FOUND_DEV_TOKEN -eq 0) {
+        	Write-Output "Failed to find dev auth token"
+        	Throw "dev auth token not found"
         }
         $auth_token = $matches[1]
         Set-Meta-Data -variable_name "auth-token" "$auth_token"
