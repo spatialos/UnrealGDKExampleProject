@@ -73,7 +73,7 @@ def check_firebase_log(app_platform, url, device):
         'SUCCESS_KEYWORD', 'PlayerSpawn returned from server sucessfully')
     result = False
     if os.path.exists(localfilename):
-        with io.open(localfilename, encoding="utf8") as fp:#
+        with io.open(localfilename, encoding="utf8") as fp:
             line = fp.readline()
             while line:
                 if success_keyword in line:
@@ -82,10 +82,7 @@ def check_firebase_log(app_platform, url, device):
                 line = fp.readline()
     return result
 
-
 def gcloud_upload(app_platform, app_path):
-    event_name = "gcloud_upload"
-    common.start_event(event_name)
     try:
         cmds = [
             'gcloud',
@@ -117,11 +114,9 @@ def gcloud_upload(app_platform, app_path):
             total += 1
             if check_firebase_log(app_platform, gcloud_storage_url, i['axis_value']):
                 succeed += 1
-        common.finish_event(event_name)
         return succeed, total
     except Exception as e:
         print(e)
-        common.finish_event(event_name)
         return 0, 1
 
 def get_gcs_and_local_path(app_platform):
@@ -145,8 +140,6 @@ def get_gcs_and_local_path(app_platform):
     return gcs_path,localfilename
 
 def download_app(app_platform):
-    event_name = "download_app"
-    common.start_event(event_name)
     gclpath, localpath = get_gcs_and_local_path(app_platform)
     if os.path.exists(localpath):
         os.remove(localpath)
@@ -166,11 +159,10 @@ def download_app(app_platform):
             print(utf8)
     except Exception as e:
         print(e)
-
-    common.finish_event(event_name)
     return localpath
 
 if __name__ == "__main__":
+    app_platform = sys.argv[1]
     project = get_gcloud_project()
     
     # set gcloud project_id both Windows & Mac
@@ -179,9 +171,18 @@ if __name__ == "__main__":
 
     # set to firebase gcloud project
     switch_gcloud_project(gcloud_project_id)
-    app_platform = sys.argv[1]
+
+    # download app to local
+    event_name = "download_app"
+    common.start_event(event_name)
     localpath = download_app(app_platform)
+    common.finish_event(event_name)
+
+    # upload local app to firebase for test
+    event_name = "gcloud_upload"
+    common.start_event(event_name)
     succeed, total = gcloud_upload(app_platform, localpath)
+    common.finish_event(event_name)
     
     # set to buildkite infrastructure gcloud project
     switch_gcloud_project(project)
