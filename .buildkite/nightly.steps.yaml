@@ -123,7 +123,7 @@
         
     # - wait: ~
   
-    # - label: "slack-notify"
-    #   command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci/slack-notify.ps1"
-    #   <<: *windows
+    - label: "slack-notify"
+      command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci/slack-notify.ps1"
+      <<: *windows
   
