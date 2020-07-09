@@ -232,7 +232,7 @@ pushd "$exampleproject_home"
             "-build", `
             "-utf8output", `
             "-compile", `
-            "-cmdline=`"connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken $auth_token +deployment $deployment_name +linkProtocol Tcp`""
+            "-cmdline=`"connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken $auth_token +deployment $deployment_name`""
         )
         Write-Debug "$argumentlist"
 
