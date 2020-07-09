@@ -11,38 +11,57 @@ import common
 # parse DefaultEngine.ini or other ini files
 class IniParser:
     def __init__(self):
-        self.groups = {}
+        self.change_groups = {}
+        self.keep_groups = {}
 
     def open(self, filename):
         with open(filename, 'r') as fr:
             group = None
+            group_type = 0
             for l in fr.readlines():
                 line = l.strip()
                 if line.startswith('[') and line.endswith(']'):
                     name = line[1:-1]
-                    group = {}
-                    self.groups[name] = group
-                if '=' in line and group != None:
-                    k, v = line.split('=', 1)
-                    group[k] = v
+                    if 'IOSRuntimeSettings.IOSRuntimeSettings' in line or 'AndroidRuntimeSettings.AndroidRuntimeSettings' in line:                        
+                        group = {}
+                        self.change_groups[name] = group
+                        group_type = 1
+                    else:                        
+                        group = []
+                        self.keep_groups[name] = group
+                        group_type = 2
+                    continue
+                if group_type == 1:
+                    if '=' in line and group != None:
+                        k, v = line.split('=', 1)
+                        group[k] = v
+                elif group_type == 2:
+                    group.append(line)
+
 
     def write(self, filename):
         with open(filename, 'w') as fw:
-            for key, group in self.groups.items():
+            for key, group in self.change_groups.items():
                 self.write_impl(fw, '[%s]\n' % key)
                 if group != None:
                     for k, v in group.items():
                         self.write_impl(fw, '%s=%s\n' % (k, v))
                     self.write_impl(fw, '\n')
+                    
+            for key, group in self.keep_groups.items():
+                self.write_impl(fw, '[%s]\n' % key)
+                if group != None:
+                    for line in group:
+                        self.write_impl(fw, '%s\n' % line)
+                    self.write_impl(fw, '\n')
 
     def write_impl(self, fw, s):
-        # print(s)
         fw.write(s)
 
     def add(self, group, key, value):
-        if group not in self.groups:
-            self.groups[group] = {}
-        self.groups[group][key] = value
+        if group not in self.change_groups:
+            self.change_groups[group] = {}
+        self.change_groups[group][key] = value
 
 
 # modify runtime settings before cook
