@@ -102,7 +102,6 @@ def gcloud_upload(app_platform, app_path):
             'GCLOUD_STORAGE_KEYWORD', 'https://console.developers.google.com/storage/browser/')
         for line in res.stderr.readlines():
             utf8 = line.decode('UTF-8')
-            print(utf8)
             if gcloud_storage_keyword in utf8:
                 url = re.findall(r'\[(.*?)\]', utf8)
                 gcloud_storage_url = url[0][len(gcloud_storage_keyword):]
