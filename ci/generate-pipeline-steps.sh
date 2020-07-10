@@ -1,10 +1,35 @@
 #!/bin/bash
 set -euo pipefail
 
-# Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against
+if [[ -n "${MAC_BUILD:-}" ]]; then
+    export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
+    REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g"
+else
+    export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
+    REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g"
+fi
+
+# Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against.
 # This is not the pinnacle of engineering, as we rely on GitHub's web interface to download the file, but it seems like GitHub disallows git archive
-# which would be our other option for downloading a single file
-GDK_BRANCH_LOCAL="${GDK_BRANCH:-master}"
+# which would be our other option for downloading a single file.
+# Also resolve the GDK branch to run against. The order of priority is:
+# GDK_BRANCH envvar > same-name branch as the branch we are currently on > UnrealGDKVersion.txt > "master".
+GDK_BRANCH_LOCAL="${GDK_BRANCH:-}"
+if [ -z "${GDK_BRANCH_LOCAL}" ]; then
+    GDK_REPO_HEADS=$(git ls-remote --heads "git@github.com:spatialos/UnrealGDK.git" "${BUILDKITE_BRANCH}")
+    EXAMPLEPROJECT_REPO_HEAD="refs/heads/${BUILDKITE_BRANCH}"
+    if echo "${GDK_REPO_HEADS}" | grep -qF "${EXAMPLEPROJECT_REPO_HEAD}"; then
+        GDK_BRANCH_LOCAL="${BUILDKITE_BRANCH}"
+    else
+        GDK_VERSION=$(cat UnrealGDKVersion.txt)
+        if [ -z "${GDK_VERSION}" ]; then
+            GDK_BRANCH_LOCAL="master"
+        else
+            GDK_BRANCH_LOCAL="${GDK_VERSION}"
+        fi
+    fi
+fi
+
 NUMBER_OF_TRIES=0
 while [ $NUMBER_OF_TRIES -lt 5 ]; do
     CURL_TIMEOUT=$((10<<NUMBER_OF_TRIES))
@@ -33,6 +58,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
 
         export ENGINE_COMMIT_HASH="${COMMIT_HASH}"
         export STEP_NUMBER
+        export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
     # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
@@ -40,7 +66,8 @@ if [ -z "${ENGINE_VERSION}" ]; then
     STEP_NUMBER=$((STEP_NUMBER-1))
     buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 else
-    echo "Generating steps for the specified engine version: $ENGINE_VERSION" 
-    export ENGINE_COMMIT_HASH=${ENGINE_VERSION}
+    echo "Generating steps for the specified engine version: ${ENGINE_VERSION}"
+    export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
+    export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
 fi
 
