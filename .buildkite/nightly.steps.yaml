@@ -99,17 +99,17 @@
         STEP_NUMBER: "${STEP_NUMBER}"
         UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
         
-    - label: "prepare-environment-for-macos-${ENGINE_COMMIT_HASH}"
-      command: "ci/setup-and-build.sh"
-      <<: *macos 
-      artifact_paths:
-        - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
-        - "cooked-mac/**/*"
-        - "cooked-ios/**/*"
-      env:
-        ENGINE_COMMIT_HASH: "${ENGINE_COMMIT_HASH}"
-        STEP_NUMBER: "${STEP_NUMBER}"
-        UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
+    # - label: "prepare-environment-for-macos-${ENGINE_COMMIT_HASH}"
+    #   command: "ci/setup-and-build.sh"
+    #   <<: *macos 
+    #   artifact_paths:
+    #     - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
+    #     - "cooked-mac/**/*"
+    #     - "cooked-ios/**/*"
+    #   env:
+    #     ENGINE_COMMIT_HASH: "${ENGINE_COMMIT_HASH}"
+    #     STEP_NUMBER: "${STEP_NUMBER}"
+    #     UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
   
     - wait: ~
     
@@ -117,9 +117,9 @@
       command: "python ci\\auto-test.py android"
       <<: *windows 
         
-    - label: "auto-test-ios-connect-to-spatialos-from-windows-${ENGINE_COMMIT_HASH}"
-      command: "python ci/auto-test.py ios"
-      <<: *windows 
+    # - label: "auto-test-ios-connect-to-spatialos-from-windows-${ENGINE_COMMIT_HASH}"
+    #   command: "python ci/auto-test.py ios"
+    #   <<: *windows 
         
     - wait: ~
   
