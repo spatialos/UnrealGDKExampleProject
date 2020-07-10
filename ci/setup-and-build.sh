@@ -14,6 +14,7 @@ run_uat() {
     TARGET_PLATFORM="${4}"
     ARCHIVE_DIRECTORY="${5}"
     ADDITIONAL_UAT_FLAGS="${6:-}"
+    COMMAND_LINE="${7:-}"
     echo "RunUAT.sh=${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh"
 
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \
@@ -36,6 +37,7 @@ run_uat() {
         -build \
         -utf8output \
         -compile \
+        -cmdline="${COMMAND_LINE}" \
         "${ADDITIONAL_UAT_FLAGS}"
 }
 
@@ -112,17 +114,18 @@ pushd "$(dirname "$0")"
         # popd
     popd
 
-    # echo "--- build-mac-client"
-    # run_uat \
-    #     "${ENGINE_DIRECTORY}" \
-    #     "${EXAMPLEPROJECT_HOME}" \
-    #     "Development" \
-    #     "Mac" \
-    #     "${EXAMPLEPROJECT_HOME}/cooked-mac" \
-    #     "-iterative"
+    echo "--- build-mac-client"
+    run_uat \
+        "${ENGINE_DIRECTORY}" \
+        "${EXAMPLEPROJECT_HOME}" \
+        "Development" \
+        "Mac" \
+        "${EXAMPLEPROJECT_HOME}/cooked-mac" \
+        "-iterative"
+        ""
 
     echo "--- change-runtime-settings"
-    python "${EXAMPLEPROJECT_HOME}/ci/change_runtime_settings.py" "${EXAMPLEPROJECT_HOME}"
+    python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 
     echo "--- build-ios-client"
     run_uat \
@@ -131,6 +134,8 @@ pushd "$(dirname "$0")"
         "Development" \
         "IOS" \
         "${EXAMPLEPROJECT_HOME}/cooked-ios"
+        "" \
+        "connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp"        
     
     echo "--- set-build-ios-job-id:$BUILDKITE_JOB_ID"
     buildkite-agent meta-data set "build-ios-job-id" "$BUILDKITE_JOB_ID"
