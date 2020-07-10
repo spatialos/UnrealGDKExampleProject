@@ -4,6 +4,13 @@ github:
   branch_configuration: []
   default_branch: master
   pull_request_branch_filter_configuration: []
+schedules:
+- branch: master
+  commit: HEAD
+  cronline: 0 20 * * 1-5 +01:00
+  enabled: true
+  label: "Mobile APP on firebase auto test nightly"
+  message: "Automate Deployment Test of Mobile APP on firebase nightly.(every weekday at 8PM UTC+1)"
 teams:
 - name: Everyone
   permission: BUILD_AND_READ
