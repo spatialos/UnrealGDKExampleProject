@@ -125,7 +125,6 @@ pushd "$(dirname "$0")"
         "-iterative"
         ""
 
-
     if [[ -n "${IOS_AUTOTEST:-}" ]]; then
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
@@ -141,7 +140,7 @@ pushd "$(dirname "$0")"
             "connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp" 
             
         echo "--- set-build-ios-job-id:$BUILDKITE_JOB_ID"
-        buildkite-agent meta-data set "build-ios-job-id" "$BUILDKITE_JOB_ID" 
+        buildkite-agent meta-data set "${ENGINE_COMMIT_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
     else
         echo "--- build-ios-client"
         run_uat \
@@ -149,7 +148,7 @@ pushd "$(dirname "$0")"
             "${EXAMPLEPROJECT_HOME}" \
             "Development" \
             "IOS" \
-            "${EXAMPLEPROJECT_HOME}/cooked-ios"
+            "${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_HASH}"
             "" \
             ""  
     fi

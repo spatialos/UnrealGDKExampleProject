@@ -128,7 +128,7 @@ def get_gcs_and_local_path(app_platform, engine_commit_hash):
     else:
         localfilename = common.get_environment_variable('IOS_FILENAME','GDKShooter.ipa')
         filename = 'IOS/%s' % (localfilename)
-    jobid = common.get_buildkite_meta_data('build-%s-job-id' % app_platform)
+    jobid = common.get_buildkite_meta_data('%s-build-%s-job-id' % (engine_commit_hash, app_platform))
     organization = common.get_environment_variable('BUILDKITE_ORGANIZATION_SLUG','improbable')
     pipeline = common.get_environment_variable('BUILDKITE_PIPELINE_SLUG','unrealgdkexampleproject-nightly')
     buildid = common.get_environment_variable('BUILDKITE_BUILD_ID','')
