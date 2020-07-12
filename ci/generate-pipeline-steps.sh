@@ -53,7 +53,7 @@ if [[ -n "${SLACK_NOTIFY:-}" ]] || [[ -n "${NIGHTLY_BUILD:-}" ]] || [ ${BUILDKIT
     buildkite-agent pipeline upload "ci/nightly.slack.notify.yaml"
     
     echo --- add-wait-step
-    sed "s|NAME_PLACEHOLDER|Wait-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
+    sed "s|NAME_PLACEHOLDER|Wait-Notify|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
 fi
 
 # This script generates BuildKite steps for each engine version we want to test against.
@@ -81,7 +81,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         COUNT=1
         for VERSION in ${VERSIONS}; do
-            echo --- handle-autotest-COMMIT_HASH:${COMMIT_HASH}-COUNT:${COUNT}
+            echo --- handle-autotest-:${VERSION}-COUNT:${COUNT}
             if ((COUNT > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
                 break
             fi
@@ -91,25 +91,25 @@ if [ -z "${ENGINE_VERSION}" ]; then
             REPLACE_ENGINE_COMMIT_FORMATED_HASH="s|ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATED_HASH}|g"
 
             if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
-                REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|android|g"
-                sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g" "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed $REPLACE_DEVICE_STRING | buildkite-agent pipeline upload
+                REPLACE_STRING="s|DEVICE_PLACEHOLDER|android|g"
+                sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
             fi
             
             if [[ -n "${MAC_BUILD:-}" ]] && [[ -n "${IOS_AUTOTEST:-}" ]]; then
-                REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
-                sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g" "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed $REPLACE_DEVICE_STRING | buildkite-agent pipeline upload
+                REPLACE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
+                sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
             fi
             COUNT=$((COUNT+1))
         done
         
         # add wait step
         echo --- add-wait-step
-        sed "s|NAME_PLACEHOLDER|Wait-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
+        sed "s|NAME_PLACEHOLDER|Wait-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
     fi
 
     STEP_NUMBER=1
     for VERSION in ${VERSIONS}; do
-        echo --- handle-setup-and-build-COMMIT_HASH:${COMMIT_HASH}-STEP_NUMBER:${STEP_NUMBER}
+        echo --- handle-setup-and-build-:${VERSION}-STEP_NUMBER:${STEP_NUMBER}
         if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
             break
         fi
@@ -132,7 +132,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
             export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
             REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
         fi
-        sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_TEMPLATE_FILE}" | sed REPLACE_ENGINE_COMMIT_FORMATED_HASH | sed $REPLACE_STRING | buildkite-agent pipeline upload
+        sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
     # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
@@ -156,16 +156,16 @@ else
         
         if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
             REPLACE_STRING="s|DEVICE_PLACEHOLDER|android|g"
-            sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed $REPLACE_ENGINE_COMMIT_FORMATED_HASH | sed $REPLACE_STRING | buildkite-agent pipeline upload
+            sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         fi
         
         if [[ -n "${MAC_BUILD:-}" ]] && [[ -n "${IOS_AUTOTEST:-}" ]]; then
             REPLACE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
-            sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed $REPLACE_ENGINE_COMMIT_FORMATED_HASH | sed $REPLACE_STRING | buildkite-agent pipeline upload
+            sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         fi
 
         echo --- add-wait-step
-        sed "s|NAME_PLACEHOLDER|Wait-${ENGINE_COMMIT_FORMATED_HASH}-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
+        sed "s|NAME_PLACEHOLDER|Wait-${ENGINE_COMMIT_FORMATED_HASH}-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
     fi
 
     if [[ -n "${MAC_BUILD:-}" ]]; then
@@ -173,6 +173,6 @@ else
     else
         REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
     fi
-    sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_TEMPLATE_FILE}" | sed REPLACE_ENGINE_COMMIT_FORMATED_HASH | sed $REPLACE_STRING | buildkite-agent pipeline upload
+    sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
 
 fi
