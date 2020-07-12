@@ -77,6 +77,8 @@ env:
     SLACK_CHANNEL: "#mobile-buildkite"
     ANDROID_FILENAME: "GDKShooter-armv7-es2.apk"
     IOS_FILENAME: "GDKShooter.ipa"
+    ANDROID_AUTOTEST: 1
+    IOS_AUTOTEST: 1
 steps:
   - label: "generate-pipeline-steps"
     commands: 
@@ -85,45 +87,11 @@ steps:
     env:
       ENGINE_VERSION: "${ENGINE_VERSION}"
     <<: *script_runner
-
-  - wait
-
-  - label: "prepare-environment-for-windows-${ENGINE_COMMIT_HASH}"
-    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci\\setup-and-build.ps1"
-    <<: *windows 
-    artifact_paths:
-      - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
-      - "cooked-android/**/*"
-    env:
-      ENGINE_COMMIT_HASH: "${ENGINE_COMMIT_HASH}"
-      STEP_NUMBER: "${STEP_NUMBER}"
-      UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
-      
-  # - label: "prepare-environment-for-macos-${ENGINE_COMMIT_HASH}"
-  #   command: "ci/setup-and-build.sh"
-  #   <<: *macos 
-  #   artifact_paths:
-  #     - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
-  #     - "cooked-mac/**/*"
-  #     - "cooked-ios/**/*"
-  #   env:
-  #     ENGINE_COMMIT_HASH: "${ENGINE_COMMIT_HASH}"
-  #     STEP_NUMBER: "${STEP_NUMBER}"
-  #     UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
-
-  - wait: ~
-  
-  - label: "auto-test-android-connect-to-spatialos${ENGINE_COMMIT_HASH}"
-    command: "python ci\\auto-test.py android"
-    <<: *windows 
-      
-  # - label: "auto-test-ios-connect-to-spatialos-from-windows-${ENGINE_COMMIT_HASH}"
-  #   command: "python ci/auto-test.py ios"
-  #   <<: *windows 
       
   - wait: ~
 
   - label: "slack-notify"
+    if: build.env("SLACK_NOTIFY") == "true" || build.branch == "master" || build.env("NIGHTLY_BUILD") == "true"
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci/slack-notify.ps1"
     <<: *windows
   

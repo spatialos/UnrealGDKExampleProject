@@ -49,6 +49,7 @@ pushd "$(dirname "$0")"
     EXAMPLEPROJECT_HOME="$(pwd)/.."
     GDK_BRANCH_NAME="${GDK_BRANCH:-master}"
     GDK_HOME="${EXAMPLEPROJECT_HOME}/Game/Plugins/UnrealGDK"
+    ENGINE_COMMIT_HASH="${ENGINE_COMMIT_HASH:-0}"
 
     echo "--- clone-gdk-plugin"
     mkdir -p "${EXAMPLEPROJECT_HOME}/Game/Plugins"
@@ -96,22 +97,22 @@ pushd "$(dirname "$0")"
             Development \
             "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
 
-        # echo "--- generate-schema"
-        # pushd "Engine/Binaries/Mac"
-        #     UE4Editor.app/Contents/MacOS/UE4Editor \
-        #         "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
-        #         -run=CookAndGenerateSchema \
-        #         -targetplatform=MacNoEditor \
-        #         -SkipShaderCompile \
-        #         -unversioned \
-        #         -map="/Maps/Control_Small"
+        echo "--- generate-schema"
+        pushd "Engine/Binaries/Mac"
+            UE4Editor.app/Contents/MacOS/UE4Editor \
+                "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+                -run=CookAndGenerateSchema \
+                -targetplatform=MacNoEditor \
+                -SkipShaderCompile \
+                -unversioned \
+                -map="/Maps/Control_Small"
 
-        #     UE4Editor.app/Contents/MacOS/UE4Editor \
-        #         "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
-        #         -run=GenerateSchemaAndSnapshots \
-        #         -MapPaths="/Maps/Control_Small" \
-        #         -SkipSchema
-        # popd
+            UE4Editor.app/Contents/MacOS/UE4Editor \
+                "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+                -run=GenerateSchemaAndSnapshots \
+                -MapPaths="/Maps/Control_Small" \
+                -SkipSchema
+        popd
     popd
 
     echo "--- build-mac-client"
@@ -120,23 +121,37 @@ pushd "$(dirname "$0")"
         "${EXAMPLEPROJECT_HOME}" \
         "Development" \
         "Mac" \
-        "${EXAMPLEPROJECT_HOME}/cooked-mac" \
+        "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_HASH}" \
         "-iterative"
         ""
 
-    echo "--- change-runtime-settings"
-    python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 
-    echo "--- build-ios-client"
-    run_uat \
-        "${ENGINE_DIRECTORY}" \
-        "${EXAMPLEPROJECT_HOME}" \
-        "Development" \
-        "IOS" \
-        "${EXAMPLEPROJECT_HOME}/cooked-ios"
-        "" \
-        "connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp"        
-    
-    echo "--- set-build-ios-job-id:$BUILDKITE_JOB_ID"
-    buildkite-agent meta-data set "build-ios-job-id" "$BUILDKITE_JOB_ID"
+    if [[ -n "${IOS_AUTOTEST:-}" ]]; then
+        echo "--- change-runtime-settings"
+        python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
+
+        echo "--- build-ios-client-for-autotest"
+        run_uat \
+            "${ENGINE_DIRECTORY}" \
+            "${EXAMPLEPROJECT_HOME}" \
+            "Development" \
+            "IOS" \
+            "${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_HASH}"
+            "" \
+            "connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp" 
+            
+        echo "--- set-build-ios-job-id:$BUILDKITE_JOB_ID"
+        buildkite-agent meta-data set "build-ios-job-id" "$BUILDKITE_JOB_ID" 
+    else
+        echo "--- build-ios-client"
+        run_uat \
+            "${ENGINE_DIRECTORY}" \
+            "${EXAMPLEPROJECT_HOME}" \
+            "Development" \
+            "IOS" \
+            "${EXAMPLEPROJECT_HOME}/cooked-ios"
+            "" \
+            ""  
+    fi
+
 popd

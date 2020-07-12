@@ -3,14 +3,6 @@ set -euo pipefail
 
 BUILDKITE_TEMPLATE_FILE=ci/nightly.template.steps.yaml
 
-if [[ -n "${MAC_BUILD:-}" ]]; then
-    export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
-    REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g"
-else
-    export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
-    REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g"
-fi
-
 # Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against.
 # This is not the pinnacle of engineering, as we rely on GitHub's web interface to download the file, but it seems like GitHub disallows git archive
 # which would be our other option for downloading a single file.
@@ -58,9 +50,15 @@ if [ -z "${ENGINE_VERSION}" ]; then
             break
         fi
 
-        export ENGINE_COMMIT_HASH="${COMMIT_HASH}"
         export STEP_NUMBER
         export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
+       
+        if [[ -n "${MAC_BUILD:-}" ]]; then
+            REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
+        else
+            REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
+        fi
+
         sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
@@ -75,19 +73,46 @@ if [ -z "${ENGINE_VERSION}" ]; then
         buildkite-agent pipeline upload "ci/nightly.wait.yal"
 
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
-        if [ -z ${ANDROID_AUTOTEST} ]; then
-            REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|android|g"
-            sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
-        fi
         
-        if [ -z ${IOS_AUTOTEST} ]; then
-            REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
-            sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
-        fi
+        for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
+            if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
+                REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|android|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
+                sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+            fi
+            
+            if [[ -n "${MAC_BUILD:-}" ]] && [[ -n "${IOS_AUTOTEST:-}" ]]; then
+                REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|ios|g;s|HASH_PLACEHENGINE_COMMIT_HASH_PLACEHOLDEROLDER|${COMMIT_HASH}|g"
+                sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+            fi
+        done
     fi
 else
     echo "Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
+    
+    if [[ -n "${MAC_BUILD:-}" ]]; then
+        REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
+    else
+        REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
+    fi
     sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+    
+    # firebase auto test steps turn on
+    if [ -z ${NIGHTLY_BUILD} ]; then
+        # add wait step
+        buildkite-agent pipeline upload "ci/nightly.wait.yal"
+
+        BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
+        
+        if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
+            REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|android|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
+            sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+        fi
+        
+        if [[ -n "${MAC_BUILD:-}" ]] && [[ -n "${IOS_AUTOTEST:-}" ]]; then
+            REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|ios|g;s|HASH_PLACEHENGINE_COMMIT_HASH_PLACEHOLDEROLDER|${ENGINE_VERSION}|g"
+            sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+        fi
+    fi
 fi

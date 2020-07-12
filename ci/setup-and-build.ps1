@@ -17,6 +17,7 @@ param(
 # Parse them here to use the set value or the default.
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
+$engine_commit_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_HASH" -default_value "0"
 
 $gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
 
@@ -31,11 +32,6 @@ pushd "$exampleproject_home"
         Set-Meta-Data -variable_name "engine-home-windows" -variable_value "$unreal_engine_symlink_dir"
         Set-Meta-Data -variable_name "exampleproject-home-windows" -variable_value "$exampleproject_home"
     Finish-Event "save-build-meta-data" "build-unreal-gdk-example-project-:windows:"
-
-    # shown file list of game/content/maps
-    # Start-Event "shown file list of maps" "build-unreal-gdk-example-project-:windows:"
-    #     Get-ChildItem -Path .\Game\Content\Maps
-    # Finish-Event "shown file list of maps" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
         pushd "Game"
@@ -157,21 +153,20 @@ pushd "$exampleproject_home"
         popd
     Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
 
-
-    # Start-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
-    #     $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
-    #         "GDKShooter", `
-    #         "Win64", `
-    #         "Development", `
-    #         "GDKShooter.uproject"
-    #     )       
-    #     $build_client_handle = $build_client_proc.Handle
-    #     Wait-Process -InputObject $build_client_proc
-    #     if ($build_client_proc.ExitCode -ne 0) {
-    #         Write-Output "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
-    #         Throw "Failed to build Win64 Development Client"
-    #     }
-    # Finish-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
+        $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
+            "GDKShooter", `
+            "Win64", `
+            "Development", `
+            "GDKShooter.uproject"
+        )       
+        $build_client_handle = $build_client_proc.Handle
+        Wait-Process -InputObject $build_client_proc
+        if ($build_client_proc.ExitCode -ne 0) {
+            Write-Output "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
+            Throw "Failed to build Win64 Development Client"
+        }
+    Finish-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
@@ -220,7 +215,7 @@ pushd "$exampleproject_home"
             "-cook", `
             "-stage", `
             "-archive", `
-            "-archivedirectory=$($exampleproject_home)/cooked-android", `
+            "-archivedirectory=$($exampleproject_home)/cooked-android-$engine_commit_hash", `
             "-package", `
             "-clientconfig=Development", `
             "-ue4exe=$($unreal_engine_symlink_dir)/Engine/Binaries/Win64/UE4Editor-Cmd.exe", `

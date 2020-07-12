@@ -51,6 +51,6 @@ ios: &ios
   - ssh://git@github.com/improbable/apple-codesigning-plugin#v0.1.3: ~
 
 steps:
-  - label: "auto-test-DEVICE_PLACEHOLDER-connect-to-spatialos${ENGINE_COMMIT_HASH}"
-    command: "python ci\\auto-test.py DEVICE_PLACEHOLDER"
+  - label: "auto-test-DEVICE_PLACEHOLDER-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
+    command: "python ci\\auto-test.py DEVICE_PLACEHOLDER ENGINE_COMMIT_HASH_PLACEHOLDER"
     <<: *DEVICE_PLACEHOLDER 

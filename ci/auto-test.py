@@ -118,13 +118,13 @@ def gcloud_upload(app_platform, app_path):
         print(e)
         return 0, 1
 
-def get_gcs_and_local_path(app_platform):
+def get_gcs_and_local_path(app_platform, engine_commit_hash):
     filename = ''
     localfilename = ''
     if app_platform == 'android':
         android_flavor = common.get_buildkite_meta_data('android-flavor')
         localfilename = common.get_environment_variable('ANDROID_FILENAME','GDKShooter-armv7-es2.apk')
-        filename = 'cooked-android/Android_%s/%s' % (android_flavor, localfilename)
+        filename = 'cooked-android-%s/Android_%s/%s' % (engine_commit_hash, android_flavor, localfilename)
     else:
         localfilename = common.get_environment_variable('IOS_FILENAME','GDKShooter.ipa')
         filename = 'IOS/%s' % (localfilename)
@@ -138,8 +138,8 @@ def get_gcs_and_local_path(app_platform):
     gcs_path = '%s/organizations/%s/pipelines/%s/builds/%s/jobs/%s/%s/%s/%s' % (gcshead, organization, pipeline, buildid, metadata, jobid, metadataos, filename)
     return gcs_path,localfilename
 
-def download_app(app_platform):
-    gclpath, localpath = get_gcs_and_local_path(app_platform)
+def download_app(app_platform, engine_commit_hash):
+    gclpath, localpath = get_gcs_and_local_path(app_platform, engine_commit_hash)
     if os.path.exists(localpath):
         os.remove(localpath)
     cmds = [
@@ -162,6 +162,7 @@ def download_app(app_platform):
 
 if __name__ == "__main__":
     app_platform = sys.argv[1]
+    engine_commit_hash = sys.argv[2]
     project = get_gcloud_project()
     
     # set gcloud project_id both Windows & Mac
@@ -174,7 +175,7 @@ if __name__ == "__main__":
     # download app to local
     event_name = "download_app"
     common.start_event(event_name)
-    localpath = download_app(app_platform)
+    localpath = download_app(app_platform, engine_commit_hash)
     common.finish_event(event_name)
 
     # upload local app to firebase for test
@@ -185,7 +186,12 @@ if __name__ == "__main__":
     
     # set to buildkite infrastructure gcloud project
     switch_gcloud_project(project)
-    print('succeed=%d total=%d' % (succeed, total))
-    common.set_buildkite_meta_data('firebase-%s-succeed' % app_platform, '%d' % succeed)
-    common.set_buildkite_meta_data('firebase-%s-total' % app_platform, '%d' % total)
 
+    # update firebase succeed/total value
+    print('succeed=%d total=%d' % (succeed, total))
+    firebase_succeed_key = 'firebase-%s-succeed' % app_platform
+    firebase_succeed_value = int(common.get_buildkite_meta_data(firebase_succeed_key)) + succeed
+    firebase_total_key = 'firebase-%s-total' % app_platform
+    firebase_total_value = int(common.get_buildkite_meta_data(firebase_total_key)) + total
+    common.set_buildkite_meta_data(firebase_succeed_key, firebase_succeed_value)
+    common.set_buildkite_meta_data(firebase_total_key, firebase_total_value)
