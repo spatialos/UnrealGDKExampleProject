@@ -76,7 +76,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
 
     #  turn on firebase auto test steps
     echo --- handle-firebase-steps
-    if [ -z ${NIGHTLY_BUILD} ]; then
+    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
         # add wait step
         echo --- add-wait-step
         buildkite-agent pipeline upload "ci/nightly.wait.yal"
@@ -110,7 +110,7 @@ else
     sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g" "${BUILDKITE_TEMPLATE_FILE}" | sed $REPLACE_STRING | buildkite-agent pipeline upload
     
     #  turn on firebase auto test steps
-    if [ -z ${NIGHTLY_BUILD} ]; then
+    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
         echo --- add-wait-step
         buildkite-agent pipeline upload "ci/nightly.wait.yal"
 
