@@ -57,14 +57,16 @@ if [ -z "${ENGINE_VERSION}" ]; then
         fi
 
         export STEP_NUMBER
+        echo "STEP_NUMBER:${STEP_NUMBER}"
         export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
+        echo "GDK_BRANCH:${GDK_BRANCH}"
        
         if [[ -n "${MAC_BUILD:-}" ]]; then
             REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
         else
             REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
         fi
-
+        echo --- "REPLACE_STRING:${REPLACE_STRING}"
         sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
