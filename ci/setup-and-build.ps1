@@ -18,6 +18,7 @@ param(
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $engine_commit_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_HASH" -default_value "0"
+$engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATED_HASH" -default_value "0"
 
 $gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
 
@@ -215,7 +216,7 @@ pushd "$exampleproject_home"
             "-cook", `
             "-stage", `
             "-archive", `
-            "-archivedirectory=$($exampleproject_home)/cooked-android-$engine_commit_hash", `
+            "-archivedirectory=$($exampleproject_home)/cooked-android-$engine_commit_formated_hash", `
             "-package", `
             "-clientconfig=Development", `
             "-ue4exe=$($unreal_engine_symlink_dir)/Engine/Binaries/Win64/UE4Editor-Cmd.exe", `
