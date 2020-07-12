@@ -51,7 +51,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
     STEP_NUMBER=1
     IFS=$'\n'
     for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
-        echo --- handle-${COMMIT_HASH}
+        echo --- handle-setup-and-build-COMMIT_HASH:${COMMIT_HASH}-STEP_NUMBER:${STEP_NUMBER}
         if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
             break
         fi
@@ -87,6 +87,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         COUNT=1
         for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
+            echo --- handle-autotest-COMMIT_HASH:${COMMIT_HASH}-STEP_NUMBER:${STEP_NUMBER}
             if ((COUNT > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
                 break
             fi
