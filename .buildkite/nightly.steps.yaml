@@ -78,6 +78,7 @@ env:
     ANDROID_FILENAME: "GDKShooter-armv7-es2.apk"
     IOS_FILENAME: "GDKShooter.ipa"
     NIGHTLY_BUILD: 1
+    MAXIMUM_ENGINE_VERSION_COUNT: 3
     ANDROID_AUTOTEST: 1
     IOS_AUTOTEST: 1
 steps:
