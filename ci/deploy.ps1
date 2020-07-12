@@ -10,7 +10,11 @@ Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     $date_and_time = Get-Date -Format "MMdd_HHmm"
     $deployment_name = "exampleproject$($env:STEP_NUMBER)_${date_and_time}_$($gdk_commit_hash)"
     $assembly_name = "$($deployment_name)_asm"
-
+    
+    Write-Output "STEP_NUMBER: ${env:STEP_NUMBER}"
+    Write-Output "gdk_commit_hash: ${gdk_commit_hash}"
+    Write-Output "deployment_name: ${deployment_name}"
+    Write-Output "assembly_name: ${assembly_name}"
 pushd "spatial"
     Start-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
         $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`

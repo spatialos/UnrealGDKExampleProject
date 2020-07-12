@@ -51,13 +51,16 @@ macos: &macos
   - ssh://git@github.com/improbable/apple-codesigning-plugin#v0.1.3: ~
 
 steps:
-  - label: "build-and-deploy-AGENT_PLACEHOLDER-ENGINE_COMMIT_HASH_PLACEHOLDER"
+  - label: "build-and-deploy-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
     command: ${BUILDKITE_COMMAND}
     <<: *AGENT_PLACEHOLDER 
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
-      - "cooked-android-ENGINE_COMMIT_HASH_PLACEHOLDER/**/*"
-      - "cooked-mac-ENGINE_COMMIT_HASH_PLACEHOLDER/**/*"
-      - "cooked-ios-ENGINE_COMMIT_HASH_PLACEHOLDER/**/*"
+      - "cooked-android-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER/**/*"
+      - "cooked-mac-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER/**/*"
+      - "cooked-ios-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER/**/*"
     env:
+      ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
+      STEP_NUMBER: "${STEP_NUMBER}"
+      GDK_BRANCH: "${GDK_BRANCH}"
       UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"

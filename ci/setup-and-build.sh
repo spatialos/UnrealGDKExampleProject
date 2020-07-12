@@ -115,13 +115,15 @@ pushd "$(dirname "$0")"
         popd
     popd
 
+    
+    ENGINE_COMMIT_FORMATED_HASH=$(sed "s/ /_/g" <<< ${ENGINE_COMMIT_HASH} | sed "s/-/_/g" | sed "s/\./_/g")
     echo "--- build-mac-client"
     run_uat \
         "${ENGINE_DIRECTORY}" \
         "${EXAMPLEPROJECT_HOME}" \
         "Development" \
         "Mac" \
-        "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_HASH}" \
+        "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATED_HASH}" \
         "-iterative"
         ""
 
@@ -135,12 +137,12 @@ pushd "$(dirname "$0")"
             "${EXAMPLEPROJECT_HOME}" \
             "Development" \
             "IOS" \
-            "${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_HASH}"
+            "${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_FORMATED_HASH}"
             "" \
             "connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp" 
             
         echo "--- set-build-ios-job-id:$BUILDKITE_JOB_ID"
-        buildkite-agent meta-data set "${ENGINE_COMMIT_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
+        buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATED_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
     else
         echo "--- build-ios-client"
         run_uat \
@@ -148,7 +150,7 @@ pushd "$(dirname "$0")"
             "${EXAMPLEPROJECT_HOME}" \
             "Development" \
             "IOS" \
-            "${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_HASH}"
+            "${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_FORMATED_HASH}"
             "" \
             ""  
     fi

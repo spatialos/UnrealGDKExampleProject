@@ -52,5 +52,5 @@ ios: &ios
 
 steps:
   - label: "auto-test-DEVICE_PLACEHOLDER-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
-    command: "python ci\\auto-test.py DEVICE_PLACEHOLDER ENGINE_COMMIT_HASH_PLACEHOLDER"
+    command: "python ci\\auto-test.py DEVICE_PLACEHOLDER ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
     <<: *DEVICE_PLACEHOLDER 
