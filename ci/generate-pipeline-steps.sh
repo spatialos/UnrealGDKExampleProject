@@ -132,7 +132,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
             export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
             REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
         fi
-        sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+        sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
     # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
@@ -156,12 +156,12 @@ else
         
         if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
             REPLACE_STRING="s|DEVICE_PLACEHOLDER|android|g"
-            sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+            sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         fi
         
         if [[ -n "${MAC_BUILD:-}" ]] && [[ -n "${IOS_AUTOTEST:-}" ]]; then
             REPLACE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
-            sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+            sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         fi
 
         echo --- add-wait-step
@@ -173,6 +173,6 @@ else
     else
         REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
     fi
-    sed REPLACE_ENGINE_COMMIT_HASH "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+    sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
 
 fi
