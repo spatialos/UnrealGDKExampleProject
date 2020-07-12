@@ -62,9 +62,9 @@ if [ -z "${ENGINE_VERSION}" ]; then
         echo "GDK_BRANCH:${GDK_BRANCH}"
        
         if [[ -n "${MAC_BUILD:-}" ]]; then
-            REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
+            REPLACE_STRING="-i -e s|BUILKDITE_AGENT_PLACEHOLDER|macos|g -e s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
         else
-            REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
+            REPLACE_STRING="-i -e s|BUILKDITE_AGENT_PLACEHOLDER|windows|g -e s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
         fi
         echo --- "REPLACE_STRING:${REPLACE_STRING}"
         sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
@@ -86,12 +86,12 @@ if [ -z "${ENGINE_VERSION}" ]; then
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
             if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
-                REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|android|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
+                REPLACE_DEVICE_STRING="-i -e s|DEVICE_PLACEHOLDER|android|g -e s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
                 sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
             fi
             
             if [[ -n "${MAC_BUILD:-}" ]] && [[ -n "${IOS_AUTOTEST:-}" ]]; then
-                REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|ios|g;s|HASH_PLACEHENGINE_COMMIT_HASH_PLACEHOLDEROLDER|${COMMIT_HASH}|g"
+                REPLACE_DEVICE_STRING="-i -e s|DEVICE_PLACEHOLDER|ios|g -e s|HASH_PLACEHENGINE_COMMIT_HASH_PLACEHOLDEROLDER|${COMMIT_HASH}|g"
                 sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
             fi
         done
@@ -104,9 +104,9 @@ else
     echo "GDK_BRANCH:${GDK_BRANCH}"
     
     if [[ -n "${MAC_BUILD:-}" ]]; then
-        REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
+        REPLACE_STRING="-i -e s|BUILKDITE_AGENT_PLACEHOLDER|macos|g -e s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
     else
-        REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
+        REPLACE_STRING="-i -e s|BUILKDITE_AGENT_PLACEHOLDER|windows|g -e s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
     fi
     echo --- "REPLACE_STRING:${REPLACE_STRING}"
     sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
@@ -120,12 +120,12 @@ else
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         
         if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
-            REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|android|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
+            REPLACE_DEVICE_STRING="-i -e s|DEVICE_PLACEHOLDER|android|g -e s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
             sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
         fi
         
         if [[ -n "${MAC_BUILD:-}" ]] && [[ -n "${IOS_AUTOTEST:-}" ]]; then
-            REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|ios|g;s|HASH_PLACEHENGINE_COMMIT_HASH_PLACEHOLDEROLDER|${ENGINE_VERSION}|g"
+            REPLACE_DEVICE_STRING="-i -e s|DEVICE_PLACEHOLDER|ios|g -e s|HASH_PLACEHENGINE_COMMIT_HASH_PLACEHOLDEROLDER|${ENGINE_VERSION}|g"
             sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
         fi
     fi
