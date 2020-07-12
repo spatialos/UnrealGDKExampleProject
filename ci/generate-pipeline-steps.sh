@@ -40,6 +40,15 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
     fi
 done
 
+
+if [[ -n "${SLACK_NOTIFY:-}" ]] || [[ -n "${NIGHTLY_BUILD:-}" ]] || [ ${BUILDKITE_BRANCH} -eq "master" ]]; then
+    echo --- add-slack-notify-step
+    buildkite-agent pipeline upload "ci/nightly.slack.notify.yaml"
+    
+    echo --- add-wait-step
+    sed "s|NAME_PLACEHOLDER|Wait-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
+fi
+
 # This script generates BuildKite steps for each engine version we want to test against.
 # We retrieve these engine versions from the unreal-engine.version file in the UnrealGDK repository.
 # The steps are based on the template in nightly.template.steps.yaml.
