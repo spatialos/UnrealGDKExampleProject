@@ -58,10 +58,6 @@ if [ -z "${ENGINE_VERSION}" ]; then
         buildkite-agent meta-data set "firebase-ios-succeed" "0"
         buildkite-agent meta-data set "firebase-ios-total" "0"
 
-        # add wait step
-        echo --- add-wait-step
-        sed "s|NAME_PLACEHOLDER|Wait-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
-        
         echo --- add-auto-test-steps
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         COUNT=1
@@ -81,6 +77,10 @@ if [ -z "${ENGINE_VERSION}" ]; then
             fi
             COUNT=$((COUNT+1))
         done
+        
+        # add wait step
+        echo --- add-wait-step
+        sed "s|NAME_PLACEHOLDER|Wait-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
     fi
 
     STEP_NUMBER=1
@@ -119,9 +119,6 @@ else
     
     #  turn on firebase auto test steps
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
-        echo --- add-wait-step
-        sed "s|NAME_PLACEHOLDER|Wait-${ENGINE_VERSION}-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
-
         echo --- add-auto-test
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         
@@ -134,6 +131,9 @@ else
             REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
             sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g" "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed $REPLACE_DEVICE_STRING | buildkite-agent pipeline upload
         fi
+
+        echo --- add-wait-step
+        sed "s|NAME_PLACEHOLDER|Wait-${ENGINE_VERSION}-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
     fi
 
     if [[ -n "${MAC_BUILD:-}" ]]; then
