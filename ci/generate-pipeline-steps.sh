@@ -62,8 +62,10 @@ if [ -z "${ENGINE_VERSION}" ]; then
         echo "GDK_BRANCH:${GDK_BRANCH}"
        
         if [[ -n "${MAC_BUILD:-}" ]]; then
+            export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
             REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
         else
+            export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
             REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
         fi
         sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g" "${BUILDKITE_TEMPLATE_FILE}" | sed $REPLACE_STRING | buildkite-agent pipeline upload
