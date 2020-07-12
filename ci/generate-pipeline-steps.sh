@@ -81,7 +81,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
         # add wait step
         echo --- add-wait-step
-        buildkite-agent pipeline upload "ci/nightly.wait.yal"
+        buildkite-agent pipeline upload "ci/nightly.wait.yaml"
         
         echo --- add-auto-test-steps
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
@@ -114,7 +114,7 @@ else
     #  turn on firebase auto test steps
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
         echo --- add-wait-step
-        buildkite-agent pipeline upload "ci/nightly.wait.yal"
+        buildkite-agent pipeline upload "ci/nightly.wait.yaml"
 
         echo --- add-auto-test
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
