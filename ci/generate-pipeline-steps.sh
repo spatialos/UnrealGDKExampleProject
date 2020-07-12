@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+BUILDKITE_TEMPLATE_FILE=ci/nightly.template.steps.yaml
+
 if [[ -n "${MAC_BUILD:-}" ]]; then
     export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
     REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g"
@@ -59,15 +61,33 @@ if [ -z "${ENGINE_VERSION}" ]; then
         export ENGINE_COMMIT_HASH="${COMMIT_HASH}"
         export STEP_NUMBER
         export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
+        sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
     # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
     # The number of engine versions we are dealing with is therefore the counting variable from the above loop minus one.
     STEP_NUMBER=$((STEP_NUMBER-1))
     buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
+
+    # firebase auto test steps turn on
+    if [ -z ${NIGHTLY_BUILD} ]; then
+        # add wait step
+        buildkite-agent pipeline upload "ci/nightly.wait.yal"
+
+        BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
+        if [ -z ${ANDROID_AUTOTEST} ]; then
+            REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|android|g"
+            sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+        fi
+        
+        if [ -z ${IOS_AUTOTEST} ]; then
+            REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
+            sed $REPLACE_DEVICE_STRING "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+        fi
+    fi
 else
     echo "Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
+    sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
 fi
-
