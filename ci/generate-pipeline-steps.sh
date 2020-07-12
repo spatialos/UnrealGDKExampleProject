@@ -48,34 +48,7 @@ done
 MAXIMUM_ENGINE_VERSION_COUNT_LOCAL="${MAXIMUM_ENGINE_VERSION_COUNT:-1}"
 if [ -z "${ENGINE_VERSION}" ]; then 
     echo "Generating build steps for the first ${MAXIMUM_ENGINE_VERSION_COUNT_LOCAL} engine versions listed in unreal-engine.version"
-    STEP_NUMBER=1
-    IFS=$'\n'
-    for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
-        echo --- handle-setup-and-build-COMMIT_HASH:${COMMIT_HASH}-STEP_NUMBER:${STEP_NUMBER}
-        if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
-            break
-        fi
-
-        export STEP_NUMBER
-        echo "STEP_NUMBER:${STEP_NUMBER}"
-        export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
-        echo "GDK_BRANCH:${GDK_BRANCH}"
-       
-        if [[ -n "${MAC_BUILD:-}" ]]; then
-            export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
-            REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
-        else
-            export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
-            REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
-        fi
-        sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g" "${BUILDKITE_TEMPLATE_FILE}" | sed $REPLACE_STRING | buildkite-agent pipeline upload
-        STEP_NUMBER=$((STEP_NUMBER+1))
-    done
-    # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
-    # The number of engine versions we are dealing with is therefore the counting variable from the above loop minus one.
-    STEP_NUMBER=$((STEP_NUMBER-1))
-    buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
-
+    
     #  turn on firebase auto test steps
     echo --- handle-firebase-steps
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
@@ -109,19 +82,40 @@ if [ -z "${ENGINE_VERSION}" ]; then
             COUNT=$((COUNT+1))
         done
     fi
+
+    STEP_NUMBER=1
+    IFS=$'\n'
+    for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
+        echo --- handle-setup-and-build-COMMIT_HASH:${COMMIT_HASH}-STEP_NUMBER:${STEP_NUMBER}
+        if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
+            break
+        fi
+
+        export STEP_NUMBER
+        echo "STEP_NUMBER:${STEP_NUMBER}"
+        export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
+        echo "GDK_BRANCH:${GDK_BRANCH}"
+       
+        if [[ -n "${MAC_BUILD:-}" ]]; then
+            export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
+            REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
+        else
+            export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
+            REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
+        fi
+        sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g" "${BUILDKITE_TEMPLATE_FILE}" | sed $REPLACE_STRING | buildkite-agent pipeline upload
+        STEP_NUMBER=$((STEP_NUMBER+1))
+    done
+    # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
+    # The number of engine versions we are dealing with is therefore the counting variable from the above loop minus one.
+    STEP_NUMBER=$((STEP_NUMBER-1))
+    buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 else
     echo --- "Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
     echo "ENGINE_COMMIT_HASH:${ENGINE_COMMIT_HASH}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
     echo "GDK_BRANCH:${GDK_BRANCH}"
-    
-    if [[ -n "${MAC_BUILD:-}" ]]; then
-        REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
-    else
-        REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
-    fi
-    sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g" "${BUILDKITE_TEMPLATE_FILE}" | sed $REPLACE_STRING | buildkite-agent pipeline upload
     
     #  turn on firebase auto test steps
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
@@ -141,4 +135,11 @@ else
             sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g" "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed $REPLACE_DEVICE_STRING | buildkite-agent pipeline upload
         fi
     fi
+
+    if [[ -n "${MAC_BUILD:-}" ]]; then
+        REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
+    else
+        REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
+    fi
+    sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g" "${BUILDKITE_TEMPLATE_FILE}" | sed $REPLACE_STRING | buildkite-agent pipeline upload
 fi
