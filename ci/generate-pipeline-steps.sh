@@ -79,15 +79,21 @@ if [ -z "${ENGINE_VERSION}" ]; then
     #  turn on firebase auto test steps
     echo --- handle-firebase-steps
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+        # set default test result
+        buildkite-agent meta-data set "firebase-android-succeed" "0"
+        buildkite-agent meta-data set "firebase-android-total" "0"
+        buildkite-agent meta-data set "firebase-ios-succeed" "0"
+        buildkite-agent meta-data set "firebase-ios-total" "0"
+
         # add wait step
         echo --- add-wait-step
-        buildkite-agent pipeline upload "ci/nightly.wait.yaml"
+        sed "s|NAME_PLACEHOLDER|Wait-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
         
         echo --- add-auto-test-steps
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         COUNT=1
         for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
-            echo --- handle-autotest-COMMIT_HASH:${COMMIT_HASH}-STEP_NUMBER:${STEP_NUMBER}
+            echo --- handle-autotest-COMMIT_HASH:${COMMIT_HASH}-COUNT:${COUNT}
             if ((COUNT > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
                 break
             fi
@@ -120,7 +126,7 @@ else
     #  turn on firebase auto test steps
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
         echo --- add-wait-step
-        buildkite-agent pipeline upload "ci/nightly.wait.yaml"
+        sed "s|NAME_PLACEHOLDER|Wait-${ENGINE_VERSION}-auto-test|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
 
         echo --- add-auto-test
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
