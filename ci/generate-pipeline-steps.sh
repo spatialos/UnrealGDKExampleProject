@@ -85,7 +85,11 @@ if [ -z "${ENGINE_VERSION}" ]; then
         
         echo --- add-auto-test-steps
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
+        COUNT=1
         for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
+            if ((COUNT > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
+                break
+            fi
             if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
                 REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|android|g"
                 sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g" "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed $REPLACE_DEVICE_STRING | buildkite-agent pipeline upload
@@ -95,6 +99,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
                 REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
                 sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g" "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed $REPLACE_DEVICE_STRING | buildkite-agent pipeline upload
             fi
+            COUNT=$((COUNT+1))
         done
     fi
 else
