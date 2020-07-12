@@ -58,6 +58,7 @@ MAXIMUM_ENGINE_VERSION_COUNT_LOCAL="${MAXIMUM_ENGINE_VERSION_COUNT:-1}"
 if [ -z "${ENGINE_VERSION}" ]; then 
     echo "Generating build steps for the first ${MAXIMUM_ENGINE_VERSION_COUNT_LOCAL} engine versions listed in unreal-engine.version"
     
+    IFS=$'\n'
     VERSIONS=$(cat < ci/unreal-engine.version)
 
     #  turn on firebase auto test steps
@@ -95,7 +96,6 @@ if [ -z "${ENGINE_VERSION}" ]; then
     fi
 
     STEP_NUMBER=1
-    IFS=$'\n'
     for COMMIT_HASH in ${VERSIONS}; do
         echo --- handle-setup-and-build-COMMIT_HASH:${COMMIT_HASH}-STEP_NUMBER:${STEP_NUMBER}
         if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
