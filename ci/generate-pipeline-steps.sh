@@ -40,6 +40,13 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
     fi
 done
 
+if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+    export ANDROID_AUTOTEST="1"
+
+    if [[ -n "${MAC_BUILD:-}" ]]; then
+        export IOS_AUTOTEST="1"
+    fi
+fi
 
 if [[ -n "${SLACK_NOTIFY:-}" ]] || [[ -n "${NIGHTLY_BUILD:-}" ]] || [ ${BUILDKITE_BRANCH} -eq "master" ]]; then
     echo --- add-slack-notify-step
