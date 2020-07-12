@@ -109,6 +109,8 @@ if [ -z "${ENGINE_VERSION}" ]; then
             break
         fi
 
+        export ENGINE_COMMIT_HASH="${LINE}"
+        echo "ENGINE_COMMIT_HASH:${ENGINE_COMMIT_HASH}"
         export STEP_NUMBER
         echo "STEP_NUMBER:${STEP_NUMBER}"
         export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
@@ -131,11 +133,11 @@ if [ -z "${ENGINE_VERSION}" ]; then
     buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 else
     echo --- "Generating steps for the specified engine version: ${ENGINE_VERSION}"
-    COMMIT_HASH=$(sed "s/ /_/g" <<< ${ENGINE_VERSION} | sed "s/-/_/g" | sed "s/\./_/g")
-    export ENGINE_COMMIT_HASH="${COMMIT_HASH}"
+    export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
     echo "ENGINE_COMMIT_HASH:${ENGINE_COMMIT_HASH}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
     echo "GDK_BRANCH:${GDK_BRANCH}"
+    COMMIT_HASH=$(sed "s/ /_/g" <<< ${ENGINE_VERSION} | sed "s/-/_/g" | sed "s/\./_/g")
     
     #  turn on firebase auto test steps
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then

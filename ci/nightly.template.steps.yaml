@@ -60,7 +60,4 @@ steps:
       - "cooked-mac-ENGINE_COMMIT_HASH_PLACEHOLDER/**/*"
       - "cooked-ios-ENGINE_COMMIT_HASH_PLACEHOLDER/**/*"
     env:
-      ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
-      STEP_NUMBER: "${STEP_NUMBER}"
-      GDK_BRANCH: "${GDK_BRANCH}"
       UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
