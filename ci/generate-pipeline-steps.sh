@@ -8,6 +8,9 @@ BUILDKITE_TEMPLATE_FILE=ci/nightly.template.steps.yaml
 # which would be our other option for downloading a single file.
 # Also resolve the GDK branch to run against. The order of priority is:
 # GDK_BRANCH envvar > same-name branch as the branch we are currently on > UnrealGDKVersion.txt > "master".
+
+echo --- init-gdk-branch
+
 GDK_BRANCH_LOCAL="${GDK_BRANCH:-}"
 if [ -z "${GDK_BRANCH_LOCAL}" ]; then
     GDK_REPO_HEADS=$(git ls-remote --heads "git@github.com:spatialos/UnrealGDK.git" "${BUILDKITE_BRANCH}")
@@ -22,8 +25,10 @@ if [ -z "${GDK_BRANCH_LOCAL}" ]; then
             GDK_BRANCH_LOCAL="${GDK_VERSION}"
         fi
     fi
+    echo ${GDK_BRANCH_LOCAL}
 fi
 
+echo --- number-of-tries
 NUMBER_OF_TRIES=0
 while [ $NUMBER_OF_TRIES -lt 5 ]; do
     CURL_TIMEOUT=$((10<<NUMBER_OF_TRIES))
@@ -46,6 +51,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
     STEP_NUMBER=1
     IFS=$'\n'
     for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
+        echo --- handle-${COMMIT_HASH}
         if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
             break
         fi
@@ -68,12 +74,14 @@ if [ -z "${ENGINE_VERSION}" ]; then
     buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 
     # firebase auto test steps turn on
+    echo --- handle-firebase-steps
     if [ -z ${NIGHTLY_BUILD} ]; then
         # add wait step
+        echo --- add-wait-step
         buildkite-agent pipeline upload "ci/nightly.wait.yal"
-
-        BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         
+        echo --- add-auto-test-steps
+        BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         for COMMIT_HASH in $(cat < ci/unreal-engine.version); do
             if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
                 REPLACE_DEVICE_STRING="s|DEVICE_PLACEHOLDER|android|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g"
@@ -87,22 +95,26 @@ if [ -z "${ENGINE_VERSION}" ]; then
         done
     fi
 else
-    echo "Generating steps for the specified engine version: ${ENGINE_VERSION}"
+    echo --- "Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
+    echo "ENGINE_COMMIT_HASH:${ENGINE_COMMIT_HASH}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
+    echo "GDK_BRANCH:${GDK_BRANCH}"
     
     if [[ -n "${MAC_BUILD:-}" ]]; then
         REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
     else
         REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g;s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g"
     fi
+    echo --- "REPLACE_STRING:${REPLACE_STRING}"
     sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
     
     # firebase auto test steps turn on
     if [ -z ${NIGHTLY_BUILD} ]; then
-        # add wait step
+        echo --- add-wait-step
         buildkite-agent pipeline upload "ci/nightly.wait.yal"
 
+        echo --- add-auto-test
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         
         if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
