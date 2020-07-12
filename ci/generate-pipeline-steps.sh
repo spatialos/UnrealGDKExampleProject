@@ -67,7 +67,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
             REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
         fi
         echo --- "REPLACE_STRING:${REPLACE_STRING}"
-        sed s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g | sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+        sed "s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g" | sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
     # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
@@ -109,7 +109,7 @@ else
         REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
     fi
     echo --- "REPLACE_STRING:${REPLACE_STRING}"
-    sed s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g | sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
+    sed s|ENGINE_COMMIT_HASH_PLACEHOLDER|${ENGINE_VERSION}|g | sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
     
     # firebase auto test steps turn on
     if [ -z ${NIGHTLY_BUILD} ]; then
