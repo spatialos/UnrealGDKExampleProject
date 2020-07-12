@@ -51,9 +51,9 @@ macos: &macos
   - ssh://git@github.com/improbable/apple-codesigning-plugin#v0.1.3: ~
 
 steps:
-  - label: "build-and-deploy-BUILKDITE_AGENT_PLACEHOLDER-ENGINE_COMMIT_HASH_PLACEHOLDER"
+  - label: "build-and-deploy-AGENT_PLACEHOLDER-ENGINE_COMMIT_HASH_PLACEHOLDER"
     command: ${BUILDKITE_COMMAND}
-    <<: *BUILKDITE_AGENT_PLACEHOLDER 
+    <<: *AGENT_PLACEHOLDER 
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "cooked-android-ENGINE_COMMIT_HASH_PLACEHOLDER/**/*"

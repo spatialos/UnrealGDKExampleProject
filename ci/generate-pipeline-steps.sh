@@ -62,9 +62,9 @@ if [ -z "${ENGINE_VERSION}" ]; then
         echo "GDK_BRANCH:${GDK_BRANCH}"
        
         if [[ -n "${MAC_BUILD:-}" ]]; then
-            REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g"
+            REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
         else
-            REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g"
+            REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
         fi
         echo --- "REPLACE_STRING:${REPLACE_STRING}"
         sed s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g | sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
@@ -104,9 +104,9 @@ else
     echo "GDK_BRANCH:${GDK_BRANCH}"
     
     if [[ -n "${MAC_BUILD:-}" ]]; then
-        REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|macos|g"
+        REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
     else
-        REPLACE_STRING="s|BUILKDITE_AGENT_PLACEHOLDER|windows|g"
+        REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
     fi
     echo --- "REPLACE_STRING:${REPLACE_STRING}"
     sed s|ENGINE_COMMIT_HASH_PLACEHOLDER|${COMMIT_HASH}|g | sed $REPLACE_STRING "${BUILDKITE_TEMPLATE_FILE}" | buildkite-agent pipeline upload
