@@ -42,11 +42,11 @@ done
 
 if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
     buildkite-agent meta-data set "android-autotest" "1"
-    ANDROID_AUTOTEST="1"
+    ANDROID_AUTOTEST=true
 
     if [[ -n "${MAC_BUILD:-}" ]]; then
         buildkite-agent meta-data set "ios-autotest" "1"
-        IOS_AUTOTEST="1"
+        IOS_AUTOTEST=true
     fi
 fi
 
@@ -92,12 +92,12 @@ if [ -z "${ENGINE_VERSION}" ]; then
             REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSION}|g"
             REPLACE_ENGINE_COMMIT_FORMATED_HASH="s|ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATED_HASH}|g"
 
-            if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
+            if [ ANDROID_AUTOTEST ]; then
                 REPLACE_STRING="s|DEVICE_PLACEHOLDER|android|g"
                 sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
             fi
             
-            if [[ -n "${MAC_BUILD:-}" ]] && [[ -n "${IOS_AUTOTEST:-}" ]]; then
+            if [[ -n "${MAC_BUILD:-}" ]] && [ IOS_AUTOTEST ]; then
                 REPLACE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
                 sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
             fi
@@ -156,12 +156,12 @@ else
         echo --- add-auto-test
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         
-        if [[ -n "${ANDROID_AUTOTEST:-}" ]]; then
+        if [ ANDROID_AUTOTEST ]; then
             REPLACE_STRING="s|DEVICE_PLACEHOLDER|android|g"
             sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         fi
         
-        if [[ -n "${MAC_BUILD:-}" ]] && [[ -n "${IOS_AUTOTEST:-}" ]]; then
+        if [[ -n "${MAC_BUILD:-}" ]] && [ IOS_AUTOTEST ]; then
             REPLACE_STRING="s|DEVICE_PLACEHOLDER|ios|g"
             sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         fi
