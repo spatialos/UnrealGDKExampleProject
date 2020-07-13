@@ -15,7 +15,7 @@ bk_interrupted_by_signal: &bk_interrupted_by_signal
 
 windows: &windows
   agents:
-    - "agent_count=1"
+    - "agent_count=4"
     - "capable_of_building=gdk-for-unreal"
     - "environment=production"
     - "machine_type=quad"
