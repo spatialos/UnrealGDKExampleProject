@@ -6,6 +6,8 @@ $slack_channel = Get-Env-Variable-Value-Or-Default -environment_variable_name "S
 $engine_version_count = Get-Meta-Data -variable_name "engine-version-count" -default_value "1"
 $project_name = Get-Meta-Data -variable_name "project-name" -default_value "1"
 $gdk_commit_hash = Get-Meta-Data -variable_name "gdk_commit_hash" -default_value "1"
+$android_autotest = Get-Meta-Data -variable_name "android-autotest" -default_value "0"
+$ios_autotest = Get-Meta-Data -variable_name "ios-autotest" -default_value "0"
 
 # Send a Slack notification with a link to the new deployment and to the build.
 Start-Event "slack-notify" "slack-notify"
@@ -38,7 +40,7 @@ Start-Event "slack-notify" "slack-notify"
                 @{
                     fallback = "Find build here: $build_url."
                     fields = @(
-                            if ($env:ANDROID_AUTOTEST -eq "1") {                                
+                            if ($android_autotest -eq "1") {                                
                                 $android_succeed = Get-Meta-Data -variable_name 'firebase-android-succeed' -default_value "0"
                                 $android_total = Get-Meta-Data -variable_name 'firebase-android-total' -default_value "0"
                                 @{
@@ -47,7 +49,7 @@ Start-Event "slack-notify" "slack-notify"
                                     short = "true"
                                 }
                             }
-                            if ($env:IOS_AUTOTEST -eq "1") {                                
+                            if ($ios_autotest -eq "1") {                                
                                 $ios_succeed = Get-Meta-Data -variable_name 'firebase-ios-succeed' -default_value "0"
                                 $ios_total = Get-Meta-Data -variable_name 'firebase-ios-total' -default_value "0"
                                 @{
@@ -102,7 +104,7 @@ Start-Event "slack-notify" "slack-notify"
             $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
             $deployment_button = @{
                                 type = "button"
-                                text = ":cloud: Deployment $($i+1)"
+                                text = ":cloud: Deployment $deployment_name"
                                 url = "$deployment_url"
                                 style = "primary"
                             }

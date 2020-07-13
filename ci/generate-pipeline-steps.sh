@@ -41,10 +41,12 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
 done
 
 if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
-    export ANDROID_AUTOTEST="1"
+    buildkite-agent meta-data set "android-autotest" "1"
+    ANDROID_AUTOTEST="1"
 
     if [[ -n "${MAC_BUILD:-}" ]]; then
-        export IOS_AUTOTEST="1"
+        buildkite-agent meta-data set "ios-autotest" "1"
+        IOS_AUTOTEST="1"
     fi
 fi
 
