@@ -124,8 +124,10 @@ pushd "$(dirname "$0")"
         "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATED_HASH}" \
         "-iterative"
         ""
-
-    if [[ -n "${IOS_AUTOTEST:-}" ]]; then
+    
+    IOS_AUTOTEST=$(buildkite-agent meta-data get "ios-autotest")
+    $IOS_AUTOTEST = Get-Meta-Data -variable_name "android-autotest" -default_value "0"
+    if [ "$IOS_AUTOTEST" == "1" ]; then
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 
