@@ -126,15 +126,32 @@ if [ -z "${ENGINE_VERSION}" ]; then
         echo "STEP_NUMBER:${STEP_NUMBER}"
         export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
         echo "GDK_BRANCH:${GDK_BRANCH}"
-       
-        if [[ -n "${MAC_BUILD:-}" ]]; then
-            export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
-            REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
-        else
+            
+        if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+            #if nightly build, we should build if MAC_BUILD setted
+            if [[ -n "${MAC_BUILD:-}" ]]; then
+                export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
+                REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
+                sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+            fi
+            
+            #if nightly build, we should build on windows allways
             export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
             REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
+            sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+        else
+            # if normal build just build Mac or Windows
+            if [[ -n "${MAC_BUILD:-}" ]]; then
+                export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
+                REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
+                sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+            else
+                export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
+                REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
+                sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+            fi
         fi
-        sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
     # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
