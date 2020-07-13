@@ -40,7 +40,6 @@ macos: &macos
     - "permission_set=builder"
     - "platform=macos"
     - "queue=${DARWIN_BUILDER_QUEUE:-v4-9c6ee0ef-d}"
-    - "experiment_normalised_upload_paths=true"
   timeout_in_minutes: 60
   retry:
     automatic:
