@@ -13,16 +13,16 @@ bk_interrupted_by_signal: &bk_interrupted_by_signal
   exit_status: 15
   limit: 3
 
-android: &android
+windows: &windows
   agents:
-    - "agent_count=1"
+    - "agent_count=4"
     - "capable_of_building=gdk-for-unreal"
     - "environment=production"
     - "machine_type=quad"
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-03-26-102432-bk9951-8afe0ffb}"
+    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-07-06-132550-bk13082-f66f9113-d}"
     - "boot_disk_size_gb=500"
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
@@ -33,24 +33,7 @@ android: &android
   plugins:
     - ca-johnson/taskkill#v4.1: ~
 
-ios: &ios
-  agents:
-    - "capable_of_building=gdk-for-unreal"
-    - "environment=production"
-    - "permission_set=builder"
-    - "platform=macos"
-    - "queue=${DARWIN_BUILDER_QUEUE:-v4-1592331528-2736b365-d}"
-    - "experiment_normalised_upload_paths=true"
-  timeout_in_minutes: 60
-  retry:
-    automatic:
-      - <<: *agent_transients
-      - <<: *bk_system_error
-      - <<: *bk_interrupted_by_signal
-  plugins:
-  - ssh://git@github.com/improbable/apple-codesigning-plugin#v0.1.3: ~
-
 steps:
   - label: "auto-test-DEVICE_PLACEHOLDER-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
     command: "python ci\\auto-test.py DEVICE_PLACEHOLDER ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
-    <<: *DEVICE_PLACEHOLDER 
+    <<: *windows 
