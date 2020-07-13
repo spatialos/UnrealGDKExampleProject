@@ -242,6 +242,6 @@ pushd "$exampleproject_home"
             Write-Output "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
         }
-        Set-Meta-Data -variable_name "$engine_commit_hash-build-android-job-id" -variable_value "$env:BUILDKITE_JOB_ID"
+        Set-Meta-Data -variable_name "$engine_commit_formated_hash-build-android-job-id" -variable_value "$env:BUILDKITE_JOB_ID"
     Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
 popd

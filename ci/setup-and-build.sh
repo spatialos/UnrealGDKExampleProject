@@ -115,8 +115,6 @@ pushd "$(dirname "$0")"
         popd
     popd
 
-    
-    ENGINE_COMMIT_FORMATED_HASH=$(sed "s/ /_/g" <<< ${ENGINE_COMMIT_HASH} | sed "s/-/_/g" | sed "s/\./_/g")
     echo "--- build-mac-client"
     run_uat \
         "${ENGINE_DIRECTORY}" \
