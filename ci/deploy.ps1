@@ -10,6 +10,7 @@ Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     $date_and_time = Get-Date -Format "MMdd_HHmm"
     $deployment_name = "exampleproject$($env:STEP_NUMBER)_${date_and_time}_$($gdk_commit_hash)"
     $assembly_name = "$($deployment_name)_asm"
+    $runtime_version = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_RUNTIME_VERSION" -default_value ""
     
     Write-Output "STEP_NUMBER: ${env:STEP_NUMBER}"
     Write-Output "gdk_commit_hash: ${gdk_commit_hash}"

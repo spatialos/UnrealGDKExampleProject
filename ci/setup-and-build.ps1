@@ -1,23 +1,20 @@
 param(
   [string] $exampleproject_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
-  [string] $gdk_repo = "git@github.com:spatialos/UnrealGDK.git",
-  [string] $gcs_publish_bucket = "io-internal-infra-unreal-artifacts-production/UnrealEngine",
   [string] $deployment_launch_configuration = "one_worker_test.json",
   [string] $deployment_snapshot_path = "snapshots/Control_small.snapshot",
   [string] $deployment_cluster_region = "eu",
-  [string] $project_name = "unreal_gdk",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
-  [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine",
-  [string] $runtime_version = "0.4.3" ## the runtime version of SpatialOS
+  [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine"
 )
 
 . "$PSScriptRoot\common.ps1"
 
 # When a build is launched custom environment variables can be specified.
 # Parse them here to use the set value or the default.
+$gdk_repo = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_REPOSITORY" -default_value ""
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
-$engine_commit_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_HASH" -default_value "0"
+$project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
 $engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATED_HASH" -default_value "0"
 
 $gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"

@@ -164,6 +164,11 @@ if [ -z "${ENGINE_VERSION}" ]; then
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
   
+    # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
+    # The number of engine versions we are dealing with is therefore the counting variable from the above loop minus one.
+    STEP_NUMBER=$((STEP_NUMBER-1))
+    buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
+
     # generate auth token for both android and ios autotest
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
         echo --- insert-wait-generate-auth-token-step
@@ -171,11 +176,6 @@ if [ -z "${ENGINE_VERSION}" ]; then
 
         buildkite-agent pipeline upload "ci/nightly.gen.auth.token.yaml"
     fi
-
-    # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
-    # The number of engine versions we are dealing with is therefore the counting variable from the above loop minus one.
-    STEP_NUMBER=$((STEP_NUMBER-1))
-    buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 else
     echo --- "Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"

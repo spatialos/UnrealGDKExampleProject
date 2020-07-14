@@ -41,8 +41,7 @@ run_uat() {
         "${ADDITIONAL_UAT_FLAGS}"
 }
 
-
-GDK_REPO="${1:-git@github.com:spatialos/UnrealGDK.git}"
+GDK_REPO="${1:-${GDK_REPOSITORY}}"
 GCS_PUBLISH_BUCKET="${2:-io-internal-infra-unreal-artifacts-production/UnrealEngine}"
 
 pushd "$(dirname "$0")"
@@ -129,6 +128,9 @@ pushd "$(dirname "$0")"
     if [ "$IOS_AUTOTEST" == "1" ]; then
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
+
+        $AUTH_TOKEN = Get-Meta-Data -variable_name "auth-token" -default_value "1"
+        $DEPLOYMENT_NAME = Get-Meta-Data -variable_name "deployment-name-${STEP_NUMBER}" -default_value "1"
 
         echo "--- build-ios-client-for-autotest"
         run_uat \
