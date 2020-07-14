@@ -60,7 +60,7 @@ if [[ -n "${SLACK_NOTIFY:-}" ]] || [[ -n "${NIGHTLY_BUILD:-}" ]] || [ ${BUILDKIT
     echo --- add-slack-notify-step
     buildkite-agent pipeline upload "ci/nightly.slack.notify.yaml"
     
-    echo --- add-wait-step
+    echo --- insert-wait-all-finish-step
     sed "s|NAME_PLACEHOLDER|Wait-Notify|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
 fi
 
@@ -110,8 +110,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
             COUNT=$((COUNT+1))
         done
         
-        # add wait step
-        echo --- add-wait-step
+        echo --- add-wait-setup-and-build-step
         sed "s|NAME_PLACEHOLDER|Wait-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
     fi
 
@@ -164,6 +163,15 @@ if [ -z "${ENGINE_VERSION}" ]; then
 
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
+  
+    # generate auth token for both android and ios autotest
+    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+        echo --- insert-wait-generate-auth-token-step
+        sed "s|NAME_PLACEHOLDER|Wait-Notify|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
+
+        buildkite-agent pipeline upload "ci/nightly.gen.auth.token.yaml"
+    fi
+
     # We generate one build step for each engine version, which is one line in the unreal-engine.version file.
     # The number of engine versions we are dealing with is therefore the counting variable from the above loop minus one.
     STEP_NUMBER=$((STEP_NUMBER-1))
@@ -193,7 +201,7 @@ else
             sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_AUTOTEST_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         fi
 
-        echo --- add-wait-step
+        echo --- add-wait-setup-and-build-step
         sed "s|NAME_PLACEHOLDER|Wait-${ENGINE_COMMIT_FORMATED_HASH}-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
     fi
 
@@ -205,4 +213,11 @@ else
     fi
     sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
 
+    # generate auth token for both android and ios autotest
+    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+        echo --- insert-wait-generate-auth-token-step
+        sed "s|NAME_PLACEHOLDER|Wait-Notify|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
+
+        buildkite-agent pipeline upload "ci/nightly.gen.auth.token.yaml"
+    fi
 fi
