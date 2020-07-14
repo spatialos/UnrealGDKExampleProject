@@ -43,3 +43,5 @@ bool UTeamComponent::CanDamageActor(AActor* OtherActor)
 
 	return true;
 }
+
+void UTeamComponent::SetTeam_Implementation(FGenericTeamId NewTeamId) { TeamId = NewTeamId; }
