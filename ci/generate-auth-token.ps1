@@ -12,7 +12,7 @@ Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
     pushd "Game"
         New-Item -Name "Plugins" -ItemType Directory -Force
         pushd "Plugins"
-            git clone "$gdk_repo" "--depth 1" "-b $gdk_branch_name"
+            git clone $gdk_repo --depth 1 -b "$gdk_branch_name"
         popd
     popd
 Finish-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"

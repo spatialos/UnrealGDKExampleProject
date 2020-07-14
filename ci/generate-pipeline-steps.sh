@@ -117,10 +117,6 @@ if [ -z "${ENGINE_VERSION}" ]; then
         sed "s|NAME_PLACEHOLDER|Wait-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
     fi
 
-    #
-    echo --- add-begin-wait-setup-and-build-step
-    sed "s|NAME_PLACEHOLDER|Wait-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
-
     STEP_NUMBER=1
     for VERSION in ${VERSIONS}; do
         echo --- handle-setup-and-build-:${VERSION}-STEP_NUMBER:${STEP_NUMBER}
