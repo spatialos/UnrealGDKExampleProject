@@ -40,6 +40,9 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
     fi
 done
 
+buildkite-agent meta-data set "android-autotest" "0"
+buildkite-agent meta-data set "ios-autotest" "0"
+
 if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
     echo --- "NIGHTLY_BUILD:${NIGHTLY_BUILD}"
     buildkite-agent meta-data set "android-autotest" "1"
