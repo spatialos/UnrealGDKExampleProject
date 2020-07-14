@@ -11,7 +11,8 @@ Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     $deployment_name = "exampleproject$($env:STEP_NUMBER)_${date_and_time}_$($gdk_commit_hash)"
     $assembly_name = "$($deployment_name)_asm"
     $runtime_version = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_RUNTIME_VERSION" -default_value ""
-    
+    $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
+
     Write-Output "STEP_NUMBER: ${env:STEP_NUMBER}"
     Write-Output "gdk_commit_hash: ${gdk_commit_hash}"
     Write-Output "deployment_name: ${deployment_name}"
@@ -81,8 +82,7 @@ pushd "spatial"
                 Throw "Deployment launch failed"
             }
 
-            Set-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -variable_value "$deployment_name"
-            Set-Meta-Data -variable_name "project-name" -variable_value "$project_name"
+            Set-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -variable_value "$deployment_name"            
             Set-Meta-Data -variable_name "gdk-commit-hash" -variable_value "$gdk_commit_hash"
         } else {
             Write-Output "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."

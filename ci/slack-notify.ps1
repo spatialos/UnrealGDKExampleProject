@@ -1,10 +1,9 @@
 . "$PSScriptRoot\common.ps1"
-
+$project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $slack_channel = Get-Env-Variable-Value-Or-Default -environment_variable_name "SLACK_CHANNEL" -default_value "#mobile-buildkite"
 $engine_version_count = Get-Meta-Data -variable_name "engine-version-count" -default_value "1"
-$project_name = Get-Meta-Data -variable_name "project-name" -default_value "1"
 $gdk_commit_hash = Get-Meta-Data -variable_name "gdk_commit_hash" -default_value "1"
 $android_autotest = Get-Meta-Data -variable_name "android-autotest" -default_value "0"
 $ios_autotest = Get-Meta-Data -variable_name "ios-autotest" -default_value "0"

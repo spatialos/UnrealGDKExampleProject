@@ -1,9 +1,9 @@
 param(
-  [string] $exampleproject_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
-  [string] $project_name = "unreal_gdk"
+  [string] $exampleproject_home = (get-item "$($PSScriptRoot)").parent.FullName ## The root of the repo  
 )
 $gdk_repo = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_REPOSITORY" -default_value ""
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
+$project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
 
 . "$PSScriptRoot\common.ps1"
 
@@ -30,12 +30,7 @@ pushd "$exampleproject_home"
         pushd "Game"
             New-Item -Name "Plugins" -ItemType Directory -Force
             pushd "Plugins"
-            Start-Process -Wait -PassThru -NoNewWindow -FilePath "git" -ArgumentList @(`
-                "clone", `
-                "$gdk_repo", `
-                "--depth 1", `
-                "-b $gdk_branch_name"
-            )
+                git clone "$gdk_repo" "--depth 1" "-b $gdk_branch_name"
             popd
         popd
     Finish-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
