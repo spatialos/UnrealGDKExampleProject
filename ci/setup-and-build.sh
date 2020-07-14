@@ -126,7 +126,6 @@ pushd "$(dirname "$0")"
         ""
     
     IOS_AUTOTEST=$(buildkite-agent meta-data get "ios-autotest")
-    $IOS_AUTOTEST = Get-Meta-Data -variable_name "android-autotest" -default_value "0"
     if [ "$IOS_AUTOTEST" == "1" ]; then
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
