@@ -18,17 +18,11 @@ import common
 
 
 def run_command(cmds):
-    try:
-        res = common.run_shell(cmds)
-        for line in res.stderr.readlines():
-            utf8 = line.decode('UTF-8')
-            print(utf8)
-        for line in res.stdout.readlines():
-            utf8 = line.decode('UTF-8')
-            print(utf8)
-    except Exception as e:
-        print(e)
-        return 0, 1
+    res = common.run_shell(cmds)
+    for line in res.stderr.readlines():
+        print('%s:%s' % (cmds[0], line.decode('UTF-8')))
+    for line in res.stdout.readlines():
+        print('%s:%s' % (cmds[0], line.decode('UTF-8')))
 
 def switch_gcloud_project(project_id):
     event_name = "switch_gcloud_project:%s" % project_id
@@ -40,8 +34,7 @@ def switch_gcloud_project(project_id):
         'project',
         project_id
     ]
-    run_command(cmds)
- 
+    run_command(cmds) 
     common.finish_event(event_name)
 
 def get_gcloud_project():
@@ -83,40 +76,36 @@ def check_firebase_log(app_platform, url, device):
     return result
 
 def gcloud_upload(app_platform, app_path):
-    try:
-        cmds = [
-            'gcloud',
-            'beta',
-            'firebase',
-            'test',
-            app_platform,
-            'run',
-            '--type game-loop',
-            '--app %s' % app_path,
-            '--scenario-numbers 1',
-            '--format="json"',
-        ]
-        res = common.run_shell(cmds)
-        gcloud_storage_url = ''
-        gcloud_storage_keyword = common.get_environment_variable(
-            'GCLOUD_STORAGE_KEYWORD', 'https://console.developers.google.com/storage/browser/')
-        for line in res.stderr.readlines():
-            utf8 = line.decode('UTF-8')
-            if gcloud_storage_keyword in utf8:
-                url = re.findall(r'\[(.*?)\]', utf8)
-                gcloud_storage_url = url[0][len(gcloud_storage_keyword):]
-        total = 0
-        succeed = 0
-        output = res.stdout.read().decode('UTF-8')
-        print('upload package output:%s' % output)
-        for i in json.loads(output):
-            total += 1
-            if check_firebase_log(app_platform, gcloud_storage_url, i['axis_value']):
-                succeed += 1
-        return succeed, total
-    except Exception as e:
-        print(e)
-        return 0, 1
+    cmds = [
+        'gcloud',
+        'beta',
+        'firebase',
+        'test',
+        app_platform,
+        'run',
+        '--type game-loop',
+        '--app %s' % app_path,
+        '--scenario-numbers 1',
+        '--format="json"',
+    ]
+    res = common.run_shell(cmds)
+    gcloud_storage_url = ''
+    gcloud_storage_keyword = common.get_environment_variable(
+        'GCLOUD_STORAGE_KEYWORD', 'https://console.developers.google.com/storage/browser/')
+    for line in res.stderr.readlines():
+        utf8 = line.decode('UTF-8')
+        if gcloud_storage_keyword in utf8:
+            url = re.findall(r'\[(.*?)\]', utf8)
+            gcloud_storage_url = url[0][len(gcloud_storage_keyword):]
+    total = 0
+    succeed = 0
+    output = res.stdout.read().decode('UTF-8')
+    print('upload package output:%s' % output)
+    for i in json.loads(output):
+        total += 1
+        if check_firebase_log(app_platform, gcloud_storage_url, i['axis_value']):
+            succeed += 1
+    return succeed, total
 
 def get_gcs_and_local_path(app_platform, engine_commit_formated_hash):
     filename = ''
@@ -148,16 +137,7 @@ def download_app(app_platform, engine_commit_formated_hash):
         gclpath,
         localpath
     ]
-    try:
-        res = common.run_shell(cmds)
-        for line in res.stderr.readlines():
-            utf8 = line.decode('UTF-8')
-            print(utf8)
-        for line in res.stdout.readlines():
-            utf8 = line.decode('UTF-8')
-            print(utf8)
-    except Exception as e:
-        print(e)
+    run_command(cmds)
     return localpath
 
 if __name__ == "__main__":
