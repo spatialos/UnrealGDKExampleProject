@@ -47,17 +47,17 @@ Finish-Event "generate-project-name" "build-unreal-gdk-example-project-:windows:
 
 pushd "$exampleproject_home" 
     pushd "spatial"    
-        Start-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
-            $prepare_for_run_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
-                "prepare-for-run", `
-                "--log_level=debug"
-            )
+        # Start-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
+        #     $prepare_for_run_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
+        #         "prepare-for-run", `
+        #         "--log_level=debug"
+        #     )
 
-            if ($prepare_for_run_process.ExitCode -ne 0) {
-                Write-Output "Failed to prepare for a Spatial cloud launch. Error: $($prepare_for_run_process.ExitCode)"
-                Throw "Spatial prepare for run failed"
-            }
-        Finish-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
+        #     if ($prepare_for_run_process.ExitCode -ne 0) {
+        #         Write-Output "Failed to prepare for a Spatial cloud launch. Error: $($prepare_for_run_process.ExitCode)"
+        #         Throw "Spatial prepare for run failed"
+        #     }
+        # Finish-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
 
         Start-Event "generate-auth-token" "deploy-unreal-gdk-example-project-:windows:"
             Write-Output "spatial update"
