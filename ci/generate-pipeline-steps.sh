@@ -84,6 +84,9 @@ if [ -z "${ENGINE_VERSION}" ]; then
         buildkite-agent meta-data set "firebase-android-total" "0"
         buildkite-agent meta-data set "firebase-ios-succeed" "0"
         buildkite-agent meta-data set "firebase-ios-total" "0"
+        
+        echo --- add-begin-wait-setup-and-build-step
+        sed "s|NAME_PLACEHOLDER|Wait-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
 
         echo --- add-auto-test-steps
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
@@ -110,9 +113,13 @@ if [ -z "${ENGINE_VERSION}" ]; then
             COUNT=$((COUNT+1))
         done
         
-        echo --- add-wait-setup-and-build-step
+        echo --- add-end-wait-setup-and-build-step
         sed "s|NAME_PLACEHOLDER|Wait-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
     fi
+
+    #
+    echo --- add-begin-wait-setup-and-build-step
+    sed "s|NAME_PLACEHOLDER|Wait-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
 
     STEP_NUMBER=1
     for VERSION in ${VERSIONS}; do
