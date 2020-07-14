@@ -39,7 +39,6 @@ env:
     SLACK_CHANNEL: "#mobile-buildkite"
     ANDROID_FILENAME: "GDKShooter-armv7-es2.apk"
     IOS_FILENAME: "GDKShooter.ipa"
-    NIGHTLY_BUILD: 1
 steps:
   - label: "generate-pipeline-steps"
     commands: 

@@ -41,12 +41,15 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
 done
 
 if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+    echo --- "NIGHTLY_BUILD:${NIGHTLY_BUILD}"
     buildkite-agent meta-data set "android-autotest" "1"
     ANDROID_AUTOTEST=true
+    echo --- "ANDROID_AUTOTEST:${ANDROID_AUTOTEST}"
 
     if [[ -n "${MAC_BUILD:-}" ]]; then
         buildkite-agent meta-data set "ios-autotest" "1"
         IOS_AUTOTEST=true
+        echo --- "IOS_AUTOTEST:${IOS_AUTOTEST}"
     fi
 fi
 
@@ -130,22 +133,26 @@ if [ -z "${ENGINE_VERSION}" ]; then
         if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
             #if nightly build, we should build if MAC_BUILD setted
             if [[ -n "${MAC_BUILD:-}" ]]; then
+                echo --- insert-setup-and-build-step-on-mac
                 export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
                 REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
                 sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
             fi
             
             #if nightly build, we should build on windows allways
+            echo --- insert-setup-and-build-step-on-windows
             export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
             REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
             sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
         else
             # if normal build just build Mac or Windows
             if [[ -n "${MAC_BUILD:-}" ]]; then
+                echo --- insert-setup-and-build-step-on-mac
                 export BUILDKITE_COMMAND="./ci/setup-and-build.sh"
                 REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
                 sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
             else
+                echo --- insert-setup-and-build-step-on-windows
                 export BUILDKITE_COMMAND="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
                 REPLACE_STRING="s|AGENT_PLACEHOLDER|windows|g"
                 sed ${REPLACE_ENGINE_COMMIT_HASH} "${BUILDKITE_TEMPLATE_FILE}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
@@ -170,7 +177,7 @@ else
     
     #  turn on firebase auto test steps
     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
-        echo --- add-auto-test
+        echo --- insert-auto-test
         BUILDKITE_AUTOTEST_TEMPLATE_FILE=ci/nightly.autotest.yaml
         
         if [ ANDROID_AUTOTEST ]; then
@@ -187,6 +194,7 @@ else
         sed "s|NAME_PLACEHOLDER|Wait-${ENGINE_COMMIT_FORMATED_HASH}-All-Builds-End|g" "ci/nightly.wait.yaml" | buildkite-agent pipeline upload
     fi
 
+    echo --- insert-setup-and-build-steps
     if [[ -n "${MAC_BUILD:-}" ]]; then
         REPLACE_STRING="s|AGENT_PLACEHOLDER|macos|g"
     else
