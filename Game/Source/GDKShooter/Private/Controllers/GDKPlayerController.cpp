@@ -19,15 +19,23 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/TouchInterface.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/TouchControls.h"
 #include "Weapons/Holdable.h"
 #include "Weapons/Projectile.h"
 #include "Weapons/Weapon.h"
+#include "Widgets/Input/SVirtualJoystick.h"
 
 
 AGDKPlayerController::AGDKPlayerController()
 	: bIgnoreActionInput(false)
 	, DeleteCharacterDelay(5.0f)
 {
+	static ConstructorHelpers::FClassFinder<UTouchControls> TouchUIFinder(TEXT("/Game/UI/TouchControls/BP_TouchControls"));
+	if (TouchUIFinder.Class != nullptr)
+	{
+		wTouchUI = TouchUIFinder.Class;
+	}
+
 	// Don't automatically switch the camera view when the pawn changes, to avoid weird camera jumps when a character dies.
 	bAutoManageActiveCameraTarget = false;
 
@@ -63,6 +71,16 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 		SetViewTarget(InPawn);
 		// Make the new pawn's camera this controller's camera.
 		this->ClientSetRotation(InPawn->GetActorRotation(), true);
+		if (SVirtualJoystick::ShouldDisplayTouchInterface() && wTouchUI)
+		{
+			touchUI = CreateWidget<UTouchControls>(this, wTouchUI);
+			if (touchUI)
+			{
+				touchUI->AddToViewport();
+				touchUI->BindControls();
+			}
+		}
+
 	}
 	else
 	{

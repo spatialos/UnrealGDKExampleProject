@@ -37,6 +37,11 @@ public:
 	// which handles user input.
 	bool IgnoreActionInput() const { return bIgnoreActionInput; }
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<class UTouchControls> wTouchUI;
+	
+	UTouchControls* touchUI;
+
 protected:
 	UPROPERTY(BlueprintAssignable)
 	FPawnEvent PawnEvent;
