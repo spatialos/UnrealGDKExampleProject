@@ -122,7 +122,7 @@ pushd "$(dirname "$0")"
         "Development" \
         "Mac" \
         "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATED_HASH}" \
-        "-iterative"
+        "-iterative"\
         ""
     
     IOS_AUTOTEST=$(buildkite-agent meta-data get "ios-autotest")
