@@ -1,6 +1,6 @@
 param(
   [string] $exampleproject_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
-  [string] $project_name = "unreal_gdk",
+  [string] $project_name = "unreal_gdk"
 )
 
 . "$PSScriptRoot\common.ps1"
