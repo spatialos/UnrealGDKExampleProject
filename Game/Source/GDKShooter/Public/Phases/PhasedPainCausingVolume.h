@@ -33,10 +33,10 @@ public:
 	}
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		int ActivatesInPhase = 255;
+	int ActivatesInPhase = 255;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		APostProcessVolume* PostProcessVolume;
+	APostProcessVolume* PostProcessVolume;
 	
 	void Activate()
 	{

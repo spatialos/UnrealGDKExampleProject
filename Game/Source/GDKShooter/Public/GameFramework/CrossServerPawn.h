@@ -15,11 +15,10 @@ class GDKSHOOTER_API ACrossServerPawn : public APawn
 
 public:
 	UPROPERTY(BlueprintAssignable)
-		FIncomingDamageEvent IncomingDamage;
+	FIncomingDamageEvent IncomingDamage;
 
 	float TakeDamage(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION(CrossServer, Reliable)
-		void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
-	
+	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 };

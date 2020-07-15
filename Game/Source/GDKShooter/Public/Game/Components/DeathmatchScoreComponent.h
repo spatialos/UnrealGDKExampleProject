@@ -12,17 +12,17 @@ USTRUCT(BlueprintType)
 struct FPlayerScore {
 	GENERATED_BODY()
 
-		UPROPERTY(BlueprintReadOnly)
-		int32 PlayerId;
+	UPROPERTY(BlueprintReadOnly)
+	int32 PlayerId;
 
 	UPROPERTY(BlueprintReadOnly)
-		FString PlayerName;
+	FString PlayerName;
 
 	UPROPERTY(BlueprintReadOnly)
-		int32 Kills;
+	int32 Kills;
 
 	UPROPERTY(BlueprintReadOnly)
-		int32 Deaths;
+	int32 Deaths;
 };
 
 
@@ -37,28 +37,27 @@ public:
 	UDeathmatchScoreComponent();
 
 	UFUNCTION(BlueprintCallable)
-		void RecordKill(int32 KillerId, int32 VictimId);
+	void RecordKill(int32 KillerId, int32 VictimId);
 
 	UFUNCTION(BlueprintCallable)
-		void RecordNewPlayer(APlayerState* PlayerState);
+	void RecordNewPlayer(APlayerState* PlayerState);
 
 	UFUNCTION(BlueprintPure)
 	TArray<FPlayerScore>& PlayerScores() { return PlayerScoreArray; }
 	
 	UPROPERTY(BlueprintAssignable)
-		FScoreChangeEvent ScoreEvent;
+	FScoreChangeEvent ScoreEvent;
 
 protected:
-		virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION()
-		void OnRep_PlayerScores();
+	void OnRep_PlayerScores();
 
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerScores)
-		TArray<FPlayerScore> PlayerScoreArray;
+	TArray<FPlayerScore> PlayerScoreArray;
 
 	// A map from player name to score, to make it easier to update scores
 	UPROPERTY()
-		TMap<int32, int32> PlayerScoreMap;
-		
+	TMap<int32, int32> PlayerScoreMap;
 };

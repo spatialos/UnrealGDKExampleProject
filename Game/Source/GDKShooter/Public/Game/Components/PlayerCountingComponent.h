@@ -18,19 +18,18 @@ public:
 	UPlayerCountingComponent();
 
 	UFUNCTION(BlueprintPure)
-		int32 PlayerCount() { return ConnectedPlayerCount; }
+	int32 PlayerCount() { return ConnectedPlayerCount; }
 
 	UPROPERTY(BlueprintAssignable)
-		FPlayerCountEvent PlayerCountEvent;
+	FPlayerCountEvent PlayerCountEvent;
 
 	UFUNCTION(BlueprintCallable)
-		void PlayerEvent(APlayerState* PlayerState, EPlayerProgress Progress);
+	void PlayerEvent(APlayerState* PlayerState, EPlayerProgress Progress);
 
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_ConnectedPlayerCount)
-		int32 ConnectedPlayerCount;
+	int32 ConnectedPlayerCount;
 
 	UFUNCTION()
-		void OnRep_ConnectedPlayerCount();
-
+	void OnRep_ConnectedPlayerCount();
 };

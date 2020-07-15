@@ -16,10 +16,12 @@ class GDKSHOOTER_API UTeamSettingComponent : public UActorComponent
 public:	
 	UTeamSettingComponent();
 
+	UFUNCTION(BlueprintCallable)
+	void UpdateTeam(FGenericTeamId TeamId);
+
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere)
-		FGenericTeamId TeamId = FGenericTeamId::NoTeam;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGenericTeamId TeamId = FGenericTeamId::NoTeam;
 };

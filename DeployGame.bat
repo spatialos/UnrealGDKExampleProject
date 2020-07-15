@@ -14,7 +14,7 @@ set deploymentname=%gamename%%formatdate%
 cd spatial/
 spatial build build-config || goto :error
 spatial cloud upload %deploymentname% --force || goto :error
-spatial cloud launch %deploymentname% one_worker_test.json %deploymentname% --snapshot=snapshots/default.snapshot --cluster_region=eu || goto :error
+spatial cloud launch %deploymentname% one_worker_test.json %deploymentname% --snapshot=snapshots/default.snapshot --cluster_region=eu --runtime_version=0.4.3 || goto :error
 spatial project deployment tags add %deploymentname% dev_login || goto :error
 spatial project deployment tags add %deploymentname% status_lobby || goto :error
 

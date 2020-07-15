@@ -21,6 +21,10 @@ void UControllerEventsComponent::Death_Implementation(const AController* Killer)
 		{
 			ClientInformOfDeath(KillerPlayerState->GetPlayerName(), KillerPlayerState->PlayerId);
 		}
+		else
+		{
+			ClientInformOfDeath(TEXT("") /*PlayerName*/, -1 /*PlayerID*/);
+		}
 	}
 }
 

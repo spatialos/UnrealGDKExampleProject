@@ -21,43 +21,51 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
-		void StartTimer();
+	void StartTimer();
+
 	UFUNCTION(BlueprintCallable)
-		void ResumeTimer();
+	void ResumeTimer();
+
 	UFUNCTION(BlueprintCallable)
-		void SetTimer(int32 NewValue);
+	void SetTimer(int32 NewValue);
+
 	UFUNCTION(BlueprintCallable)
-		void StopTimer();
+	void StopTimer();
 
 	UPROPERTY(BlueprintAssignable)
-		FTimerEvent OnTimer;
+	FTimerEvent OnTimer;
 	UPROPERTY(BlueprintAssignable)
-		FTimerFinishedEvent OnTimerFinished;
+	FTimerFinishedEvent OnTimerFinished;
 
 	UFUNCTION(BlueprintPure)
-		int32 GetTimer() { return TimeLeft; }
+	int32 GetTimer() { return TimeLeft; }
 
 protected:
 	void BeginPlay();
 
 	UPROPERTY(EditDefaultsOnly)
-		bool bAutoStart = false;
+	bool bAutoStart = false;
+
 	UPROPERTY(EditDefaultsOnly)
-		int32 DefaultTimerDuration = 7200;
+	int32 DefaultTimerDuration = 7200;
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
-		bool bIsTimerRunning = false;
+	bool bIsTimerRunning = false;
+
 	UPROPERTY(ReplicatedUsing = OnRep_Timer, BlueprintReadOnly)
-		int32 TimeLeft;
+	int32 TimeLeft;
+
 	UPROPERTY(ReplicatedUsing = OnRep_TimerFinished, BlueprintReadOnly)
-		bool bHasTimerFinished = false;
+	bool bHasTimerFinished = false;
 
 	UFUNCTION()
-		void DecrementTimer();
+	void DecrementTimer();
+
 	UFUNCTION()
-		void OnRep_Timer();
+	void OnRep_Timer();
+
 	UFUNCTION()
-		void OnRep_TimerFinished();
+	void OnRep_TimerFinished();
 
 	FTimerHandle TimerHandle;
 };
