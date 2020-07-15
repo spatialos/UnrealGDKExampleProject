@@ -15,14 +15,14 @@ bk_interrupted_by_signal: &bk_interrupted_by_signal
 
 windows: &windows
   agents:
-    - "agent_count=1"
+    - "agent_count=4"
     - "capable_of_building=gdk-for-unreal"
     - "environment=production"
     - "machine_type=quad"
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-03-26-102432-bk9951-8afe0ffb}"
+    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-07-06-132550-bk13082-f66f9113-d}"
     - "boot_disk_size_gb=500"
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
@@ -34,8 +34,10 @@ windows: &windows
     - ca-johnson/taskkill#v4.1: ~
 
 steps:
-  - label: "generate-auth_token&deployment_name-for-both-android-and-ios-automatic-test"
-    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/generate-auth-token.ps1"
+  - label: "auto-test-ios-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
+    command: "python ci\\auto-test.py ios ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
     <<: *windows 
+    key: "auto-test-ios-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
     depends_on:
-      - "generate-steps"
+      - "setup-and-build-windows-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
+      - "setup-and-build-mac-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"

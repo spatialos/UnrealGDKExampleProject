@@ -51,4 +51,5 @@ steps:
       - "ci/generate-pipeline-steps.sh"
     env:
       ENGINE_VERSION: "${ENGINE_VERSION}"
+    key: "generate-steps"
     <<: *script_runner

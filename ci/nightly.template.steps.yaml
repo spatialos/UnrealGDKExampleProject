@@ -52,8 +52,11 @@ macos: &macos
 
 steps:
   - label: "build-and-deploy-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
-    command: ${BUILDKITE_COMMAND}
+    command: "COMMAND_PLACEHOLDER"
     <<: *AGENT_PLACEHOLDER 
+    key: "setup-and-build-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
+    depends_on:
+      - "generate-steps"
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "cooked-android-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER/**/*"

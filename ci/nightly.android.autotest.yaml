@@ -34,6 +34,9 @@ windows: &windows
     - ca-johnson/taskkill#v4.1: ~
 
 steps:
-  - label: "auto-test-DEVICE_PLACEHOLDER-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
-    command: "python ci\\auto-test.py DEVICE_PLACEHOLDER ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
+  - label: "auto-test-android-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
+    command: "python ci\\auto-test.py android ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
     <<: *windows 
+    key: "auto-test-android-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
+    depends_on:
+      - "setup-and-build-windows-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
