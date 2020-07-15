@@ -73,34 +73,37 @@ protected:
 
 private:
     UFUNCTION()
-    void HandleJumpPressed();
+    FEventReply HandleJumpPressed(FGeometry Geometry, const FPointerEvent& MouseEvent);
 
     UFUNCTION()
-    void HandleJumpReleased();
-
-    UFUNCTION()
-    void HandleCrouchPressed();
-
-    UFUNCTION()
-    void HandleCrouchReleased();
-
-    UFUNCTION()
-    void HandleTriggerPressed();
-
-    UFUNCTION()
-    void HandleTriggerReleased();
-
-    UFUNCTION()
-    void HandleScopePressed();
+    FEventReply HandleJumpReleased(FGeometry Geometry, const FPointerEvent& MouseEvent);
 
 	UFUNCTION()
-	void HandleScopeReleased();
+	FEventReply HandleJumpMoved(FGeometry Geometry, const FPointerEvent& MouseEvent);
 
     UFUNCTION()
-    void HandleSprintPressed();
+    FEventReply HandleCrouchPressed(FGeometry Geometry, const FPointerEvent& MouseEvent);
 
     UFUNCTION()
-    void HandleSprintReleased();
+    FEventReply HandleCrouchReleased(FGeometry Geometry, const FPointerEvent& MouseEvent);
+
+    UFUNCTION()
+    FEventReply HandleTriggerPressed(FGeometry Geometry, const FPointerEvent& MouseEvent);
+
+    UFUNCTION()
+    FEventReply HandleTriggerReleased(FGeometry Geometry, const FPointerEvent& MouseEvent);
+
+    UFUNCTION()
+    FEventReply HandleScopePressed(FGeometry Geometry, const FPointerEvent& MouseEvent);
+
+	UFUNCTION()
+	FEventReply HandleScopeReleased(FGeometry Geometry, const FPointerEvent& MouseEvent);
+
+    UFUNCTION()
+    FEventReply HandleSprintPressed(FGeometry Geometry, const FPointerEvent& MouseEvent);
+
+    UFUNCTION()
+    FEventReply HandleSprintReleased(FGeometry Geometry, const FPointerEvent& MouseEvent);
 
     UFUNCTION()
     FEventReply KeepSprintAction(FGeometry InGeometry, const FPointerEvent& InPointerEvent);
@@ -120,27 +123,27 @@ private:
 
 protected:
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-    UButton* SprintButton;
+    UBorder* SprintButton;
 
     // Crouch or slide (moving or not moving)
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-    UButton* CrouchSlideButton;
+    UBorder* CrouchSlideButton;
 
     // Jump and vault
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-    UButton* JumpButton;
+    UBorder* JumpButton;
 
     // Shoot weapon (left)
     //UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-    //UButton* LeftShootButton;
+    //UBorder* LeftShootButton;
 
     // Shoot weapon (right)
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-    UButton* RightShootButton;
+    UBorder* RightShootButton;
 
     // Aim down sight with weapon
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-    UButton* SiteScopeButton;
+    UBorder* SiteScopeButton;
 
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
     UImage* LeftControllerForeImage;
