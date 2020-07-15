@@ -15,6 +15,7 @@ $gdk_repo = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_RE
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATED_HASH" -default_value "0"
+$android_autotest = Get-Meta-Data -variable_name "android-autotest" -default_value "0"            
 
 $gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
 
@@ -180,28 +181,36 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
-    Start-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
-        $proc = Start-Process -PassThru -NoNewWindow -FilePath "python" -ArgumentList @(`
-            "ci/change-runtime-settings.py", `
-            "$exampleproject_home"
-        )
-        Wait-Process -InputObject $proc
+    if($android_autotest -ne 0){
+        Start-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
+            $proc = Start-Process -PassThru -NoNewWindow -FilePath "python" -ArgumentList @(`
+                "ci/change-runtime-settings.py", `
+                "$exampleproject_home"
+            )
+            Wait-Process -InputObject $proc
 
-        $DefaultEngine = "$exampleproject_home\Game\Config\DefaultEngine.ini"
-        $DefaultEngineContent = Get-Content -Path $DefaultEngine
-        Write-Host $DefaultEngineContent    
-    Finish-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
+            $DefaultEngine = "$exampleproject_home\Game\Config\DefaultEngine.ini"
+            $DefaultEngineContent = Get-Content -Path $DefaultEngine
+            Write-Host $DefaultEngineContent    
+        Finish-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
+    }
     
     # Deploy the project to SpatialOS
     &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name"
     
     Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"          
         $auth_token = Get-Meta-Data -variable_name "auth-token" -default_value "0"        
-        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -default_value "0"        
+        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -default_value "0"    
         Write-Output "auth_token: $auth_token"
         Write-Output "deployment_name: $deployment_name"
         $cookflavor = "Multi"
         Set-Meta-Data -variable_name "android-flavor" -variable_value $cookflavor
+        if($android_autotest -ne 0){
+            cmdline="connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken $auth_token +deployment $deployment_name"
+        }
+        else{
+            cmdline=""
+        }
         $argumentlist = @(`
             "-ScriptsForProject=$($exampleproject_home)/Game/GDKShooter.uproject", `
             "BuildCookRun", `
@@ -223,9 +232,8 @@ pushd "$exampleproject_home"
             "-build", `
             "-utf8output", `
             "-compile", `
-            "-cmdline=`"connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken $auth_token +deployment $deployment_name`""
+            "-cmdline=`"${cmdline}`""
         )
-        Write-Debug "$argumentlist"
 
         $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList $argumentlist
