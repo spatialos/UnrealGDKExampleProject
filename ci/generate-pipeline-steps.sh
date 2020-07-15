@@ -131,14 +131,14 @@ insert_setup_build_steps(){
     fi
 }
 
-insert_generate_auth_token_step(){
-    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
-        echo --- insert-wait-generate-auth-token-step
-        insert_wait_step
+# insert_generate_auth_token_step(){
+#     if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+#         echo --- insert-wait-generate-auth-token-step
+#         insert_wait_step
 
-        insert_file_step "ci/nightly.gen.auth.token.yaml"
-    fi
-}
+#         insert_file_step "ci/nightly.gen.auth.token.yaml"
+#     fi
+# }
 
 if [[ -n "${SLACK_NOTIFY:-}" ]] || [[ -n "${NIGHTLY_BUILD:-}" ]] || [ ${BUILDKITE_BRANCH} -eq "master" ]]; then
     echo --- add-slack-notify-step
@@ -174,8 +174,6 @@ if [ -z "${ENGINE_VERSION}" ]; then
             insert_auto_test_steps ${VERSION}
             COUNT=$((COUNT+1))
         done
-
-        insert_wait_step
     fi
 
     STEP_NUMBER=1
@@ -201,9 +199,6 @@ if [ -z "${ENGINE_VERSION}" ]; then
     # The number of engine versions we are dealing with is therefore the counting variable from the above loop minus one.
     STEP_NUMBER=$((STEP_NUMBER-1))
     buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
-
-    # generate auth token for both android and ios autotest
-    insert_generate_auth_token_step
 else
     echo --- "Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
@@ -217,7 +212,4 @@ else
 
     echo --- insert-setup-and-build-steps
     insert_setup_build_steps ${ENGINE_VERSION}
-
-    # generate auth token for both android and ios autotest
-    insert_generate_auth_token_step
 fi
