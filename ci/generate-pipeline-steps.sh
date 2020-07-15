@@ -140,14 +140,6 @@ insert_generate_auth_token_step(){
     fi
 }
 
-if [[ -n "${SLACK_NOTIFY:-}" ]] || [[ -n "${NIGHTLY_BUILD:-}" ]] || [ ${BUILDKITE_BRANCH} -eq "master" ]]; then
-    echo --- add-slack-notify-step
-    buildkite-agent pipeline upload "ci/nightly.slack.notify.yaml"
-    
-    echo --- insert-wait-all-finish-step
-    insert_wait_step
-fi
-
 # This script generates BuildKite steps for each engine version we want to test against.
 # We retrieve these engine versions from the unreal-engine.version file in the UnrealGDK repository.
 # The steps are based on the template in nightly.template.steps.yaml.

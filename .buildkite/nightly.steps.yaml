@@ -53,3 +53,8 @@ steps:
       ENGINE_VERSION: "${ENGINE_VERSION}"
     key: "generate-steps"
     <<: *script_runner
+  - wait: ~
+  - label: "slack-notify"
+    if: build.env("NIGHTLY_BUILD") == "true" || build.env("SLACK_NOTIFY") == "true" || build.branch == "master"
+    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci/slack-notify.ps1"
+    <<: *windows
