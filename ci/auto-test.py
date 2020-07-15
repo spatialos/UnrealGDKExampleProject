@@ -123,7 +123,7 @@ def get_gcs_and_local_path(app_platform, engine_commit_formated_hash):
     # jobid = '09f0641a-dd40-489e-afc8-c7eb4f6686b1'
     # queueid = 'v4-9c6ee0ef-d'
     jobid = common.get_buildkite_meta_data('%s-build-%s-job-id' % (engine_commit_formated_hash, app_platform))
-    queueid = common.get_buildkite_meta_data('%s-build-%s-queueid-id' % (engine_commit_formated_hash, app_platform))
+    queueid = common.get_buildkite_meta_data('%s-build-%s-queue-id' % (engine_commit_formated_hash, app_platform))
     organization = common.get_environment_variable('BUILDKITE_ORGANIZATION_SLUG','improbable')
     pipeline = common.get_environment_variable('BUILDKITE_PIPELINE_SLUG','unrealgdkexampleproject-nightly')
     buildid = common.get_environment_variable('BUILDKITE_BUILD_ID','')
