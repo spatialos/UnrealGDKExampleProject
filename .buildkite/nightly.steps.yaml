@@ -63,7 +63,7 @@ env:
     SPATIAL_PROJECT_NAME: "unreal_gdk"
     SPATIAL_RUNTIME_VERSION: "0.4.3" ## the runtime version of SpatialOS
     MAC_BUILD: true
-    NIGHTLY_BUILD: true
+    FIREBASE_AUTOTEST: true
 steps:
   - label: "generate-pipeline-steps"
     commands: 
@@ -75,6 +75,10 @@ steps:
     <<: *script_runner
   - wait: ~
   - label: "slack-notify"
-    if: build.env("NIGHTLY_BUILD") == "true" || build.env("SLACK_NOTIFY") == "true" || build.branch == "master"
+    if: |
+      build.env("NIGHTLY_BUILD") == "true" || 
+      build.env("SLACK_NOTIFY") == "true" || 
+      build.env("FIREBASE_AUTOTEST") == "true" || 
+      build.branch == "master"
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci/slack-notify.ps1"
     <<: *windows
