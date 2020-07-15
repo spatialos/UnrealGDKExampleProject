@@ -114,17 +114,18 @@ def get_gcs_and_local_path(app_platform, engine_commit_formated_hash):
         android_flavor = common.get_buildkite_meta_data('android-flavor')
         localfilename = common.get_environment_variable('ANDROID_FILENAME','GDKShooter-armv7-es2.apk')
         filename = 'cooked-android-%s/Android_%s/%s' % (engine_commit_formated_hash, android_flavor, localfilename)
+        agentplatform = 'windows'
     else:
         localfilename = common.get_environment_variable('IOS_FILENAME','GDKShooter.ipa')
         filename = 'IOS/%s' % (localfilename)
+        agentplatform = 'macos'
     jobid = common.get_buildkite_meta_data('%s-build-%s-job-id' % (engine_commit_formated_hash, app_platform))
+    queueid = common.get_buildkite_meta_data('%s-build-%s-queueid-id' % (engine_commit_formated_hash, app_platform))
     organization = common.get_environment_variable('BUILDKITE_ORGANIZATION_SLUG','improbable')
     pipeline = common.get_environment_variable('BUILDKITE_PIPELINE_SLUG','unrealgdkexampleproject-nightly')
     buildid = common.get_environment_variable('BUILDKITE_BUILD_ID','')
-    metadata = common.get_environment_variable('BUILDKITE_AGENT_META_DATA_QUEUE','')
-    metadataos = common.get_environment_variable('BUILDKITE_AGENT_META_DATA_PLATFORM','')
     gcshead = 'gs://io-internal-infra-intci-artifacts-production'
-    gcs_path = '%s/organizations/%s/pipelines/%s/builds/%s/jobs/%s/%s/%s/%s' % (gcshead, organization, pipeline, buildid, metadata, jobid, metadataos, filename)
+    gcs_path = '%s/organizations/%s/pipelines/%s/builds/%s/jobs/%s/%s/%s/%s' % (gcshead, organization, pipeline, buildid, queueid, jobid, agentplatform, filename)
     return gcs_path,localfilename
 
 def download_app(app_platform, engine_commit_formated_hash):
