@@ -129,8 +129,8 @@ pushd "$(dirname "$0")"
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 
-        AUTH_TOKEN = Get-Meta-Data -variable_name "auth-token" -default_value "1"
-        DEPLOYMENT_NAME = Get-Meta-Data -variable_name "deployment-name-${STEP_NUMBER}" -default_value "1"
+        AUTH_TOKEN=$(buildkite-agent meta-data get "auth-token")
+        DEPLOYMENT_NAME=$(buildkite-agent meta-data get "deployment-name-${STEP_NUMBER}")
 
         echo "--- build-ios-client-for-autotest"
         run_uat \

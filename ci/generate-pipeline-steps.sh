@@ -46,6 +46,12 @@ buildkite-agent meta-data set "android-autotest" "0"
 buildkite-agent meta-data set "ios-autotest" "0"
 
 if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+    # set default test result
+    buildkite-agent meta-data set "firebase-android-succeed" "0"
+    buildkite-agent meta-data set "firebase-android-total" "0"
+    buildkite-agent meta-data set "firebase-ios-succeed" "0"
+    buildkite-agent meta-data set "firebase-ios-total" "0"
+
     echo --- "NIGHTLY_BUILD:${NIGHTLY_BUILD}"
     buildkite-agent meta-data set "android-autotest" "1"
     ANDROID_AUTOTEST=true
@@ -70,12 +76,14 @@ insert_wait_step() {
 insert_setup_build_step(){
     version="${1}"
     agent="${2}"
+    command="${3}"
     filename=ci/nightly.template.steps.yaml
     ENGINE_COMMIT_FORMATED_HASH=$(sed "s/ /_/g" <<< ${version} | sed "s/-/_/g" | sed "s/\./_/g")
     REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${version}|g"
     REPLACE_ENGINE_COMMIT_FORMATED_HASH="s|ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATED_HASH}|g"
-    REPLACE_STRING="s|AGENT_PLACEHOLDER|${agent}|g"
-    sed ${REPLACE_ENGINE_COMMIT_HASH} "${filename}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_STRING} | buildkite-agent pipeline upload
+    REPLACE_AGENT="s|AGENT_PLACEHOLDER|${agent}|g"
+    REPLACE_COMMAND="s|COMMAND_PLACEHOLDER|${command}|g"
+    sed ${REPLACE_ENGINE_COMMIT_HASH} "${filename}" | sed ${REPLACE_ENGINE_COMMIT_FORMATED_HASH} | sed ${REPLACE_AGENT} | sed ${REPLACE_COMMAND} | buildkite-agent pipeline upload
 }
 
 insert_auto_test_step(){
@@ -154,13 +162,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
 
     #  turn on firebase auto test steps
     echo --- handle-firebase-steps
-    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
-        # set default test result
-        buildkite-agent meta-data set "firebase-android-succeed" "0"
-        buildkite-agent meta-data set "firebase-android-total" "0"
-        buildkite-agent meta-data set "firebase-ios-succeed" "0"
-        buildkite-agent meta-data set "firebase-ios-total" "0"
-        
+    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then        
         echo --- add-auto-test-steps
         COUNT=1
         for VERSION in ${VERSIONS}; do
