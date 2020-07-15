@@ -32,6 +32,9 @@ void AGDKCharacter::BeginPlay()
 
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
+
+	// yunjie: binding hit event
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AGDKCharacter::OnCapsuleCompHit);
 }
 
 void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -209,3 +212,18 @@ bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutS
 	OutSightStrength = (float)PositiveHits / (float)NumberOfLoSChecksPerformed;
 	return PositiveHits > 0;
 }
+
+void AGDKCharacter::OnCapsuleCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
+	{
+		// if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
+		FString WorkerId = GetGameInstance()->GetSpatialWorkerId();
+		FString WorkerType = GetGameInstance()->GetSpatialWorkerType().ToString();
+		FString WorkerLabel = GetGameInstance()->GetSpatialWorkerLabel();
+		FString Authority = this->HasAuthority() ? "YES" : "NO";
+
+		// UE_LOG(LogGDK, Warning, TEXT("WorkerId:[%s] WorkerType:[%s] WorkerLabel:[%s] Name:[%s] OtherActorName:[%s] Authority:[%s]"), *WorkerId, *WorkerType, *WorkerLabel, *GetFName().ToString(), *OtherActor->GetFName().ToString(), *Authority);
+	}
+}
+

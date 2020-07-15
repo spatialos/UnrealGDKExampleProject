@@ -78,6 +78,10 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void StartRagdoll();
 
+	// yunjie: hit event
+	UFUNCTION()
+	void OnCapsuleCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 private:
 	UFUNCTION()
 	void DeleteSelf();
