@@ -37,3 +37,4 @@ steps:
   - label: "generate-auth_token&deployment_name-for-both-android-and-ios-automatic-test"
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/generate-auth-token.ps1"
     <<: *windows 
+    key: "generate-auth_token"

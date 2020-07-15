@@ -56,7 +56,7 @@ steps:
     <<: *AGENT_PLACEHOLDER 
     key: "setup-and-build-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
     depends_on:
-      - "generate-steps"
+      - "generate-auth_token"
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "cooked-android-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER/**/*"
