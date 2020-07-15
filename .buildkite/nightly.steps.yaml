@@ -30,26 +30,6 @@ script_runner: &script_runner
       - <<: *bk_system_error
       - <<: *bk_interrupted_by_signal
 
-windows: &windows
-  agents:
-    - "agent_count=2"
-    - "capable_of_building=gdk-for-unreal"
-    - "environment=production"
-    - "machine_type=quad"
-    - "permission_set=builder"
-    - "platform=windows"
-    - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-07-06-132550-bk13082-f66f9113-d}"
-    - "boot_disk_size_gb=500"
-  timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
-  retry:
-    automatic:
-      - <<: *agent_transients
-      - <<: *bk_system_error
-      - <<: *bk_interrupted_by_signal
-  plugins:
-    - ca-johnson/taskkill#v4.1: ~
-
 # NOTE: step labels turn into commit-status names like {org}/{repo}/{pipeline}/{step-label}, lower-case and hyphenated.
 # These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
 env:  
@@ -65,17 +45,11 @@ env:
     MAC_BUILD: true
     NIGHTLY_BUILD: true
 steps:
-  - label: "generate-auth_token&deployment_name-for-both-android-and-ios-automatic-test"
-    if: build.env("NIGHTLY_BUILD") == true
-    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/generate-auth-token.ps1"
-    <<: *windows 
-    key: "generate-auth-token"
-
   - label: "generate-pipeline-steps"
     commands: 
       - "chmod -R +rwx ci"
       - "ci/generate-pipeline-steps.sh"
     env:
       ENGINE_VERSION: "${ENGINE_VERSION}"
+    key: "generate-steps"
     <<: *script_runner
-
