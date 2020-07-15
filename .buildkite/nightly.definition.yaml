@@ -11,7 +11,7 @@ schedules:
   enabled: true
   label: "Mobile APP on firebase auto test nightly"
   message: "Automate Deployment Test of Mobile APP on firebase nightly.(every weekday at 8PM UTC+1)"
-  env: NIGHTLY_BUILD=1
+  env: FIREBASE_AUTOTEST=1
 teams:
 - name: Everyone
   permission: BUILD_AND_READ

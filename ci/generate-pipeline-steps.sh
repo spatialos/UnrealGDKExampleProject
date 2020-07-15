@@ -45,14 +45,13 @@ done
 buildkite-agent meta-data set "android-autotest" "0"
 buildkite-agent meta-data set "ios-autotest" "0"
 
-if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
     # set default test result
     buildkite-agent meta-data set "firebase-android-succeed" "0"
     buildkite-agent meta-data set "firebase-android-total" "0"
     buildkite-agent meta-data set "firebase-ios-succeed" "0"
     buildkite-agent meta-data set "firebase-ios-total" "0"
 
-    echo --- "NIGHTLY_BUILD:${NIGHTLY_BUILD}"
     buildkite-agent meta-data set "android-autotest" "1"
     ANDROID_AUTOTEST=true
     echo --- "ANDROID_AUTOTEST:${ANDROID_AUTOTEST}"
@@ -109,7 +108,7 @@ insert_auto_test_steps(){
 
 insert_setup_build_steps(){
     version="${1}"
-    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+    if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
         #if nightly build, we should build if MAC_BUILD setted
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo --- insert-setup-and-build-step-on-mac
@@ -132,7 +131,7 @@ insert_setup_build_steps(){
 }
 
 insert_generate_auth_token_step(){
-    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then
+    if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
         echo --- insert-wait-generate-auth-token-step
         insert_wait_step
 
@@ -154,7 +153,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
 
     #  turn on firebase auto test steps
     echo --- handle-firebase-steps
-    if [[ -n "${NIGHTLY_BUILD:-}" ]]; then        
+    if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then        
         echo --- add-auto-test-steps
         COUNT=1
         for VERSION in ${VERSIONS}; do

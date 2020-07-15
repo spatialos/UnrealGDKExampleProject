@@ -15,8 +15,8 @@ Start-Event "slack-notify" "slack-notify"
         $build_result = "succeeded"
     }
     # Build Slack text
-    if ($env:NIGHTLY_BUILD -eq "1") {
-        $slack_text = "night_with_stars: Nightly build of *Example Project* *$build_result*."
+    if ($env:NIGHTLY_BUILD -eq "1" -or $env:FIREBASE_AUTOTEST -eq "1") {
+        $slack_text = ":night_with_stars: Nightly build of *Example Project* *$build_result*."
     } else {
         $slack_text = "Example Project build by ``$env:BUILDKITE_BUILD_CREATOR`` *$build_result*."
     }
