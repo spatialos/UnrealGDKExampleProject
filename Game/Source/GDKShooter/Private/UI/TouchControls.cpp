@@ -67,7 +67,6 @@ void UTouchControls::BindControls()
 	{
 		JumpButton->OnMouseButtonDownEvent.BindDynamic(this, &UTouchControls::HandleJumpPressed);
 		JumpButton->OnMouseButtonUpEvent.BindDynamic(this, &UTouchControls::HandleJumpReleased);
-		JumpButton->OnMouseMoveEvent.BindDynamic(this, &UTouchControls::HandleJumpMoved);
 
 		CrouchSlideButton->OnMouseButtonDownEvent.BindDynamic(this, &UTouchControls::HandleCrouchPressed);
 		CrouchSlideButton->OnMouseButtonUpEvent.BindDynamic(this, &UTouchControls::HandleCrouchReleased);
@@ -184,54 +183,70 @@ void UTouchControls::ShowAllActionButtons(bool Enable) const
     //SwapWeaponButton->SetVisibility(SlateVisibility);
 }
 
+namespace
+{
+	static FEventReply HandlePressed(UWidget* Widget, FGamepadKeyNames::Type KeyName)
+	{
+		FEventReply Reply(FSlateApplication::Get().OnControllerButtonPressed(KeyName, 0, false));
+		Reply.NativeReply.CaptureMouse(Widget->TakeWidget());
+		return Reply;
+	}
+
+	static FEventReply HandleReleased(UTouchControls *Controls, FGamepadKeyNames::Type KeyName)
+	{
+		FEventReply Reply(FSlateApplication::Get().OnControllerButtonReleased(KeyName, 0, false));
+		if (Reply.NativeReply.GetMouseCaptor().IsValid() == false && Controls->HasMouseCapture())
+		{
+			Reply.NativeReply.ReleaseMouseCapture();
+		}
+		return Reply;
+	}
+}
+
 FEventReply UTouchControls::HandleJumpPressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-    JumpButton->SetBrushColor(FLinearColor::Green);
-    return FSlateApplication::Get().OnControllerButtonPressed(FGamepadKeyNames::FaceButtonBottom, 0, false);
+	JumpButton->SetBrushColor(FLinearColor::Green);
+	return HandlePressed(JumpButton, FGamepadKeyNames::FaceButtonBottom);
 }
 
 FEventReply UTouchControls::HandleJumpReleased(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
     JumpButton->SetBrushColor(FLinearColor::White);
-    return FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::FaceButtonBottom, 0, false);
-}
-
-FEventReply UTouchControls::HandleJumpMoved(FGeometry Geometry, const FPointerEvent& MouseEvent)
-{
-	JumpButton->SetBrushColor(FLinearColor::Red);
-	return FEventReply(true);
+	return HandleReleased(this, FGamepadKeyNames::FaceButtonBottom);
 }
 
 FEventReply UTouchControls::HandleCrouchPressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
     CrouchSlideButton->SetBrushColor(FLinearColor::Green);
-    return FSlateApplication::Get().OnControllerButtonPressed(FGamepadKeyNames::FaceButtonRight, 0, false);
+	return HandlePressed(CrouchSlideButton, FGamepadKeyNames::FaceButtonRight);
 }
 
 FEventReply UTouchControls::HandleCrouchReleased(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
     CrouchSlideButton->SetBrushColor(FLinearColor::White);
-    return FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::FaceButtonRight, 0, false);
+	return HandleReleased(this, FGamepadKeyNames::FaceButtonRight);
 }
 
 FEventReply UTouchControls::HandleTriggerPressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-    return FSlateApplication::Get().OnControllerButtonPressed(FGamepadKeyNames::RightTriggerThreshold, 0, false);
+	return HandlePressed(RightShootButton, FGamepadKeyNames::RightTriggerThreshold);
 }
 
 FEventReply UTouchControls::HandleTriggerReleased(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-    return FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::RightTriggerThreshold, 0, false);
+	return HandleReleased(this, FGamepadKeyNames::RightTriggerThreshold);
 }
 
 FEventReply UTouchControls::HandleScopePressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
     if (bScopePressed)
     {
+		SiteScopeButton->SetBrushColor(FLinearColor::White);
         FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::LeftTriggerThreshold, 0, false);
     }
     else
     {
+		SiteScopeButton->SetBrushColor(FLinearColor::Green);
         FSlateApplication::Get().OnControllerButtonPressed(FGamepadKeyNames::LeftTriggerThreshold, 0, false);
     }
     bScopePressed = !bScopePressed;
@@ -240,19 +255,19 @@ FEventReply UTouchControls::HandleScopePressed(FGeometry Geometry, const FPointe
 
 FEventReply UTouchControls::HandleScopeReleased(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-    return FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::FaceButtonLeft, 0, false);
+	return true;//FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::FaceButtonLeft, 0, false);
 }
 
 FEventReply UTouchControls::HandleSprintPressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
     SprintButton->SetBrushColor(FLinearColor::Green);
-	return FSlateApplication::Get().OnControllerButtonPressed(FGamepadKeyNames::FaceButtonTop, 0, false);
+	return HandlePressed(SprintButton, FGamepadKeyNames::FaceButtonTop);
 }
 
 FEventReply UTouchControls::HandleSprintReleased(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
     SprintButton->SetBrushColor(FLinearColor::White);
-    return FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::FaceButtonTop, 0, false);
+	return HandleReleased(this, FGamepadKeyNames::FaceButtonTop);
 }
 
 bool UTouchControls::NeedShowSprintIndicator(float Angle, float DistanceToTouchStartSquare) const

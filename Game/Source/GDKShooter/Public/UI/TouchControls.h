@@ -78,9 +78,6 @@ private:
     UFUNCTION()
     FEventReply HandleJumpReleased(FGeometry Geometry, const FPointerEvent& MouseEvent);
 
-	UFUNCTION()
-	FEventReply HandleJumpMoved(FGeometry Geometry, const FPointerEvent& MouseEvent);
-
     UFUNCTION()
     FEventReply HandleCrouchPressed(FGeometry Geometry, const FPointerEvent& MouseEvent);
 
