@@ -206,7 +206,7 @@ pushd "$exampleproject_home"
         $cookflavor = "Multi"
         Set-Meta-Data -variable_name "android-flavor" -variable_value $cookflavor
         if($android_autotest -ne 0){
-            $cmdline="connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken $auth_token +deployment $deployment_name"
+            $cmdline="connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken $auth_token +deployment $deployment_name +linkProtocol Tcp"
         }
         else{
             $cmdline=""
