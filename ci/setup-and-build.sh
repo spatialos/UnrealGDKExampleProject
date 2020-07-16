@@ -16,13 +16,14 @@ run_uat() {
     ADDITIONAL_UAT_FLAGS="${6:-}"
     COMMAND_LINE="${7:-}"
     echo "RunUAT.sh=${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh"
+    GAME_PROJECT="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
 
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \
-        -ScriptsForProject="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+        -ScriptsForProject="${GAME_PROJECT}" \
         BuildCookRun \
         -nocompileeditor \
         -nop4 \
-        -project="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+        -project="${GAME_PROJECT}" \
         -cook \
         -stage \
         -archive \
@@ -70,6 +71,7 @@ pushd "$(dirname "$0")"
 
     echo "--- set-up-engine"
     ENGINE_DIRECTORY="${EXAMPLEPROJECT_HOME}/UnrealEngine"
+    GAME_PROJECT="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
     #set meta-data engine-home-mac 
     buildkite-agent meta-data set "engine-home-mac" "$ENGINE_DIRECTORY"
     buildkite-agent meta-data set "exampleproject-home-mac" "$EXAMPLEPROJECT_HOME"
@@ -84,7 +86,7 @@ pushd "$(dirname "$0")"
         echo "--- create-xcode-project"
         Engine/Build/BatchFiles/Mac/Build.sh \
             -projectfiles \
-            -project="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+            -project="${GAME_PROJECT}" \
             -game \
             -engine \
             -progress
@@ -94,12 +96,12 @@ pushd "$(dirname "$0")"
             GDKShooterEditor \
             Mac \
             Development \
-            "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
+            "${GAME_PROJECT}"
 
         echo "--- generate-schema"
         pushd "Engine/Binaries/Mac"
             UE4Editor.app/Contents/MacOS/UE4Editor \
-                "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+                "${GAME_PROJECT}" \
                 -run=CookAndGenerateSchema \
                 -targetplatform=MacNoEditor \
                 -SkipShaderCompile \
@@ -107,7 +109,7 @@ pushd "$(dirname "$0")"
                 -map="/Maps/Control_Small"
 
             UE4Editor.app/Contents/MacOS/UE4Editor \
-                "${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject" \
+                "${GAME_PROJECT}" \
                 -run=GenerateSchemaAndSnapshots \
                 -MapPaths="/Maps/Control_Small" \
                 -SkipSchema

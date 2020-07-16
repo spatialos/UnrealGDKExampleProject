@@ -180,3 +180,5 @@ if __name__ == "__main__":
     firebase_total_value = int(common.get_buildkite_meta_data(firebase_total_key)) + total
     common.set_buildkite_meta_data(firebase_succeed_key, firebase_succeed_value)
     common.set_buildkite_meta_data(firebase_total_key, firebase_total_value)
+    exit_value = 1 if succeed == total and succeed != 0 else 0
+    exit(exit_value)
