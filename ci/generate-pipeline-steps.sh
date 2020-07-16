@@ -165,8 +165,6 @@ if [ -z "${ENGINE_VERSION}" ]; then
             insert_auto_test_steps ${VERSION}
             COUNT=$((COUNT+1))
         done
-
-        insert_wait_step
     fi
 
     STEP_NUMBER=1
