@@ -66,9 +66,10 @@ def check_firebase_log(app_platform, url, device):
         'SUCCESS_KEYWORD', 'PlayerSpawn returned from server sucessfully')
     result = False
     if os.path.exists(localfilename):
+        print("localfilename:%s exist" % localfilename)
         with io.open(localfilename, encoding="utf8") as fp:
             line = fp.readline()
-            while line:
+            while line:                
                 if success_keyword in line:
                     result = True
                     break
@@ -112,7 +113,7 @@ def get_gcs_and_local_path(app_platform, engine_commit_formated_hash):
     localfilename = ''
     path = 'cooked-%s-%s' % (app_platform, engine_commit_formated_hash)
     if app_platform == 'android':
-        android_flavor = 'Multi'#common.get_buildkite_meta_data('android-flavor')
+        android_flavor = common.get_buildkite_meta_data('android-flavor')
         localfilename = common.get_environment_variable('ANDROID_FILENAME','GDKShooter-armv7-es2.apk')
         filename = '%s/Android_%s/%s' % (path, android_flavor, localfilename)
         agentplatform = 'windows'
@@ -120,14 +121,11 @@ def get_gcs_and_local_path(app_platform, engine_commit_formated_hash):
         localfilename = common.get_environment_variable('IOS_FILENAME','GDKShooter.ipa')
         filename = '%s/IOS/%s' % (path,localfilename)
         agentplatform = 'macos'
-    # jobid = '09f0641a-dd40-489e-afc8-c7eb4f6686b1'
-    # queueid = 'v4-9c6ee0ef-d'
     jobid = common.get_buildkite_meta_data('%s-build-%s-job-id' % (engine_commit_formated_hash, app_platform))
     queueid = common.get_buildkite_meta_data('%s-build-%s-queue-id' % (engine_commit_formated_hash, app_platform))
     organization = common.get_environment_variable('BUILDKITE_ORGANIZATION_SLUG','improbable')
     pipeline = common.get_environment_variable('BUILDKITE_PIPELINE_SLUG','unrealgdkexampleproject-nightly')
     buildid = common.get_environment_variable('BUILDKITE_BUILD_ID','')
-    # buildid = '29ebe8ff-773d-4489-93e5-8a7458d56a9c'
     gcshead = 'gs://io-internal-infra-intci-artifacts-production'
     gcs_path = '%s/organizations/%s/pipelines/%s/builds/%s/jobs/%s/%s/%s/%s' % (gcshead, organization, pipeline, buildid, queueid, jobid, agentplatform, filename)
     return gcs_path,localfilename
@@ -181,4 +179,5 @@ if __name__ == "__main__":
     common.set_buildkite_meta_data(firebase_succeed_key, firebase_succeed_value)
     common.set_buildkite_meta_data(firebase_total_key, firebase_total_value)
     exit_value = 1 if succeed == total and succeed != 0 else 0
+    print('exit_value=%d' % exit_value)
     exit(exit_value)
