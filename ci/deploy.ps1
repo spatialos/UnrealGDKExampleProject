@@ -7,8 +7,15 @@ param(
 
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment
-    $date_and_time = Get-Date -Format "MMdd_HHmm"
-    $deployment_name = "exampleproject$($env:STEP_NUMBER)_${date_and_time}_$($gdk_commit_hash)"
+    $android_autotest = Get-Meta-Data -variable_name "android-autotest" -default_value "0"
+    if ($android_autotest -eq "1") {
+        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -default_value "0"
+    }
+    else {
+        $date_and_time = Get-Date -Format "MMdd_HHmm"
+        $deployment_name = "exampleproject$($env:STEP_NUMBER)_${date_and_time}_$($gdk_commit_hash)"
+    }
+
     $assembly_name = "$($deployment_name)_asm"
     $runtime_version = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_RUNTIME_VERSION" -default_value ""
     $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
@@ -82,8 +89,6 @@ pushd "spatial"
                 Throw "Deployment launch failed"
             }
 
-            Set-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -variable_value "$deployment_name"            
-            Set-Meta-Data -variable_name "gdk-commit-hash" -variable_value "$gdk_commit_hash"
         } else {
             Write-Output "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
