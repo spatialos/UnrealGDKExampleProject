@@ -124,12 +124,6 @@ insert_setup_build_steps(){
     fi
 }
 
-insert_generate_auth_token_step(){
-    echo --- insert-wait-generate-auth-token-step
-    insert_wait_step
-    insert_file_step "ci/nightly.gen.auth.token.yaml"
-}
-
 # This script generates BuildKite steps for each engine version we want to test against.
 # We retrieve these engine versions from the unreal-engine.version file in the UnrealGDK repository.
 # The steps are based on the template in nightly.template.steps.yaml.
@@ -182,8 +176,6 @@ if [ -z "${ENGINE_VERSION}" ]; then
     STEP_NUMBER=$((STEP_NUMBER-1))
     buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 
-    # generate auth token for both android and ios autotest
-    insert_generate_auth_token_step
 else
     echo --- "Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
@@ -197,7 +189,7 @@ else
 
     echo --- insert-setup-and-build-steps
     insert_setup_build_steps ${ENGINE_VERSION}
-
-    # generate auth token for both android and ios autotest
-    insert_generate_auth_token_step
 fi
+
+# generate auth token for both android and ios autotest
+insert_file_step "ci/nightly.gen.auth.token.yaml"

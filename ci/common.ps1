@@ -18,7 +18,7 @@ function Start-Event() {
         [string] $event_parent
     )
 
-    # Emit the end marker for this tracing span.
+    # Start this tracing span
     Start-Process -NoNewWindow "imp-ci"  -ArgumentList @(`
         "events", "new", `
         "--name", "$($event_name)", `
