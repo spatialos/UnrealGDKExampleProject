@@ -62,8 +62,6 @@ env:
     GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
     SPATIAL_PROJECT_NAME: "unreal_gdk"
     SPATIAL_RUNTIME_VERSION: "0.4.3" ## the runtime version of SpatialOS
-    MAC_BUILD: true
-    FIREBASE_AUTOTEST: true
 steps:
   - label: "generate-pipeline-steps"
     commands: 
