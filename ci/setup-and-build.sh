@@ -72,9 +72,6 @@ pushd "$(dirname "$0")"
     echo "--- set-up-engine"
     ENGINE_DIRECTORY="${EXAMPLEPROJECT_HOME}/UnrealEngine"
     GAME_PROJECT="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
-    #set meta-data engine-home-mac 
-    buildkite-agent meta-data set "engine-home-mac" "$ENGINE_DIRECTORY"
-    buildkite-agent meta-data set "exampleproject-home-mac" "$EXAMPLEPROJECT_HOME"
     
     echo "ENGINE_DIRECTORY:$ENGINE_DIRECTORY"
 

@@ -17,19 +17,12 @@ $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_nam
 $engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATED_HASH" -default_value "0"
 $android_autotest = Get-Meta-Data -variable_name "android-autotest" -default_value "0"            
 
-$gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
+$gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 $parent_event_name = "build-unreal-gdk-example-project-:windows:"
+$game_project = "$exampleproject_home/Game/GDKShooter.uproject"
+
 
 pushd "$exampleproject_home"
-    # save env variables to meta-data
-    Start-Event "save-build-meta-data" $parent_event_name
-        Set-Meta-Data -variable_name "deployment-launch-configuration" -variable_value "$deployment_launch_configuration"
-        Set-Meta-Data -variable_name "deployment-snapshot-path" -variable_value" $deployment_snapshot_path"
-        Set-Meta-Data -variable_name "deployment-cluster-region" -variable_value "$deployment_cluster_region"
-        Set-Meta-Data -variable_name "engine-home-windows" -variable_value "$unreal_engine_symlink_dir"
-        Set-Meta-Data -variable_name "exampleproject-home-windows" -variable_value "$exampleproject_home"
-    Finish-Event "save-build-meta-data" $parent_event_name
-
     Start-Event "clone-gdk-plugin" $parent_event_name
         pushd "Game"
             New-Item -Name "Plugins" -ItemType Directory -Force
@@ -72,7 +65,7 @@ pushd "$exampleproject_home"
 
             $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath $unreal_version_selector_path -ArgumentList @(`
                 "-switchversionsilent", `
-                "${exampleproject_home}\Game\GDKShooter.uproject", `
+                "$game_project", `
                 "$unreal_engine_symlink_dir"
             )
 
@@ -84,7 +77,6 @@ pushd "$exampleproject_home"
     Finish-Event "associate-uproject-with-engine" $parent_event_name
 
     $build_script_path = "$($gdk_home)\SpatialGDK\Build\Scripts\BuildWorker.bat"
-
 
     Start-Event "build-editor" $parent_event_name
         # Build the project editor to allow the snapshot and schema commandlet to run
@@ -106,17 +98,19 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-editor" $parent_event_name
 
-    #generate-auth-ken need newest spatial
-    Start-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
-        $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
-            "update"
-        )
+    if($android_autotest -ne 0){
+        #generate-auth-ken need newest spatial
+        Start-Event "spatial-update" $parent_event_name
+            $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
+                "update"
+            )
 
-        if ($build_configs_process.ExitCode -ne 0) {
-            Write-Output "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
-            Throw "Failed to update spatial"
-        }
-    Finish-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
+            if ($build_configs_process.ExitCode -ne 0) {
+                Write-Output "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
+                Throw "Failed to update spatial"
+            }
+        Finish-Event "spatial-update" $parent_event_name
+    }
 
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" $parent_event_name
@@ -124,7 +118,7 @@ pushd "$exampleproject_home"
         pushd $win64_folder
             $UE4Editor=((Convert-Path .) + "\UE4Editor-Cmd.exe")
             $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
-                "$($exampleproject_home)/Game/GDKShooter.uproject", `
+                "$game_project", `
                 "-run=CookAndGenerateSchema", `
                 "-targetplatform=LinuxServer", `
                 "-SkipShaderCompile", `
@@ -138,7 +132,7 @@ pushd "$exampleproject_home"
             }
             
             $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
-                "$($exampleproject_home)/Game/GDKShooter.uproject", `
+                "$game_project", `
                 "-run=GenerateSnapshot", `
                 "-MapPaths=`"/Maps/Control_small`""
             )
@@ -151,20 +145,22 @@ pushd "$exampleproject_home"
         popd
     Finish-Event "generate-schema" $parent_event_name
 
-    Start-Event "build-win64-client" $parent_event_name
-        $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
-            "GDKShooter", `
-            "Win64", `
-            "Development", `
-            "GDKShooter.uproject"
-        )       
-        $build_client_handle = $build_client_proc.Handle
-        Wait-Process -InputObject $build_client_proc
-        if ($build_client_proc.ExitCode -ne 0) {
-            Write-Output "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
-            Throw "Failed to build Win64 Development Client"
-        }
-    Finish-Event "build-win64-client" $parent_event_name
+    if($android_autotest -eq 0){
+        Start-Event "build-win64-client" $parent_event_name
+            $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
+                "GDKShooter", `
+                "Win64", `
+                "Development", `
+                "GDKShooter.uproject"
+            )       
+            $build_client_handle = $build_client_proc.Handle
+            Wait-Process -InputObject $build_client_proc
+            if ($build_client_proc.ExitCode -ne 0) {
+                Write-Output "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
+                Throw "Failed to build Win64 Development Client"
+            }
+        Finish-Event "build-win64-client" $parent_event_name
+    }
 
     Start-Event "build-linux-worker" $parent_event_name
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
@@ -213,11 +209,11 @@ pushd "$exampleproject_home"
             $cmdline=""
         }
         $argumentlist = @(`
-            "-ScriptsForProject=$($exampleproject_home)/Game/GDKShooter.uproject", `
+            "-ScriptsForProject=$game_project", `
             "BuildCookRun", `
             "-nocompileeditor", `
             "-nop4", `
-            "-project=$($exampleproject_home)/Game/GDKShooter.uproject", `
+            "-project=$game_project", `
             "-cook", `
             "-stage", `
             "-archive", `
