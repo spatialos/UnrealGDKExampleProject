@@ -26,7 +26,7 @@ Start-Event "deploy-game" $parent_event_name
     Write-Output "deployment_name: ${deployment_name}"
     Write-Output "assembly_name: ${assembly_name}"
 
-    $deploy_parent_event_name = "build-unreal-gdk-example-project-:windows:"
+    $deploy_parent_event_name = "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
 pushd "spatial"
     Start-Event "build-worker-configurations" $deploy_parent_event_name
         $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
