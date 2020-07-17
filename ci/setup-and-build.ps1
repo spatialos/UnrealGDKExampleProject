@@ -18,19 +18,19 @@ $engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_va
 $android_autotest = Get-Meta-Data -variable_name "android-autotest" -default_value "0"            
 
 $gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
-
+$parent_event_name = "build-unreal-gdk-example-project-:windows:"
 
 pushd "$exampleproject_home"
     # save env variables to meta-data
-    Start-Event "save-build-meta-data" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "save-build-meta-data" $parent_event_name
         Set-Meta-Data -variable_name "deployment-launch-configuration" -variable_value "$deployment_launch_configuration"
         Set-Meta-Data -variable_name "deployment-snapshot-path" -variable_value" $deployment_snapshot_path"
         Set-Meta-Data -variable_name "deployment-cluster-region" -variable_value "$deployment_cluster_region"
         Set-Meta-Data -variable_name "engine-home-windows" -variable_value "$unreal_engine_symlink_dir"
         Set-Meta-Data -variable_name "exampleproject-home-windows" -variable_value "$exampleproject_home"
-    Finish-Event "save-build-meta-data" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "save-build-meta-data" $parent_event_name
 
-    Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "clone-gdk-plugin" $parent_event_name
         pushd "Game"
             New-Item -Name "Plugins" -ItemType Directory -Force
             pushd "Plugins"
@@ -42,31 +42,31 @@ pushd "$exampleproject_home"
             )
             popd
         popd
-    Finish-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "clone-gdk-plugin" $parent_event_name
 
-    Start-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "get-gdk-head-commit" $parent_event_name
         pushd $gdk_home
             # Get the short commit hash of this gdk build for later use in assembly name
             $gdk_commit_hash = (git rev-parse HEAD).Substring(0,6)
             Write-Output "GDK at commit: $gdk_commit_hash on branch $gdk_branch_name"
         popd
-    Finish-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "get-gdk-head-commit" $parent_event_name
 
-    Start-Event "set-up-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "set-up-gdk-plugin" $parent_event_name
         pushd $gdk_home
             # Invoke the GDK's setup script
             &"$($gdk_home)\ci\setup-gdk.ps1"
         popd
-    Finish-Event "set-up-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "set-up-gdk-plugin" $parent_event_name
 
     # Use the cached engine version or set it up if it has not been cached yet.
-    Start-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "set-up-engine" $parent_event_name
 
         &"$($gdk_home)\ci\get-engine.ps1" -unreal_path "$unreal_engine_symlink_dir"
 
-    Finish-Event "set-up-engine" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "set-up-engine" $parent_event_name
 
-    Start-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "associate-uproject-with-engine" $parent_event_name
         pushd $unreal_engine_symlink_dir
             $unreal_version_selector_path = "Engine\Binaries\Win64\UnrealVersionSelector.exe"
 
@@ -81,23 +81,12 @@ pushd "$exampleproject_home"
                 Throw "Failed to set Engine association"
             }
         popd
-    Finish-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "associate-uproject-with-engine" $parent_event_name
 
     $build_script_path = "$($gdk_home)\SpatialGDK\Build\Scripts\BuildWorker.bat"
 
-    #generate-auth-ken need newest spatial
-    Start-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
-        $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
-            "update"
-        )
 
-        if ($build_configs_process.ExitCode -ne 0) {
-            Write-Output "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
-            Throw "Failed to update spatial"
-        }
-    Finish-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
-
-    Start-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "build-editor" $parent_event_name
         # Build the project editor to allow the snapshot and schema commandlet to run
         $build_editor_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
             "GDKShooterEditor", `
@@ -115,10 +104,22 @@ pushd "$exampleproject_home"
             Write-Output "Failed to build Win64 Development Editor. Error: $($build_editor_proc.ExitCode)"
             Throw "Failed to build Win64 Development Editor"
         }
-    Finish-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "build-editor" $parent_event_name
+
+    #generate-auth-ken need newest spatial
+    Start-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
+        $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
+            "update"
+        )
+
+        if ($build_configs_process.ExitCode -ne 0) {
+            Write-Output "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
+            Throw "Failed to update spatial"
+        }
+    Finish-Event "spatial-update" "deploy-unreal-gdk-example-project-:windows:"
 
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
-    Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "generate-schema" $parent_event_name
         $win64_folder = "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
         pushd $win64_folder
             $UE4Editor=((Convert-Path .) + "\UE4Editor-Cmd.exe")
@@ -148,9 +149,9 @@ pushd "$exampleproject_home"
                 Throw "Failed to generate snapshot"
             }
         popd
-    Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "generate-schema" $parent_event_name
 
-    Start-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "build-win64-client" $parent_event_name
         $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
             "GDKShooter", `
             "Win64", `
@@ -163,9 +164,9 @@ pushd "$exampleproject_home"
             Write-Output "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
             Throw "Failed to build Win64 Development Client"
         }
-    Finish-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "build-win64-client" $parent_event_name
 
-    Start-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
+    Start-Event "build-linux-worker" $parent_event_name
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
             "GDKShooterServer", `
             "Linux", `
@@ -179,10 +180,10 @@ pushd "$exampleproject_home"
             Write-Output "Failed to build Linux Development Server. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Linux Development Server"
         }
-    Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "build-linux-worker" $parent_event_name
 
     if($android_autotest -ne 0){
-        Start-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
+        Start-Event "change-runtime-settings" $parent_event_name
             $proc = Start-Process -PassThru -NoNewWindow -FilePath "python" -ArgumentList @(`
                 "ci/change-runtime-settings.py", `
                 "$exampleproject_home"
@@ -192,13 +193,13 @@ pushd "$exampleproject_home"
             $DefaultEngine = "$exampleproject_home\Game\Config\DefaultEngine.ini"
             $DefaultEngineContent = Get-Content -Path $DefaultEngine
             Write-Host $DefaultEngineContent    
-        Finish-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
+        Finish-Event "change-runtime-settings" $parent_event_name
     }
     
     # Deploy the project to SpatialOS
-    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name"
+    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name" -parent_event_name "$parent_event_name"
     
-    Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"          
+    Start-Event "build-android-client" $parent_event_name          
         $auth_token = Get-Meta-Data -variable_name "auth-token" -default_value "0"        
         $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -default_value "0"    
         Write-Output "auth_token: $auth_token"
@@ -247,5 +248,5 @@ pushd "$exampleproject_home"
         }
         Set-Meta-Data -variable_name "$engine_commit_formated_hash-build-android-job-id" -variable_value "$env:BUILDKITE_JOB_ID"
         Set-Meta-Data -variable_name "$engine_commit_formated_hash-build-android-queue-id" -variable_value "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
-    Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
+    Finish-Event "build-android-client" $parent_event_name
 popd

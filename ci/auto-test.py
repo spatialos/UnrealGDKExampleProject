@@ -20,9 +20,13 @@ import common
 def run_command(cmds):
     res = common.run_shell(cmds)
     for line in res.stderr.readlines():
-        print('%s:%s' % (cmds[0], line.decode('UTF-8')))
+        utf8 = line.decode('UTF-8').strip()
+        if len(utf8) > 0:
+            print('stderr:%s:%s' % (cmds[0], utf8))
     for line in res.stdout.readlines():
-        print('%s:%s' % (cmds[0], line.decode('UTF-8')))
+        utf8 = line.decode('UTF-8').strip()
+        if len(utf8) > 0:
+            print('stdout:%s:%s' % (cmds[0], utf8))
 
 def switch_gcloud_project(project_id):
     event_name = "switch_gcloud_project:%s" % project_id
@@ -94,8 +98,9 @@ def gcloud_upload(app_platform, app_path):
     gcloud_storage_keyword = common.get_environment_variable(
         'GCLOUD_STORAGE_KEYWORD', 'https://console.developers.google.com/storage/browser/')
     for line in res.stderr.readlines():
-        utf8 = line.decode('UTF-8')
-        print('stderr:%s' % utf8)
+        utf8 = line.decode('UTF-8').strip()
+        if len(utf8) > 0:
+            print('stderr:%s' % utf8)
         if gcloud_storage_keyword in utf8:
             url = re.findall(r'\[(.*?)\]', utf8)
             gcloud_storage_url = url[0][len(gcloud_storage_keyword):]
