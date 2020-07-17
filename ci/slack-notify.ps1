@@ -10,21 +10,15 @@ $ios_autotest = Get-Meta-Data -variable_name "ios-autotest"
 
 # Send a Slack notification with a link to the new deployment and to the build.
 Start-Event "slack-notify" "slack-notify"
-    $build_result = "failed"
-    if($android_succeed -eq $android_total -and $ios_succeed -eq $ios_total){
-        $build_result = "succeeded"
-    }
     # Build Slack text
-    if ($env:NIGHTLY_BUILD -eq "1" -or $env:FIREBASE_AUTOTEST -eq "1") {
-        $slack_text = ":night_with_stars: Nightly build of *Example Project* *$build_result*."
+    if ($env:NIGHTLY_BUILD -eq "true" -or $env:FIREBASE_AUTOTEST -eq "true") {
+        $slack_text = ":night_with_stars: Nightly build of *Example Project* *succeeded*."
     } else {
-        $slack_text = "Example Project build by ``$env:BUILDKITE_BUILD_CREATOR`` *$build_result*."
+        $slack_text = "Example Project build by ``$env:BUILDKITE_BUILD_CREATOR`` *succeeded*."
     }
     # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
     $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
     $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
-
-    Write-Output "slack_webhook_url:$slack_webhook_url"
 
     $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/commit/${gdk_commit_hash}"
     $project_commit_url = "https://github.com/spatialos/UnrealGDKExampleProject/commit/$env:BUILDKITE_COMMIT"

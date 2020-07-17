@@ -131,12 +131,9 @@ insert_setup_build_steps(){
 }
 
 insert_generate_auth_token_step(){
-    if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
-        echo --- insert-wait-generate-auth-token-step
-        insert_wait_step
-
-        insert_file_step "ci/nightly.gen.auth.token.yaml"
-    fi
+    echo --- insert-wait-generate-auth-token-step
+    insert_wait_step
+    insert_file_step "ci/nightly.gen.auth.token.yaml"
 }
 
 # This script generates BuildKite steps for each engine version we want to test against.
