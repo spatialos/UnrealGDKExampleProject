@@ -118,6 +118,7 @@ pushd "$(dirname "$0")"
     
     IOS_AUTOTEST=$(buildkite-agent meta-data get "ios-autotest")
     cooked_ios_dir=${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_FORMATED_HASH}
+    cmdline=""
     if [ "$IOS_AUTOTEST" == "1" ]; then
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
