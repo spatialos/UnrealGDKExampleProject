@@ -49,9 +49,6 @@ Finish-Event "generate-project-name" $parent_event_name
 pushd "$exampleproject_home" 
     pushd "spatial"
         Start-Event "generate-auth-token" $parent_event_name
-            Write-Output "spatial update"
-            spatial update
-
             $DESCRIPTION = "Unreal-GDK-Token" 
             $DEVAUTH_CREATE = spatial project auth dev-auth-token create --description=$DESCRIPTION --project_name=$project_name | Out-String
             Write-Output $DEVAUTH_CREATE
