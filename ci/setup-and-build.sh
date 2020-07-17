@@ -49,7 +49,6 @@ pushd "$(dirname "$0")"
     EXAMPLEPROJECT_HOME="$(pwd)/.."
     GDK_BRANCH_NAME="${GDK_BRANCH:-master}"
     GDK_HOME="${EXAMPLEPROJECT_HOME}/Game/Plugins/UnrealGDK"
-    ENGINE_COMMIT_HASH="${ENGINE_COMMIT_HASH:-0}"
 
     echo "--- clone-gdk-plugin"
     mkdir -p "${EXAMPLEPROJECT_HOME}/Game/Plugins"

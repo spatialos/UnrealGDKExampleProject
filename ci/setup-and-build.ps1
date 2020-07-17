@@ -189,10 +189,7 @@ pushd "$exampleproject_home"
             Wait-Process -InputObject $proc
         Finish-Event "change-runtime-settings" $parent_event_name
     }
-    
-    # Deploy the project to SpatialOS
-    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name" -parent_event_name "$parent_event_name"
-    
+        
     Start-Event "build-android-client" $parent_event_name          
         $auth_token = Get-Meta-Data -variable_name "auth-token"
         $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)"
@@ -243,4 +240,7 @@ pushd "$exampleproject_home"
         Set-Meta-Data -variable_name "$engine_commit_formated_hash-build-android-job-id" -variable_value "$env:BUILDKITE_JOB_ID"
         Set-Meta-Data -variable_name "$engine_commit_formated_hash-build-android-queue-id" -variable_value "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
     Finish-Event "build-android-client" $parent_event_name
+    
+    # Deploy the project to SpatialOS
+    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name" -parent_event_name "$parent_event_name"
 popd
