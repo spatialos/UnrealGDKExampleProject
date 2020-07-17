@@ -51,7 +51,7 @@ macos: &macos
   - ssh://git@github.com/improbable/apple-codesigning-plugin#v0.1.3: ~
 
 steps:
-  - label: "build-and-deploy-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
+  - label: "build-and-deploy-AGENT_PLACEHOLDER-ENGINE_COMMIT_HASH_PLACEHOLDER"
     command: "COMMAND_PLACEHOLDER"
     <<: *AGENT_PLACEHOLDER 
     key: "setup-and-build-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
