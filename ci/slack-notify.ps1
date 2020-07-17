@@ -3,10 +3,10 @@ $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SP
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $slack_channel = Get-Env-Variable-Value-Or-Default -environment_variable_name "SLACK_CHANNEL" -default_value "#mobile-buildkite"
-$engine_version_count = Get-Meta-Data -variable_name "engine-version-count" -default_value "1"
-$gdk_commit_hash = Get-Meta-Data -variable_name "gdk_commit_hash" -default_value "1"
-$android_autotest = Get-Meta-Data -variable_name "android-autotest" -default_value "0"
-$ios_autotest = Get-Meta-Data -variable_name "ios-autotest" -default_value "0"
+$engine_version_count = Get-Meta-Data -variable_name "engine-version-count"
+$gdk_commit_hash = Get-Meta-Data -variable_name "gdk_commit_hash"
+$android_autotest = Get-Meta-Data -variable_name "android-autotest"
+$ios_autotest = Get-Meta-Data -variable_name "ios-autotest"
 
 # Send a Slack notification with a link to the new deployment and to the build.
 Start-Event "slack-notify" "slack-notify"
@@ -40,8 +40,8 @@ Start-Event "slack-notify" "slack-notify"
                     fallback = "Find build here: $build_url."
                     fields = @(
                             if ($android_autotest -eq "1") {                                
-                                $android_succeed = Get-Meta-Data -variable_name 'firebase-android-succeed' -default_value "0"
-                                $android_total = Get-Meta-Data -variable_name 'firebase-android-total' -default_value "0"
+                                $android_succeed = Get-Meta-Data -variable_name 'firebase-android-succeed'
+                                $android_total = Get-Meta-Data -variable_name 'firebase-android-total'
                                 @{
                                     title = "Android Test Result"
                                     value = "``$android_succeed-$android_total``"
@@ -49,8 +49,8 @@ Start-Event "slack-notify" "slack-notify"
                                 }
                             }
                             if ($ios_autotest -eq "1") {                                
-                                $ios_succeed = Get-Meta-Data -variable_name 'firebase-ios-succeed' -default_value "0"
-                                $ios_total = Get-Meta-Data -variable_name 'firebase-ios-total' -default_value "0"
+                                $ios_succeed = Get-Meta-Data -variable_name 'firebase-ios-succeed'
+                                $ios_total = Get-Meta-Data -variable_name 'firebase-ios-total'
                                 @{
                                     title = "iOS Test Result"
                                     value = "``$ios_succeed-$ios_total``"
@@ -99,7 +99,7 @@ Start-Event "slack-notify" "slack-notify"
 
     if ($launch_deployment -eq "true") {
         for ($i = 0; $i -lt $engine_version_count; $i++){
-            $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($i+1)" -default_value "1"
+            $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($i+1)"
             $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
             $deployment_button = @{
                                 type = "button"

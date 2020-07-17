@@ -1,7 +1,5 @@
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$Release = $TRUE
-
 function Write-Log() {
   param(
     [string] $msg,
@@ -21,16 +19,11 @@ function Start-Event() {
     )
 
     # Emit the end marker for this tracing span.
-    If ($Release) {
-        Start-Process -NoNewWindow "imp-ci"  -ArgumentList @(`
-            "events", "new", `
-            "--name", "$($event_name)", `
-            "--child-of", "$($event_parent)"
-        ) | Out-Null
-    }
-    else {
-        Write-Output "$event_name of $event_parent"
-    }
+    Start-Process -NoNewWindow "imp-ci"  -ArgumentList @(`
+        "events", "new", `
+        "--name", "$($event_name)", `
+        "--child-of", "$($event_parent)"
+    ) | Out-Null
     Write-Log "--- $($event_name)"
 }
 
@@ -40,16 +33,11 @@ function Finish-Event() {
         [string] $event_parent
     )
     # Emit the end marker for this tracing span.
-    If ($Release) {
-        Start-Process -NoNewWindow "imp-ci"  -ArgumentList @(`
-            "events", "new", `
-            "--name", "$($event_name)", `
-            "--child-of", "$($event_parent)"
-        ) | Out-Null
-    }
-    else {
-        Write-Output "$event_name of $event_parent"
-    }
+    Start-Process -NoNewWindow "imp-ci"  -ArgumentList @(`
+        "events", "new", `
+        "--name", "$($event_name)", `
+        "--child-of", "$($event_parent)"
+    ) | Out-Null
 }
 
 ## Checks whether the specified environment variable has been set. If it has, return its value. Else return the default value.
@@ -73,23 +61,16 @@ function Set-Meta-Data() {
         [string] $variable_value
     )
 
-    If ($Release) {
-        buildkite-agent meta-data set $variable_name $variable_value
-    }
+    buildkite-agent meta-data set $variable_name $variable_value
 }
 
 function Get-Meta-Data() {
     param(
-        [string] $variable_name,
-        [string] $default_value
+        [string] $variable_name
     )
 
-    If ($Release) {
-        $variable_value = buildkite-agent meta-data get $variable_name
-        return $variable_value
-    } Else {
-        return $default_value
-    }
+    $variable_value = buildkite-agent meta-data get $variable_name
+    return $variable_value
 }
 
 $ErrorActionPreference = 'Stop'

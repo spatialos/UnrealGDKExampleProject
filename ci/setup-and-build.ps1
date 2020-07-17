@@ -15,7 +15,7 @@ $gdk_repo = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_RE
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATED_HASH" -default_value "0"
-$android_autotest = Get-Meta-Data -variable_name "android-autotest" -default_value "0"            
+$android_autotest = Get-Meta-Data -variable_name "android-autotest"           
 
 $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 $parent_event_name = "build-unreal-gdk-example-project-:windows:"
@@ -70,7 +70,7 @@ pushd "$exampleproject_home"
             )
 
             if ($find_engine_process.ExitCode -ne 0) {
-                Write-Output "Failed to set Unreal Engine association for the project. Error: $($find_engine_process.ExitCode)"
+                Write-Log "Failed to set Unreal Engine association for the project. Error: $($find_engine_process.ExitCode)"
                 Throw "Failed to set Engine association"
             }
         popd
@@ -93,7 +93,7 @@ pushd "$exampleproject_home"
 
         Wait-Process -InputObject $build_editor_proc
         if ($build_editor_proc.ExitCode -ne 0) {
-            Write-Output "Failed to build Win64 Development Editor. Error: $($build_editor_proc.ExitCode)"
+            Write-Log "Failed to build Win64 Development Editor. Error: $($build_editor_proc.ExitCode)"
             Throw "Failed to build Win64 Development Editor"
         }
     Finish-Event "build-editor" $parent_event_name
@@ -106,7 +106,7 @@ pushd "$exampleproject_home"
             )
 
             if ($build_configs_process.ExitCode -ne 0) {
-                Write-Output "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
+                Write-Log "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
                 Throw "Failed to update spatial"
             }
         Finish-Event "spatial-update" $parent_event_name
@@ -127,7 +127,7 @@ pushd "$exampleproject_home"
             $schema_gen_handle = $schema_gen_proc.Handle
             Wait-Process -InputObject $schema_gen_proc
             if ($schema_gen_proc.ExitCode -ne 0) {
-                Write-Output "Failed to generate schema. Error: $($schema_gen_proc.ExitCode)"
+                Write-Log "Failed to generate schema. Error: $($schema_gen_proc.ExitCode)"
                 Throw "Failed to generate schema"
             }
             
@@ -139,7 +139,7 @@ pushd "$exampleproject_home"
             $snapshot_gen_handle = $snapshot_gen_proc.Handle
             Wait-Process -InputObject $snapshot_gen_proc
             if ($snapshot_gen_proc.ExitCode -ne 0) {
-                Write-Output "Failed to generate snapshot. Error: $($snapshot_gen_proc.ExitCode)"
+                Write-Log "Failed to generate snapshot. Error: $($snapshot_gen_proc.ExitCode)"
                 Throw "Failed to generate snapshot"
             }
         popd
@@ -156,7 +156,7 @@ pushd "$exampleproject_home"
             $build_client_handle = $build_client_proc.Handle
             Wait-Process -InputObject $build_client_proc
             if ($build_client_proc.ExitCode -ne 0) {
-                Write-Output "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
+                Write-Log "Failed to build Win64 Development Client. Error: $($build_client_proc.ExitCode)"
                 Throw "Failed to build Win64 Development Client"
             }
         Finish-Event "build-win64-client" $parent_event_name
@@ -173,7 +173,7 @@ pushd "$exampleproject_home"
         Wait-Process -InputObject $build_server_proc
 
         if ($build_server_proc.ExitCode -ne 0) {
-            Write-Output "Failed to build Linux Development Server. Error: $($build_server_proc.ExitCode)"
+            Write-Log "Failed to build Linux Development Server. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Linux Development Server"
         }
     Finish-Event "build-linux-worker" $parent_event_name
@@ -196,8 +196,8 @@ pushd "$exampleproject_home"
     &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name" -parent_event_name "$parent_event_name"
     
     Start-Event "build-android-client" $parent_event_name          
-        $auth_token = Get-Meta-Data -variable_name "auth-token" -default_value "0"        
-        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -default_value "0"    
+        $auth_token = Get-Meta-Data -variable_name "auth-token"
+        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)"
         Write-Output "auth_token: $auth_token"
         Write-Output "deployment_name: $deployment_name"
         $cookflavor = "Multi"
@@ -239,7 +239,7 @@ pushd "$exampleproject_home"
         Wait-Process -InputObject $build_server_proc
 
         if ($build_server_proc.ExitCode -ne 0) {
-            Write-Output "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
+            Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
         }
         Set-Meta-Data -variable_name "$engine_commit_formated_hash-build-android-job-id" -variable_value "$env:BUILDKITE_JOB_ID"

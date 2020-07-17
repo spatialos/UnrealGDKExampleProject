@@ -8,9 +8,9 @@ param(
 
 Start-Event "deploy-game" $parent_event_name
     # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment
-    $android_autotest = Get-Meta-Data -variable_name "android-autotest" -default_value "0"
+    $android_autotest = Get-Meta-Data -variable_name "android-autotest"
     if ($android_autotest -eq "1") {
-        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)" -default_value "0"
+        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)"
     }
     else {
         $date_and_time = Get-Date -Format "MMdd_HHmm"
@@ -35,7 +35,7 @@ pushd "spatial"
         )
 
         if ($build_configs_process.ExitCode -ne 0) {
-            Write-Output "Failed to build worker configurations for the project. Error: $($build_configs_process.ExitCode)"
+            Write-Log "Failed to build worker configurations for the project. Error: $($build_configs_process.ExitCode)"
             Throw "Failed to build worker configurations"
         }
     Finish-Event "build-worker-configurations" $deploy_parent_event_name
@@ -47,7 +47,7 @@ pushd "spatial"
         )
 
         if ($prepare_for_run_process.ExitCode -ne 0) {
-            Write-Output "Failed to prepare for a Spatial cloud launch. Error: $($prepare_for_run_process.ExitCode)"
+            Write-Log "Failed to prepare for a Spatial cloud launch. Error: $($prepare_for_run_process.ExitCode)"
             Throw "Spatial prepare for run failed"
         }
     Finish-Event "prepare-for-run" $deploy_parent_event_name
@@ -64,7 +64,7 @@ pushd "spatial"
         )
 
         if ($upload_assemblies_process.ExitCode -ne 0) {
-            Write-Output "Failed to upload assemblies to cloud. Error: $($upload_assemblies_process.ExitCode)"
+            Write-Log "Failed to upload assemblies to cloud. Error: $($upload_assemblies_process.ExitCode)"
             Throw "Failed to upload assemblies"
         }
     Finish-Event "upload-assemblies" $deploy_parent_event_name
@@ -88,12 +88,12 @@ pushd "spatial"
             )
 
             if ($launch_deployment_process.ExitCode -ne 0) {
-                Write-Output "Failed to launch a Spatial cloud deployment. Error: $($launch_deployment_process.ExitCode)"
+                Write-Log "Failed to launch a Spatial cloud deployment. Error: $($launch_deployment_process.ExitCode)"
                 Throw "Deployment launch failed"
             }
 
         } else {
-            Write-Output "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
+            Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
     Finish-Event "launch-deployment" $deploy_parent_event_name
 
@@ -108,7 +108,7 @@ pushd "spatial"
             "dev_login"
         )
         if ($add_dev_login_tag.ExitCode -ne 0) {
-            Write-Output "Failed to add dev_login tag to the deployment. Error: $($add_dev_login_tag.ExitCode)"
+            Write-Log "Failed to add dev_login tag to the deployment. Error: $($add_dev_login_tag.ExitCode)"
             Throw "Failed to add dev_login"
         }
     Finish-Event "add-dev-login-tag" $deploy_parent_event_name
