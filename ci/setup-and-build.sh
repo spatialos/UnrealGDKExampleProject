@@ -128,14 +128,10 @@ pushd "$(dirname "$0")"
 
         echo "--- build-ios-client-for-autotest"
 
-        cmdline="connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp"
-        run_uat "${ENGINE_DIRECTORY}" "${EXAMPLEPROJECT_HOME}" "Development" "IOS" "${cooked_ios_dir}" "" "${cmdline}" 
-            
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATED_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"
-    else
-        echo "--- build-ios-client"
-        run_uat "${ENGINE_DIRECTORY}" "${EXAMPLEPROJECT_HOME}" "Development" "IOS" "${cooked_ios_dir}" "" ""
+        cmdline="connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp"            
     fi
-
+    echo "--- build-ios-client"
+    run_uat "${ENGINE_DIRECTORY}" "${EXAMPLEPROJECT_HOME}" "Development" "IOS" "${cooked_ios_dir}" "" "${cmdline}"
 popd

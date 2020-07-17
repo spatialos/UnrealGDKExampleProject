@@ -146,6 +146,7 @@ pushd "$exampleproject_home"
     Finish-Event "generate-schema" $parent_event_name
 
     if($android_autotest -eq 0){
+        #do not need build-win64-client when run auto-test for firebase
         Start-Event "build-win64-client" $parent_event_name
             $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
                 "GDKShooter", `
@@ -178,17 +179,14 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-linux-worker" $parent_event_name
 
-    if($android_autotest -ne 0){
+    if($android_autotest -eq 1){
+        #change android project settings for firebase 
         Start-Event "change-runtime-settings" $parent_event_name
             $proc = Start-Process -PassThru -NoNewWindow -FilePath "python" -ArgumentList @(`
                 "ci/change-runtime-settings.py", `
                 "$exampleproject_home"
             )
             Wait-Process -InputObject $proc
-
-            $DefaultEngine = "$exampleproject_home\Game\Config\DefaultEngine.ini"
-            $DefaultEngineContent = Get-Content -Path $DefaultEngine
-            Write-Host $DefaultEngineContent    
         Finish-Event "change-runtime-settings" $parent_event_name
     }
     
