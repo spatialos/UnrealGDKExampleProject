@@ -33,21 +33,17 @@ Start-Event "slack-notify" "slack-notify"
                 @{
                     fallback = "Find build here: $build_url."
                     fields = @(
-                            if ($android_autotest -eq "1") {                                
-                                $android_succeed = Get-Meta-Data -variable_name 'firebase-android-succeed'
-                                $android_total = Get-Meta-Data -variable_name 'firebase-android-total'
+                            if ($android_autotest -eq "1") { 
                                 @{
                                     title = "Android Test Result"
-                                    value = "``$android_succeed-$android_total``"
+                                    value = "``succeeded``"
                                     short = "true"
                                 }
                             }
-                            if ($ios_autotest -eq "1") {                                
-                                $ios_succeed = Get-Meta-Data -variable_name 'firebase-ios-succeed'
-                                $ios_total = Get-Meta-Data -variable_name 'firebase-ios-total'
+                            if ($ios_autotest -eq "1") {
                                 @{
                                     title = "iOS Test Result"
-                                    value = "``$ios_succeed-$ios_total``"
+                                    value = "``succeeded``"
                                     short = "true"
                                 }
                             }

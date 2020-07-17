@@ -46,12 +46,6 @@ buildkite-agent meta-data set "android-autotest" "0"
 buildkite-agent meta-data set "ios-autotest" "0"
 
 if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
-    # set default test result
-    buildkite-agent meta-data set "firebase-android-succeed" "0"
-    buildkite-agent meta-data set "firebase-android-total" "0"
-    buildkite-agent meta-data set "firebase-ios-succeed" "0"
-    buildkite-agent meta-data set "firebase-ios-total" "0"
-
     buildkite-agent meta-data set "android-autotest" "1"
     ANDROID_AUTOTEST=true
     echo --- "ANDROID_AUTOTEST:${ANDROID_AUTOTEST}"

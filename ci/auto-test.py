@@ -178,12 +178,6 @@ if __name__ == "__main__":
 
     # update firebase succeed/total value
     print('succeed=%d total=%d' % (succeed, total))
-    firebase_succeed_key = 'firebase-%s-succeed' % app_platform
-    firebase_succeed_value = int(common.get_buildkite_meta_data(firebase_succeed_key)) + succeed
-    firebase_total_key = 'firebase-%s-total' % app_platform
-    firebase_total_value = int(common.get_buildkite_meta_data(firebase_total_key)) + total
-    common.set_buildkite_meta_data(firebase_succeed_key, firebase_succeed_value)
-    common.set_buildkite_meta_data(firebase_total_key, firebase_total_value)
     exit_value = 0 if succeed == total and succeed != 0 else 1
     print('exit_value=%d' % exit_value)
     exit(exit_value)
