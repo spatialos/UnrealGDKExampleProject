@@ -102,7 +102,4 @@ def change_runtime_settings(project_home):
 
 
 if __name__ == "__main__":
-    print('begin')
     change_runtime_settings(sys.argv[1])
-    print('end')
-    exit(0)
