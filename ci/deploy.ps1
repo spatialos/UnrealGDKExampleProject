@@ -1,16 +1,16 @@
 param(
   [string] $launch_deployment = "false",
   [string] $gdk_branch_name = "master",
-  [string] $parent_event_name = "build-unreal-gdk-example-project-:windows:"
+  [string] $parent_event_name = "deploy-unreal-gdk-example-project-:windows:"
 )
 
 . "$PSScriptRoot\common.ps1"
 
 Start-Event "deploy-game" $parent_event_name
     # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment
-    $android_autotest = Get-Meta-Data -variable_name "android-autotest"
+    $android_autotest = buildkite-agent meta-data get "android-autotest"
     if ($android_autotest -eq "1") {
-        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)"
+        $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"
     }
     else {
         $date_and_time = Get-Date -Format "MMdd_HHmm"

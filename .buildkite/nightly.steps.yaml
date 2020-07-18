@@ -40,7 +40,6 @@ windows: &windows
     - "platform=windows"
     - "scaler_version=2"
     - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-03-26-102432-bk9951-8afe0ffb}"
-    - "boot_disk_size_gb=500"
   timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
   retry:
     automatic:
@@ -56,12 +55,13 @@ env:
     GCLOUD_PROJECT_ID: "chlorodize-bipennated-8024348"
     GCLOUD_STORAGE_KEYWORD: "https://console.developers.google.com/storage/browser/"
     SUCCESS_KEYWORD: "PlayerSpawn returned from server sucessfully"
-    SLACK_CHANNEL: "#mobile-buildkite"
+    SLACK_CHANNEL: "#unreal-gdk-builds"
     ANDROID_FILENAME: "GDKShooter-armv7-es2.apk"
     IOS_FILENAME: "GDKShooter.ipa"
     GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
     SPATIAL_PROJECT_NAME: "unreal_gdk"
     SPATIAL_RUNTIME_VERSION: "0.4.3" ## the runtime version of SpatialOS
+
 steps:
   - label: "generate-pipeline-steps"
     commands: 
@@ -69,7 +69,6 @@ steps:
       - "ci/generate-pipeline-steps.sh"
     env:
       ENGINE_VERSION: "${ENGINE_VERSION}"
-    key: "generate-steps"
     <<: *script_runner
   - wait: ~
   - label: "slack-notify"

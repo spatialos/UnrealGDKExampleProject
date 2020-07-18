@@ -38,7 +38,7 @@ Finish-Event "get-gdk-head-commit" $parent_event_name
 
 Start-Event "generate-project-name" $parent_event_name
     $date_and_time = Get-Date -Format "MMdd_HHmm"        
-    $engine_version_count = Get-Meta-Data -variable_name "engine-version-count"
+    $engine_version_count = buildkite-agent meta-data get "engine-version-count"
     for ($i = 0; $i -lt $engine_version_count; $i++){
         $index = "$($i+1)"
         $deployment_name = "exampleproject$(${index})_${date_and_time}_$($gdk_commit_hash)"

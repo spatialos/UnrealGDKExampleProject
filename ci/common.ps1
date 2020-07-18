@@ -64,13 +64,4 @@ function Set-Meta-Data() {
     buildkite-agent meta-data set $variable_name $variable_value
 }
 
-function Get-Meta-Data() {
-    param(
-        [string] $variable_name
-    )
-
-    $variable_value = buildkite-agent meta-data get $variable_name
-    return $variable_value
-}
-
 $ErrorActionPreference = 'Stop'

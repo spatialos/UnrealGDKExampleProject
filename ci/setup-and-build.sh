@@ -38,7 +38,7 @@ run_uat() {
         -build \
         -utf8output \
         -compile \
-        -cmdline="${COMMAND_LINE}" \
+        -CMDLINE="${COMMAND_LINE}" \
         "${ADDITIONAL_UAT_FLAGS}"
 }
 
@@ -72,8 +72,6 @@ pushd "$(dirname "$0")"
     ENGINE_DIRECTORY="${EXAMPLEPROJECT_HOME}/UnrealEngine"
     GAME_PROJECT="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
     
-    echo "ENGINE_DIRECTORY:$ENGINE_DIRECTORY"
-
     "${GDK_HOME}/ci/get-engine.sh" \
         "${ENGINE_DIRECTORY}" \
         "${GCS_PUBLISH_BUCKET}"
@@ -113,12 +111,17 @@ pushd "$(dirname "$0")"
     popd
 
     echo "--- build-mac-client"
-    cooked_mac_dir=${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATED_HASH}
-    run_uat "${ENGINE_DIRECTORY}" "${EXAMPLEPROJECT_HOME}" "Development" "Mac" "${cooked_mac_dir}" "-iterative" ""
+    run_uat \
+        "${ENGINE_DIRECTORY}" \
+        "${EXAMPLEPROJECT_HOME}" \
+        "Development" \
+        "Mac" \
+        "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATED_HASH}" \
+        "-iterative" \
+        ""
     
     IOS_AUTOTEST=$(buildkite-agent meta-data get "ios-autotest")
-    cooked_ios_dir=${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_FORMATED_HASH}
-    cmdline=""
+    CMDLINE=""
     if [ "$IOS_AUTOTEST" == "1" ]; then
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
@@ -130,8 +133,15 @@ pushd "$(dirname "$0")"
 
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATED_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"
-        cmdline="connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp"            
+        CMDLINE="connect.to.spatialos -workerType UnrealClient +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp"            
     fi
     echo "--- build-ios-client"
-    run_uat "${ENGINE_DIRECTORY}" "${EXAMPLEPROJECT_HOME}" "Development" "IOS" "${cooked_ios_dir}" "" "${cmdline}"
+    run_uat \
+        "${ENGINE_DIRECTORY}" \
+        "${EXAMPLEPROJECT_HOME}" \
+        "Development" \
+        "IOS" \
+        "${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_FORMATED_HASH}" \
+        "" \
+        "${CMDLINE}"
 popd

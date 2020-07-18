@@ -11,7 +11,7 @@ SETUP_BUILD_COMMAND_PS="powershell -NoProfile -NonInteractive -InputFormat Text 
 # Also resolve the GDK branch to run against. The order of priority is:
 # GDK_BRANCH envvar > same-name branch as the branch we are currently on > UnrealGDKVersion.txt > "master".
 
-echo --- init-gdk-branch
+echo "--- init-gdk-branch"
 
 GDK_BRANCH_LOCAL="${GDK_BRANCH:-}"
 if [ -z "${GDK_BRANCH_LOCAL}" ]; then
@@ -27,10 +27,9 @@ if [ -z "${GDK_BRANCH_LOCAL}" ]; then
             GDK_BRANCH_LOCAL="${GDK_VERSION}"
         fi
     fi
-    echo ${GDK_BRANCH_LOCAL}
 fi
 
-echo --- number-of-tries
+echo "--- number-of-tries"
 NUMBER_OF_TRIES=0
 while [ $NUMBER_OF_TRIES -lt 5 ]; do
     CURL_TIMEOUT=$((10<<NUMBER_OF_TRIES))
@@ -48,12 +47,10 @@ buildkite-agent meta-data set "ios-autotest" "0"
 if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
     buildkite-agent meta-data set "android-autotest" "1"
     ANDROID_AUTOTEST=true
-    echo --- "ANDROID_AUTOTEST:${ANDROID_AUTOTEST}"
 
     if [[ -n "${MAC_BUILD:-}" ]]; then
         buildkite-agent meta-data set "ios-autotest" "1"
         IOS_AUTOTEST=true
-        echo --- "IOS_AUTOTEST:${IOS_AUTOTEST}"
     fi
 fi
 
@@ -103,22 +100,19 @@ insert_auto_test_steps(){
 insert_setup_build_steps(){
     version="${1}"
     if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
-        #if nightly build, we should build if MAC_BUILD setted
         if [[ -n "${MAC_BUILD:-}" ]]; then
-            echo --- insert-setup-and-build-step-on-mac
+            echo "--- insert-setup-and-build-step-on-mac"
             insert_setup_build_step ${version} macos ${SETUP_BUILD_COMMAND_BASH}
         fi
         
-        #if nightly build, we should build on windows allways
-        echo --- insert-setup-and-build-step-on-windows
+        echo "--- insert-setup-and-build-step-on-windows"
         insert_setup_build_step ${version} windows ${SETUP_BUILD_COMMAND_PS}
     else
-        # if normal build just build Mac or Windows
         if [[ -n "${MAC_BUILD:-}" ]]; then
-            echo --- insert-setup-and-build-step-on-mac
+            echo "--- insert-setup-and-build-step-on-mac"
             insert_setup_build_step ${version} macos ${SETUP_BUILD_COMMAND_BASH}
         else
-            echo --- insert-setup-and-build-step-on-windows
+            echo "--- insert-setup-and-build-step-on-windows"
             insert_setup_build_step ${version} windows ${SETUP_BUILD_COMMAND_PS}        
         fi
     fi
@@ -137,9 +131,9 @@ if [ -z "${ENGINE_VERSION}" ]; then
     VERSIONS=$(cat < ci/unreal-engine.version)
 
     #  turn on firebase auto test steps
-    echo --- handle-firebase-steps
+    echo "--- handle-firebase-steps"
     if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then        
-        echo --- add-auto-test-steps
+        echo "--- add-auto-test-steps"
         COUNT=1
         for VERSION in ${VERSIONS}; do
             echo --- handle-autotest-:${VERSION}-COUNT:${COUNT}
@@ -154,7 +148,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
 
     STEP_NUMBER=1
     for VERSION in ${VERSIONS}; do
-        echo --- handle-setup-and-build-:${VERSION}-STEP_NUMBER:${STEP_NUMBER}
+        echo "--- handle-setup-and-build-:${VERSION}-STEP_NUMBER:${STEP_NUMBER}"
         if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
             break
         fi
@@ -177,17 +171,17 @@ if [ -z "${ENGINE_VERSION}" ]; then
     buildkite-agent meta-data set "engine-version-count" "${STEP_NUMBER}"
 
 else
-    echo --- "Generating steps for the specified engine version: ${ENGINE_VERSION}"
+    echo "--- Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
     echo "ENGINE_COMMIT_HASH:${ENGINE_COMMIT_HASH}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
     echo "GDK_BRANCH:${GDK_BRANCH}"
     
     #  turn on firebase auto test steps
-    echo --- insert-auto-test-steps
+    echo "--- insert-auto-test-steps"
     insert_auto_test_steps ${ENGINE_VERSION}
 
-    echo --- insert-setup-and-build-steps
+    echo "--- insert-setup-and-build-steps"
     insert_setup_build_steps ${ENGINE_VERSION}
 fi
 

@@ -2,16 +2,19 @@
 $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
-$slack_channel = Get-Env-Variable-Value-Or-Default -environment_variable_name "SLACK_CHANNEL" -default_value "#mobile-buildkite"
-$engine_version_count = Get-Meta-Data -variable_name "engine-version-count"
-$gdk_commit_hash = Get-Meta-Data -variable_name "gdk_commit_hash"
-$android_autotest = Get-Meta-Data -variable_name "android-autotest"
-$ios_autotest = Get-Meta-Data -variable_name "ios-autotest"
+$slack_channel = Get-Env-Variable-Value-Or-Default -environment_variable_name "SLACK_CHANNEL" -default_value "#unreal-gdk-builds"
+$engine_version_count = buildkite-agent meta-data get "engine-version-count"
+$gdk_commit_hash = buildkite-agent meta-data get "gdk_commit_hash"
+$android_autotest = buildkite-agent meta-data get "android-autotest"
+$ios_autotest = buildkite-agent meta-data get "ios-autotest"
 
 # Send a Slack notification with a link to the new deployment and to the build.
 Start-Event "slack-notify" "slack-notify"
     # Build Slack text
-    if ($env:NIGHTLY_BUILD -eq "true" -or $env:FIREBASE_AUTOTEST -eq "true") {
+    if($env:FIREBASE_AUTOTEST -eq "true"){
+        $slack_text = ":night_with_stars: Firebase Automatic Test *Example Project* *succeeded*."
+    }
+    elseif ($env:NIGHTLY_BUILD -eq "true" ) {
         $slack_text = ":night_with_stars: Nightly build of *Example Project* *succeeded*."
     } else {
         $slack_text = "Example Project build by ``$env:BUILDKITE_BUILD_CREATOR`` *succeeded*."
@@ -23,8 +26,6 @@ Start-Event "slack-notify" "slack-notify"
     $gdk_commit_url = "https://github.com/spatialos/UnrealGDK/commit/${gdk_commit_hash}"
     $project_commit_url = "https://github.com/spatialos/UnrealGDKExampleProject/commit/$env:BUILDKITE_COMMIT"
     $build_url = "$env:BUILDKITE_BUILD_URL"
-    $build_message = "$env:BUILDKITE_MESSAGE".Substring(0, [System.Math]::Min(64, "$env:BUILDKITE_MESSAGE".Length))     
-    $buildkite_branch = $env:BUILDKITE_BRANCH
 
     $json_message = [ordered]@{
         text = "$slack_text"
@@ -47,6 +48,7 @@ Start-Event "slack-notify" "slack-notify"
                                     short = "true"
                                 }
                             }
+                            $build_message = "$env:BUILDKITE_MESSAGE".Substring(0, [System.Math]::Min(64, "$env:BUILDKITE_MESSAGE".Length))
                             @{
                                 title = "Build Message"
                                 value = "``$build_message``"
@@ -54,7 +56,7 @@ Start-Event "slack-notify" "slack-notify"
                             }
                             @{
                                 title = "Example Project branch"
-                                value = "``$buildkite_branch``"
+                                value = "``$env:BUILDKITE_BRANCH``"
                                 short = "true"
                             }
                             @{
@@ -89,7 +91,7 @@ Start-Event "slack-notify" "slack-notify"
 
     if ($launch_deployment -eq "true") {
         for ($i = 0; $i -lt $engine_version_count; $i++){
-            $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($i+1)"
+            $deployment_name = buildkite-agent meta-data get "deployment-name-$($i+1)"
             $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
             $deployment_button = @{
                                 type = "button"
@@ -102,6 +104,5 @@ Start-Event "slack-notify" "slack-notify"
     }
 
     $json_request = $json_message | ConvertTo-Json -Depth 10
-    Write-Output $json_request
     Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
 Finish-Event "slack-notify" "slack-notify"

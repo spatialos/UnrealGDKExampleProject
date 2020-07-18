@@ -15,7 +15,7 @@ $gdk_repo = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_RE
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATED_HASH" -default_value "0"
-$android_autotest = Get-Meta-Data -variable_name "android-autotest"           
+$android_autotest = buildkite-agent meta-data get "android-autotest"           
 
 $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 $parent_event_name = "build-unreal-gdk-example-project-:windows:"
@@ -191,18 +191,14 @@ pushd "$exampleproject_home"
     }
         
     Start-Event "build-android-client" $parent_event_name          
-        $auth_token = Get-Meta-Data -variable_name "auth-token"
-        $deployment_name = Get-Meta-Data -variable_name "deployment-name-$($env:STEP_NUMBER)"
+        $auth_token = buildkite-agent meta-data get "auth-token"
+        $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"
         Write-Output "auth_token: $auth_token"
         Write-Output "deployment_name: $deployment_name"
         $cookflavor = "Multi"
         Set-Meta-Data -variable_name "android-flavor" -variable_value $cookflavor
-        if($android_autotest -ne 0){
-            $cmdline="connect.to.spatialos -workerType UnrealClient -OverrideSpatialNetworking +devauthToken $auth_token +deployment $deployment_name +linkProtocol Tcp"
-        }
-        else{
-            $cmdline=""
-        }
+        $cmdline="connect.to.spatialos -workerType UnrealClient +devauthToken $auth_token +deployment $deployment_name +linkProtocol Tcp"
+
         $argumentlist = @(`
             "-ScriptsForProject=$game_project", `
             "BuildCookRun", `
@@ -242,5 +238,5 @@ pushd "$exampleproject_home"
     Finish-Event "build-android-client" $parent_event_name
     
     # Deploy the project to SpatialOS
-    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name" -parent_event_name "$parent_event_name"
+    &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name"
 popd

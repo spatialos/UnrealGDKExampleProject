@@ -25,7 +25,7 @@ windows: &windows
     - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-07-06-132550-bk13082-f66f9113-d}"
     - "boot_disk_size_gb=500"
     - "experiment_normalised_upload_paths=true"
-  timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
+  timeout_in_minutes: 60
   retry:
     automatic:
       - <<: *agent_transients
