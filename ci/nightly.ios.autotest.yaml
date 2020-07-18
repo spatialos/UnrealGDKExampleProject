@@ -35,7 +35,7 @@ windows: &windows
 
 steps:
   - label: "auto-test-ios-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
-    command: "python ci\\auto-test.py ios ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
+    command: "python ci/auto-test.py ios ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
     <<: *windows 
     key: "auto-test-ios-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
     depends_on:
