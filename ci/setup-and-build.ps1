@@ -196,7 +196,7 @@ pushd "$exampleproject_home"
         Write-Output "auth_token: $auth_token"
         Write-Output "deployment_name: $deployment_name"
         $cookflavor = "Multi"
-        Set-Meta-Data -variable_name "android-flavor" -variable_value $cookflavor
+        buildkite-agent meta-data set "android-flavor" $cookflavor
         $cmdline="connect.to.spatialos -workerType UnrealClient +devauthToken $auth_token +deployment $deployment_name +linkProtocol Tcp"
 
         $argumentlist = @(`
@@ -233,8 +233,8 @@ pushd "$exampleproject_home"
             Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
         }
-        Set-Meta-Data -variable_name "$engine_commit_formated_hash-build-android-job-id" -variable_value "$env:BUILDKITE_JOB_ID"
-        Set-Meta-Data -variable_name "$engine_commit_formated_hash-build-android-queue-id" -variable_value "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
+        buildkite-agent meta-data set "$engine_commit_formated_hash-build-android-job-id" "$env:BUILDKITE_JOB_ID"
+        buildkite-agent meta-data set "$engine_commit_formated_hash-build-android-queue-id" "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
     Finish-Event "build-android-client" $parent_event_name
     
     # Deploy the project to SpatialOS

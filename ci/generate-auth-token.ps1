@@ -42,7 +42,7 @@ Start-Event "generate-project-name" $parent_event_name
     for ($i = 0; $i -lt $engine_version_count; $i++){
         $index = "$($i+1)"
         $deployment_name = "exampleproject$(${index})_${date_and_time}_$($gdk_commit_hash)"
-        Set-Meta-Data -variable_name "deployment-name-$index" "$deployment_name"
+        buildkite-agent meta-data set "deployment-name-$index" "$deployment_name"
     }
 Finish-Event "generate-project-name" $parent_event_name
 
@@ -58,7 +58,7 @@ pushd "$exampleproject_home"
                 Throw "dev auth token not found"
             }
             $auth_token = $matches[1]
-            Set-Meta-Data -variable_name "auth-token" "$auth_token"
+            buildkite-agent meta-data set "auth-token" "$auth_token"
             Write-Output "auth_token:$auth_token"
         Finish-Event "generate-auth-token" $parent_event_name
     popd

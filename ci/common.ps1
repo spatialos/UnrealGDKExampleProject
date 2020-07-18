@@ -19,7 +19,7 @@ function Start-Event() {
     )
 
     # Start this tracing span
-    Start-Process -NoNewWindow "imp-ci"  -ArgumentList @(`
+    Start-Process -NoNewWindow "imp-ci" -ArgumentList @(`
         "events", "new", `
         "--name", "$($event_name)", `
         "--child-of", "$($event_parent)"
@@ -32,8 +32,9 @@ function Finish-Event() {
         [string] $event_name,
         [string] $event_parent
     )
-    # Emit the end marker for this tracing span.
-    Start-Process -NoNewWindow "imp-ci"  -ArgumentList @(`
+    
+    # Emit the end marker for this tracing span
+    Start-Process -NoNewWindow "imp-ci" -ArgumentList @(`
         "events", "new", `
         "--name", "$($event_name)", `
         "--child-of", "$($event_parent)"
@@ -53,15 +54,6 @@ function Get-Env-Variable-Value-Or-Default() {
     } Else {
         return $default_value
     }
-}
-
-function Set-Meta-Data() {
-    param(
-        [string] $variable_name,
-        [string] $variable_value
-    )
-
-    buildkite-agent meta-data set $variable_name $variable_value
 }
 
 $ErrorActionPreference = 'Stop'
