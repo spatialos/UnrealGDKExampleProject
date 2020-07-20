@@ -71,7 +71,9 @@ steps:
     env:
       ENGINE_VERSION: "${ENGINE_VERSION}"
     <<: *script_runner
-  - wait: ~
+
+  - wait: 
+
   - label: "slack-notify"
     if: |
       build.env("NIGHTLY_BUILD") == "true" || 
