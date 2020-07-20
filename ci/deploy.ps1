@@ -26,7 +26,7 @@ Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     Write-Output "assembly_name: ${assembly_name}"
 
 pushd "spatial"
-    Start-Event "build-worker-configurations" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
+    Start-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
         $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
             "build", `
             "build-config"
@@ -36,9 +36,9 @@ pushd "spatial"
             Write-Log "Failed to build worker configurations for the project. Error: $($build_configs_process.ExitCode)"
             Throw "Failed to build worker configurations"
         }
-    Finish-Event "build-worker-configurations" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
+    Finish-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
 
-    Start-Event "prepare-for-run" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
+    Start-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
         $prepare_for_run_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
             "prepare-for-run", `
             "--log_level=debug"
@@ -48,10 +48,10 @@ pushd "spatial"
             Write-Log "Failed to prepare for a Spatial cloud launch. Error: $($prepare_for_run_process.ExitCode)"
             Throw "Spatial prepare for run failed"
         }
-    Finish-Event "prepare-for-run" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
+    Finish-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
     
 
-    Start-Event "upload-assemblies" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
+    Start-Event "upload-assemblies" "deploy-unreal-gdk-example-project-:windows:"
         $upload_assemblies_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
             "cloud", `
             "upload", `
@@ -65,9 +65,9 @@ pushd "spatial"
             Write-Log "Failed to upload assemblies to cloud. Error: $($upload_assemblies_process.ExitCode)"
             Throw "Failed to upload assemblies"
         }
-    Finish-Event "upload-assemblies" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
+    Finish-Event "upload-assemblies" "deploy-unreal-gdk-example-project-:windows:"
 
-    Start-Event "launch-deployment" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
+    Start-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
         # Determine whether deployment should be launched (it will by default)
         if ($launch_deployment -eq "true") {
             $launch_deployment_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
@@ -93,6 +93,6 @@ pushd "spatial"
         } else {
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
-    Finish-Event "launch-deployment" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
+    Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
 popd
 Finish-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
