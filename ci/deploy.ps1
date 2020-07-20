@@ -83,7 +83,7 @@ pushd "spatial"
                 "--snapshot=$deployment_snapshot_path", `
                 "--cluster_region=$deployment_cluster_region", `
                 "--log_level=debug", `
-                "--tags=ttl_1_hours", `
+                "--tags=ttl_1_hours;dev_login", `
                 "--deployment_description=`"Engine commit: $($env:ENGINE_COMMIT_HASH)`"" `
             )
 
@@ -96,21 +96,5 @@ pushd "spatial"
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
     Finish-Event "launch-deployment" $deploy_parent_event_name
-
-    Start-Event "add-dev-login-tag" $deploy_parent_event_name
-        $add_dev_login_tag = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
-            "project", `
-            "deployment", `
-            "tags", `
-            "add", `
-            "--project_name=$project_name", `
-            "$deployment_name", `
-            "dev_login"
-        )
-        if ($add_dev_login_tag.ExitCode -ne 0) {
-            Write-Log "Failed to add dev_login tag to the deployment. Error: $($add_dev_login_tag.ExitCode)"
-            Throw "Failed to add dev_login"
-        }
-    Finish-Event "add-dev-login-tag" $deploy_parent_event_name
 popd
 Finish-Event "deploy-game" $parent_event_name

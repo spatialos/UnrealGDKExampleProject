@@ -59,9 +59,9 @@ steps:
       - "generate-auth_token"
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
-      - "cooked-android-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER/**/*"
-      - "cooked-mac-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER/**/*"
-      - "cooked-ios-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER/**/*"
+      - "cooked-android/**/*"
+      - "cooked-mac/**/*"
+      - "cooked-ios/**/*"
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
       ENGINE_COMMIT_FORMATED_HASH: "ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
