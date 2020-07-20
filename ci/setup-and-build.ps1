@@ -97,20 +97,6 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
 
-    if($android_autotest -ne 0){
-        #generate-auth-ken need newest spatial
-        Start-Event "spatial-update" "build-unreal-gdk-example-project-:windows:"
-            $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
-                "update"
-            )
-
-            if ($build_configs_process.ExitCode -ne 0) {
-                Write-Log "Failed to update spatial. Error: $($build_configs_process.ExitCode)"
-                Throw "Failed to update spatial"
-            }
-        Finish-Event "spatial-update" "build-unreal-gdk-example-project-:windows:"
-    }
-
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
         $win64_folder = "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
