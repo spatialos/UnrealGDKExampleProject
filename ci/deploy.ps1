@@ -81,7 +81,7 @@ pushd "spatial"
                 "--snapshot=$deployment_snapshot_path", `
                 "--cluster_region=$deployment_cluster_region", `
                 "--log_level=debug", `
-                "--tags=ttl_1_hours;dev_login", `
+                "--tags=ttl_1_hours,dev_login", `
                 "--deployment_description=`"Engine commit: $($env:ENGINE_COMMIT_HASH)`"" `
             )
 
