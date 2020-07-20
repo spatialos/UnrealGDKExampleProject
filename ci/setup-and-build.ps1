@@ -102,12 +102,13 @@ pushd "$exampleproject_home"
         $win64_folder = "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
         pushd $win64_folder
             $UE4Editor=((Convert-Path .) + "\UE4Editor-Cmd.exe")
+            $MapPaths=`"/Maps/$env:MAIN_MAP_NAME`"
             $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$game_project", `
                 "-run=CookAndGenerateSchema", `
                 "-targetplatform=LinuxServer", `
                 "-SkipShaderCompile", `
-                "-map=`"/Maps/$env:MAIN_MAP_NAME`""
+                "-map=$MapPaths"
             )
             $schema_gen_handle = $schema_gen_proc.Handle
             Wait-Process -InputObject $schema_gen_proc
@@ -119,7 +120,7 @@ pushd "$exampleproject_home"
             $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$game_project", `
                 "-run=GenerateSnapshot", `
-                "-MapPaths=`"/Maps/$env:MAIN_MAP_NAME`""
+                "-MapPaths=$MapPaths"
             )
             $snapshot_gen_handle = $snapshot_gen_proc.Handle
             Wait-Process -InputObject $snapshot_gen_proc
