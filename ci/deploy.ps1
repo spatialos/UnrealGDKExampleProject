@@ -95,4 +95,4 @@ pushd "spatial"
         }
     Finish-Event "launch-deployment" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
 popd
-Finish-Event "deploy-game" $parent_event_name
+Finish-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
