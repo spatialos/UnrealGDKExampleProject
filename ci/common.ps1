@@ -24,6 +24,7 @@ function Start-Event() {
         "--name", "$($event_name)", `
         "--child-of", "$($event_parent)"
     ) | Out-Null
+
     Write-Log "--- $($event_name)"
 }
 
@@ -31,9 +32,10 @@ function Finish-Event() {
     param(
         [string] $event_name,
         [string] $event_parent
-    )    
-    # Emit the end marker for this tracing span
-    Start-Process -NoNewWindow "imp-ci" -ArgumentList @(`
+    )
+
+    # Emit the end marker for this tracing span.
+    Start-Process -NoNewWindow "imp-ci"  -ArgumentList @(`
         "events", "new", `
         "--name", "$($event_name)", `
         "--child-of", "$($event_parent)"
