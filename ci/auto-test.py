@@ -117,7 +117,7 @@ def gcloud_upload(app_platform, app_path):
 def get_gcs_and_local_path(app_platform, engine_commit_formated_hash):
     filename = ''
     localfilename = ''
-    path = 'cooked-%s-%s' % (app_platform, engine_commit_formated_hash)
+    path = 'cooked-%s' % app_platform
     if app_platform == 'android':
         android_flavor = common.get_buildkite_meta_data('android-flavor')
         localfilename = common.get_environment_variable('ANDROID_FILENAME','GDKShooter-armv7-es2.apk')
