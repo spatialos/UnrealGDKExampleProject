@@ -31,8 +31,7 @@ function Finish-Event() {
     param(
         [string] $event_name,
         [string] $event_parent
-    )
-    
+    )    
     # Emit the end marker for this tracing span
     Start-Process -NoNewWindow "imp-ci" -ArgumentList @(`
         "events", "new", `

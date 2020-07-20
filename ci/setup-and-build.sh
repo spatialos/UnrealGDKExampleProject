@@ -100,12 +100,12 @@ pushd "$(dirname "$0")"
                 -targetplatform=MacNoEditor \
                 -SkipShaderCompile \
                 -unversioned \
-                -map="/Maps/$env:MAIN_MAP_NAME"
+                -map="/Maps/$MAIN_MAP_NAME"
 
             UE4Editor.app/Contents/MacOS/UE4Editor \
                 "${GAME_PROJECT}" \
                 -run=GenerateSchemaAndSnapshots \
-                -MapPaths="/Maps/$env:MAIN_MAP_NAME" \
+                -MapPaths="/Maps/$MAIN_MAP_NAME" \
                 -SkipSchema
         popd
     popd

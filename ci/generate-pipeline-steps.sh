@@ -1,8 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-BUILDKITE_TEMPLATE_FILE=ci/nightly.template.steps.yaml
-
 # Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against.
 # This is not the pinnacle of engineering, as we rely on GitHub's web interface to download the file, but it seems like GitHub disallows git archive
 # which would be our other option for downloading a single file.
