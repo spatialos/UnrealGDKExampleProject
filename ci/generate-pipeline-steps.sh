@@ -2,8 +2,6 @@
 set -euo pipefail
 
 BUILDKITE_TEMPLATE_FILE=ci/nightly.template.steps.yaml
-SETUP_BUILD_COMMAND_BASH="./ci/setup-and-build.sh"
-SETUP_BUILD_COMMAND_PS="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
 
 # Download the unreal-engine.version file from the GDK repo so we can run the example project builds on the same versions the GDK was run against.
 # This is not the pinnacle of engineering, as we rely on GitHub's web interface to download the file, but it seems like GitHub disallows git archive
@@ -29,7 +27,6 @@ if [ -z "${GDK_BRANCH_LOCAL}" ]; then
     fi
 fi
 
-echo "--- number-of-tries"
 NUMBER_OF_TRIES=0
 while [ $NUMBER_OF_TRIES -lt 5 ]; do
     CURL_TIMEOUT=$((10<<NUMBER_OF_TRIES))
@@ -99,6 +96,12 @@ insert_auto_test_steps(){
 
 insert_setup_build_steps(){
     version="${1}"
+    #command line run on mac agent
+    SETUP_BUILD_COMMAND_BASH="./ci/setup-and-build.sh"
+
+    #command line run on windows agent
+    SETUP_BUILD_COMMAND_PS="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
+
     if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo "--- insert-setup-and-build-step-on-mac"

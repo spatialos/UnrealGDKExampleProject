@@ -59,6 +59,7 @@ env:
     ANDROID_FILENAME: "GDKShooter-armv7-es2.apk"
     IOS_FILENAME: "GDKShooter.ipa"
     GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
+    MAIN_MAP_NAME: "Control_Small"
     SPATIAL_PROJECT_NAME: "unreal_gdk"
     SPATIAL_RUNTIME_VERSION: "0.4.3" ## the runtime version of SpatialOS
 

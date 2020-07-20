@@ -1,12 +1,11 @@
 param(
   [string] $launch_deployment = "false",
-  [string] $gdk_branch_name = "master",
-  [string] $parent_event_name = "deploy-unreal-gdk-example-project-:windows:"
+  [string] $gdk_branch_name = "master"
 )
 
 . "$PSScriptRoot\common.ps1"
 
-Start-Event "deploy-game" $parent_event_name
+Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment
     $android_autotest = buildkite-agent meta-data get "android-autotest"
     if ($android_autotest -eq "1") {
@@ -26,9 +25,8 @@ Start-Event "deploy-game" $parent_event_name
     Write-Output "deployment_name: ${deployment_name}"
     Write-Output "assembly_name: ${assembly_name}"
 
-    $deploy_parent_event_name = "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
 pushd "spatial"
-    Start-Event "build-worker-configurations" $deploy_parent_event_name
+    Start-Event "build-worker-configurations" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
         $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
             "build", `
             "build-config"
@@ -38,9 +36,9 @@ pushd "spatial"
             Write-Log "Failed to build worker configurations for the project. Error: $($build_configs_process.ExitCode)"
             Throw "Failed to build worker configurations"
         }
-    Finish-Event "build-worker-configurations" $deploy_parent_event_name
+    Finish-Event "build-worker-configurations" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
 
-    Start-Event "prepare-for-run" $deploy_parent_event_name
+    Start-Event "prepare-for-run" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
         $prepare_for_run_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
             "prepare-for-run", `
             "--log_level=debug"
@@ -50,10 +48,10 @@ pushd "spatial"
             Write-Log "Failed to prepare for a Spatial cloud launch. Error: $($prepare_for_run_process.ExitCode)"
             Throw "Spatial prepare for run failed"
         }
-    Finish-Event "prepare-for-run" $deploy_parent_event_name
+    Finish-Event "prepare-for-run" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
     
 
-    Start-Event "upload-assemblies" $deploy_parent_event_name
+    Start-Event "upload-assemblies" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
         $upload_assemblies_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
             "cloud", `
             "upload", `
@@ -67,9 +65,9 @@ pushd "spatial"
             Write-Log "Failed to upload assemblies to cloud. Error: $($upload_assemblies_process.ExitCode)"
             Throw "Failed to upload assemblies"
         }
-    Finish-Event "upload-assemblies" $deploy_parent_event_name
+    Finish-Event "upload-assemblies" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
 
-    Start-Event "launch-deployment" $deploy_parent_event_name
+    Start-Event "launch-deployment" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
         # Determine whether deployment should be launched (it will by default)
         if ($launch_deployment -eq "true") {
             $launch_deployment_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
@@ -95,6 +93,6 @@ pushd "spatial"
         } else {
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
-    Finish-Event "launch-deployment" $deploy_parent_event_name
+    Finish-Event "launch-deployment" "deploy-cloud-deployment-of-unreal-gdk-example-project-:windows:"
 popd
 Finish-Event "deploy-game" $parent_event_name

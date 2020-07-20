@@ -100,12 +100,12 @@ pushd "$(dirname "$0")"
                 -targetplatform=MacNoEditor \
                 -SkipShaderCompile \
                 -unversioned \
-                -map="/Maps/Control_Small"
+                -map="/Maps/$env:MAIN_MAP_NAME"
 
             UE4Editor.app/Contents/MacOS/UE4Editor \
                 "${GAME_PROJECT}" \
                 -run=GenerateSchemaAndSnapshots \
-                -MapPaths="/Maps/Control_Small" \
+                -MapPaths="/Maps/$env:MAIN_MAP_NAME" \
                 -SkipSchema
         popd
     popd
@@ -141,7 +141,7 @@ pushd "$(dirname "$0")"
         "${EXAMPLEPROJECT_HOME}" \
         "Development" \
         "IOS" \
-        "${EXAMPLEPROJECT_HOME}/cooked-ios-${ENGINE_COMMIT_FORMATED_HASH}" \
+        "${EXAMPLEPROJECT_HOME}/cooked-ios" \
         "" \
         "${CMDLINE}"
 popd
