@@ -1,7 +1,6 @@
 param(
   [string] $exampleproject_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
   [string] $deployment_launch_configuration = "one_worker_test.json",
-  [string] $deployment_snapshot_path = "snapshots/$env:MAIN_MAP_NAME.snapshot",
   [string] $deployment_cluster_region = "eu",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
   [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine"
@@ -15,6 +14,9 @@ $gdk_repo = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_RE
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATED_HASH" -default_value "0"
+$main_map_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAIN_MAP_NAME" -default_value "Control_Small"
+
+
 $android_autotest = buildkite-agent meta-data get "android-autotest"           
 
 $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
@@ -40,7 +42,7 @@ pushd "$exampleproject_home"
         pushd $gdk_home
             # Get the short commit hash of this gdk build for later use in assembly name
             $gdk_commit_hash = (git rev-parse HEAD).Substring(0,6)
-            Write-Output "GDK at commit: $gdk_commit_hash on branch $gdk_branch_name"
+            Write-Log "GDK at commit: $gdk_commit_hash on branch $gdk_branch_name"
         popd
     Finish-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
 
@@ -102,13 +104,12 @@ pushd "$exampleproject_home"
         $win64_folder = "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
         pushd $win64_folder
             $UE4Editor=((Convert-Path .) + "\UE4Editor-Cmd.exe")
-            $MapPaths=`"/Maps/$env:MAIN_MAP_NAME`"
             $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$game_project", `
                 "-run=CookAndGenerateSchema", `
                 "-targetplatform=LinuxServer", `
                 "-SkipShaderCompile", `
-                "-map=$MapPaths"
+                "-map=`"$main_map_name`""
             )
             $schema_gen_handle = $schema_gen_proc.Handle
             Wait-Process -InputObject $schema_gen_proc
@@ -120,7 +121,7 @@ pushd "$exampleproject_home"
             $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$game_project", `
                 "-run=GenerateSnapshot", `
-                "-MapPaths=$MapPaths"
+                "-MapPaths=`"$main_map_name`""
             )
             $snapshot_gen_handle = $snapshot_gen_proc.Handle
             Wait-Process -InputObject $snapshot_gen_proc

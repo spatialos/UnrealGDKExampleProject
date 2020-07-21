@@ -33,6 +33,7 @@ Start-Event "slack-notify" "slack-notify"
         attachments= @(
                 @{
                     fallback = "Find build here: $build_url."
+                    color = "good"
                     fields = @(
                             if ($android_autotest -eq "1") { 
                                 @{
@@ -104,5 +105,6 @@ Start-Event "slack-notify" "slack-notify"
     }
 
     $json_request = $json_message | ConvertTo-Json -Depth 10
+    
     Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
 Finish-Event "slack-notify" "slack-notify"

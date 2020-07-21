@@ -78,7 +78,7 @@ pushd "spatial"
                 "$deployment_name", `
                 "--runtime_version=$runtime_version", `
                 "--project_name=$project_name", `
-                "--snapshot=$deployment_snapshot_path", `
+                "--snapshot=snapshots/$main_map_name.snapshot", `
                 "--cluster_region=$deployment_cluster_region", `
                 "--log_level=debug", `
                 "--tags=ttl_1_hours,dev_login", `
