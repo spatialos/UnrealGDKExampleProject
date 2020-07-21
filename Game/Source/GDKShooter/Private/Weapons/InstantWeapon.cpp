@@ -8,6 +8,8 @@
 #include "GDKLogging.h"
 #include "Net/UnrealNetwork.h"
 
+#include "BlastRuntime/Public/BlastMeshActor.h"
+#include "BlastRuntime/Public/TestBlastMesh/TestBlastMeshActor.h"
 
 AInstantWeapon::AInstantWeapon()
 {
@@ -47,6 +49,10 @@ void AInstantWeapon::StopPrimaryUse_Implementation()
 
 void AInstantWeapon::DoFire_Implementation()
 {
+	bool bFlag = GetGameInstance()->IsDedicatedServerInstance();
+	FString serverString = bFlag ? "SERVER" : "CLIENT";
+	UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation, %s"), *serverString);
+
 	if (!bIsActive)
 	{
 		IsPrimaryUsing = false;
@@ -62,12 +68,30 @@ void AInstantWeapon::DoFire_Implementation()
 		ServerDidHit(HitInfo);
 		SpawnFX(HitInfo, true);  // Spawn the hit fx locally
 		AnnounceShot(HitInfo.HitActor ? HitInfo.HitActor->CanBeDamaged() : false);
+
+		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 11111111111, %s"), *serverString);
+
+		REAL_BLAST_MESH_ACTOR* blastActor = Cast<REAL_BLAST_MESH_ACTOR>(HitInfo.HitActor);
+		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 22222222222222222222222, %s"), *serverString);
+
+		if (blastActor)
+		{
+			UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 33333333333333333333, %s"), *serverString);
+			REAL_BLAST_MESH_COMPONENT* blastComp = Cast<REAL_BLAST_MESH_COMPONENT>(blastActor->GetBlastMeshComponent());
+			if (blastComp)
+			{
+				UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 44444444444444444444444, %s"), *serverString);
+				blastComp->ApplyRadialDamage(HitInfo.Location, 80, 200, 500, 1000);
+			}
+		}
 	}
 	else
 	{
 		ServerDidMiss(HitInfo);
 		SpawnFX(HitInfo, false);  // Spawn the hit fx locally
 		AnnounceShot(false);
+
+		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 2222222222222, %s"), *serverString);
 	}
 
 	if (IsBurstFire())
@@ -175,10 +199,28 @@ void AInstantWeapon::DealDamage(const FInstantHitInfo& HitInfo)
 	FPointDamageEvent DmgEvent;
 	DmgEvent.DamageTypeClass = DamageTypeClass;
 	DmgEvent.HitInfo.ImpactPoint = HitInfo.Location;
+	
+	bool bFlag = GetGameInstance()->IsDedicatedServerInstance();
+	FString serverString = bFlag ? "SERVER" : "CLIENT";
+	UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DealDamage, %s"), *serverString);
 
 	if (APawn* Pawn = Cast<APawn>(GetOwner()))
 	{
 		HitInfo.HitActor->TakeDamage(ShotBaseDamage, DmgEvent, Pawn->GetController(), this);
+
+		REAL_BLAST_MESH_ACTOR* blastActor = Cast<REAL_BLAST_MESH_ACTOR>(HitInfo.HitActor);
+		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DealDamage 1111111111111111, %s"), *serverString);
+
+		if (blastActor)
+		{
+			UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DealDamage 22222222222222222222, %s"), *serverString);
+			REAL_BLAST_MESH_COMPONENT* blastComp = Cast<REAL_BLAST_MESH_COMPONENT>(blastActor->GetBlastMeshComponent());
+			if (blastComp)
+			{
+				UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DealDamage 3333333333333333333333333, %s"), *serverString);
+				blastComp->ApplyRadialDamage(HitInfo.Location, 80, 200, 500, 1000);
+			}
+		}
 	}
 }
 
@@ -189,17 +231,21 @@ bool AInstantWeapon::ServerDidHit_Validate(const FInstantHitInfo& HitInfo)
 
 void AInstantWeapon::ServerDidHit_Implementation(const FInstantHitInfo& HitInfo)
 {
-
+	bool bFlag = GetGameInstance()->IsDedicatedServerInstance();
+	FString serverString = bFlag ? "SERVER" : "CLIENT";
+	UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::ServerDidHit_Implementation, %s"), *serverString);
 	bool bDoNotifyHit = false;
 
 	if (HitInfo.HitActor == nullptr)
 	{
+		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::ServerDidHit_Implementation 1111111, %s"), *serverString);
 		bDoNotifyHit = true;
 	}
 	else
 	{
 		if (ValidateHit(HitInfo))
 		{
+			UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::ServerDidHit_Implementation 222222222222222, %s"), *serverString);
 			DealDamage(HitInfo);
 			bDoNotifyHit = true;
 		}
