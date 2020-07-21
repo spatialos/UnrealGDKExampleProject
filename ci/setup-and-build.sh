@@ -15,7 +15,6 @@ run_uat() {
     ARCHIVE_DIRECTORY="${5}"
     ADDITIONAL_UAT_FLAGS="${6:-}"
     COMMAND_LINE="${7:-}"
-    echo "RunUAT.sh=${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh"
     GAME_PROJECT="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
 
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \

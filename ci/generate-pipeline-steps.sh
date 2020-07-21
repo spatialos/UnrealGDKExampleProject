@@ -134,7 +134,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
     #  turn on firebase auto test steps
     echo "--- handle-firebase-steps"
     if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then        
-        echo "--- add-auto-test-steps"
+        echo "--- insert-auto-test-steps"
         COUNT=1
         for VERSION in ${VERSIONS}; do
             echo --- handle-autotest-:${VERSION}-COUNT:${COUNT}

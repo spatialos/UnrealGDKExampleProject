@@ -1,9 +1,10 @@
 . "$PSScriptRoot\common.ps1"
-$project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
+
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $slack_channel = Get-Env-Variable-Value-Or-Default -environment_variable_name "SLACK_CHANNEL" -default_value "#unreal-gdk-builds"
 $engine_version_count = buildkite-agent meta-data get "engine-version-count"
+$project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
 $gdk_commit_hash = buildkite-agent meta-data get "gdk_commit_hash"
 $android_autotest = buildkite-agent meta-data get "android-autotest"
 $ios_autotest = buildkite-agent meta-data get "ios-autotest"
@@ -49,20 +50,19 @@ Start-Event "slack-notify" "slack-notify"
                                     short = "true"
                                 }
                             }
-                            $build_message = "$env:BUILDKITE_MESSAGE".Substring(0, [System.Math]::Min(64, "$env:BUILDKITE_MESSAGE".Length))
                             @{
                                 title = "Build Message"
-                                value = "``$build_message``"
+                                value = "$env:BUILDKITE_MESSAGE".Substring(0, [System.Math]::Min(64, "$env:BUILDKITE_MESSAGE".Length)) 
                                 short = "true"
                             }
                             @{
                                 title = "Example Project branch"
-                                value = "``$env:BUILDKITE_BRANCH``"
+                                value = "$env:BUILDKITE_BRANCH"
                                 short = "true"
                             }
                             @{
                                 title = "GDK branch"
-                                value = "``$gdk_branch_name``"
+                                value = "$gdk_branch_name"
                                 short = "true"
                             }
                         )
@@ -96,7 +96,7 @@ Start-Event "slack-notify" "slack-notify"
             $deployment_url = "https://console.improbable.io/projects/${project_name}/deployments/${deployment_name}/overview"
             $deployment_button = @{
                                 type = "button"
-                                text = ":cloud: Deployment $deployment_name"
+                                text = ":cloud: Deployment $($i+1)"
                                 url = "$deployment_url"
                                 style = "primary"
                             }
@@ -105,6 +105,6 @@ Start-Event "slack-notify" "slack-notify"
     }
 
     $json_request = $json_message | ConvertTo-Json -Depth 10
-    
+
     Invoke-WebRequest -UseBasicParsing "$slack_webhook_url" -ContentType "application/json" -Method POST -Body "$json_request"
 Finish-Event "slack-notify" "slack-notify"

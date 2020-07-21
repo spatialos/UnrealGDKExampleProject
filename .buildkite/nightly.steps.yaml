@@ -72,7 +72,7 @@ steps:
       ENGINE_VERSION: "${ENGINE_VERSION}"
     <<: *script_runner
 
-  - wait: 
+  - wait:
 
   - label: "slack-notify"
     if: |
