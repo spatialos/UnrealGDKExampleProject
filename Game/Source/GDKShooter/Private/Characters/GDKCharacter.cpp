@@ -10,6 +10,7 @@
 #include "GDKLogging.h"
 #include "Controllers/GDKPlayerController.h"
 #include "Controllers/Components/ControllerEventsComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Weapons/Holdable.h"
 
 AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
@@ -78,6 +79,9 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("ToggleMode", IE_Pressed, EquippedComponent, &UEquippedComponent::ToggleMode);
 	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollUp);
 	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollDown);
+
+	// yunjie: testing codes
+	PlayerInputComponent->BindAction("1", IE_Pressed, this, &AGDKCharacter::PrintCurrentBlastInfos);
 }
 
 void AGDKCharacter::MoveForward(float Value)
@@ -218,12 +222,23 @@ void AGDKCharacter::OnCapsuleCompHit(UPrimitiveComponent* HitComp, AActor* Other
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
 		// if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
-		FString WorkerId = GetGameInstance()->GetSpatialWorkerId();
-		FString WorkerType = GetGameInstance()->GetSpatialWorkerType().ToString();
-		FString WorkerLabel = GetGameInstance()->GetSpatialWorkerLabel();
-		FString Authority = this->HasAuthority() ? "YES" : "NO";
 
-		// UE_LOG(LogGDK, Warning, TEXT("WorkerId:[%s] WorkerType:[%s] WorkerLabel:[%s] Name:[%s] OtherActorName:[%s] Authority:[%s]"), *WorkerId, *WorkerType, *WorkerLabel, *GetFName().ToString(), *OtherActor->GetFName().ToString(), *Authority);
+		FString WorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+		FString WorkerType = GetWorld()->GetGameInstance()->GetSpatialWorkerType().ToString();
+		FString WorkerLabel = GetWorld()->GetGameInstance()->GetSpatialWorkerLabel();
+		FString IsServer = GetWorld()->GetGameInstance()->IsDedicatedServerInstance() ? "YES" : "NO";
+		FString Authority = this->GetOwner()->HasAuthority() ? "YES" : "NO";
+
+		UE_LOG(LogGDK, Warning, TEXT("%s - WorkerId:[%s] WorkerType:[%s] WorkerLabel:[%s] Name:[%s] OtherActorName:[%s] IsServer:[%s] Authority:[%s]"),
+			*FString(__FUNCTION__), *WorkerId, *WorkerType, *WorkerLabel, *GetFName().ToString(), *OtherActor->GetFName().ToString(), *IsServer, *Authority);
 	}
+}
+
+void AGDKCharacter::PrintCurrentBlastInfos()
+{
+	TArray<AActor*> FoundBlastActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
+
+	UE_LOG(LogGDK, Warning, TEXT("BlastActor:[%d]"), FoundBlastActors.Num());
 }
 

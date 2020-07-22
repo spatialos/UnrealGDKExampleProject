@@ -94,4 +94,7 @@ public:
 
 	UFUNCTION(CrossServer, Reliable)
 	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+
+private:
+	void PrintCurrentBlastInfos();
 };

@@ -8,9 +8,6 @@
 #include "GDKLogging.h"
 #include "Net/UnrealNetwork.h"
 
-#include "BlastRuntime/Public/BlastMeshActor.h"
-#include "BlastRuntime/Public/TestBlastMesh/TestBlastMeshActor.h"
-
 AInstantWeapon::AInstantWeapon()
 {
 	BurstInterval = 0.5f;
@@ -69,19 +66,14 @@ void AInstantWeapon::DoFire_Implementation()
 		SpawnFX(HitInfo, true);  // Spawn the hit fx locally
 		AnnounceShot(HitInfo.HitActor ? HitInfo.HitActor->CanBeDamaged() : false);
 
-		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 11111111111, %s"), *serverString);
-
 		REAL_BLAST_MESH_ACTOR* blastActor = Cast<REAL_BLAST_MESH_ACTOR>(HitInfo.HitActor);
-		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 22222222222222222222222, %s"), *serverString);
 
 		if (blastActor)
 		{
-			UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 33333333333333333333, %s"), *serverString);
 			REAL_BLAST_MESH_COMPONENT* blastComp = Cast<REAL_BLAST_MESH_COMPONENT>(blastActor->GetBlastMeshComponent());
 			if (blastComp)
 			{
-				UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 44444444444444444444444, %s"), *serverString);
-				blastComp->ApplyRadialDamage(HitInfo.Location, 80, 200, 500, 1000);
+				blastComp->ApplyRadialDamage(HitInfo.Location, 50, 80, 100, 100);
 			}
 		}
 	}
@@ -90,8 +82,6 @@ void AInstantWeapon::DoFire_Implementation()
 		ServerDidMiss(HitInfo);
 		SpawnFX(HitInfo, false);  // Spawn the hit fx locally
 		AnnounceShot(false);
-
-		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation 2222222222222, %s"), *serverString);
 	}
 
 	if (IsBurstFire())
@@ -207,20 +197,6 @@ void AInstantWeapon::DealDamage(const FInstantHitInfo& HitInfo)
 	if (APawn* Pawn = Cast<APawn>(GetOwner()))
 	{
 		HitInfo.HitActor->TakeDamage(ShotBaseDamage, DmgEvent, Pawn->GetController(), this);
-
-		REAL_BLAST_MESH_ACTOR* blastActor = Cast<REAL_BLAST_MESH_ACTOR>(HitInfo.HitActor);
-		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DealDamage 1111111111111111, %s"), *serverString);
-
-		if (blastActor)
-		{
-			UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DealDamage 22222222222222222222, %s"), *serverString);
-			REAL_BLAST_MESH_COMPONENT* blastComp = Cast<REAL_BLAST_MESH_COMPONENT>(blastActor->GetBlastMeshComponent());
-			if (blastComp)
-			{
-				UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DealDamage 3333333333333333333333333, %s"), *serverString);
-				blastComp->ApplyRadialDamage(HitInfo.Location, 80, 200, 500, 1000);
-			}
-		}
 	}
 }
 
@@ -238,20 +214,29 @@ void AInstantWeapon::ServerDidHit_Implementation(const FInstantHitInfo& HitInfo)
 
 	if (HitInfo.HitActor == nullptr)
 	{
-		UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::ServerDidHit_Implementation 1111111, %s"), *serverString);
 		bDoNotifyHit = true;
 	}
 	else
 	{
-		if (ValidateHit(HitInfo))
+		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(HitInfo.HitActor);
+		UE_LOG(LogGDK, Warning, TEXT("%s - hit something!!!!!!!!!!!"), *FString(__FUNCTION__));
+		if (BlastActor)
 		{
-			UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::ServerDidHit_Implementation 222222222222222, %s"), *serverString);
-			DealDamage(HitInfo);
-			bDoNotifyHit = true;
+			UE_LOG(LogGDK, Warning, TEXT("%s - hit blast actor!!!!!!!!!!!"), *FString(__FUNCTION__));
+			// yunjie: special case for blast actor, should be forwarded to offloading unreal worker
+			BlastActor->CrossServerApplyDamage(HitInfo.Location, 50, 80, 100, 100, true);
 		}
 		else
 		{
-			UE_LOG(LogGDK, Verbose, TEXT("%s server: rejected hit of actor %s"), *this->GetName(), *HitInfo.HitActor->GetName());
+			if (ValidateHit(HitInfo))
+			{
+				DealDamage(HitInfo);
+				bDoNotifyHit = true;
+			}
+			else
+			{
+				UE_LOG(LogGDK, Verbose, TEXT("%s server: rejected hit of actor %s"), *this->GetName(), *HitInfo.HitActor->GetName());
+			}
 		}
 	}
 
