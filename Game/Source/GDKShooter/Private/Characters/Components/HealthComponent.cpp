@@ -79,7 +79,11 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 		APlayerState* InstigatorPlayerState = EventInstigator->PlayerState;
 		if (InstigatorPlayerState != nullptr)
 		{
+#if ENGINE_MINOR_VERSION <= 24
 			InstigatorPlayerId = InstigatorPlayerState->PlayerId;
+#else
+			InstigatorPlayerId = InstigatorPlayerState->GetPlayerId();
+#endif
 			if (const UTeamComponent* TeamComponent = InstigatorPlayerState->FindComponentByClass<UTeamComponent>())
 			{
 				InstigatorTeamId = TeamComponent->GetTeam();
