@@ -1,9 +1,10 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "Controllers/Components/ControllerEventsComponent.h"
+
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerState.h"
-
+#include "Runtime/Launch/Resources/Version.h"
 
 UControllerEventsComponent::UControllerEventsComponent()
 {

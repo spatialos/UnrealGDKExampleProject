@@ -1,8 +1,10 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-
 #include "Game/Components/TeamDeathmatchScoreComponent.h"
+
 #include "Net/UnrealNetwork.h"
+#include "Runtime/Launch/Resources/Version.h"
+
 #include "Characters/Components/TeamComponent.h"
 
 UTeamDeathmatchScoreComponent::UTeamDeathmatchScoreComponent()

@@ -1,7 +1,9 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "Game/Components/DeathmatchScoreComponent.h"
+
 #include "Net/UnrealNetwork.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 UDeathmatchScoreComponent::UDeathmatchScoreComponent()
 {
