@@ -81,7 +81,11 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollDown);
 
 	// yunjie: testing codes
-	PlayerInputComponent->BindAction("1", IE_Pressed, this, &AGDKCharacter::PrintCurrentBlastInfos);
+	PlayerInputComponent->BindAction("1", IE_Pressed, this, &AGDKCharacter::ClientPrintCurrentBlastInfos);
+	PlayerInputComponent->BindAction("2", IE_Pressed, this, &AGDKCharacter::ServerPrintCurrentBlastInfos);
+	PlayerInputComponent->BindAction("3", IE_Pressed, this, &AGDKCharacter::ServerStartTimerToBlast);
+	PlayerInputComponent->BindAction("+", IE_Pressed, this, &AGDKCharacter::ServerIncreaseBlastActorCountPerSecond);
+	PlayerInputComponent->BindAction("-", IE_Pressed, this, &AGDKCharacter::ServerDecreaseBlastActorCountPerSecond);
 }
 
 void AGDKCharacter::MoveForward(float Value)
@@ -229,16 +233,127 @@ void AGDKCharacter::OnCapsuleCompHit(UPrimitiveComponent* HitComp, AActor* Other
 		FString IsServer = GetWorld()->GetGameInstance()->IsDedicatedServerInstance() ? "YES" : "NO";
 		FString Authority = this->GetOwner()->HasAuthority() ? "YES" : "NO";
 
+		/*
 		UE_LOG(LogGDK, Warning, TEXT("%s - WorkerId:[%s] WorkerType:[%s] WorkerLabel:[%s] Name:[%s] OtherActorName:[%s] IsServer:[%s] Authority:[%s]"),
 			*FString(__FUNCTION__), *WorkerId, *WorkerType, *WorkerLabel, *GetFName().ToString(), *OtherActor->GetFName().ToString(), *IsServer, *Authority);
+			*/
 	}
 }
 
-void AGDKCharacter::PrintCurrentBlastInfos()
+void AGDKCharacter::PrintCurrentBlastInfos(const FString& Func)
 {
+	FString FuncName = Func.IsEmpty() ? FString(__FUNCTION__) : Func;
+
 	TArray<AActor*> FoundBlastActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
 
-	UE_LOG(LogGDK, Warning, TEXT("BlastActor:[%d]"), FoundBlastActors.Num());
+	UE_LOG(LogGDK, Warning, TEXT("%s - BlastActor Total Count:[%d]"), *FuncName, FoundBlastActors.Num());
+
+	for (INT i = 0; i < FoundBlastActors.Num(); ++i)
+	{
+		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
+		if (BlastActor)
+		{
+			REAL_BLAST_MESH_COMPONENT* BlastComp = Cast<REAL_BLAST_MESH_COMPONENT>(BlastActor->GetBlastMeshComponent());
+			if (BlastComp)
+			{
+				UE_LOG(LogGDK, Warning, TEXT("%s - Index:[%d] Fracture Count:[%d]"), *FuncName, i, BlastComp->CanBeFracturedCount());
+			}
+		}
+	}
+}
+
+void AGDKCharacter::ClientPrintCurrentBlastInfos()
+{
+	PrintCurrentBlastInfos();
+}
+
+void AGDKCharacter::ServerPrintCurrentBlastInfos_Implementation()
+{
+	PrintCurrentBlastInfos(FString(__FUNCTION__));
+}
+
+void AGDKCharacter::CrossServerPrintCurrentBlastInfos_Implementation()
+{
+	PrintCurrentBlastInfos(FString(__FUNCTION__));
+}
+
+void AGDKCharacter::BlastTimerEvent()
+{
+	FString IsServer = GetGameInstance()->IsDedicatedServerInstance() ? "YES" : "NO";
+	UE_LOG(LogGDK, Warning, TEXT("%s - IsServer:[%s]"), *FString(__FUNCTION__), *IsServer);
+
+	INT BlastCount = 0;
+	TArray<AActor*> FoundBlastActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
+	for (INT i = 0; i < FoundBlastActors.Num(); ++i)
+	{
+		REAL_BLAST_MESH_ACTOR* TmpBlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
+		if (TmpBlastActor)
+		{
+			if (TmpBlastActor->GetAlreadyBlast())
+			{
+				continue;
+			}
+
+			REAL_BLAST_MESH_COMPONENT* BlastComp = Cast<REAL_BLAST_MESH_COMPONENT>(TmpBlastActor->GetBlastMeshComponent());
+			if (BlastComp)
+			{
+				if (BlastComp->CanBeFracturedCount() <= 0)
+				{
+					TmpBlastActor->SetAlreadyBlast();
+					continue;
+				}
+
+				TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 100, 200, 500, 100);
+				UE_LOG(LogGDK, Warning, TEXT("%s - Found one to blast, index:[%d]"), *FString(__FUNCTION__), i);
+
+				if (++BlastCount >= BlastActorCountPerSecond)
+				{
+					break;
+				}
+
+				REAL_BLAST_MESH_COMPONENT* Comp = Cast<REAL_BLAST_MESH_COMPONENT>(TmpBlastActor->GetBlastMeshComponent());
+				if (Comp)
+				{
+				}
+			}
+		}
+	}
+
+	BlastDelegate.BindUFunction(this, FName("BlastTimerEvent"));
+	GetWorldTimerManager().SetTimer(BlastTimer, BlastDelegate, 1, false);
+}
+
+void AGDKCharacter::ServerStartTimerToBlast_Implementation()
+{
+	if (!BlastTimer.IsValid())
+	{
+		UE_LOG(LogGDK, Warning, TEXT("%s - Set Timer"), *FString(__FUNCTION__));
+		BlastDelegate.BindUFunction(this, FName("BlastTimerEvent"));
+		GetWorldTimerManager().SetTimer(BlastTimer, BlastDelegate, 1, false);
+	}
+	else
+	{
+		UE_LOG(LogGDK, Warning, TEXT("%s - Clear Timer"), *FString(__FUNCTION__));
+		GetWorldTimerManager().ClearTimer(BlastTimer);
+	}
+}
+
+void AGDKCharacter::ServerIncreaseBlastActorCountPerSecond_Implementation()
+{
+	BlastActorCountPerSecond++;
+
+	UE_LOG(LogGDK, Warning, TEXT("%s - Count:[%d]"), *FString(__FUNCTION__), BlastActorCountPerSecond);
+}
+
+void AGDKCharacter::ServerDecreaseBlastActorCountPerSecond_Implementation()
+{
+	if (--BlastActorCountPerSecond <= 0)
+	{
+		BlastActorCountPerSecond = 1;
+	}
+
+	UE_LOG(LogGDK, Warning, TEXT("%s - Count:[%d]"), *FString(__FUNCTION__), BlastActorCountPerSecond);
 }
 

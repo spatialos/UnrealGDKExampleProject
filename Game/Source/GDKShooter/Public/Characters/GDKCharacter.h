@@ -96,5 +96,27 @@ public:
 	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 
 private:
-	void PrintCurrentBlastInfos();
+	void PrintCurrentBlastInfos(const FString& Func = "");
+	void ClientPrintCurrentBlastInfos();
+	UFUNCTION(Server, Reliable)
+	void ServerPrintCurrentBlastInfos();
+	UFUNCTION(CrossServer, Reliable)
+	void CrossServerPrintCurrentBlastInfos();
+
+	UFUNCTION(Server, Reliable)
+	void ServerStartTimerToBlast();
+
+	UFUNCTION(Server, Reliable)
+	void ServerIncreaseBlastActorCountPerSecond();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDecreaseBlastActorCountPerSecond();
+
+	UFUNCTION()
+	void BlastTimerEvent();
+
+	FTimerHandle BlastTimer;
+	FTimerDelegate BlastDelegate;
+
+	INT				BlastActorCountPerSecond = 1;
 };
