@@ -1,7 +1,9 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
 #include "Game/Components/DeathmatchScoreComponent.h"
+
 #include "Net/UnrealNetwork.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 UDeathmatchScoreComponent::UDeathmatchScoreComponent()
 {
@@ -18,10 +20,16 @@ void UDeathmatchScoreComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void UDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 {
-	if (!PlayerScoreMap.Contains(PlayerState->PlayerId))
+#if ENGINE_MINOR_VERSION <= 24
+	const int32 NewPlayerId = PlayerState->PlayerId;
+#else
+	const int32 NewPlayerId = PlayerState->GetPlayerId();
+#endif
+
+	if (!PlayerScoreMap.Contains(NewPlayerId))
 	{
 		FPlayerScore NewPlayerScore;
-		NewPlayerScore.PlayerId = PlayerState->PlayerId;
+		NewPlayerScore.PlayerId = NewPlayerId;
 		NewPlayerScore.PlayerName = PlayerState->GetPlayerName();
 		NewPlayerScore.Kills = 0;
 		NewPlayerScore.Deaths = 0;

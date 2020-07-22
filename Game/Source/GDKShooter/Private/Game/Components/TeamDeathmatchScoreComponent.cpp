@@ -1,8 +1,10 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-
 #include "Game/Components/TeamDeathmatchScoreComponent.h"
+
 #include "Net/UnrealNetwork.h"
+#include "Runtime/Launch/Resources/Version.h"
+
 #include "Characters/Components/TeamComponent.h"
 
 UTeamDeathmatchScoreComponent::UTeamDeathmatchScoreComponent()
@@ -29,12 +31,18 @@ void UTeamDeathmatchScoreComponent::SetTeamScores(TArray<FTeamScore> InitialTeam
 
 void UTeamDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 {
-	if (!PlayerScoreMap.Contains(PlayerState->PlayerId))
+#if ENGINE_MINOR_VERSION <= 24
+	const int32 NewPlayerId = PlayerState->PlayerId;
+#else
+	const int32 NewPlayerId = PlayerState->GetPlayerId();
+#endif
+
+	if (!PlayerScoreMap.Contains(NewPlayerId))
 	{
 		if (const UTeamComponent* TeamComponent = PlayerState->FindComponentByClass<UTeamComponent>())
 		{
 			FPlayerScore NewPlayerScore;
-			NewPlayerScore.PlayerId = PlayerState->PlayerId;
+			NewPlayerScore.PlayerId = NewPlayerId;
 			NewPlayerScore.PlayerName = PlayerState->GetPlayerName();
 			NewPlayerScore.Kills = 0;
 			NewPlayerScore.Deaths = 0;
@@ -70,7 +78,13 @@ void UTeamDeathmatchScoreComponent::RecordNewPlayer(APlayerState* PlayerState)
 
 void UTeamDeathmatchScoreComponent::RemovePlayer(APlayerState* PlayerState)
 {
-	if (PlayerScoreMap.Contains(PlayerState->PlayerId))
+#if ENGINE_MINOR_VERSION <= 24
+	const int32 RemovedPlayerId = PlayerState->PlayerId;
+#else
+	const int32 RemovedPlayerId = PlayerState->GetPlayerId();
+#endif
+
+	if (PlayerScoreMap.Contains(RemovedPlayerId))
 	{
 		if (const UTeamComponent* TeamComponent = PlayerState->FindComponentByClass<UTeamComponent>())
 		{
@@ -78,7 +92,7 @@ void UTeamDeathmatchScoreComponent::RemovePlayer(APlayerState* PlayerState)
 			if (TeamScoreMap.Contains(TeamId))
 			{
 				TArray<FPlayerScore>* PlayerScores = &TeamScoreArray[TeamScoreMap[TeamId]].PlayerScores;
-				PlayerScores->RemoveAt(PlayerScoreMap[PlayerState->PlayerId]);
+				PlayerScores->RemoveAt(PlayerScoreMap[RemovedPlayerId]);
 				for (int i = 0; i < PlayerScores->Num(); i++)
 				{
 					int32 PlayerId = (*PlayerScores)[i].PlayerId;
@@ -87,23 +101,29 @@ void UTeamDeathmatchScoreComponent::RemovePlayer(APlayerState* PlayerState)
 			}
 		}
 
-		PlayerScoreMap.Remove(PlayerState->PlayerId);
+		PlayerScoreMap.Remove(RemovedPlayerId);
 	}
 }
 
 void UTeamDeathmatchScoreComponent::RecordKill(APlayerState* KillerState, APlayerState* VictimState)
 {
-	if (PlayerScoreMap.Contains(KillerState->PlayerId))
+#if ENGINE_MINOR_VERSION <= 24
+	const int32 KillerId = KillerState->PlayerId;
+	const int32 VictimId = VictimState->PlayerId;
+#else
+	const int32 KillerId = KillerState->GetPlayerId();
+	const int32 VictimId = VictimState->GetPlayerId();
+#endif
+
+	if (PlayerScoreMap.Contains(KillerId))
 	{
-		const int32 KillerId = KillerState->PlayerId;
 		const uint8 KillerTeamId = KillerState->FindComponentByClass<UTeamComponent>()->GetTeam().GetId();
 
 		++TeamScoreArray[TeamScoreMap[KillerTeamId]].PlayerScores[PlayerScoreMap[KillerId]].Kills;
 	}
 
-	if (PlayerScoreMap.Contains(VictimState->PlayerId))
+	if (PlayerScoreMap.Contains(VictimId))
 	{
-		const int32 VictimId = VictimState->PlayerId;
 		const uint8 VictimTeamId = VictimState->FindComponentByClass<UTeamComponent>()->GetTeam().GetId();
 
 		++TeamScoreArray[TeamScoreMap[VictimTeamId]].PlayerScores[PlayerScoreMap[VictimId]].Deaths;
