@@ -22,10 +22,24 @@ $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 $game_project = "$exampleproject_home/Game/GDKShooter.uproject"
 
 pushd "$exampleproject_home"
+    Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
+        pushd "Game"
+            New-Item -Name "Plugins" -ItemType Directory -Force
+            pushd "Plugins"
+            Start-Process -Wait -PassThru -NoNewWindow -FilePath "git" -ArgumentList @(`
+                "clone", `
+                "$gdk_repo", `
+                "--depth 1", `
+                "-b $gdk_branch_name"
+            )
+            popd
+        popd
+    Finish-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
+
     Start-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
         pushd $gdk_home
             # Get the short commit hash of this gdk build for later use in assembly name
-            $gdk_commit_hash = (git ls-remote --head $gdk_repo $gdk_branch_name).Substring(0,6)
+            $gdk_commit_hash = (git rev-parse HEAD).Substring(0,6)
             Write-Log "GDK at commit: $gdk_commit_hash on branch $gdk_branch_name"
         popd
     Finish-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
