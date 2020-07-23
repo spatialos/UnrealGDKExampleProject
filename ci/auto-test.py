@@ -53,7 +53,6 @@ def check_firebase_log(app_platform, url, device, success_keyword):
 
     result = False
     if os.path.exists(localfilename):
-        print("localfilename:%s exist" % localfilename)
         with io.open(localfilename, encoding="utf8") as fp:
             line = fp.readline()
             while line:                
