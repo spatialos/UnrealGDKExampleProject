@@ -57,6 +57,7 @@ env:
     SUCCESS_KEYWORD: "PlayerSpawn returned from server sucessfully"
     SLACK_CHANNEL: "#unreal-gdk-builds"
     GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
+    MAIN_MAP_NAME: "Control_Small"
     SPATIAL_PROJECT_NAME: "unreal_gdk"
     SPATIAL_RUNTIME_VERSION: "0.4.3" ## the runtime version of SpatialOS
 
