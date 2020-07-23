@@ -15,6 +15,7 @@ import re
 import json
 import sys
 import common
+import platform
 
 def switch_gcloud_project(project_id):
     args = [
