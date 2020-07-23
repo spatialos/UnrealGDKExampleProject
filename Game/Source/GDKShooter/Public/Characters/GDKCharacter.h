@@ -116,5 +116,5 @@ private:
 	FTimerHandle BlastTimer;
 	FTimerDelegate BlastDelegate;
 
-	INT				BlastActorCountPerSecond = 1;
+	int32				BlastActorCountPerSecond = 1;
 };

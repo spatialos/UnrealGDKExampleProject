@@ -249,7 +249,7 @@ void AGDKCharacter::PrintCurrentBlastInfos(const FString& Func)
 
 	UE_LOG(LogGDK, Warning, TEXT("%s - BlastActor Total Count:[%d]"), *FuncName, FoundBlastActors.Num());
 
-	for (INT i = 0; i < FoundBlastActors.Num(); ++i)
+	for (int i = 0; i < FoundBlastActors.Num(); ++i)
 	{
 		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
 		if (BlastActor)
@@ -289,15 +289,15 @@ void AGDKCharacter::BlastTimerEvent()
 	FString IsServer = GetGameInstance()->IsDedicatedServerInstance() ? "YES" : "NO";
 	UE_LOG(LogGDK, Warning, TEXT("%s - IsServer:[%s]"), *FString(__FUNCTION__), *IsServer);
 
-	INT BlastCount = 0;
+	int BlastCount = 0;
 	TArray<AActor*> FoundBlastActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
-	for (INT i = 0; i < FoundBlastActors.Num(); ++i)
+	for (int i = 0; i < FoundBlastActors.Num(); ++i)
 	{
 		REAL_BLAST_MESH_ACTOR* TmpBlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
 		if (TmpBlastActor)
 		{
-			if (TmpBlastActor->GetBlastCount() >= 2)
+			if (TmpBlastActor->GetBlastCount() >= 1)
 			{
 				continue;
 			}
@@ -305,12 +305,19 @@ void AGDKCharacter::BlastTimerEvent()
 			REAL_BLAST_MESH_COMPONENT* BlastComp = Cast<REAL_BLAST_MESH_COMPONENT>(TmpBlastActor->GetBlastMeshComponent());
 			if (BlastComp)
 			{
+				/** yunjie: this fractured count is not the correct one on offloading worker, so don't rely on this
 				if (BlastComp->CanBeFracturedCount() <= 0)
 				{
 					continue;
 				}
+				*/
 
-				TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 100, 200, 500, 100);
+				// yunjie: one time damage may not destruct the whole blast actor, so do this few times to make sure it's entirely exploded
+				for (int32 damageCount = 0; damageCount < 3; damageCount++)
+				{
+					TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 100, 200, 500, 100);
+				}
+
 				TmpBlastActor->IncBlastCount();
 
 				UE_LOG(LogGDK, Warning, TEXT("%s - Found one to blast, index:[%d]"), *FString(__FUNCTION__), i);
