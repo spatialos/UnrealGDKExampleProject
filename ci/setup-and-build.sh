@@ -15,7 +15,7 @@ run_uat() {
     ARCHIVE_DIRECTORY="${5}"
     ADDITIONAL_UAT_FLAGS="${6:-}"
     COMMAND_LINE="${7:-}"
-    GAME_PROJECT="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
+    GAME_PROJECT="${8:-}"
 
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \
         -ScriptsForProject="${GAME_PROJECT}" \
@@ -37,7 +37,7 @@ run_uat() {
         -build \
         -utf8output \
         -compile \
-        -CMDLINE="${COMMAND_LINE}" \
+        -cmdline="${COMMAND_LINE}" \
         "${ADDITIONAL_UAT_FLAGS}"
 }
 
@@ -117,7 +117,8 @@ pushd "$(dirname "$0")"
         "Mac" \
         "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATED_HASH}" \
         "-iterative" \
-        ""
+        "" \
+        "${GAME_PROJECT}"
     
     IOS_AUTOTEST=$(buildkite-agent meta-data get "ios-autotest")
     CMDLINE=""
@@ -127,13 +128,12 @@ pushd "$(dirname "$0")"
 
         AUTH_TOKEN=$(buildkite-agent meta-data get "auth-token")
         DEPLOYMENT_NAME=$(buildkite-agent meta-data get "deployment-name-${STEP_NUMBER}")
-
-        echo "--- build-ios-client-for-autotest"
-
+     
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATED_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"
-        CMDLINE="connect.to.spatialos -workerType UnrealClient +devauthToken ${AUTH_TOKEN} +deployment ${DEPLOYMENT_NAME} +linkProtocol Tcp"            
+        CMDLINE="connect.to.spatialos -workerType UnrealClient -devauthToken ${AUTH_TOKEN} -deployment ${DEPLOYMENT_NAME} -linkProtocol Tcp"            
     fi
+
     echo "--- build-ios-client"
     run_uat \
         "${ENGINE_DIRECTORY}" \
@@ -142,5 +142,6 @@ pushd "$(dirname "$0")"
         "IOS" \
         "${EXAMPLEPROJECT_HOME}/cooked-ios" \
         "" \
-        "${CMDLINE}"
+        "${CMDLINE}" \
+        "${GAME_PROJECT}"
 popd

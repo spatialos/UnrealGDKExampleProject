@@ -2,7 +2,7 @@
 
 # Purpose:
 #   test Android & iOS packages connection to SpatialOS
-#   use gcs to upload to firebase directly will be failed because of the file size is too large
+#   use GCS to upload to firebase directly will fail because of the file size being too large
 #   test:
 #       1. download Android & iOS packages to local
 #       2. upload Android & iOS packages to gcloud
@@ -16,30 +16,14 @@ import json
 import sys
 import common
 
-
-def run_command(cmds):
-    res = common.run_shell(cmds)
-    for line in res.stderr.readlines():
-        utf8 = line.decode('UTF-8').strip()
-        if len(utf8) > 0:
-            print('stderr:%s:%s' % (cmds[0], utf8))
-    for line in res.stdout.readlines():
-        utf8 = line.decode('UTF-8').strip()
-        if len(utf8) > 0:
-            print('stdout:%s:%s' % (cmds[0], utf8))
-
 def switch_gcloud_project(project_id):
-    event_name = "switch_gcloud_project:%s" % project_id
-    common.start_event(event_name)
-    cmds = [
-        'gcloud',
+    args = [
         'config',
         'set',
         'project',
         project_id
     ]
-    run_command(cmds) 
-    common.finish_event(event_name)
+    common.run_command('gcloud', ' '.join(args)) 
 
 def get_gcloud_project():
     cmds = [
@@ -51,7 +35,7 @@ def get_gcloud_project():
     res = common.run_shell(cmds)
     return res.stdout.read().decode('UTF-8')
 
-def check_firebase_log(app_platform, url, device):
+def check_firebase_log(app_platform, url, device, success_keyword):
     filename = ''
     localfilename = '%s.txt' % device
     if os.path.exists(localfilename):
@@ -66,8 +50,6 @@ def check_firebase_log(app_platform, url, device):
     fullurl = 'gs://%s%s/%s' % (url, device, filename)
     common.run_command('gsutil', 'cp %s %s' % (fullurl, localfilename))
 
-    success_keyword = common.get_environment_variable(
-        'SUCCESS_KEYWORD', 'PlayerSpawn returned from server sucessfully')
     result = False
     if os.path.exists(localfilename):
         print("localfilename:%s exist" % localfilename)
@@ -97,6 +79,8 @@ def gcloud_upload(app_platform, app_path):
     gcloud_storage_url = ''
     gcloud_storage_keyword = common.get_environment_variable(
         'GCLOUD_STORAGE_KEYWORD', 'https://console.developers.google.com/storage/browser/')
+    success_keyword = common.get_environment_variable(
+        'SUCCESS_KEYWORD', 'PlayerSpawn returned from server sucessfully')
     for line in res.stderr.readlines():
         utf8 = line.decode('UTF-8').strip()
         if len(utf8) > 0:
@@ -105,14 +89,14 @@ def gcloud_upload(app_platform, app_path):
             url = re.findall(r'\[(.*?)\]', utf8)
             gcloud_storage_url = url[0][len(gcloud_storage_keyword):]
     total = 0
-    succeed = 0
+    succeeded = 0
     output = res.stdout.read().decode('UTF-8')
     print('upload package output:%s' % output)
     for i in json.loads(output):
         total += 1
-        if check_firebase_log(app_platform, gcloud_storage_url, i['axis_value']):
-            succeed += 1
-    return succeed, total
+        if check_firebase_log(app_platform, gcloud_storage_url, i['axis_value'], success_keyword):
+            succeeded += 1
+    return succeeded, total
 
 def get_gcs_and_local_path(app_platform, engine_commit_formated_hash):
     filename = ''
@@ -152,6 +136,7 @@ def download_app(app_platform, engine_commit_formated_hash):
 if __name__ == "__main__":
     app_platform = sys.argv[1]
     engine_commit_formated_hash = sys.argv[2]
+    parent_event = "automatic-test-%s-on-%s:" % (app_platform, platform.system())
     project = get_gcloud_project()
     
     # set gcloud project_id both Windows & Mac
@@ -163,21 +148,15 @@ if __name__ == "__main__":
 
     # download app to local
     event_name = "download_app"
-    common.start_event(event_name)
     localpath = download_app(app_platform, engine_commit_formated_hash)
-    common.finish_event(event_name)
 
     # upload local app to firebase for test
     event_name = "gcloud_upload"
-    common.start_event(event_name)
     succeed, total = gcloud_upload(app_platform, localpath)
-    common.finish_event(event_name)
     
     # set to buildkite infrastructure gcloud project
     switch_gcloud_project(project)
 
     # update firebase succeed/total value
-    print('succeed=%d total=%d' % (succeed, total))
     exit_value = 0 if succeed == total and succeed != 0 else 1
-    print('exit_value=%d' % exit_value)
     exit(exit_value)

@@ -3,12 +3,12 @@
 # Purpose:
 #   change runtime settings for build android and ios package
 
-
 import os
 import sys
+import platform
 import common
 
-# parse DefaultEngine.ini or other ini files
+# parse Default_Engine.ini or other ini files
 class IniParser:
     def __init__(self):
         self.change_groups = {}
@@ -66,39 +66,34 @@ class IniParser:
 
 # modify runtime settings before cook
 def change_runtime_settings(project_home):
-    event_name = "change_runtime_settings"
-    common.start_event(event_name)
-    defaultengine = os.path.join(project_home, 'Game', 'Config', 'DefaultEngine.ini')
-    print('defaultengine:%s' % defaultengine)
-    IOSRuntimeSettings = '/Script/IOSRuntimeSettings.IOSRuntimeSettings'
-    AndroidRuntimeSettings = '/Script/AndroidRuntimeSettings.AndroidRuntimeSettings'
+    default_engine = os.path.join(project_home, 'Game', 'Config', 'DefaultEngine.ini')
+    ios_runtime_settings = '/Script/IOSRuntimeSettings.IOSRuntimeSettings'
+    android_runtime_settings = '/Script/AndroidRuntimeSettings.AndroidRuntimeSettings'
     ini = IniParser()
-    ini.open(defaultengine)
+    ini.open(default_engine)
 
     # for ios runtime settings
-    AdditionalPlistData = '<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLName</key><string></string><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLSchemes</key><array><string>firebase-game-loop</string></array></dict></array>'
-    ini.add(IOSRuntimeSettings, 'AdditionalPlistData', AdditionalPlistData)
-    ini.add(IOSRuntimeSettings, 'BundleIdentifier',
-            'io.improbable.unrealgdkdemo')
-    ini.add(IOSRuntimeSettings, 'MobileProvision', '')
-    ini.add(IOSRuntimeSettings, 'BundleDisplayName', 'UnrealGDK Shooter')
-    ini.add(IOSRuntimeSettings, 'BundleName', 'unrealgdkshooter')
-    ini.add(IOSRuntimeSettings, 'bSupportsITunesFileSharing', 'True')
-    ini.add(IOSRuntimeSettings, 'bGeneratedSYMFile', 'True')
-    ini.add(IOSRuntimeSettings, 'bGeneratedSYMBundle', 'True')
-    ini.add(IOSRuntimeSettings, 'bGenerateCrashReportSymbols', 'True')
-    ini.add(IOSRuntimeSettings, 'bEnableRemoteNotificationsSupport', 'False')
-    ini.add(IOSRuntimeSettings, 'bEnableAdvertisingIdentifier', 'False')
-    ini.add(IOSRuntimeSettings, 'bEnableCloudKitSupport', 'False')
+    additional_plist_data = '<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLName</key><string></string><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLSchemes</key><array><string>firebase-game-loop</string></array></dict></array>'
+    ini.add(ios_runtime_settings, 'AdditionalPlistData', additional_plist_data)
+    ini.add(ios_runtime_settings, 'BundleIdentifier', 'io.improbable.unrealgdkdemo')
+    ini.add(ios_runtime_settings, 'MobileProvision', '')
+    ini.add(ios_runtime_settings, 'BundleDisplayName', 'UnrealGDK Shooter')
+    ini.add(ios_runtime_settings, 'BundleName', 'unrealgdkshooter')
+    ini.add(ios_runtime_settings, 'bSupportsITunesFileSharing', 'True')
+    ini.add(ios_runtime_settings, 'bGeneratedSYMFile', 'True')
+    ini.add(ios_runtime_settings, 'bGeneratedSYMBundle', 'True')
+    ini.add(ios_runtime_settings, 'bGenerateCrashReportSymbols', 'True')
+    ini.add(ios_runtime_settings, 'bEnableRemoteNotificationsSupport', 'False')
+    ini.add(ios_runtime_settings, 'bEnableAdvertisingIdentifier', 'False')
+    ini.add(ios_runtime_settings, 'bEnableCloudKitSupport', 'False')
 
     # for Android extra activity settings
-    ExtraActivitySettings = '<intent-filter><action android:name="com.google.intent.action.TEST_LOOP"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="application/javascript"/></intent-filter>'
-    ini.add(AndroidRuntimeSettings, 'ExtraActivitySettings', ExtraActivitySettings)
-    ini.add(AndroidRuntimeSettings, 'bSupportAdMob', 'False')
-    ini.add(AndroidRuntimeSettings, 'bPackageDataInsideApk', 'True')
+    extra_activety_settings = '<intent-filter><action android:name="com.google.intent.action.TEST_LOOP"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="application/javascript"/></intent-filter>'
+    ini.add(android_runtime_settings, 'ExtraActivitySettings', extra_activety_settings)
+    ini.add(android_runtime_settings, 'bSupportAdMob', 'False')
+    ini.add(android_runtime_settings, 'bPackageDataInsideApk', 'True')
 
-    ini.write(defaultengine)
-    common.finish_event(event_name)
+    ini.write(default_engine)
 
 
 if __name__ == "__main__":

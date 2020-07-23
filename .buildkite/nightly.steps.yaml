@@ -56,10 +56,7 @@ env:
     GCLOUD_STORAGE_KEYWORD: "https://console.developers.google.com/storage/browser/"
     SUCCESS_KEYWORD: "PlayerSpawn returned from server sucessfully"
     SLACK_CHANNEL: "#unreal-gdk-builds"
-    ANDROID_FILENAME: "GDKShooter-armv7-es2.apk"
-    IOS_FILENAME: "GDKShooter.ipa"
     GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
-    MAIN_MAP_NAME: "Control_Small"
     SPATIAL_PROJECT_NAME: "unreal_gdk"
     SPATIAL_RUNTIME_VERSION: "0.4.3" ## the runtime version of SpatialOS
 
@@ -72,7 +69,7 @@ steps:
       ENGINE_VERSION: "${ENGINE_VERSION}"
     <<: *script_runner
 
-  - wait:
+  - wait
 
   - label: "slack-notify"
     if: |

@@ -18,7 +18,7 @@ windows: &windows
     - "agent_count=1"
     - "capable_of_building=gdk-for-unreal"
     - "environment=production"
-    - "machine_type=quad"
+    - "machine_type=quarter"
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
@@ -34,7 +34,7 @@ windows: &windows
     - ca-johnson/taskkill#v4.1: ~
 
 steps:
-  - label: "generate-auth_token&deployment_name-for-both-android-and-ios-automatic-test"
+  - label: "generate-auth_token-and-deployment-name"
     if: build.env("FIREBASE_AUTOTEST") == "true"
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/generate-auth-token.ps1"
     <<: *windows 

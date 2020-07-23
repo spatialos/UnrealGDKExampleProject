@@ -16,12 +16,10 @@ $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_nam
 $engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATED_HASH" -default_value "0"
 $main_map_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAIN_MAP_NAME" -default_value "Control_Small"
 
-
 $android_autotest = buildkite-agent meta-data get "android-autotest"           
 
 $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 $game_project = "$exampleproject_home/Game/GDKShooter.uproject"
-
 
 pushd "$exampleproject_home"
     Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
@@ -181,7 +179,7 @@ pushd "$exampleproject_home"
         Write-Output "deployment_name: $deployment_name"
         $cookflavor = "Multi"
         buildkite-agent meta-data set "android-flavor" $cookflavor
-        $cmdline="connect.to.spatialos -workerType UnrealClient +devauthToken $auth_token +deployment $deployment_name +linkProtocol Tcp"
+        $cmdline="connect.to.spatialos -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"
 
         $argumentlist = @(`
             "-ScriptsForProject=$game_project", `
@@ -220,7 +218,7 @@ pushd "$exampleproject_home"
         buildkite-agent meta-data set "$engine_commit_formated_hash-build-android-job-id" "$env:BUILDKITE_JOB_ID"
         buildkite-agent meta-data set "$engine_commit_formated_hash-build-android-queue-id" "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
     Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
-    
+
     # Deploy the project to SpatialOS
     &$PSScriptRoot"\deploy.ps1" -launch_deployment "$launch_deployment" -gdk_branch_name "$gdk_branch_name"
 popd

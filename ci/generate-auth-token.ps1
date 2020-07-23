@@ -56,6 +56,7 @@ pushd "$exampleproject_home"
                 Write-Log "Failed to find dev auth token"
                 Throw "dev auth token not found"
             }
+
             $auth_token = $matches[1]
             buildkite-agent meta-data set "auth-token" "$auth_token"
             Write-Output "auth_token:$auth_token"
