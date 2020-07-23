@@ -100,8 +100,6 @@ private:
 	void ClientPrintCurrentBlastInfos();
 	UFUNCTION(Server, Reliable)
 	void ServerPrintCurrentBlastInfos();
-	UFUNCTION(CrossServer, Reliable)
-	void CrossServerPrintCurrentBlastInfos();
 
 	UFUNCTION(Server, Reliable)
 	void ServerStartTimerToBlast();

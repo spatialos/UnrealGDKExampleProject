@@ -265,17 +265,23 @@ void AGDKCharacter::PrintCurrentBlastInfos(const FString& Func)
 
 void AGDKCharacter::ClientPrintCurrentBlastInfos()
 {
-	PrintCurrentBlastInfos();
+	PrintCurrentBlastInfos(FString(__FUNCTION__));
 }
 
 void AGDKCharacter::ServerPrintCurrentBlastInfos_Implementation()
 {
 	PrintCurrentBlastInfos(FString(__FUNCTION__));
-}
 
-void AGDKCharacter::CrossServerPrintCurrentBlastInfos_Implementation()
-{
-	PrintCurrentBlastInfos(FString(__FUNCTION__));
+	if (!GetWorld()->GetGameInstance()->GetSpatialWorkerId().IsEmpty())
+	{
+		TArray<AActor*> FoundBlastActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
+		if (FoundBlastActors.Num() > 0)
+		{
+			REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[0]);
+			BlastActor->CrossServerPrintCurrentBlastInfos();
+		}
+	}
 }
 
 void AGDKCharacter::BlastTimerEvent()
@@ -291,7 +297,7 @@ void AGDKCharacter::BlastTimerEvent()
 		REAL_BLAST_MESH_ACTOR* TmpBlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
 		if (TmpBlastActor)
 		{
-			if (TmpBlastActor->GetAlreadyBlast())
+			if (TmpBlastActor->GetBlastCount() >= 2)
 			{
 				continue;
 			}
@@ -301,11 +307,12 @@ void AGDKCharacter::BlastTimerEvent()
 			{
 				if (BlastComp->CanBeFracturedCount() <= 0)
 				{
-					TmpBlastActor->SetAlreadyBlast();
 					continue;
 				}
 
 				TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 100, 200, 500, 100);
+				TmpBlastActor->IncBlastCount();
+
 				UE_LOG(LogGDK, Warning, TEXT("%s - Found one to blast, index:[%d]"), *FString(__FUNCTION__), i);
 
 				if (++BlastCount >= BlastActorCountPerSecond)
