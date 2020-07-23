@@ -125,13 +125,12 @@ def download_app(app_platform, engine_commit_formated_hash):
     gclpath, localpath = get_gcs_and_local_path(app_platform, engine_commit_formated_hash)
     if os.path.exists(localpath):
         os.remove(localpath)
-    cmds = [
-        'gsutil',
+    args = [
         'cp',
         gclpath,
         localpath
     ]
-    run_command(cmds)
+    common.run_command('gsutil', ' '.join(args))
     return localpath
 
 if __name__ == "__main__":
