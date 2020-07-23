@@ -47,6 +47,7 @@ GCS_PUBLISH_BUCKET="${2:-io-internal-infra-unreal-artifacts-production/UnrealEng
 pushd "$(dirname "$0")"
     EXAMPLEPROJECT_HOME="$(pwd)/.."
     GDK_BRANCH_NAME="${GDK_BRANCH:-master}"
+    MAIN_MAP_NAME = "${MAIN_MAP_NAME:-Control_Small}" 
     GDK_HOME="${EXAMPLEPROJECT_HOME}/Game/Plugins/UnrealGDK"
 
     echo "--- clone-gdk-plugin"
