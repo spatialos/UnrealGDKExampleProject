@@ -98,8 +98,7 @@ pushd "$exampleproject_home"
 
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
-        $win64_folder = "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
-        pushd $win64_folder
+        pushd "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
             $UE4Editor=((Convert-Path .) + "\UE4Editor-Cmd.exe")
             $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$game_project", `

@@ -88,7 +88,7 @@ def get_gcs_and_local_path(app_platform, engine_commit_formatted_hash):
     path = 'cooked-%s' % app_platform
     if app_platform == 'android':
         localfilename = 'GDKShooter-armv7-es2.apk'
-        filename = '%s/Android_ASTC/%s' % (path, android_flavor, localfilename)
+        filename = '%s/Android_ASTC/%s' % (path, localfilename)
         agentplatform = 'windows'
     else:
         localfilename = 'GDKShooter.ipa'

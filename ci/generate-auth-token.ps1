@@ -29,7 +29,6 @@ pushd "$exampleproject_home"
         Start-Event "generate-auth-token" "generate-auth-token-and-deployment-:windows:"
             $DESCRIPTION = "Unreal-GDK-Token" 
             $DEVAUTH_CREATE = spatial project auth dev-auth-token create --description=$DESCRIPTION --project_name=$project_name | Out-String
-            Write-Output $DEVAUTH_CREATE
             $FOUND_DEV_TOKEN = $DEVAUTH_CREATE -match 'token_secret:\\"(.+)\\"'
             if ($FOUND_DEV_TOKEN -eq 0) {
                 Write-Log "Failed to find dev auth token"
