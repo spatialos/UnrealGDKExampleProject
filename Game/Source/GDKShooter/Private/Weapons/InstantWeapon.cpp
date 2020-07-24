@@ -221,7 +221,7 @@ void AInstantWeapon::ServerDidHit_Implementation(const FInstantHitInfo& HitInfo)
 	{
 		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(HitInfo.HitActor);
 		UE_LOG(LogGDK, Warning, TEXT("%s - hit something!!!!!!!!!!!"), *FString(__FUNCTION__));
-		if (BlastActor && !BlastActor->HasAuthority())
+		if (BlastActor)
 		{
 			UE_LOG(LogGDK, Warning, TEXT("%s - hit blast actor!!!!!!!!!!!"), *FString(__FUNCTION__));
 			// yunjie: special case for blast actor, should be forwarded to offloading unreal worker
