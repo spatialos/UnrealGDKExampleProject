@@ -61,8 +61,7 @@ def gcloud_upload(app_platform, app_path):
     ]
     res = common.run_shell(cmds)
     gcloud_storage_url = ''
-    gcloud_storage_keyword = common.get_environment_variable(
-        'GCLOUD_STORAGE_KEYWORD', 'https://console.developers.google.com/storage/browser/')
+    gcloud_storage_keyword = 'https://console.developers.google.com/storage/browser/'
     success_keyword = common.get_environment_variable(
         'SUCCESS_KEYWORD', 'PlayerSpawn returned from server sucessfully')
     for line in res.stderr.readlines():

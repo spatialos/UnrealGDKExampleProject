@@ -53,7 +53,6 @@ windows: &windows
 # These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
 env:  
     GCLOUD_PROJECT_ID: "chlorodize-bipennated-8024348"
-    GCLOUD_STORAGE_KEYWORD: "https://console.developers.google.com/storage/browser/"
     SUCCESS_KEYWORD: "PlayerSpawn returned from server sucessfully"
     SLACK_CHANNEL: "#unreal-gdk-builds"
     GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
