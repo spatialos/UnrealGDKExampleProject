@@ -38,7 +38,6 @@ pushd "$exampleproject_home"
 
             $auth_token = $matches[1]
             buildkite-agent meta-data set "auth-token" "$auth_token"
-            Write-Output "auth_token:$auth_token"
         Finish-Event "generate-auth-token" "generate-auth-token-and-deployment-:windows:"
     popd
 popd

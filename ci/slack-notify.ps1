@@ -12,14 +12,15 @@ $ios_autotest = buildkite-agent meta-data get "ios-autotest"
 # Send a Slack notification with a link to the new deployment and to the build.
 Start-Event "slack-notify" "slack-notify"
     # Build Slack text
-    if($env:FIREBASE_AUTOTEST -eq "true"){
-        $slack_text = ":night_with_stars: Firebase Automatic Test *Example Project* *succeeded*."
-    }
-    elseif ($env:NIGHTLY_BUILD -eq "true" ) {
+    if($env:NIGHTLY_BUILD -eq "true"){
         $slack_text = ":night_with_stars: Nightly build of *Example Project* *succeeded*."
+    }
+    elseif ($env:FIREBASE_AUTOTEST -eq "true" ) {
+        $slack_text = ":night_with_stars: Firebase Automatic Test *Example Project* *succeeded*."
     } else {
         $slack_text = "*Example Project* build by $env:BUILDKITE_BUILD_CREATOR succeeded."
     }
+    
     # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
     $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
     $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
@@ -38,14 +39,14 @@ Start-Event "slack-notify" "slack-notify"
                             if ($android_autotest -eq "1") { 
                                 @{
                                     title = "Android Test Result"
-                                    value = "``succeeded``"
+                                    value = "succeeded"
                                     short = "true"
                                 }
                             }
                             if ($ios_autotest -eq "1") {
                                 @{
                                     title = "iOS Test Result"
-                                    value = "``succeeded``"
+                                    value = "succeeded"
                                     short = "true"
                                 }
                             }

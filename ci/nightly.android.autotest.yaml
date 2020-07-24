@@ -35,7 +35,7 @@ windows: &windows
 
 steps:
   - label: "auto-test-android-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
-    command: "python ci/auto-test.py android ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
+    command: "python ci/auto-test.py android ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
     <<: *windows
     depends_on:
-      - "setup-and-build-windows-ENGINE_COMMIT_FORMATED_HASH_PLACEHOLDER"
+      - "setup-and-build-windows-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"

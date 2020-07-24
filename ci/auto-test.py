@@ -51,16 +51,14 @@ def check_firebase_log(app_platform, url, device, success_keyword):
     fullurl = 'gs://%s%s/%s' % (url, device, filename)
     common.run_command('gsutil', 'cp %s %s' % (fullurl, localfilename))
 
-    result = False
     if os.path.exists(localfilename):
         with io.open(localfilename, encoding="utf8") as fp:
             line = fp.readline()
             while line:                
                 if success_keyword in line:
-                    result = True
-                    break
+                    return True
                 line = fp.readline()
-    return result
+    return False
 
 def gcloud_upload(app_platform, app_path):
     cmds = [
@@ -92,27 +90,26 @@ def gcloud_upload(app_platform, app_path):
     succeeded = 0
     output = res.stdout.read().decode('UTF-8')
     print('upload package output:%s' % output)
-    for i in json.loads(output):
+    for result in json.loads(output):
         total += 1
-        if check_firebase_log(app_platform, gcloud_storage_url, i['axis_value'], success_keyword):
+        if check_firebase_log(app_platform, gcloud_storage_url, result['axis_value'], success_keyword):
             succeeded += 1
     return succeeded, total
 
-def get_gcs_and_local_path(app_platform, engine_commit_formated_hash):
+def get_gcs_and_local_path(app_platform, engine_commit_formatted_hash):
     filename = ''
     localfilename = ''
     path = 'cooked-%s' % app_platform
     if app_platform == 'android':
-        android_flavor = common.get_buildkite_meta_data('android-flavor')
-        localfilename = common.get_environment_variable('ANDROID_FILENAME','GDKShooter-armv7-es2.apk')
-        filename = '%s/Android_%s/%s' % (path, android_flavor, localfilename)
+        localfilename = 'GDKShooter-armv7-es2.apk'
+        filename = '%s/Android_Multi/%s' % (path, android_flavor, localfilename)
         agentplatform = 'windows'
     else:
-        localfilename = common.get_environment_variable('IOS_FILENAME','GDKShooter.ipa')
+        localfilename = 'GDKShooter.ipa'
         filename = '%s/IOS/%s' % (path,localfilename)
         agentplatform = 'macos'
-    jobid = common.get_buildkite_meta_data('%s-build-%s-job-id' % (engine_commit_formated_hash, app_platform))
-    queueid = common.get_buildkite_meta_data('%s-build-%s-queue-id' % (engine_commit_formated_hash, app_platform))
+    jobid = common.get_buildkite_meta_data('%s-build-%s-job-id' % (engine_commit_formatted_hash, app_platform))
+    queueid = common.get_buildkite_meta_data('%s-build-%s-queue-id' % (engine_commit_formatted_hash, app_platform))
     organization = common.get_environment_variable('BUILDKITE_ORGANIZATION_SLUG','improbable')
     pipeline = common.get_environment_variable('BUILDKITE_PIPELINE_SLUG','unrealgdkexampleproject-nightly')
     buildid = common.get_environment_variable('BUILDKITE_BUILD_ID','')
@@ -120,8 +117,8 @@ def get_gcs_and_local_path(app_platform, engine_commit_formated_hash):
     gcs_path = '%s/organizations/%s/pipelines/%s/builds/%s/jobs/%s/%s/%s/%s' % (gcshead, organization, pipeline, buildid, queueid, jobid, agentplatform, filename)
     return gcs_path,localfilename
 
-def download_app(app_platform, engine_commit_formated_hash):
-    gclpath, localpath = get_gcs_and_local_path(app_platform, engine_commit_formated_hash)
+def download_app(app_platform, engine_commit_formatted_hash):
+    gclpath, localpath = get_gcs_and_local_path(app_platform, engine_commit_formatted_hash)
     if os.path.exists(localpath):
         os.remove(localpath)
     args = [
@@ -134,7 +131,7 @@ def download_app(app_platform, engine_commit_formated_hash):
 
 if __name__ == "__main__":
     app_platform = sys.argv[1]
-    engine_commit_formated_hash = sys.argv[2]
+    engine_commit_formatted_hash = sys.argv[2]
     parent_event = "automatic-test-%s-on-%s:" % (app_platform, platform.system())
     project = get_gcloud_project()
     
@@ -146,11 +143,9 @@ if __name__ == "__main__":
     switch_gcloud_project(gcloud_project_id)
 
     # download app to local
-    event_name = "download_app"
-    localpath = download_app(app_platform, engine_commit_formated_hash)
+    localpath = download_app(app_platform, engine_commit_formatted_hash)
 
     # upload local app to firebase for test
-    event_name = "gcloud_upload"
     succeed, total = gcloud_upload(app_platform, localpath)
     
     # set to buildkite infrastructure gcloud project

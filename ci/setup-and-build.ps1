@@ -13,7 +13,7 @@ param(
 $gdk_repo = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_REPOSITORY" -default_value ""
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
-$engine_commit_formated_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATED_HASH" -default_value "0"
+$engine_commit_formatted_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATTED_HASH" -default_value "0"
 $main_map_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAIN_MAP_NAME" -default_value "Control_Small"
 
 $android_autotest = buildkite-agent meta-data get "android-autotest"           
@@ -162,7 +162,7 @@ pushd "$exampleproject_home"
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
     if($android_autotest -eq 1){
-        #change android project settings for firebase 
+        #Prepare Android Project Settings for Firebase
         Start-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
             $proc = Start-Process -PassThru -NoNewWindow -FilePath "python" -ArgumentList @(`
                 "ci/change-runtime-settings.py", `
@@ -175,10 +175,8 @@ pushd "$exampleproject_home"
     Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"          
         $auth_token = buildkite-agent meta-data get "auth-token"
         $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"
-        Write-Output "auth_token: $auth_token"
-        Write-Output "deployment_name: $deployment_name"
-        $cookflavor = "Multi"
-        buildkite-agent meta-data set "android-flavor" $cookflavor
+        Write-Host "auth_token: $auth_token"
+        Write-Host "Cloud deployment to connect to: $deployment_name"
         $cmdline="connect.to.spatialos -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"
 
         $argumentlist = @(`
@@ -198,7 +196,7 @@ pushd "$exampleproject_home"
             "-prereqs", `
             "-nodebuginfo", `
             "-targetplatform=Android", `
-            "-cookflavor=$cookflavor", `
+            "-cookflavor=Multi", `
             "-build", `
             "-utf8output", `
             "-compile", `
@@ -215,8 +213,8 @@ pushd "$exampleproject_home"
             Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
         }
-        buildkite-agent meta-data set "$engine_commit_formated_hash-build-android-job-id" "$env:BUILDKITE_JOB_ID"
-        buildkite-agent meta-data set "$engine_commit_formated_hash-build-android-queue-id" "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
+        buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-job-id" "$env:BUILDKITE_JOB_ID"
+        buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-queue-id" "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
     Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
 
     # Deploy the project to SpatialOS

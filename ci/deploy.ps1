@@ -49,7 +49,6 @@ pushd "spatial"
             Throw "Spatial prepare for run failed"
         }
     Finish-Event "prepare-for-run" "deploy-unreal-gdk-example-project-:windows:"
-    
 
     Start-Event "upload-assemblies" "deploy-unreal-gdk-example-project-:windows:"
         $upload_assemblies_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
