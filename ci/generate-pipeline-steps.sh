@@ -38,19 +38,6 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
     fi
 done
 
-buildkite-agent meta-data set "android-autotest" "0"
-buildkite-agent meta-data set "ios-autotest" "0"
-
-if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
-    buildkite-agent meta-data set "android-autotest" "1"
-    ANDROID_AUTOTEST=true
-
-    if [[ -n "${MAC_BUILD:-}" ]]; then
-        buildkite-agent meta-data set "ios-autotest" "1"
-        IOS_AUTOTEST=true
-    fi
-fi
-
 insert_file_step() {
     FILENAME="${1}"
     buildkite-agent pipeline upload ${FILENAME}
@@ -81,13 +68,13 @@ insert_auto_test_step(){
 
 insert_auto_test_steps(){
     VERSIONS="${1}"
-    if [ ANDROID_AUTOTEST ]; then
+    if [[ -n "${FIREBASE_AUTOTEST:-}" ]]; then
         insert_auto_test_step ${VERSIONS} android
-    fi
-    
-    if [[ -n "${MAC_BUILD:-}" ]] && [ IOS_AUTOTEST ]; then
-        insert_auto_test_step ${VERSIONS} ios
-    fi
+        
+        if [[ -n "${MAC_BUILD:-}" ]]; then
+            insert_auto_test_step ${VERSIONS} ios
+        fi
+    fi    
 }
 
 insert_setup_build_steps(){

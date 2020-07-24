@@ -5,9 +5,9 @@ $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_nam
 $slack_channel = Get-Env-Variable-Value-Or-Default -environment_variable_name "SLACK_CHANNEL" -default_value "#unreal-gdk-builds"
 $engine_version_count = buildkite-agent meta-data get "engine-version-count"
 $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
+$mac_build = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAC_BUILD" -default_value "false"
+$firebase_autotest = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_AUTOTEST" -default_value "false"
 $gdk_commit_hash = buildkite-agent meta-data get "gdk_commit_hash"
-$android_autotest = buildkite-agent meta-data get "android-autotest"
-$ios_autotest = buildkite-agent meta-data get "ios-autotest"
 
 # Send a Slack notification with a link to the new deployment and to the build.
 Start-Event "slack-notify" "slack-notify"
@@ -15,12 +15,12 @@ Start-Event "slack-notify" "slack-notify"
     if($env:NIGHTLY_BUILD -eq "true"){
         $slack_text = ":night_with_stars: Nightly build of *Example Project* *succeeded*."
     }
-    elseif ($env:FIREBASE_AUTOTEST -eq "true" ) {
+    elseif ($firebase_autotest -eq "true") {
         $slack_text = ":night_with_stars: Firebase Automatic Test *Example Project* *succeeded*."
     } else {
         $slack_text = "*Example Project* build by $env:BUILDKITE_BUILD_CREATOR succeeded."
     }
-    
+
     # Read Slack webhook secret from the vault and extract the Slack webhook URL from it.
     $slack_webhook_secret = "$(imp-ci secrets read --environment=production --buildkite-org=improbable --secret-type=slack-webhook --secret-name=unreal-gdk-slack-web-hook)"
     $slack_webhook_url = $slack_webhook_secret | ConvertFrom-Json | %{$_.url}
@@ -36,18 +36,18 @@ Start-Event "slack-notify" "slack-notify"
                     fallback = "Find build here: $build_url."
                     color = "good"
                     fields = @(
-                            if ($android_autotest -eq "1") { 
+                            if ($firebase_autotest -eq "true") {
                                 @{
                                     title = "Android Test Result"
                                     value = "succeeded"
                                     short = "true"
                                 }
-                            }
-                            if ($ios_autotest -eq "1") {
-                                @{
-                                    title = "iOS Test Result"
-                                    value = "succeeded"
-                                    short = "true"
+                                if($mac_build -eq "true") {
+                                    @{
+                                        title = "iOS Test Result"
+                                        value = "succeeded"
+                                        short = "true"
+                                    }
                                 }
                             }
                             @{

@@ -18,23 +18,9 @@ import common
 import platform
 
 def switch_gcloud_project(project_id):
-    args = [
-        'config',
-        'set',
-        'project',
-        project_id
-    ]
+    args = ['config', 'set', 'project', project_id]
     common.run_command('gcloud', ' '.join(args)) 
 
-def get_gcloud_project():
-    cmds = [
-        'gcloud',
-        'config',
-        'get-value',
-        'project'
-    ]
-    res = common.run_shell(cmds)
-    return res.stdout.read().decode('UTF-8')
 
 def check_firebase_log(app_platform, url, device, success_keyword):
     filename = ''
@@ -102,7 +88,7 @@ def get_gcs_and_local_path(app_platform, engine_commit_formatted_hash):
     path = 'cooked-%s' % app_platform
     if app_platform == 'android':
         localfilename = 'GDKShooter-armv7-es2.apk'
-        filename = '%s/Android_Multi/%s' % (path, android_flavor, localfilename)
+        filename = '%s/Android_ASTC/%s' % (path, android_flavor, localfilename)
         agentplatform = 'windows'
     else:
         localfilename = 'GDKShooter.ipa'
@@ -121,11 +107,7 @@ def download_app(app_platform, engine_commit_formatted_hash):
     gclpath, localpath = get_gcs_and_local_path(app_platform, engine_commit_formatted_hash)
     if os.path.exists(localpath):
         os.remove(localpath)
-    args = [
-        'cp',
-        gclpath,
-        localpath
-    ]
+    args = ['cp', gclpath, localpath]
     common.run_command('gsutil', ' '.join(args))
     return localpath
 
@@ -133,7 +115,9 @@ if __name__ == "__main__":
     app_platform = sys.argv[1]
     engine_commit_formatted_hash = sys.argv[2]
     parent_event = "automatic-test-%s-on-%s:" % (app_platform, platform.system())
-    project = get_gcloud_project()
+    cmds = ['gcloud', 'config', 'get-value', 'project']
+    res = common.run_shell(cmds)
+    project = res.stdout.read().decode('UTF-8')
     
     # set gcloud project_id both Windows & Mac
     gcloud_project_id = common.get_environment_variable(

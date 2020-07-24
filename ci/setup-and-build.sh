@@ -120,9 +120,8 @@ pushd "$(dirname "$0")"
         "" \
         "${GAME_PROJECT}"
     
-    IOS_AUTOTEST=$(buildkite-agent meta-data get "ios-autotest")
     CMDLINE=""
-    if [ "$IOS_AUTOTEST" == "1" ]; then
+    if [ "$FIREBASE_AUTOTEST" == "true" ]; then
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 

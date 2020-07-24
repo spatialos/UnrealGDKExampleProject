@@ -15,8 +15,7 @@ $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name 
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $engine_commit_formatted_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATTED_HASH" -default_value "0"
 $main_map_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAIN_MAP_NAME" -default_value "Control_Small"
-
-$android_autotest = buildkite-agent meta-data get "android-autotest"           
+$firebase_autotest = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_AUTOTEST" -default_value "false"
 
 $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 $game_project = "$exampleproject_home/Game/GDKShooter.uproject"
@@ -161,7 +160,7 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
-    if($android_autotest -eq 1){
+    if ($firebase_autotest -eq "true") {
         #Prepare Android Project Settings for Firebase
         Start-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
             $proc = Start-Process -PassThru -NoNewWindow -FilePath "python" -ArgumentList @(`
@@ -196,7 +195,7 @@ pushd "$exampleproject_home"
             "-prereqs", `
             "-nodebuginfo", `
             "-targetplatform=Android", `
-            "-cookflavor=Multi", `
+            "-cookflavor=ASTC", `
             "-build", `
             "-utf8output", `
             "-compile", `

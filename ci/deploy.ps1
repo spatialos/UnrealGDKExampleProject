@@ -6,9 +6,9 @@ param(
 . "$PSScriptRoot\common.ps1"
 
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
-    # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment
-    $android_autotest = buildkite-agent meta-data get "android-autotest"
-    if ($android_autotest -eq "1") {
+    # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment    
+    $firebase_autotest = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_AUTOTEST" -default_value "false"
+    if ($firebase_autotest -eq "true") {
         $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"
     }
     else {
@@ -19,12 +19,7 @@ Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     $assembly_name = "$($deployment_name)_asm"
     $runtime_version = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_RUNTIME_VERSION" -default_value ""
     $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
-
-    Write-Output "STEP_NUMBER: ${env:STEP_NUMBER}"
-    Write-Output "gdk_commit_hash: ${gdk_commit_hash}"
-    Write-Output "deployment_name: ${deployment_name}"
-    Write-Output "assembly_name: ${assembly_name}"
-
+    
 pushd "spatial"
     Start-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
         $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
