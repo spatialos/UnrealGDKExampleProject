@@ -24,6 +24,11 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	MetaDataComponent = CreateDefaultSubobject<UMetaDataComponent>(TEXT("MetaData"));
 	TeamComponent = CreateDefaultSubobject<UTeamComponent>(TEXT("Team"));
 	GDKMovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement());
+
+	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/BlastCubeBlueprint.BlastCubeBlueprint'"));
+	if (ItemBlueprint.Object) {
+		BlastCubeBlueprint = (UClass*)ItemBlueprint.Object->GeneratedClass;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -81,9 +86,13 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollDown);
 
 	// yunjie: testing codes
+	PlayerInputComponent->BindAction("0", IE_Pressed, this, &AGDKCharacter::ServerSpawnBlastActors);
 	PlayerInputComponent->BindAction("1", IE_Pressed, this, &AGDKCharacter::ClientPrintCurrentBlastInfos);
 	PlayerInputComponent->BindAction("2", IE_Pressed, this, &AGDKCharacter::ServerPrintCurrentBlastInfos);
 	PlayerInputComponent->BindAction("3", IE_Pressed, this, &AGDKCharacter::ServerStartTimerToBlast);
+	PlayerInputComponent->BindAction("7", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Quick);
+	PlayerInputComponent->BindAction("8", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Normal);
+	PlayerInputComponent->BindAction("9", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Forever);
 	PlayerInputComponent->BindAction("+", IE_Pressed, this, &AGDKCharacter::ServerIncreaseBlastActorCountPerSecond);
 	PlayerInputComponent->BindAction("-", IE_Pressed, this, &AGDKCharacter::ServerDecreaseBlastActorCountPerSecond);
 }
@@ -272,14 +281,17 @@ void AGDKCharacter::ServerPrintCurrentBlastInfos_Implementation()
 {
 	PrintCurrentBlastInfos(FString(__FUNCTION__));
 
-	if (!GetWorld()->GetGameInstance()->GetSpatialWorkerId().IsEmpty())
+	TArray<AActor*> FoundBlastActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
+	if (FoundBlastActors.Num() > 0)
 	{
-		TArray<AActor*> FoundBlastActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
-		if (FoundBlastActors.Num() > 0)
+		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[0]);
+		if (BlastActor)
 		{
-			REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[0]);
-			BlastActor->CrossServerPrintCurrentBlastInfos();
+			if (!BlastActor->HasAuthority())
+			{
+				BlastActor->CrossServerPrintCurrentBlastInfos();
+			}
 		}
 	}
 }
@@ -315,7 +327,7 @@ void AGDKCharacter::BlastTimerEvent()
 				// yunjie: one time damage may not destruct the whole blast actor, so do this few times to make sure it's entirely exploded
 				for (int32 damageCount = 0; damageCount < 3; damageCount++)
 				{
-					TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 100, 200, 500, 100);
+					TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 200, 300, 1000, 500);
 				}
 
 				TmpBlastActor->IncBlastCount();
@@ -369,5 +381,97 @@ void AGDKCharacter::ServerDecreaseBlastActorCountPerSecond_Implementation()
 	}
 
 	UE_LOG(LogGDK, Warning, TEXT("%s - Count:[%d]"), *FString(__FUNCTION__), BlastActorCountPerSecond);
+}
+
+
+void AGDKCharacter::ServerSpawnBlastActors_Implementation()
+{
+	UE_LOG(LogGDK, Warning, TEXT("%s"), *FString(__FUNCTION__));
+
+	// yunjie: destroy all blast actors
+	TArray<AActor*> FoundBlastActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
+
+	if (FoundBlastActors.Num())
+	{
+		UE_LOG(LogGDK, Warning, TEXT("%s - start to destroy existing blast actors"), *FString(__FUNCTION__));
+
+		for (int i = 0; i < FoundBlastActors.Num(); ++i)
+		{
+			REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
+			if (BlastActor)
+			{
+				BlastActor->Destroy();
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn blast actors"), *FString(__FUNCTION__));
+
+		int32 CountLimitation = 10;
+		int32 Count = 0;
+
+		int32 y = 3680;
+		for (int32 i = 0; i < 32; ++i)
+		{
+			int32 x = 60;
+			for (int32 j = 0; j < 15; ++j)
+			{
+				FVector v = FVector(x, y, 60);
+				ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+				if (++Count >= CountLimitation)
+				{
+					goto RETURN_LABEL;
+				}
+				
+				x -= 120;
+			}
+			y -= 120;
+		}
+
+		RETURN_LABEL:
+		return;
+	}
+}
+
+void AGDKCharacter::SetDebrisLifetime_Quick()
+{
+	REAL_BLAST_MESH_ACTOR::SetAllDebrisLifeTime(GetWorld(), DEBRIS_LIFETIME_QUICK_MIN, DEBRIS_LIFETIME_QUICK_MAX);
+	ServerSetDebrisLifetime(DEBRIS_LIFETIME_QUICK_MIN, DEBRIS_LIFETIME_QUICK_MAX);
+}
+
+void AGDKCharacter::SetDebrisLifetime_Normal()
+{
+	REAL_BLAST_MESH_ACTOR::SetAllDebrisLifeTime(GetWorld(), DEBRIS_LIFETIME_NORMAL_MIN, DEBRIS_LIFETIME_NORMAL_MAX);
+	ServerSetDebrisLifetime(DEBRIS_LIFETIME_NORMAL_MIN, DEBRIS_LIFETIME_NORMAL_MAX);
+}
+
+void AGDKCharacter::SetDebrisLifetime_Forever()
+{
+	REAL_BLAST_MESH_ACTOR::SetAllDebrisLifeTime(GetWorld(), DEBRIS_LIFETIME_FOREVER_MIN, DEBRIS_LIFETIME_FOREVER_MAX);
+	ServerSetDebrisLifetime(DEBRIS_LIFETIME_FOREVER_MIN, DEBRIS_LIFETIME_FOREVER_MAX);
+}
+
+void AGDKCharacter::ServerSetDebrisLifetime_Implementation(int32 min, int32 max)
+{
+	UE_LOG(LogGDK, Warning, TEXT("%s - min:[%d], max:[%d]"), *FString(__FUNCTION__), min, max);
+
+	REAL_BLAST_MESH_ACTOR::SetAllDebrisLifeTime(GetWorld(), min, max);
+
+	TArray<AActor*> FoundBlastActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
+	if (FoundBlastActors.Num() > 0)
+	{
+		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[0]);
+		if (BlastActor)
+		{
+			if (!BlastActor->HasAuthority())
+			{
+				BlastActor->CrossServerSetAllDebrisLifetime(min, max);
+			}
+		}
+	}
+
 }
 

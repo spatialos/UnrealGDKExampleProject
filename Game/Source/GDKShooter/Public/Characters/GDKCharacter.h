@@ -110,6 +110,16 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerDecreaseBlastActorCountPerSecond();
 
+	UFUNCTION(Server, Reliable)
+	void ServerSpawnBlastActors();
+
+	void SetDebrisLifetime_Quick();
+	void SetDebrisLifetime_Normal();
+	void SetDebrisLifetime_Forever();
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetDebrisLifetime(int32 min, int32 max);
+
 	UFUNCTION()
 	void BlastTimerEvent();
 
@@ -117,4 +127,6 @@ private:
 	FTimerDelegate BlastDelegate;
 
 	int32				BlastActorCountPerSecond = 1;
+
+	TSubclassOf<class ATestBlastMeshActor>					BlastCubeBlueprint;
 };
