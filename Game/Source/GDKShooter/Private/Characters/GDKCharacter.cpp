@@ -325,7 +325,7 @@ void AGDKCharacter::BlastTimerEvent()
 				*/
 
 				// yunjie: one time damage may not destruct the whole blast actor, so do this few times to make sure it's entirely exploded
-				for (int32 damageCount = 0; damageCount < 3; damageCount++)
+				for (int32 damageCount = 0; damageCount < 2; damageCount++)
 				{
 					TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 200, 300, 1000, 500);
 				}
@@ -399,9 +399,14 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 		for (int i = 0; i < FoundBlastActors.Num(); ++i)
 		{
 			REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
-			if (BlastActor)
+			if (BlastActor->HasAuthority())
 			{
 				BlastActor->Destroy();
+			}
+			else
+			{
+				BlastActor->CrossServerDestroyAllActors();
+				break;
 			}
 		}
 	}
@@ -409,7 +414,7 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 	{
 		UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn blast actors"), *FString(__FUNCTION__));
 
-		int32 CountLimitation = 10;
+		int32 CountLimitation = INT_MAX;
 		int32 Count = 0;
 
 		int32 y = 3680;
@@ -419,6 +424,7 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 			for (int32 j = 0; j < 15; ++j)
 			{
 				FVector v = FVector(x, y, 60);
+				// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
 				ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
 				if (++Count >= CountLimitation)
 				{
