@@ -71,11 +71,6 @@ void UTouchControls::BindControls()
 		CrouchSlideButton->OnMouseButtonDownEvent.BindDynamic(this, &UTouchControls::HandleCrouchPressed);
 		CrouchSlideButton->OnMouseButtonUpEvent.BindDynamic(this, &UTouchControls::HandleCrouchReleased);
 
-		// For now we just send the command.. this has the potential to create odd states if a player pushes both buttons
-		// in some combination, e.g. lpress, rpress, rrelease, lrelease, etc.
-		//LeftShootButton->OnMouseButtonDownEvent.BindDynamic(this, &UTouchControls::HandleTriggerPressed);
-		//LeftShootButton->OnMouseButtonUpEvent.BindDynamic(this, &UTouchControls::HandleTriggerReleased);
-
 		RightShootButton->OnMouseButtonDownEvent.BindDynamic(this, &UTouchControls::HandleTriggerPressed);
 		RightShootButton->OnMouseButtonUpEvent.BindDynamic(this, &UTouchControls::HandleTriggerReleased);
 
@@ -101,12 +96,6 @@ FReply UTouchControls::NativeOnTouchStarted(const FGeometry& InGeometry, const F
 		LeftControllerInfo.LeftTouchStartPosition = LocalPosition;
 		LeftControllerInfo.LeftControllerActive = true;
 		LeftControllerInfo.TouchIndex = TouchIndex;
-		// Quit Sprint status if character have KeepSprint flag.
-		if (LeftControllerInfo.KeepSprint)
-		{
-			EnableSprint(false);
-			LeftControllerInfo.KeepSprint = false;
-		}
 		return FReply::Handled();
 	}
 	else
@@ -174,13 +163,9 @@ void UTouchControls::ShowAllActionButtons(bool Enable) const
 	const ESlateVisibility SlateVisibility = Enable ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
 	CrouchSlideButton->SetVisibility(SlateVisibility);
 	JumpButton->SetVisibility(SlateVisibility);
-	//LeftShootButton->SetVisibility(SlateVisibility);
-	//MeleeButton->SetVisibility(SlateVisibility);
-	//ReloadButton->SetVisibility(SlateVisibility);
 	RightShootButton->SetVisibility(SlateVisibility);
 	SiteScopeButton->SetVisibility(SlateVisibility);
 	SprintButton->SetVisibility(SlateVisibility);
-	//SwapWeaponButton->SetVisibility(SlateVisibility);
 }
 
 namespace
@@ -201,10 +186,31 @@ namespace
 		}
 		return Reply;
 	}
+
+	static FEventReply HandleToggle(bool& bEnabled, UBorder* Button, FGamepadKeyNames::Type KeyName)
+	{
+		if (bEnabled)
+		{
+			Button->SetBrushColor(FLinearColor::White);
+			FSlateApplication::Get().OnControllerButtonReleased(KeyName, 0, false);
+		}
+		else
+		{
+			Button->SetBrushColor(FLinearColor::Green);
+			FSlateApplication::Get().OnControllerButtonPressed(KeyName, 0, false);
+		}
+		bEnabled = !bEnabled;
+		return true;
+	}
 }
 
 FEventReply UTouchControls::HandleJumpPressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
+	if (bCrouchPressed)
+	{
+		//if crouched release crouch then jump
+		HandleCrouchPressed(Geometry, MouseEvent);
+	}
 	JumpButton->SetBrushColor(FLinearColor::Green);
 	return HandlePressed(JumpButton, FGamepadKeyNames::FaceButtonBottom);
 }
@@ -217,14 +223,19 @@ FEventReply UTouchControls::HandleJumpReleased(FGeometry Geometry, const FPointe
 
 FEventReply UTouchControls::HandleCrouchPressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-	CrouchSlideButton->SetBrushColor(FLinearColor::Green);
-	return HandlePressed(CrouchSlideButton, FGamepadKeyNames::FaceButtonRight);
+	if (!bCrouchPressed)
+	{
+		if (bSprintPressed)
+		{
+			HandleSprintPressed(Geometry, MouseEvent);
+		}
+	}
+	return HandleToggle(bCrouchPressed, CrouchSlideButton, FGamepadKeyNames::FaceButtonRight);
 }
 
 FEventReply UTouchControls::HandleCrouchReleased(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-	CrouchSlideButton->SetBrushColor(FLinearColor::White);
-	return HandleReleased(this, FGamepadKeyNames::FaceButtonRight);
+	return true;
 }
 
 FEventReply UTouchControls::HandleTriggerPressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
@@ -239,41 +250,42 @@ FEventReply UTouchControls::HandleTriggerReleased(FGeometry Geometry, const FPoi
 
 FEventReply UTouchControls::HandleScopePressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-	if (bScopePressed)
+	if (!bScopePressed)
 	{
-		SiteScopeButton->SetBrushColor(FLinearColor::White);
-		FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::LeftTriggerThreshold, 0, false);
+		if (bSprintPressed)
+		{
+			//if sprint enabled, disable when using scope
+			HandleSprintPressed(Geometry, MouseEvent);
+		}
 	}
-	else
-	{
-		SiteScopeButton->SetBrushColor(FLinearColor::Green);
-		FSlateApplication::Get().OnControllerButtonPressed(FGamepadKeyNames::LeftTriggerThreshold, 0, false);
-	}
-	bScopePressed = !bScopePressed;
-	return true;
+	return HandleToggle(bScopePressed, SiteScopeButton, FGamepadKeyNames::LeftTriggerThreshold);
 }
 
 FEventReply UTouchControls::HandleScopeReleased(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-	return true;//FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::FaceButtonLeft, 0, false);
+	return true;
 }
 
 FEventReply UTouchControls::HandleSprintPressed(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-	SprintButton->SetBrushColor(FLinearColor::Green);
-	return HandlePressed(SprintButton, FGamepadKeyNames::FaceButtonTop);
+	if (!bSprintPressed)
+	{
+		if (bCrouchPressed)
+		{
+			//if crouched release crouch then jump
+			HandleCrouchPressed(Geometry, MouseEvent);
+		}
+		if (bScopePressed)
+		{
+			HandleScopePressed(Geometry, MouseEvent);
+		}
+	}
+	return HandleToggle(bSprintPressed, SprintButton, FGamepadKeyNames::FaceButtonTop);
 }
 
 FEventReply UTouchControls::HandleSprintReleased(FGeometry Geometry, const FPointerEvent& MouseEvent)
 {
-	SprintButton->SetBrushColor(FLinearColor::White);
-	return HandleReleased(this, FGamepadKeyNames::FaceButtonTop);
-}
-
-bool UTouchControls::NeedShowSprintIndicator(float Angle, float DistanceToTouchStartSquare) const
-{
-	return Angle >= MinAvailableAngle && Angle <= MaxAvailableAngle
-		&& DistanceToTouchStartSquare >= LeftControllerInfo.DistanceToEdgeSquare * FMath::Square(SprintTriggerRadiusRatio);
+	return true;
 }
 
 void UTouchControls::HandleTouchMoveOnLeftController(const FVector2D& TouchPosition)
@@ -292,31 +304,9 @@ void UTouchControls::HandleTouchMoveOnLeftController(const FVector2D& TouchPosit
 		const FVector2D NewPosition =
 			FVector2D(XOffset + LeftControllerInfo.LeftControllerCenter.X, YOffset + LeftControllerInfo.LeftControllerCenter.Y);
 		LeftForeImageCanvasSlot->SetPosition(NewPosition);
-
-		bool ShowSprintIndicator = NeedShowSprintIndicator(Angle, DistanceToTouchStartSquare);
-		bool InSprintStatus = IsCharacterInSprintStatus();
-
-		if (ShowSprintIndicator && !InSprintStatus)
-		{
-			UE_LOG(LogTouchControls, Verbose, TEXT("Enter into sprint status."));
-			EnableSprint(true);
-			ShowSprintWidgets(true);
-		}
-		else if (!ShowSprintIndicator && InSprintStatus)
-		{
-			UE_LOG(LogTouchControls, Verbose, TEXT("Quit sprint status."));
-			EnableSprint(false);
-			ShowSprintWidgets(false);
-		}
 	}
 	else
 	{
-		if (IsCharacterInSprintStatus())
-		{
-			UE_LOG(LogTouchControls, Verbose, TEXT("Quit sprint status."));
-			EnableSprint(false);
-			ShowSprintWidgets(false);
-		}
 		LeftForeImageCanvasSlot->SetPosition(LeftControllerInfo.LeftControllerCenter + Offset);
 	}
 
@@ -326,51 +316,10 @@ void UTouchControls::HandleTouchMoveOnLeftController(const FVector2D& TouchPosit
 
 void UTouchControls::HandleTouchEndOnLeftController()
 {
-	UE_LOG(LogTouchControls, Verbose, TEXT("HandleTouchEndOnLeftController, InSprintStatus:%d, KeepSprint:%d"), IsCharacterInSprintStatus(),
-		LeftControllerInfo.KeepSprint);
 	LeftControllerInfo.LeftControllerActive = false;
 	LeftControllerInfo.TouchIndex = -1;
 	LeftForeImageCanvasSlot->SetPosition(LeftControllerInfo.LeftControllerCenter);
-	if (!IsCharacterInSprintStatus() || !LeftControllerInfo.KeepSprint)
-	{
-		UE_LOG(LogTouchControls, Verbose, TEXT("Quit sprint status"));
-		EnableSprint(false);
-		LeftControllerInfo.MoveVelocity = FVector2D::ZeroVector;
-		//SprintWidget->SetVisibility(ESlateVisibility::Hidden);
-		//SprintArrow->SetVisibility(ESlateVisibility::Hidden);
-	}
-}
-
-void UTouchControls::ShowSprintWidgets(bool Enable) const
-{
-	const ESlateVisibility SlateVisibility = Enable ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
-	//SprintWidget->SetVisibility(SlateVisibility);
-	//SprintArrow->SetVisibility(SlateVisibility);
-}
-
-void UTouchControls::EnableSprint(bool Enable)
-{
-	LeftControllerInfo.InSprintStatus = Enable;
-	if (Enable)
-	{
-		FSlateApplication::Get().OnControllerButtonPressed(FGamepadKeyNames::LeftThumb, 0, false);
-	}
-	else
-	{
-		FSlateApplication::Get().OnControllerButtonReleased(FGamepadKeyNames::LeftThumb, 0, false);
-	}
-}
-
-bool UTouchControls::IsCharacterInSprintStatus() const
-{
-	// So far after set character in sprint status using StavkaCharacter->SetShouldSprint(Enable),
-	// in next frame loop, IsSprinting  still return false, that will cause controller try to SetShouldSprint again,
-	// the result is character enter into super sprint status. So use local status variable first untill this issue is fixed.
-	// Create ticket SVK-4523 to track this.
-	// AStavkaCharacter* StavkaCharacter = Cast<AStavkaCharacter>(PlayerController.Get()->GetCharacter());
-	// return StavkaCharacter ? StavkaCharacter->IsSprinting() : false;
-
-	return LeftControllerInfo.InSprintStatus;
+	LeftControllerInfo.MoveVelocity = FVector2D::ZeroVector;
 }
 
 void UTouchControls::HandleTouchMoveOnRightController(const FVector2D& TouchPosition)
@@ -407,9 +356,3 @@ void UTouchControls::HandleTouchEndOnRightController(const FVector2D& TouchPosit
 	SpeedStatisticsY.ClearData();
 }
 
-FEventReply UTouchControls::KeepSprintAction(FGeometry InGeometry, const FPointerEvent& InPointerEvent)
-{
-	UE_LOG(LogTouchControls, Verbose, TEXT("Enter into keep sprint status"));
-	LeftControllerInfo.KeepSprint = true;
-	return false;
-}

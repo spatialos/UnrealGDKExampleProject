@@ -103,17 +103,10 @@ private:
 	FEventReply HandleSprintReleased(FGeometry Geometry, const FPointerEvent& MouseEvent);
 
 	UFUNCTION()
-	FEventReply KeepSprintAction(FGeometry InGeometry, const FPointerEvent& InPointerEvent);
-
-	UFUNCTION()
 	void OnDeath(const FString& VictimName, int32 VictimId);
 
-	bool NeedShowSprintIndicator(float Angle, float DistanceToTouchStartSquare) const;
 	void HandleTouchMoveOnLeftController(const FVector2D& TouchPosition);
 	void HandleTouchEndOnLeftController();
-	void ShowSprintWidgets(bool Enable) const;
-	void EnableSprint(bool Enable);
-	bool IsCharacterInSprintStatus() const;
 
 	void HandleTouchMoveOnRightController(const FVector2D& TouchPosition);
 	void HandleTouchEndOnRightController(const FVector2D& TouchPosition);
@@ -148,23 +141,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UImage* LeftControllerBackImage;
 
-	//UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	//UBorder* SprintWidget;
-
-	//UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	//UBorder* SprintArrow;
-
-	/**
-	 * \brief
-	 * When the distance between current touch position and touch begin position less then DistanceToEdge, character will walk in a slow speed depend
-	 * on the value of distance/DistanceToEdge. When distance between current touch position and touch begin position less than
-	 * DistanceToEdge*SprintTriggerRadiusRatio and large then SprintTriggerRadiusRatio, character will walk at the normal speed. Otherwise the
-	 * character will enter sprint status.
-	 */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = SprintTriggerRadiusRatio, ClampMin = "1.0", ClampMax = "2.0"),
-	Category = Responsiveness)
-	float SprintTriggerRadiusRatio = 1.3f;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = XLinearScaling, ClampMin = "0.1"), Category = Responsiveness)
 	float XLinearScaling = 0.1f;
 
@@ -181,8 +157,6 @@ private:
 		float DistanceToEdge = 0;
 		float DistanceToEdgeSquare = 0;
 		int32 TouchIndex = -1;
-		bool KeepSprint = false;
-		bool InSprintStatus = false;
 	};
 
 	// This is the data used to manage the camera movement.
@@ -197,6 +171,7 @@ private:
 
 	bool bScopePressed;
 	bool bSprintPressed;
+	bool bCrouchPressed;
 
 	SpeedStatistics SpeedStatisticsX;
 	SpeedStatistics SpeedStatisticsY;
