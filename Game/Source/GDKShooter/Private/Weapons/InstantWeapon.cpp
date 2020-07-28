@@ -55,6 +55,7 @@ void AInstantWeapon::DoFire_Implementation()
 	}
 
 	NextShotTime = UGameplayStatics::GetRealTimeSeconds(GetWorld()) + ShotInterval;
+	
 	FInstantHitInfo HitInfo = DoLineTrace();
 	if (HitInfo.bDidHit)
 	{
