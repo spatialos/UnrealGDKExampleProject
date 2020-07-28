@@ -88,8 +88,8 @@ def change_runtime_settings(project_home):
     ini.add(ios_runtime_settings, 'bEnableCloudKitSupport', 'False')
 
     # for Android extra activity settings
-    extra_activety_settings = '<intent-filter><action android:name="com.google.intent.action.TEST_LOOP"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="application/javascript"/></intent-filter>'
-    ini.add(android_runtime_settings, 'ExtraActivitySettings', extra_activety_settings)
+    extra_activity_settings = '<intent-filter><action android:name="com.google.intent.action.TEST_LOOP"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="application/javascript"/></intent-filter>'
+    ini.add(android_runtime_settings, 'ExtraActivitySettings', extra_activity_settings)
     ini.add(android_runtime_settings, 'bSupportAdMob', 'False')
     ini.add(android_runtime_settings, 'bPackageDataInsideApk', 'True')
 

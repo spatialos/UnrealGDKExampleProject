@@ -173,7 +173,6 @@ pushd "$exampleproject_home"
     Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"          
         $auth_token = buildkite-agent meta-data get "auth-token"
         $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"
-        Write-Host "auth_token: $auth_token"
         Write-Host "Cloud deployment to connect to: $deployment_name"
         $cmdline="connect.to.spatialos -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"
 
@@ -211,6 +210,7 @@ pushd "$exampleproject_home"
             Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
         }
+        # the auto-test step need combine the job-id and queue-id as fullpath of GCS path
         buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-job-id" "$env:BUILDKITE_JOB_ID"
         buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-queue-id" "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
     Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
