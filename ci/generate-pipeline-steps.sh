@@ -48,7 +48,7 @@ insert_setup_build_step(){
     REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"
     REPLACE_AGENT="s|AGENT_PLACEHOLDER|${AGENT}|g"
     REPLACE_COMMAND="s|COMMAND_PLACEHOLDER|${COMMAND}|g"
-    sed ${REPLACE_ENGINE_COMMIT_HASH} "${FILENAME}" | sed ${REPLACE_ENGINE_COMMIT_FORMATTED_HASH} | sed ${REPLACE_AGENT} | sed ${REPLACE_COMMAND} | buildkite-agent pipeline upload
+    sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}" | sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" | sed "${REPLACE_AGENT}" | sed "${REPLACE_COMMAND}" | buildkite-agent pipeline upload
 }
 
 insert_firebase_test_step(){
@@ -58,7 +58,7 @@ insert_firebase_test_step(){
     ENGINE_COMMIT_FORMATTED_HASH=$(sed "s/ /_/g" <<< ${VERSION} | sed "s/-/_/g" | sed "s/\./_/g")
     REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSION}|g"
     REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"
-    sed ${REPLACE_ENGINE_COMMIT_HASH} "${FILENAME}" | sed ${REPLACE_ENGINE_COMMIT_FORMATTED_HASH} | buildkite-agent pipeline upload
+    sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}" | sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" | buildkite-agent pipeline upload
 }
 
 insert_firebase_test_steps(){
