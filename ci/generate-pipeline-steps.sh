@@ -84,18 +84,18 @@ insert_setup_build_steps(){
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo "--- insert-setup-and-build-step-on-mac"
-            insert_setup_build_step ${VERSION} macos ${SETUP_BUILD_COMMAND_BASH}
+            insert_setup_build_step "${VERSION}" macos ${SETUP_BUILD_COMMAND_BASH}
         fi
         
         echo "--- insert-setup-and-build-step-on-windows"
-        insert_setup_build_step ${VERSION} windows ${SETUP_BUILD_COMMAND_PS}
+        insert_setup_build_step "${VERSION}" windows ${SETUP_BUILD_COMMAND_PS}
     else
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo "--- insert-setup-and-build-step-on-mac"
-            insert_setup_build_step ${VERSION} macos ${SETUP_BUILD_COMMAND_BASH}
+            insert_setup_build_step "${VERSION}" macos ${SETUP_BUILD_COMMAND_BASH}
         else
             echo "--- insert-setup-and-build-step-on-windows"
-            insert_setup_build_step ${VERSION} windows ${SETUP_BUILD_COMMAND_PS}        
+            insert_setup_build_step "${VERSION}" windows ${SETUP_BUILD_COMMAND_PS}        
         fi
     fi
 }
@@ -123,7 +123,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
                 break
             fi
 
-            insert_firebase_test_steps ${VERSION}
+            insert_firebase_test_steps "${VERSION}"
             COUNT=$((COUNT+1))
         done
     fi
@@ -139,7 +139,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
         export STEP_NUMBER
         export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
             
-        insert_setup_build_steps ${VERSION}
+        insert_setup_build_steps "${VERSION}"
 
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
