@@ -39,12 +39,12 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
 done
 
 insert_setup_build_step(){
-    VERSIONS="${1}"
+    VERSION="${1}"
     AGENT="${2}"
     COMMAND="${3}"
     FILENAME="ci/nightly.template.steps.yaml"
-    ENGINE_COMMIT_FORMATTED_HASH=$(sed "s/ /_/g" <<< ${VERSIONS} | sed "s/-/_/g" | sed "s/\./_/g")
-    REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSIONS}|g"
+    ENGINE_COMMIT_FORMATTED_HASH=$(sed "s/ /_/g" <<< ${VERSION} | sed "s/-/_/g" | sed "s/\./_/g")
+    REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSION}|g"
     REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"
     REPLACE_AGENT="s|AGENT_PLACEHOLDER|${AGENT}|g"
     REPLACE_COMMAND="s|COMMAND_PLACEHOLDER|${COMMAND}|g"
@@ -52,28 +52,29 @@ insert_setup_build_step(){
 }
 
 insert_firebase_test_step(){
-    VERSIONS="${1}"
+    VERSION="${1}"
     DEVICE="${2}"
     FILENAME="ci/nightly.${DEVICE}.firebase.test.yaml"
-    ENGINE_COMMIT_FORMATTED_HASH=$(sed "s/ /_/g" <<< ${VERSIONS} | sed "s/-/_/g" | sed "s/\./_/g")
-    REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSIONS}|g"
+    ENGINE_COMMIT_FORMATTED_HASH=$(sed "s/ /_/g" <<< ${VERSION} | sed "s/-/_/g" | sed "s/\./_/g")
+    REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSION}|g"
     REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"
     sed ${REPLACE_ENGINE_COMMIT_HASH} "${FILENAME}" | sed ${REPLACE_ENGINE_COMMIT_FORMATTED_HASH} | buildkite-agent pipeline upload
 }
 
 insert_firebase_test_steps(){
-    VERSIONS="${1}"
+    VERSION="${1}"
+    echo "VERSION=${VERSION}"
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
-        insert_firebase_test_step ${VERSIONS} android
+        insert_firebase_test_step ${VERSION} android
         
         if [[ -n "${MAC_BUILD:-}" ]]; then
-            insert_firebase_test_step ${VERSIONS} ios
+            insert_firebase_test_step ${VERSION} ios
         fi
     fi    
 }
 
 insert_setup_build_steps(){
-    VERSIONS="${1}"
+    VERSION="${1}"
     #command line run on mac agent
     SETUP_BUILD_COMMAND_BASH="./ci/setup-and-build.sh"
 
@@ -83,18 +84,18 @@ insert_setup_build_steps(){
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo "--- insert-setup-and-build-step-on-mac"
-            insert_setup_build_step ${VERSIONS} macos ${SETUP_BUILD_COMMAND_BASH}
+            insert_setup_build_step ${VERSION} macos ${SETUP_BUILD_COMMAND_BASH}
         fi
         
         echo "--- insert-setup-and-build-step-on-windows"
-        insert_setup_build_step ${VERSIONS} windows ${SETUP_BUILD_COMMAND_PS}
+        insert_setup_build_step ${VERSION} windows ${SETUP_BUILD_COMMAND_PS}
     else
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo "--- insert-setup-and-build-step-on-mac"
-            insert_setup_build_step ${VERSIONS} macos ${SETUP_BUILD_COMMAND_BASH}
+            insert_setup_build_step ${VERSION} macos ${SETUP_BUILD_COMMAND_BASH}
         else
             echo "--- insert-setup-and-build-step-on-windows"
-            insert_setup_build_step ${VERSIONS} windows ${SETUP_BUILD_COMMAND_PS}        
+            insert_setup_build_step ${VERSION} windows ${SETUP_BUILD_COMMAND_PS}        
         fi
     fi
 }
@@ -151,14 +152,15 @@ if [ -z "${ENGINE_VERSION}" ]; then
 else
     echo "--- Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
+    echo "--- ENGINE_COMMIT_HASH: ${ENGINE_COMMIT_HASH}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
     
     # turn on firebase firebase test steps
     echo "--- insert-firebase-test-steps"
-    insert_firebase_test_steps ${ENGINE_VERSION}
+    insert_firebase_test_steps "${ENGINE_VERSION}"
 
     echo "--- insert-setup-and-build-steps"
-    insert_setup_build_steps ${ENGINE_VERSION}
+    insert_setup_build_steps "${ENGINE_VERSION}"
 
     # if the specified version is set, the engine-version-count should be 1
     buildkite-agent meta-data set "engine-version-count" "1"
