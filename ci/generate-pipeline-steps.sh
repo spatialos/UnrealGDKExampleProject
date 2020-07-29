@@ -65,10 +65,10 @@ insert_firebase_test_steps(){
     VERSION="${1}"
     echo "VERSION=${VERSION}"
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
-        insert_firebase_test_step ${VERSION} android
+        insert_firebase_test_step "${VERSION}" android
         
         if [[ -n "${MAC_BUILD:-}" ]]; then
-            insert_firebase_test_step ${VERSION} ios
+            insert_firebase_test_step "${VERSION}" ios
         fi
     fi    
 }
