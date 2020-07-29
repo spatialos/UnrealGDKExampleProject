@@ -153,12 +153,15 @@ else
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
     
-    #  turn on firebase firebase test steps
+    # turn on firebase firebase test steps
     echo "--- insert-firebase-test-steps"
     insert_firebase_test_steps ${ENGINE_VERSION}
 
     echo "--- insert-setup-and-build-steps"
     insert_setup_build_steps ${ENGINE_VERSION}
+
+    # if the specified version is set, the engine-version-count should be 1
+    buildkite-agent meta-data set "engine-version-count" "1"
 fi
 
 # generate auth token for both android and ios firebase test
