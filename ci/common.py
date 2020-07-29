@@ -21,11 +21,6 @@ def run_shell(cmds):
                      stderr=subprocess.PIPE)
 
 
-def set_buildkite_meta_data(name, value):
-    args = 'meta-data set "%s" "%s"' % (name, value)
-    run_command('buildkite-agent', args)
-
-
 def get_buildkite_meta_data(name):
     cmds = [
         'buildkite-agent',
