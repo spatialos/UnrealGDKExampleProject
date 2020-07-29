@@ -38,12 +38,6 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
     fi
 done
 
-upload_step(){
-    CONTENT="${1}"
-    echo "${CONTENT}"
-    buildkite-agent pipeline upload "${CONTENT}"
-}
-
 insert_setup_build_step(){
     VERSION="${1}"
     AGENT="${2}"
@@ -54,13 +48,7 @@ insert_setup_build_step(){
     REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"
     REPLACE_AGENT="s|AGENT_PLACEHOLDER|${AGENT}|g"
     REPLACE_COMMAND="s|COMMAND_PLACEHOLDER|${COMMAND}|g"
-    STEP1=$(sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}")
-    echo "STEP1=${STEP1}"
-    STEP2=$(sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" ${STEP1})
-    echo "STEP2=${STEP2}"
-    STEP3=$(sed "${REPLACE_AGENT}" ${STEP2})
-    echo "STEP3=${STEP3}"
-    # sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}" | sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" | sed "${REPLACE_AGENT}" | sed "${REPLACE_COMMAND}" | upload_step
+    sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}" | sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" | sed "${REPLACE_AGENT}" | sed "${REPLACE_COMMAND}" | buildkite-agent pipeline upload
 }
 
 insert_firebase_test_step(){
@@ -69,12 +57,8 @@ insert_firebase_test_step(){
     FILENAME="ci/nightly.${DEVICE}.firebase.test.yaml"
     ENGINE_COMMIT_FORMATTED_HASH=$(sed "s/ /_/g" <<< ${VERSION} | sed "s/-/_/g" | sed "s/\./_/g")
     REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSION}|g"
-    REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"    
-    STEP1=$(sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}")
-    echo "STEP1=${STEP1}"
-    STEP2=$(sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" ${STEP1})
-    echo "STEP2=${STEP2}"
-    # sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}" | sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" | upload_step
+    REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"
+    sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}" | sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" | buildkite-agent pipeline upload
 }
 
 insert_firebase_test_steps(){
@@ -100,18 +84,18 @@ insert_setup_build_steps(){
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo "--- insert-setup-and-build-step-on-mac"
-            insert_setup_build_step "${VERSION}" macos ${SETUP_BUILD_COMMAND_BASH}
+            insert_setup_build_step ${VERSION} macos ${SETUP_BUILD_COMMAND_BASH}
         fi
         
         echo "--- insert-setup-and-build-step-on-windows"
-        insert_setup_build_step "${VERSION}" windows ${SETUP_BUILD_COMMAND_PS}
+        insert_setup_build_step ${VERSION} windows ${SETUP_BUILD_COMMAND_PS}
     else
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo "--- insert-setup-and-build-step-on-mac"
-            insert_setup_build_step "${VERSION}" macos ${SETUP_BUILD_COMMAND_BASH}
+            insert_setup_build_step ${VERSION} macos ${SETUP_BUILD_COMMAND_BASH}
         else
             echo "--- insert-setup-and-build-step-on-windows"
-            insert_setup_build_step "${VERSION}" windows ${SETUP_BUILD_COMMAND_PS}        
+            insert_setup_build_step ${VERSION} windows ${SETUP_BUILD_COMMAND_PS}        
         fi
     fi
 }
@@ -139,7 +123,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
                 break
             fi
 
-            insert_firebase_test_steps "${VERSION}"
+            insert_firebase_test_steps ${VERSION}
             COUNT=$((COUNT+1))
         done
     fi
@@ -155,7 +139,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
         export STEP_NUMBER
         export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
             
-        insert_setup_build_steps "${VERSION}"
+        insert_setup_build_steps ${VERSION}
 
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
