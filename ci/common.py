@@ -4,6 +4,7 @@ import re
 import json
 import subprocess
 
+
 def log(msg, expand=False):
     if(expand):
         print("+++ %s" % msg)
@@ -18,7 +19,7 @@ def run_command(cmd, args):
 def run_shell(cmds):
     cmdline = ' '.join(cmds)
     return subprocess.Popen(cmdline, shell=True, stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE)
+                            stderr=subprocess.PIPE)
 
 
 def get_buildkite_meta_data(name):

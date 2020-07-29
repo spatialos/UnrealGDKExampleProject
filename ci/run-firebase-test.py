@@ -17,9 +17,10 @@ import sys
 import common
 import platform
 
+
 def switch_gcloud_project(project_id):
     args = ['config', 'set', 'project', project_id]
-    common.run_command('gcloud', ' '.join(args)) 
+    common.run_command('gcloud', ' '.join(args))
 
 
 def check_firebase_log(app_platform, url, device, success_keyword):
@@ -36,15 +37,15 @@ def check_firebase_log(app_platform, url, device, success_keyword):
         return False
     fullurl = 'gs://%s%s/%s' % (url, device, filename)
     common.run_command('gsutil', 'cp %s %s' % (fullurl, localfilename))
-
     if os.path.exists(localfilename):
         with io.open(localfilename, encoding="utf8") as fp:
             line = fp.readline()
-            while line:                
+            while line:
                 if success_keyword in line:
                     return True
                 line = fp.readline()
     return False
+
 
 def gcloud_upload(app_platform, app_path, gcloud_storage_keyword, success_keyword):
     cmds = [
@@ -78,6 +79,7 @@ def gcloud_upload(app_platform, app_path, gcloud_storage_keyword, success_keywor
             succeeded += 1
     return succeeded, total
 
+
 def get_gcs_and_local_path(app_platform, engine_commit_formatted_hash):
     filename = ''
     localfilename = ''
@@ -88,31 +90,39 @@ def get_gcs_and_local_path(app_platform, engine_commit_formatted_hash):
         agentplatform = 'windows'
     else:
         localfilename = 'GDKShooter.ipa'
-        filename = '%s/IOS/%s' % (path,localfilename)
+        filename = '%s/IOS/%s' % (path, localfilename)
         agentplatform = 'macos'
-    jobid = common.get_buildkite_meta_data('%s-build-%s-job-id' % (engine_commit_formatted_hash, app_platform))
-    queueid = common.get_buildkite_meta_data('%s-build-%s-queue-id' % (engine_commit_formatted_hash, app_platform))
-    organization = common.get_environment_variable('BUILDKITE_ORGANIZATION_SLUG','improbable')
-    pipeline = common.get_environment_variable('BUILDKITE_PIPELINE_SLUG','unrealgdkexampleproject-nightly')
-    buildid = common.get_environment_variable('BUILDKITE_BUILD_ID','')
+    jobid = common.get_buildkite_meta_data(
+        '%s-build-%s-job-id' % (engine_commit_formatted_hash, app_platform))
+    queueid = common.get_buildkite_meta_data(
+        '%s-build-%s-queue-id' % (engine_commit_formatted_hash, app_platform))
+    organization = common.get_environment_variable(
+        'BUILDKITE_ORGANIZATION_SLUG', 'improbable')
+    pipeline = common.get_environment_variable(
+        'BUILDKITE_PIPELINE_SLUG', 'unrealgdkexampleproject-nightly')
+    buildid = common.get_environment_variable('BUILDKITE_BUILD_ID', '')
     gcshead = 'gs://io-internal-infra-intci-artifacts-production'
-    gcs_path = '%s/organizations/%s/pipelines/%s/builds/%s/jobs/%s/%s/%s/%s' % (gcshead, organization, pipeline, buildid, queueid, jobid, agentplatform, filename)
-    return gcs_path,localfilename
+    gcs_path = '%s/organizations/%s/pipelines/%s/builds/%s/jobs/%s/%s/%s/%s' % (
+        gcshead, organization, pipeline, buildid, queueid, jobid, agentplatform, filename)
+    return gcs_path, localfilename
+
 
 def download_app(app_platform, engine_commit_formatted_hash):
-    gclpath, localpath = get_gcs_and_local_path(app_platform, engine_commit_formatted_hash)
+    gclpath, localpath = get_gcs_and_local_path(
+        app_platform, engine_commit_formatted_hash)
     if os.path.exists(localpath):
         os.remove(localpath)
     args = ['cp', gclpath, localpath]
     common.run_command('gsutil', ' '.join(args))
     return localpath
 
+
 if __name__ == "__main__":
     app_platform = sys.argv[1]
     engine_commit_formatted_hash = sys.argv[2]
     cmds = ['gcloud', 'config', 'get-value', 'project']
     res = common.run_shell(cmds)
-    project = res.stdout.read().decode('UTF-8')    
+    project = res.stdout.read().decode('UTF-8')
 
     # set to firebase gcloud project both Windows & Mac
     switch_gcloud_project('chlorodize-bipennated-8024348')
@@ -123,8 +133,9 @@ if __name__ == "__main__":
     # upload local app to firebase for test
     success_keyword = 'PlayerSpawn returned from server sucessfully'
     gcloud_storage_keyword = 'https://console.developers.google.com/storage/browser/'
-    succeed, total = gcloud_upload(app_platform, localpath, gcloud_storage_keyword, success_keyword)
-    
+    succeed, total = gcloud_upload(
+        app_platform, localpath, gcloud_storage_keyword, success_keyword)
+
     # set to buildkite infrastructure gcloud project
     switch_gcloud_project(project)
 

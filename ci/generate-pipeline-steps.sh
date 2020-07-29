@@ -84,18 +84,18 @@ insert_setup_build_steps(){
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo "--- insert-setup-and-build-step-on-mac"
-            insert_setup_build_step "${VERSION}" macos ${SETUP_BUILD_COMMAND_BASH}
+            insert_setup_build_step "${VERSION}" macos "${SETUP_BUILD_COMMAND_BASH}"
         fi
         
         echo "--- insert-setup-and-build-step-on-windows"
-        insert_setup_build_step "${VERSION}" windows ${SETUP_BUILD_COMMAND_PS}
+        insert_setup_build_step "${VERSION}" windows "${SETUP_BUILD_COMMAND_PS}"
     else
         if [[ -n "${MAC_BUILD:-}" ]]; then
             echo "--- insert-setup-and-build-step-on-mac"
-            insert_setup_build_step "${VERSION}" macos ${SETUP_BUILD_COMMAND_BASH}
+            insert_setup_build_step "${VERSION}" macos "${SETUP_BUILD_COMMAND_BASH}"
         else
             echo "--- insert-setup-and-build-step-on-windows"
-            insert_setup_build_step "${VERSION}" windows ${SETUP_BUILD_COMMAND_PS}        
+            insert_setup_build_step "${VERSION}" windows "${SETUP_BUILD_COMMAND_PS}"        
         fi
     fi
 }
