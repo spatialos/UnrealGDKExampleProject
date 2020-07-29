@@ -7,8 +7,8 @@ param(
 
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment    
-    $firebase_autotest = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_AUTOTEST" -default_value "false"
-    if ($firebase_autotest -eq "true") {
+    $firebase_test = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_TEST" -default_value "false"
+    if ($firebase_test -eq "true") {
         $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"
     }
     else {

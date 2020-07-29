@@ -6,18 +6,18 @@ $slack_channel = Get-Env-Variable-Value-Or-Default -environment_variable_name "S
 $engine_version_count = buildkite-agent meta-data get "engine-version-count"
 $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
 $mac_build = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAC_BUILD" -default_value "false"
-$firebase_autotest = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_AUTOTEST" -default_value "false"
+$firebase_test = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_TEST" -default_value "false"
 $gdk_commit_hash = buildkite-agent meta-data get "gdk_commit_hash"
 
 # Send a Slack notification with a link to the new deployment and to the build.
 Start-Event "slack-notify" "slack-notify"
     # Build Slack text
     if($env:NIGHTLY_BUILD -eq "true"){
-        $slack_text = ":night_with_stars: Nightly build of *Example Project* *succeeded*."
+        $slack_text = ":night_with_stars: Nightly build of *Example Project* succeeded."
     }
-    elseif ($firebase_autotest -eq "true") {
-        $slack_text = ":night_with_stars: Firebase Automatic Test *Example Project* *succeeded*."
-    } else {
+    elseif ($firebase_test -eq "true"){
+        $slack_text = ":night_with_stars: Firebase Connection Tests for the *Example Project* succeeded."
+    }else{
         $slack_text = "*Example Project* build by $env:BUILDKITE_BUILD_CREATOR succeeded."
     }
 
@@ -36,7 +36,7 @@ Start-Event "slack-notify" "slack-notify"
                     fallback = "Find build here: $build_url."
                     color = "good"
                     fields = @(
-                            if ($firebase_autotest -eq "true") {
+                            if ($firebase_test -eq "true") {
                                 @{
                                     title = "Android Test Result"
                                     value = "succeeded"

@@ -15,7 +15,7 @@ $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name 
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
 $engine_commit_formatted_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATTED_HASH" -default_value "0"
 $main_map_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAIN_MAP_NAME" -default_value "Control_Small"
-$firebase_autotest = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_AUTOTEST" -default_value "false"
+$firebase_test = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_TEST" -default_value "false"
 
 $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 $game_project = "$exampleproject_home/Game/GDKShooter.uproject"
@@ -159,7 +159,7 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
-    if ($firebase_autotest -eq "true") {
+    if ($firebase_test -eq "true") {
         #Prepare Android Project Settings for Firebase
         Start-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
             $proc = Start-Process -PassThru -NoNewWindow -FilePath "python" -ArgumentList @(`
@@ -210,7 +210,7 @@ pushd "$exampleproject_home"
             Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
         }
-        # the auto-test step need combine the job-id and queue-id as fullpath of GCS path
+        # Store the queue and job id to be able to construct the GCS path when running the firebase tests.
         buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-job-id" "$env:BUILDKITE_JOB_ID"
         buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-queue-id" "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
     Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"

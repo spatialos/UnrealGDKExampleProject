@@ -33,7 +33,7 @@ def check_firebase_log(app_platform, url, device, success_keyword):
         filename = 'syslog.txt'
     else:
         print("unsupported platform:%s" % app_platform)
-        return ''
+        return False
     fullurl = 'gs://%s%s/%s' % (url, device, filename)
     common.run_command('gsutil', 'cp %s %s' % (fullurl, localfilename))
 
@@ -46,7 +46,7 @@ def check_firebase_log(app_platform, url, device, success_keyword):
                 line = fp.readline()
     return False
 
-def gcloud_upload(app_platform, app_path):
+def gcloud_upload(app_platform, app_path, gcloud_storage_keyword, success_keyword):
     cmds = [
         'gcloud',
         'beta',
@@ -61,9 +61,6 @@ def gcloud_upload(app_platform, app_path):
     ]
     res = common.run_shell(cmds)
     gcloud_storage_url = ''
-    gcloud_storage_keyword = 'https://console.developers.google.com/storage/browser/'
-    success_keyword = common.get_environment_variable(
-        'SUCCESS_KEYWORD', 'PlayerSpawn returned from server sucessfully')
     for line in res.stderr.readlines():
         utf8 = line.decode('UTF-8').strip()
         if len(utf8) > 0:
@@ -113,23 +110,20 @@ def download_app(app_platform, engine_commit_formatted_hash):
 if __name__ == "__main__":
     app_platform = sys.argv[1]
     engine_commit_formatted_hash = sys.argv[2]
-    parent_event = "automatic-test-%s-on-%s:" % (app_platform, platform.system())
     cmds = ['gcloud', 'config', 'get-value', 'project']
     res = common.run_shell(cmds)
-    project = res.stdout.read().decode('UTF-8')
-    
-    # set gcloud project_id both Windows & Mac
-    gcloud_project_id = common.get_environment_variable(
-        'GCLOUD_PROJECT_ID', 'chlorodize-bipennated-8024348')
+    project = res.stdout.read().decode('UTF-8')    
 
-    # set to firebase gcloud project
-    switch_gcloud_project(gcloud_project_id)
+    # set to firebase gcloud project both Windows & Mac
+    switch_gcloud_project('chlorodize-bipennated-8024348')
 
     # download app to local
     localpath = download_app(app_platform, engine_commit_formatted_hash)
 
     # upload local app to firebase for test
-    succeed, total = gcloud_upload(app_platform, localpath)
+    success_keyword = 'PlayerSpawn returned from server sucessfully'
+    gcloud_storage_keyword = 'https://console.developers.google.com/storage/browser/'
+    succeed, total = gcloud_upload(app_platform, localpath, gcloud_storage_keyword, success_keyword)
     
     # set to buildkite infrastructure gcloud project
     switch_gcloud_project(project)

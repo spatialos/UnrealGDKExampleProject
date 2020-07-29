@@ -121,7 +121,7 @@ pushd "$(dirname "$0")"
         "${GAME_PROJECT}"
     
     CMDLINE=""
-    if [ "$FIREBASE_AUTOTEST" == "true" ]; then
+    if [ "$FIREBASE_TEST" == "true" ]; then
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 

@@ -34,9 +34,8 @@ windows: &windows
     - ca-johnson/taskkill#v4.1: ~
 
 steps:
-  - label: "auto-test-ios-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
-    command: "python ci/auto-test.py ios ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
+  - label: "firebase-test-android-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
+    command: "python ci/run-firebase-test.py android ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
     <<: *windows
     depends_on:
       - "setup-and-build-windows-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
-      - "setup-and-build-macos-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"

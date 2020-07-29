@@ -22,8 +22,8 @@ def run_shell(cmds):
 
 
 def set_buildkite_meta_data(name, value):
-    cmdline = 'buildkite-agent meta-data set "%s" "%s"' % (name, value)
-    os.system(cmdline)
+    args = 'meta-data set "%s" "%s"' % (name, value)
+    run_command('buildkite-agent', args)
 
 
 def get_buildkite_meta_data(name):
