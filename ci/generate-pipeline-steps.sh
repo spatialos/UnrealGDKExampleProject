@@ -154,7 +154,7 @@ else
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
     echo "--- ENGINE_COMMIT_HASH: ${ENGINE_COMMIT_HASH}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"    
-    export STEP_NUMBER=0
+    export STEP_NUMBER=1
     
     # turn on firebase firebase test steps
     echo "--- insert-firebase-test-steps"
