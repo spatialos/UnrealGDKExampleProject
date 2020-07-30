@@ -1,7 +1,5 @@
 # coding=utf-8
 import os
-import re
-import json
 import subprocess
 
 
@@ -30,7 +28,7 @@ def get_buildkite_meta_data(name):
         '"%s"' % name
     ]
     res = run_shell(cmds)
-    return res.stdout.read()
+    return res.stdout.read().decode('UTF-8').strip()
 
 
 def get_environment_variable(name, default_value):
