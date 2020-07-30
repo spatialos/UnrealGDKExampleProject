@@ -73,7 +73,7 @@ steps:
     if: |
       build.env("NIGHTLY_BUILD") == "true" || 
       build.env("SLACK_NOTIFY") == "true" || 
-      build.env("FIREBASE_AUTOTEST") == "true" || 
+      build.env("FIREBASE_TEST") == "true" || 
       build.branch == "master"
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci/slack-notify.ps1"
     <<: *windows
