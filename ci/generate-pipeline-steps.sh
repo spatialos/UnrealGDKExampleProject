@@ -63,7 +63,6 @@ insert_firebase_test_step(){
 
 insert_firebase_test_steps(){
     VERSION="${1}"
-    echo "VERSION=${VERSION}"
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
         insert_firebase_test_step "${VERSION}" android
         
@@ -152,7 +151,6 @@ if [ -z "${ENGINE_VERSION}" ]; then
 else
     echo "--- Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
-    echo "--- ENGINE_COMMIT_HASH: ${ENGINE_COMMIT_HASH}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"    
     export STEP_NUMBER=1
     

@@ -16,13 +16,9 @@ Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
         $deployment_name = "exampleproject$($env:STEP_NUMBER)_${date_and_time}_$($gdk_commit_hash)"
     }
     
-    Write-Log "$deployment_name"
     $assembly_name = "$($deployment_name)_asm"
-    Write-Log "$assembly_name"
     $runtime_version = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_RUNTIME_VERSION" -default_value ""
-    Write-Log "$runtime_version"
     $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
-    Write-Log "$project_name"
     
 pushd "spatial"
     Start-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
