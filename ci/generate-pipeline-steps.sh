@@ -153,7 +153,8 @@ else
     echo "--- Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
     echo "--- ENGINE_COMMIT_HASH: ${ENGINE_COMMIT_HASH}"
-    export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
+    export GDK_BRANCH="${GDK_BRANCH_LOCAL}"    
+    export STEP_NUMBER=0
     
     # turn on firebase firebase test steps
     echo "--- insert-firebase-test-steps"
@@ -163,7 +164,6 @@ else
     insert_setup_build_steps "${ENGINE_VERSION}"
 
     # if the specified version is set, the engine-version-count should be 1
-    STEP_NUMBER=0
     buildkite-agent meta-data set "engine-version-count" "1"
 fi
 
