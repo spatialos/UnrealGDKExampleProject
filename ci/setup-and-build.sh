@@ -125,15 +125,15 @@ pushd "$(dirname "$0")"
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 
-        AUTH_TOKEN=$(buildkite-agent meta-data get "auth-token")
-        DEPLOYMENT_NAME=$(buildkite-agent meta-data get "deployment-name-${STEP_NUMBER}")
      
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
-        buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"
-        CMDLINE="connect.to.spatialos -workerType UnrealClient -devauthToken ${AUTH_TOKEN} -deployment ${DEPLOYMENT_NAME} -linkProtocol Tcp"            
+        buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"       
     fi
 
     echo "--- build-ios-client"
+    AUTH_TOKEN=$(buildkite-agent meta-data get "auth-token")
+    DEPLOYMENT_NAME=$(buildkite-agent meta-data get "deployment-name-${STEP_NUMBER}")
+    CMDLINE="connect.to.spatialos -workerType UnrealClient -devauthToken ${AUTH_TOKEN} -deployment ${DEPLOYMENT_NAME} -linkProtocol Tcp"     
     run_uat \
         "${ENGINE_DIRECTORY}" \
         "${EXAMPLEPROJECT_HOME}" \

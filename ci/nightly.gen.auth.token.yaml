@@ -35,7 +35,6 @@ windows: &windows
 
 steps:
   - label: "generate-auth_token-and-deployment-name"
-    if: build.env("FIREBASE_TEST") == "true"
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/generate-auth-token.ps1"
     <<: *windows 
     key: "generate-auth_token"

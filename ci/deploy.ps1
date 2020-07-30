@@ -6,16 +6,8 @@ param(
 . "$PSScriptRoot\common.ps1"
 
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
-    # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment    
-    $firebase_test = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_TEST" -default_value "false"
-    if ($firebase_test -eq "true") {
-        $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"
-    }
-    else {
-        $date_and_time = Get-Date -Format "MMdd_HHmm"
-        $deployment_name = "exampleproject$($env:STEP_NUMBER)_${date_and_time}_$($gdk_commit_hash)"
-    }
-    
+    # deployment_name is seted by generate-auth-token.ps1 before
+    $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"    
     $assembly_name = "$($deployment_name)_asm"
     $runtime_version = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_RUNTIME_VERSION" -default_value ""
     $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
