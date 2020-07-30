@@ -63,6 +63,12 @@ void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
 
 void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller)
 {
+	if (TeamAssignments.Num() == 0)
+	{
+		UE_LOG(LogTeamDeathmatchSpawnerComponent, Error, TEXT("Requested spawn but Spawner component hasn't been initialized! Controller: %s"), *GetNameSafe(Controller));
+		return;
+	}
+
 	int32 TeamId = -1;
 	if (SpawnedPlayers.Contains(Controller))
 	{
