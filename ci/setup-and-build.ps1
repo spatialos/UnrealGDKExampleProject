@@ -21,6 +21,20 @@ $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 $game_project = "$exampleproject_home/Game/GDKShooter.uproject"
 
 pushd "$exampleproject_home"
+    Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
+        pushd "Game"
+            New-Item -Name "Plugins" -ItemType Directory -Force
+            pushd "Plugins"
+            Start-Process -Wait -PassThru -NoNewWindow -FilePath "git" -ArgumentList @(`
+                "clone", `
+                "$gdk_repo", `
+                "--depth 1", `
+                "-b $gdk_branch_name"
+            )
+            popd
+        popd
+    Finish-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
+
     Start-Event "set-up-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
         pushd $gdk_home
             # Invoke the GDK's setup script
