@@ -121,11 +121,11 @@ pushd "$(dirname "$0")"
         "${GAME_PROJECT}"
     
     CMDLINE=""
-    if [ "$FIREBASE_TEST" == "true" ]; then
+    if [[ -n "${FIREBASE_TEST:-}" ]]; then
         echo "--- change-runtime-settings"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 
-     
+        # for firebase test
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"       
     fi
