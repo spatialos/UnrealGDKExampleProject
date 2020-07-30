@@ -44,12 +44,6 @@ void UTouchControls::NativeConstruct()
 	UCanvasPanelSlot* LeftBackImageCanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(LeftControllerBackImage);
 	LeftControllerInfo.DistanceToEdge = LeftBackImageCanvasSlot->GetSize().X / 2;
 	LeftControllerInfo.DistanceToEdgeSquare = FMath::Square(LeftControllerInfo.DistanceToEdge);
-
-	//SprintWidget->SetVisibility(ESlateVisibility::Hidden);
-	//SprintArrow->SetVisibility(ESlateVisibility::Hidden);
-
-	// Bind keep sprint icon touch event to KeepSprintAction function.
-	//SprintWidget->OnMouseButtonUpEvent.BindDynamic(this, &UTouchControls::KeepSprintAction);
 	if (UControllerEventsComponent* ControllerEvents = Cast<UControllerEventsComponent>(PlayerController->GetComponentByClass(UControllerEventsComponent::StaticClass())))
 	{
 		ControllerEvents->DeathDetailsEvent.AddDynamic(this, &UTouchControls::OnDeath);

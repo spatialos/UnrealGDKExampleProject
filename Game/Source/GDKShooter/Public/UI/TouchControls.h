@@ -123,10 +123,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UBorder* JumpButton;
 
-	// Shoot weapon (left)
-	//UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	//UBorder* LeftShootButton;
-
 	// Shoot weapon (right)
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UBorder* RightShootButton;
