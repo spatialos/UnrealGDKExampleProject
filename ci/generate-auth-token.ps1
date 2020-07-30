@@ -20,6 +20,7 @@ Start-Event "generate-project-name" "generate-auth-token-and-deployment-:windows
     for ($i = 0; $i -lt $engine_version_count; $i++){
         $index = "$($i+1)"
         $deployment_name = "exampleproject$(${index})_${date_and_time}_$($gdk_commit_hash)"
+        Write-Log "deployment_name:$deployment_name"
         buildkite-agent meta-data set "deployment-name-$index" "$deployment_name"
     }
 Finish-Event "generate-project-name" "generate-auth-token-and-deployment-:windows:"
