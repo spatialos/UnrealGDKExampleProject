@@ -163,7 +163,7 @@ else
     insert_setup_build_steps "${ENGINE_VERSION}"
 
     # if the specified version is set, the engine-version-count should be 1
-    export STEP_NUMBER="0"
+    STEP_NUMBER=0
     buildkite-agent meta-data set "engine-version-count" "1"
 fi
 
