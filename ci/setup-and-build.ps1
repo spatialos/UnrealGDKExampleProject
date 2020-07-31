@@ -7,8 +7,8 @@ param(
   [string] $deployment_cluster_region = "eu",
   [string] $project_name = "unreal_gdk",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
-  [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine"
-  [string] $msbuild_path = "$((Get-Item 'Env:programfiles(x86)').Value)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe", ## Location of MSBuild.exe on the build agent, as it only has the build tools, not the full visual studio
+  [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine",
+  [string] $msbuild_path = "$((Get-Item 'Env:programfiles(x86)').Value)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe" ## Location of MSBuild.exe on the build agent, as it only has the build tools, not the full visual studio
 )
 
 . "$PSScriptRoot\common.ps1"
