@@ -115,7 +115,7 @@ pushd "$(dirname "$0")"
         "${EXAMPLEPROJECT_HOME}" \
         "Development" \
         "Mac" \
-        "${EXAMPLEPROJECT_HOME}/cooked-mac" \
+        "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATTED_HASH}" \
         "-iterative" \
         "" \
         "${GAME_PROJECT}"
@@ -126,8 +126,8 @@ pushd "$(dirname "$0")"
         python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 
         # for firebase test
-        buildkite-agent meta-data set "${ENGINE_COMMIT_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
-        buildkite-agent meta-data set "${ENGINE_COMMIT_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"       
+        buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
+        buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"       
     fi
 
     echo "--- build-ios-client"

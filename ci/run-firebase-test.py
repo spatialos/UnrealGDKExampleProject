@@ -80,7 +80,7 @@ def gcloud_upload(app_platform, app_path, gcloud_storage_keyword, success_keywor
     return succeeded, total
 
 
-def get_gcs_and_local_path(app_platform, engine_commit_hash):
+def get_gcs_and_local_path(app_platform, engine_commit_formatted_hash):
     filename = ''
     localfilename = ''
     path = 'cooked-%s' % app_platform
@@ -93,9 +93,9 @@ def get_gcs_and_local_path(app_platform, engine_commit_hash):
         filename = '%s/IOS/%s' % (path, localfilename)
         agentplatform = 'macos'
     jobid = common.get_buildkite_meta_data(
-        '%s-build-%s-job-id' % (engine_commit_hash, app_platform))
+        '%s-build-%s-job-id' % (engine_commit_formatted_hash, app_platform))
     queueid = common.get_buildkite_meta_data(
-        '%s-build-%s-queue-id' % (engine_commit_hash, app_platform))
+        '%s-build-%s-queue-id' % (engine_commit_formatted_hash, app_platform))
     organization = common.get_environment_variable(
         'BUILDKITE_ORGANIZATION_SLUG', 'improbable')
     pipeline = common.get_environment_variable(
@@ -107,9 +107,9 @@ def get_gcs_and_local_path(app_platform, engine_commit_hash):
     return gcs_path, localfilename
 
 
-def download_app(app_platform, engine_commit_hash):
+def download_app(app_platform, engine_commit_formatted_hash):
     gclpath, localpath = get_gcs_and_local_path(
-        app_platform, engine_commit_hash)
+        app_platform, engine_commit_formatted_hash)
     if os.path.exists(localpath):
         os.remove(localpath)
     args = ['cp', gclpath, localpath]
@@ -119,7 +119,7 @@ def download_app(app_platform, engine_commit_hash):
 
 if __name__ == "__main__":
     app_platform = sys.argv[1]
-    engine_commit_hash = sys.argv[2]
+    engine_commit_formatted_hash = sys.argv[2]
     cmds = ['gcloud', 'config', 'get-value', 'project']
     res = common.run_shell(cmds)
     project = res.stdout.read().decode('UTF-8')
@@ -128,7 +128,7 @@ if __name__ == "__main__":
     switch_gcloud_project('chlorodize-bipennated-8024348')
 
     # download app to local
-    localpath = download_app(app_platform, engine_commit_hash)
+    localpath = download_app(app_platform, engine_commit_formatted_hash)
 
     # upload local app to firebase for test
     success_keyword = 'PlayerSpawn returned from server sucessfully'

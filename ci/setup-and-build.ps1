@@ -13,7 +13,7 @@ param(
 $gdk_repo = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_REPOSITORY" -default_value ""
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
-$engine_commit_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_HASH" -default_value "0"
+$engine_commit_formatted_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATTED_HASH" -default_value "0"
 $main_map_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAIN_MAP_NAME" -default_value "Control_Small"
 $firebase_test = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_TEST" -default_value "false"
 
@@ -203,8 +203,8 @@ pushd "$exampleproject_home"
             Throw "Failed to build Android Development Client"
         }
         # Store the queue and job id to be able to construct the GCS path when running the firebase tests.
-        buildkite-agent meta-data set "$engine_commit_hash-build-android-job-id" "$env:BUILDKITE_JOB_ID"
-        buildkite-agent meta-data set "$engine_commit_hash-build-android-queue-id" "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
+        buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-job-id" "$env:BUILDKITE_JOB_ID"
+        buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-queue-id" "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
     Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
 
     # Deploy the project to SpatialOS

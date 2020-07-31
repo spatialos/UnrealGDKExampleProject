@@ -54,7 +54,7 @@ steps:
   - label: "build-and-deploy-AGENT_PLACEHOLDER-ENGINE_COMMIT_HASH_PLACEHOLDER"
     command: "COMMAND_PLACEHOLDER"
     <<: *AGENT_PLACEHOLDER 
-    key: "setup-and-build-AGENT_PLACEHOLDER-ENGINE_COMMIT_HASH_PLACEHOLDER"
+    key: "setup-and-build-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
     depends_on:
       - "generate-auth_token"
     artifact_paths:
@@ -64,6 +64,7 @@ steps:
       - "cooked-ios/**/*"
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
+      ENGINE_COMMIT_FORMATTED_HASH: "ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
       STEP_NUMBER: "${STEP_NUMBER}"
       GDK_BRANCH: "${GDK_BRANCH}"
       UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
