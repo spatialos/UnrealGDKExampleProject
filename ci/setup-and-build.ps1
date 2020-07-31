@@ -129,6 +129,9 @@ pushd "$exampleproject_home"
     Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
+        $patch_path = "${exampleproject_home}\patch_more-logs"
+        (Get-Content -Path $patch_path) | patch -p1 -d ${unreal_engine_symlink_dir}
+
         $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
             "GDKShooter", `
             "Win64", `

@@ -1,0 +1,31 @@
+diff --git a/Engine/Source/Programs/AutomationTool/AutomationUtils/ScriptCompiler.cs b/Engine/Source/Programs/AutomationTool/AutomationUtils/ScriptCompiler.cs
+index 42427b81875..47dd38cd21e 100644
+--- a/Engine/Source/Programs/AutomationTool/AutomationUtils/ScriptCompiler.cs
++++ b/Engine/Source/Programs/AutomationTool/AutomationUtils/ScriptCompiler.cs
+@@ -50,7 +50,7 @@ namespace AutomationTool
+ 			// Find all the project files
+ 			Stopwatch SearchTimer = Stopwatch.StartNew();
+ 			List<FileReference> ProjectFiles = FindAutomationProjects(ScriptsForProjectFileName, AdditionalScriptsFolders);
+-			Log.TraceLog("Found {0} project files in {1:0.000}s", ProjectFiles.Count, SearchTimer.Elapsed.TotalSeconds);
++			Log.TraceInformation("Found {0} project files in {1:0.000}s", ProjectFiles.Count, SearchTimer.Elapsed.TotalSeconds);
+ 
+ 			// Get the default properties for compiling the projects
+ 			Dictionary<string, string> MsBuildProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+@@ -70,7 +70,9 @@ namespace AutomationTool
+ 				List<CsProjectInfo> CompileProjects = new List<CsProjectInfo>(Projects);
+ 				if (CommandUtils.IsEngineInstalled())
+ 				{
++					Log.TraceInformation("Whaaaa... Projects before: {0}", CompileProjects.Count);
+ 					CompileProjects.RemoveAll(x => x.ProjectPath.IsUnderDirectory(CommandUtils.EngineDirectory));
++					Log.TraceInformation("Whaaaa... Projects after: {0}", CompileProjects.Count);
+ 				}
+ 				CompileAutomationProjects(CompileProjects, MsBuildProperties);
+ 			}
+@@ -324,6 +326,7 @@ namespace AutomationTool
+ 
+ 			// msbuild (standard on windows, in mono >=5.0 is preferred due to speed and parallel compilation)
+ 			bool UseParallelMsBuild = Path.GetFileNameWithoutExtension(BuildTool).ToLower() == "msbuild";
++
+ 			if (UseParallelMsBuild)
+ 			{
+ 				string ProjectsList = string.Join(";", Projects.Select(x => x.ProjectPath));
