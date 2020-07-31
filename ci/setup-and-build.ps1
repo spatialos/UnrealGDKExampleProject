@@ -97,7 +97,7 @@ pushd "$exampleproject_home"
                 "-run=CookAndGenerateSchema", `
                 "-targetplatform=LinuxServer", `
                 "-SkipShaderCompile", `
-                "-map=`"$main_map_name`""
+                "-map=`"/Maps/$main_map_name`""
             )
             $schema_gen_handle = $schema_gen_proc.Handle
             Wait-Process -InputObject $schema_gen_proc
@@ -109,7 +109,7 @@ pushd "$exampleproject_home"
             $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$game_project", `
                 "-run=GenerateSnapshot", `
-                "-MapPaths=`"$main_map_name`""
+                "-MapPaths=`"/Maps/$main_map_name`""
             )
             $snapshot_gen_handle = $snapshot_gen_proc.Handle
             Wait-Process -InputObject $snapshot_gen_proc
