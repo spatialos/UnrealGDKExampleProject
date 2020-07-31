@@ -8,6 +8,7 @@ param(
   [string] $project_name = "unreal_gdk",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
   [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine"
+  [string] $msbuild_path = "$((Get-Item 'Env:programfiles(x86)').Value)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe", ## Location of MSBuild.exe on the build agent, as it only has the build tools, not the full visual studio
 )
 
 . "$PSScriptRoot\common.ps1"
@@ -131,6 +132,7 @@ pushd "$exampleproject_home"
     Start-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
         $patch_path = "${exampleproject_home}\patch_more-logs"
         (Get-Content -Path $patch_path) | patch -p1 -d ${unreal_engine_symlink_dir}
+        Start-Process -Wait -PassThru -NoNewWindow -FilePath "${msbuild_path}" -ArgumentList "${unreal_engine_symlink_dir}\Engine\Source\Programs\AutomationTool\AutomationUtils\AutomationUtils.Automation.csproj"
 
         $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
             "GDKShooter", `
