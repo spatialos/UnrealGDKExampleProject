@@ -64,6 +64,9 @@ steps:
       - "cooked-ios/**/*"
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
+      #ENGINE_COMMIT_FORMATTED_HASH is a env variable for subsequent steps
+      #it's very similar to NGINE_COMMIT_HASH, but replace spaces,-,. as _ to distinguish engine_version of UnrealEngine.
+      #for more information: https://buildkite.com/docs/pipelines/block-step#text-input-attributes
       ENGINE_COMMIT_FORMATTED_HASH: "ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
       STEP_NUMBER: "${STEP_NUMBER}"
       GDK_BRANCH: "${GDK_BRANCH}"
