@@ -154,9 +154,10 @@ pushd "$exampleproject_home"
     if ($firebase_test -eq "true") {
         #Prepare Android Project Settings for Firebase
         Start-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
-            $proc = Start-Process -PassThru -NoNewWindow -FilePath "python" -ArgumentList @(`
+            $proc = Start-Process -PassThru -NoNewWindow -FilePath "py" -ArgumentList @(`
+                "-3", `
                 "ci/change-runtime-settings.py", `
-                "$exampleproject_home"
+                "`"$exampleproject_home`""
             )
             Wait-Process -InputObject $proc
         Finish-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"

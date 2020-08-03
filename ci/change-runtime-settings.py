@@ -5,95 +5,67 @@
 
 import os
 import sys
-import platform
-import common
-
-# parse Default_Engine.ini or other ini files
-class IniParser:
-    def __init__(self):
-        self.change_groups = {}
-        self.keep_groups = {}
-
-    def open(self, filename):
-        with open(filename, 'r') as fr:
-            group = None
-            group_type = 0
-            for l in fr.readlines():
-                line = l.strip()
-                if line.startswith('[') and line.endswith(']'):
-                    name = line[1:-1]
-                    if 'IOSRuntimeSettings.IOSRuntimeSettings' in line or 'AndroidRuntimeSettings.AndroidRuntimeSettings' in line:                        
-                        group = {}
-                        self.change_groups[name] = group
-                        group_type = 1
-                    else:                        
-                        group = []
-                        self.keep_groups[name] = group
-                        group_type = 2
-                    continue
-                if group_type == 1:
-                    if '=' in line and group != None:
-                        k, v = line.split('=', 1)
-                        group[k] = v
-                elif group_type == 2:
-                    group.append(line)
+import configparser
+from collections import OrderedDict
 
 
-    def write(self, filename):
-        with open(filename, 'w') as fw:
-            for key, group in self.change_groups.items():
-                self.write_impl(fw, '[%s]\n' % key)
-                if group != None:
-                    for k, v in group.items():
-                        self.write_impl(fw, '%s=%s\n' % (k, v))
-                    self.write_impl(fw, '\n')
-                    
-            for key, group in self.keep_groups.items():
-                self.write_impl(fw, '[%s]\n' % key)
-                if group != None:
-                    for line in group:
-                        self.write_impl(fw, '%s\n' % line)
-                    self.write_impl(fw, '\n')
+class MultiOrderedDict(OrderedDict):
+    def __setitem__(self, key, value):
+        if isinstance(value, list) and key in self and key.startswith('+'):
+            self[key].extend(value)
+        else:
+            super(MultiOrderedDict, self).__setitem__(key, value)
 
-    def write_impl(self, fw, s):
-        fw.write(s)
+class CustomInterpolation(configparser.BasicInterpolation):
+    def before_write(self, parser, section, option, value):
+        if option.startswith('+'):
+            return "\n{}=".format(option).join(value.split('\n'))
+        return value
 
-    def add(self, group, key, value):
-        if group not in self.change_groups:
-            self.change_groups[group] = {}
-        self.change_groups[group][key] = value
-
+class CustomWriter:
+    output_file = None
+    def __init__(self, new_output_file):
+        self.output_file = new_output_file
+    def write(self, what):
+        self.output_file.write(what.replace(" = ", "=", 1).replace('\n\t','\n'))
+        
 
 # modify runtime settings before cook
 def change_runtime_settings(project_home):
-    default_engine = os.path.join(project_home, 'Game', 'Config', 'DefaultEngine.ini')
-    ios_runtime_settings = '/Script/IOSRuntimeSettings.IOSRuntimeSettings'
-    android_runtime_settings = '/Script/AndroidRuntimeSettings.AndroidRuntimeSettings'
-    ini = IniParser()
-    ini.open(default_engine)
+    defaultengine = os.path.join(project_home, 'Game', 'Config', 'DefaultEngine.ini')
+    config = configparser.RawConfigParser(strict=False, dict_type=MultiOrderedDict, interpolation=CustomInterpolation())
+    config.optionxform = lambda option: option  # preserve case for letters
+    config.read(defaultengine)
 
+    IOSRuntimeSettings = '/Script/IOSRuntimeSettings.IOSRuntimeSettings'
+    if not config.has_section(IOSRuntimeSettings):
+        config.add_section(IOSRuntimeSettings)
+    
     # for ios runtime settings
-    additional_plist_data = '<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLName</key><string></string><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLSchemes</key><array><string>firebase-game-loop</string></array></dict></array>'
-    ini.add(ios_runtime_settings, 'AdditionalPlistData', additional_plist_data)
-    ini.add(ios_runtime_settings, 'BundleIdentifier', 'io.improbable.unrealgdkdemo')
-    ini.add(ios_runtime_settings, 'MobileProvision', '')
-    ini.add(ios_runtime_settings, 'BundleDisplayName', 'UnrealGDK Shooter')
-    ini.add(ios_runtime_settings, 'BundleName', 'unrealgdkshooter')
-    ini.add(ios_runtime_settings, 'bSupportsITunesFileSharing', 'True')
-    ini.add(ios_runtime_settings, 'bGeneratedSYMFile', 'True')
-    ini.add(ios_runtime_settings, 'bGeneratedSYMBundle', 'True')
-    ini.add(ios_runtime_settings, 'bGenerateCrashReportSymbols', 'True')
-    ini.add(ios_runtime_settings, 'bEnableRemoteNotificationsSupport', 'False')
-    ini.add(ios_runtime_settings, 'bEnableAdvertisingIdentifier', 'False')
-    ini.add(ios_runtime_settings, 'bEnableCloudKitSupport', 'False')
-
+    AdditionalPlistData = '<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLName</key><string></string><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLSchemes</key><array><string>firebase-game-loop</string></array></dict></array>'
+    config[IOSRuntimeSettings]['AdditionalPlistData'] = AdditionalPlistData
+    config[IOSRuntimeSettings]['BundleIdentifier'] = 'io.improbabl.unrealgdkdemo'
+    config[IOSRuntimeSettings]['MobileProvision'] = ''
+    config[IOSRuntimeSettings]['BundleDisplayName'] = 'UnrealGDK Shoote'
+    config[IOSRuntimeSettings]['BundleName'] = 'unrealgdkshooter'
+    config[IOSRuntimeSettings]['bSupportsITunesFileSharing'] = 'True'
+    config[IOSRuntimeSettings]['bGeneratedSYMFile'] = 'True'
+    config[IOSRuntimeSettings]['bGeneratedSYMBundle'] = 'True'
+    config[IOSRuntimeSettings]['bGenerateCrashReportSymbols'] = 'True'
+    config[IOSRuntimeSettings]['bEnableRemoteNotificationsSupport'] = 'False'
+    config[IOSRuntimeSettings]['bEnableAdvertisingIdentifier'] = 'False'
+    config[IOSRuntimeSettings]['bEnableCloudKitSupport'] = 'False'
+    
     # for Android extra activity settings
-    extra_activity_settings = '<intent-filter><action android:name="com.google.intent.action.TEST_LOOP"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="application/javascript"/></intent-filter>'
-    ini.add(android_runtime_settings, 'ExtraActivitySettings', extra_activity_settings)
-    ini.add(android_runtime_settings, 'bSupportAdMob', 'False')
-    ini.add(android_runtime_settings, 'bPackageDataInsideApk', 'True')
-
-    ini.write(default_engine)
+    AndroidRuntimeSettings = '/Script/AndroidRuntimeSettings.AndroidRuntimeSettings'
+    if not config.has_section(AndroidRuntimeSettings):
+        config.add_section(AndroidRuntimeSettings)
+    ExtraActivitySettings = '<intent-filter><action android:name="com.google.intent.action.TEST_LOOP"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="application/javascript"/></intent-filter>'  
+    config[AndroidRuntimeSettings]['ExtraActivitySettings'] = ExtraActivitySettings
+    config[AndroidRuntimeSettings]['bSupportAdMob'] = 'False'
+    config[AndroidRuntimeSettings]['bPackageDataInsideApk'] = 'True'
+    with open(defaultengine,'w') as fw:
+        config.write(CustomWriter(fw))
 
 
 if __name__ == "__main__":

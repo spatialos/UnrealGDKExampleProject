@@ -123,7 +123,7 @@ pushd "$(dirname "$0")"
     CMDLINE=""
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
         echo "--- change-runtime-settings"
-        python "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
+        python3 "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 
         # for firebase test
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
