@@ -33,7 +33,7 @@ class CustomWriter:
 # modify runtime settings before cook
 def change_runtime_settings(project_home):
     defaultengine = os.path.join(project_home, 'Game', 'Config', 'DefaultEngine.ini')
-    config = configparser.RawConfigParser(strict=False, dict_type=MultiOrderedDict, interpolation=CustomInterpolation())
+    config = configparser.ConfigParser(strict=False, dict_type=MultiOrderedDict, interpolation=CustomInterpolation())
     config.optionxform = lambda option: option  # preserve case for letters
     config.read(defaultengine)
 
@@ -44,9 +44,9 @@ def change_runtime_settings(project_home):
     # for ios runtime settings
     AdditionalPlistData = '<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLName</key><string></string><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLSchemes</key><array><string>firebase-game-loop</string></array></dict></array>'
     config[IOSRuntimeSettings]['AdditionalPlistData'] = AdditionalPlistData
-    config[IOSRuntimeSettings]['BundleIdentifier'] = 'io.improbabl.unrealgdkdemo'
+    config[IOSRuntimeSettings]['BundleIdentifier'] = 'io.improbable.unrealgdkdemo'
     config[IOSRuntimeSettings]['MobileProvision'] = ''
-    config[IOSRuntimeSettings]['BundleDisplayName'] = 'UnrealGDK Shoote'
+    config[IOSRuntimeSettings]['BundleDisplayName'] = 'UnrealGDK Shooter'
     config[IOSRuntimeSettings]['BundleName'] = 'unrealgdkshooter'
     config[IOSRuntimeSettings]['bSupportsITunesFileSharing'] = 'True'
     config[IOSRuntimeSettings]['bGeneratedSYMFile'] = 'True'
