@@ -27,7 +27,7 @@ class CustomWriter:
     def __init__(self, new_output_file):
         self.output_file = new_output_file
     def write(self, what):
-        self.output_file.write(what.replace(" = ", "=", 1).replace('\n\t','\n'))
+        self.output_file.write(what.replace('\n\t','\n'))
         
 
 # modify runtime settings before cook
@@ -65,7 +65,7 @@ def change_runtime_settings(project_home):
     config[AndroidRuntimeSettings]['bSupportAdMob'] = 'False'
     config[AndroidRuntimeSettings]['bPackageDataInsideApk'] = 'True'
     with open(defaultengine,'w') as fw:
-        config.write(CustomWriter(fw))
+        config.write(CustomWriter(fw), space_around_delimiters=False)
 
 
 if __name__ == "__main__":
