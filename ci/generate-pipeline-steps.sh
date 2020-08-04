@@ -43,6 +43,10 @@ insert_setup_build_step(){
     AGENT="${2}"
     COMMAND="${3}"
     FILENAME="ci/nightly.template.steps.yaml"
+    # ENGINE_COMMIT_FORMATTED_HASH means it from ENGINE_COMMIT_HASH but only change ' ','.','-' as '_'
+    # So as to make the steps indentify for different engine_version
+    # We use ENGINE_COMMIT_FORMATTED_HASH for buildkite key and depends_on can not have spaces
+    # For more information:https://buildkite.com/docs/pipelines/block-step#text-input-attributes
     ENGINE_COMMIT_FORMATTED_HASH=$(sed "s/ /_/g" <<< ${VERSION} | sed "s/-/_/g" | sed "s/\./_/g")
     REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSION}|g"
     REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"
@@ -74,10 +78,10 @@ insert_firebase_test_steps(){
 
 insert_setup_build_steps(){
     VERSION="${1}"
-    #command line run on mac agent
+    # CI steps run on MacOS agent
     SETUP_BUILD_COMMAND_BASH="./ci/setup-and-build.sh"
 
-    #command line run on windows agent
+    # CI steps run on Windows agent
     SETUP_BUILD_COMMAND_PS="powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/setup-and-build.ps1"
 
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
@@ -111,7 +115,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
     IFS=$'\n'
     VERSIONS=$(cat < ci/unreal-engine.version)
 
-    #  turn on firebase test steps
+    # Turn on Firebase test steps
     echo "--- handle-firebase-steps"
     if [[ -n "${FIREBASE_TEST:-}" ]]; then        
         echo "--- insert-firebase-test-steps"
@@ -152,18 +156,19 @@ else
     echo "--- Generating steps for the specified engine version: ${ENGINE_VERSION}"
     export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"    
+    # If the specified version is set, the STEP_NUMBER should be 1
     export STEP_NUMBER=1
     
-    # turn on firebase firebase test steps
+    # Turn on Firebase test steps
     echo "--- insert-firebase-test-steps"
     insert_firebase_test_steps "${ENGINE_VERSION}"
 
     echo "--- insert-setup-and-build-steps"
     insert_setup_build_steps "${ENGINE_VERSION}"
 
-    # if the specified version is set, the engine-version-count should be 1
+    # If the specified version is set, the engine-version-count should be 1
     buildkite-agent meta-data set "engine-version-count" "1"
 fi
 
-# generate auth token for both android and ios firebase test
+# Generate auth token for both android and ios firebase test
 buildkite-agent pipeline upload "ci/nightly.gen.auth.token.yaml"

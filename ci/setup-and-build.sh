@@ -15,14 +15,14 @@ run_uat() {
     ARCHIVE_DIRECTORY="${5}"
     ADDITIONAL_UAT_FLAGS="${6:-}"
     COMMAND_LINE="${7:-}"
-    GAME_PROJECT="${8:-}"
+    GAME_UPROJECT="${8:-}"
 
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \
-        -ScriptsForProject="${GAME_PROJECT}" \
+        -ScriptsForProject="${GAME_UPROJECT}" \
         BuildCookRun \
         -nocompileeditor \
         -nop4 \
-        -project="${GAME_PROJECT}" \
+        -project="${GAME_UPROJECT}" \
         -cook \
         -stage \
         -archive \
@@ -69,7 +69,7 @@ pushd "$(dirname "$0")"
 
     echo "--- set-up-engine"
     ENGINE_DIRECTORY="${EXAMPLEPROJECT_HOME}/UnrealEngine"
-    GAME_PROJECT="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
+    GAME_UPROJECT="${EXAMPLEPROJECT_HOME}/Game/GDKShooter.uproject"
     
     "${GDK_HOME}/ci/get-engine.sh" \
         "${ENGINE_DIRECTORY}" \
@@ -79,7 +79,7 @@ pushd "$(dirname "$0")"
         echo "--- create-xcode-project"
         Engine/Build/BatchFiles/Mac/Build.sh \
             -projectfiles \
-            -project="${GAME_PROJECT}" \
+            -project="${GAME_UPROJECT}" \
             -game \
             -engine \
             -progress
@@ -89,12 +89,12 @@ pushd "$(dirname "$0")"
             GDKShooterEditor \
             Mac \
             Development \
-            "${GAME_PROJECT}"
+            "${GAME_UPROJECT}"
 
         echo "--- generate-schema"
         pushd "Engine/Binaries/Mac"
             UE4Editor.app/Contents/MacOS/UE4Editor \
-                "${GAME_PROJECT}" \
+                "${GAME_UPROJECT}" \
                 -run=CookAndGenerateSchema \
                 -targetplatform=MacNoEditor \
                 -SkipShaderCompile \
@@ -102,7 +102,7 @@ pushd "$(dirname "$0")"
                 -map="/Maps/$MAIN_MAP_NAME"
 
             UE4Editor.app/Contents/MacOS/UE4Editor \
-                "${GAME_PROJECT}" \
+                "${GAME_UPROJECT}" \
                 -run=GenerateSchemaAndSnapshots \
                 -MapPaths="/Maps/$MAIN_MAP_NAME" \
                 -SkipSchema
@@ -117,15 +117,14 @@ pushd "$(dirname "$0")"
         "Mac" \
         "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATTED_HASH}" \
         "-iterative" \
-        "" \
-        "${GAME_PROJECT}"
+        "" \ # COMMAND_LINE
+        "${GAME_UPROJECT}"
     
-    CMDLINE=""
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
         echo "--- change-runtime-settings"
         python3 "${EXAMPLEPROJECT_HOME}/ci/change-runtime-settings.py" "${EXAMPLEPROJECT_HOME}"
 
-        # for firebase test
+        # For Firebase testing
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-job-id" "$BUILDKITE_JOB_ID" 
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"       
     fi
@@ -140,7 +139,7 @@ pushd "$(dirname "$0")"
         "Development" \
         "IOS" \
         "${EXAMPLEPROJECT_HOME}/cooked-ios" \
-        "" \
+        "" \ # ADDITIONAL_UAT_FLAGS
         "${CMDLINE}" \
-        "${GAME_PROJECT}"
+        "${GAME_UPROJECT}"
 popd

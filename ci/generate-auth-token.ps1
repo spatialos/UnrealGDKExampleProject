@@ -18,21 +18,20 @@ Start-Event "generate-project-name" "generate-auth-token-and-deployment-:windows
     $date_and_time = Get-Date -Format "MMdd_HHmm"        
     $engine_version_count = buildkite-agent meta-data get "engine-version-count"
     for ($i = 0; $i -lt $engine_version_count; $i++){
-        $index = "$($i+1)"
-        $deployment_name = "exampleproject$(${index})_${date_and_time}_$($gdk_commit_hash)"
-        buildkite-agent meta-data set "deployment-name-$index" "$deployment_name"
+        $index_string = "$($i+1)"
+        $deployment_name = "exampleproject$(${index_string})_${date_and_time}_$($gdk_commit_hash)"
+        buildkite-agent meta-data set "deployment-name-$index_string" "$deployment_name"
     }
 Finish-Event "generate-project-name" "generate-auth-token-and-deployment-:windows:"
 
 pushd "$exampleproject_home" 
     pushd "spatial"
         Start-Event "generate-auth-token" "generate-auth-token-and-deployment-:windows:"
-            $DESCRIPTION = "Unreal-GDK-Token" 
-            $DEV_AUTH_TOKEN_RESULT = spatial project auth dev-auth-token create --description=$DESCRIPTION --project_name=$project_name | Out-String
-            $FOUND_DEV_TOKEN = $DEV_AUTH_TOKEN_RESULT -match 'token_secret:\\"(.+)\\"'
-            if ($FOUND_DEV_TOKEN -eq 0) {
+            $dev_auth_token_result = spatial project auth dev-auth-token create --description="Token generated for Example Project CI" --project_name=$project_name | Out-String
+            $found_dev_token = $dev_auth_token_result -match 'token_secret:\\"(.+)\\"'
+            if ($found_dev_token -eq 0) {
                 Write-Log "Failed to find dev auth token"
-                Throw "dev auth token not found"
+                Throw "Unable to create a development authentication token. Please take a look at the logs."
             }
 
             $auth_token = $matches[1]

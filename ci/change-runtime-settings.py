@@ -8,7 +8,8 @@ import sys
 import configparser
 from collections import OrderedDict
 
-
+# We customize Python's configparser slightly to allow for the same key to appear multiple times. 
+# This happens when Unreal wants to create an array of values and it prepends each occurence of the key with a +
 class MultiOrderedDict(OrderedDict):
     def __setitem__(self, key, value):
         if isinstance(value, list) and key in self and key.startswith('+'):
@@ -16,12 +17,14 @@ class MultiOrderedDict(OrderedDict):
         else:
             super(MultiOrderedDict, self).__setitem__(key, value)
 
+# Support dumplicate keys
 class CustomInterpolation(configparser.BasicInterpolation):
     def before_write(self, parser, section, option, value):
         if option.startswith('+'):
             return "\n{}=".format(option).join(value.split('\n'))
         return value
 
+# Remove dumplicate key's \t 
 class CustomWriter:
     output_file = None
     def __init__(self, new_output_file):
@@ -32,10 +35,10 @@ class CustomWriter:
 
 # modify runtime settings before cook
 def change_runtime_settings(project_home):
-    defaultengine = os.path.join(project_home, 'Game', 'Config', 'DefaultEngine.ini')
+    default_engine_ini = os.path.join(project_home, 'Game', 'Config', 'DefaultEngine.ini')
     config = configparser.ConfigParser(strict=False, dict_type=MultiOrderedDict, interpolation=CustomInterpolation())
     config.optionxform = lambda option: option  # preserve case for letters
-    config.read(defaultengine)
+    config.read(default_engine_ini)
 
     IOSRuntimeSettings = '/Script/IOSRuntimeSettings.IOSRuntimeSettings'
     if not config.has_section(IOSRuntimeSettings):
@@ -46,8 +49,8 @@ def change_runtime_settings(project_home):
     config[IOSRuntimeSettings]['AdditionalPlistData'] = AdditionalPlistData
     config[IOSRuntimeSettings]['BundleIdentifier'] = 'io.improbable.unrealgdkdemo'
     config[IOSRuntimeSettings]['MobileProvision'] = ''
-    config[IOSRuntimeSettings]['BundleDisplayName'] = 'UnrealGDK Shooter'
-    config[IOSRuntimeSettings]['BundleName'] = 'unrealgdkshooter'
+    config[IOSRuntimeSettings]['BundleDisplayName'] = 'UnrealGDKExampleProject'
+    config[IOSRuntimeSettings]['BundleName'] = 'unrealgdkexampleproject'
     config[IOSRuntimeSettings]['bSupportsITunesFileSharing'] = 'True'
     config[IOSRuntimeSettings]['bGeneratedSYMFile'] = 'True'
     config[IOSRuntimeSettings]['bGeneratedSYMBundle'] = 'True'
@@ -64,9 +67,11 @@ def change_runtime_settings(project_home):
     config[AndroidRuntimeSettings]['ExtraActivitySettings'] = ExtraActivitySettings
     config[AndroidRuntimeSettings]['bSupportAdMob'] = 'False'
     config[AndroidRuntimeSettings]['bPackageDataInsideApk'] = 'True'
-    with open(defaultengine,'w') as fw:
+    with open(default_engine_ini,'w') as fw:
         config.write(CustomWriter(fw), space_around_delimiters=False)
 
 
 if __name__ == "__main__":
-    change_runtime_settings(sys.argv[1])
+    # Path to the UnrealGDKExampleProject folder.
+    project_home = sys.argv[1]
+    change_runtime_settings(project_home)

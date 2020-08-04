@@ -4,7 +4,7 @@ import subprocess
 
 
 def log(msg, expand=False):
-    if(expand):
+    if (expand):
         print("+++ %s" % msg)
     else:
         print("--- %s" % msg)

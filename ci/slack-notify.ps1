@@ -12,12 +12,12 @@ $gdk_commit_hash = buildkite-agent meta-data get "gdk_commit_hash"
 # Send a Slack notification with a link to the new deployment and to the build.
 Start-Event "slack-notify" "slack-notify"
     # Build Slack text
-    if($env:NIGHTLY_BUILD -eq "true"){
+    if ($env:NIGHTLY_BUILD -eq "true") {
         $slack_text = ":night_with_stars: Nightly build of *Example Project* succeeded."
     }
-    elseif ($firebase_test -eq "true"){
+    elseif ($firebase_test -eq "true") {
         $slack_text = ":night_with_stars: Firebase Connection Tests for the *Example Project* succeeded."
-    }else{
+    } else {
         $slack_text = "*Example Project* build by $env:BUILDKITE_BUILD_CREATOR succeeded."
     }
 

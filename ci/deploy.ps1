@@ -6,7 +6,7 @@ param(
 . "$PSScriptRoot\common.ps1"
 
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
-    # deployment_name is seted by generate-auth-token.ps1 before
+    # deployment_name is created during the  generate-auth_token-and-deployment-name step
     $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"    
     $assembly_name = "$($deployment_name)_asm"
     $runtime_version = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_RUNTIME_VERSION" -default_value ""
