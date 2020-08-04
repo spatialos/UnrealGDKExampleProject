@@ -115,9 +115,9 @@ pushd "$(dirname "$0")"
         "${EXAMPLEPROJECT_HOME}" \
         "Development" \
         "Mac" \
-        "${EXAMPLEPROJECT_HOME}/cooked-mac" \
+        "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATTED_HASH}" \
         "-iterative" \
-        "" \ 
+        "" \
         "${GAME_UPROJECT}"
     
     if [[ -n "${FIREBASE_TEST:-}" ]]; then
@@ -139,7 +139,7 @@ pushd "$(dirname "$0")"
         "Development" \
         "IOS" \
         "${EXAMPLEPROJECT_HOME}/cooked-ios" \
-        "" \ 
+        "" \
         "${CMDLINE}" \
         "${GAME_UPROJECT}"
 popd
