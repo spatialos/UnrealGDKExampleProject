@@ -37,5 +37,7 @@ steps:
   - label: "firebase-test-android-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
     command: "python ci/run-firebase-test.py android ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
     <<: *windows
+    artifact_paths:
+      - "android.txt"
     depends_on:
       - "setup-and-build-windows-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"

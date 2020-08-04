@@ -167,7 +167,7 @@ pushd "$exampleproject_home"
         $auth_token = buildkite-agent meta-data get "auth-token"
         $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"
         Write-Host "Cloud deployment to connect to: $deployment_name"
-        $cmdline="connect.to.spatialos -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"
+        $cmdline="127.0.0.1 -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"
 
         $argumentlist = @(`
             "-ScriptsForProject=$game_project", `

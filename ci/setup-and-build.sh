@@ -132,7 +132,7 @@ pushd "$(dirname "$0")"
     echo "--- build-ios-client"
     AUTH_TOKEN=$(buildkite-agent meta-data get "auth-token")
     DEPLOYMENT_NAME=$(buildkite-agent meta-data get "deployment-name-${STEP_NUMBER}")
-    CMDLINE="connect.to.spatialos -workerType UnrealClient -devauthToken ${AUTH_TOKEN} -deployment ${DEPLOYMENT_NAME} -linkProtocol Tcp"     
+    CMDLINE="127.0.0.1 -workerType UnrealClient -devauthToken ${AUTH_TOKEN} -deployment ${DEPLOYMENT_NAME} -linkProtocol Tcp"     
     run_uat \
         "${ENGINE_DIRECTORY}" \
         "${EXAMPLEPROJECT_HOME}" \
