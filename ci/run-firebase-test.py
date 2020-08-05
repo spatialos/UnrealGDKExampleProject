@@ -17,6 +17,8 @@ import sys
 import common
 import platform
 
+# Base on artifact_paths of nightly.android.firebase.test and nightly.ios.firebase.test
+FIREBASE_LOG_DIR="firebase_log"
 
 def switch_gcloud_project(project_id):
     args = ['config', 'set', 'project', project_id]
@@ -25,7 +27,7 @@ def switch_gcloud_project(project_id):
 
 def check_firebase_log(app_platform, url, device, success_keyword):
     filename = ''
-    localfilename = '%s.txt' % device
+    localfilename = os.path.join(FIREBASE_LOG_DIR, '%s.txt' % device)
     if os.path.exists(localfilename):
         os.remove(localfilename)
     if app_platform == 'android':
@@ -125,6 +127,10 @@ if __name__ == "__main__":
     res = common.run_shell(cmds)
     project = res.stdout.read().decode('UTF-8')
 
+    # Makre sure FIREBASE_LOG_DIR is exist
+    if os.path.exists(FIREBASE_LOG_DIR):
+        os.mkdir(FIREBASE_LOG_DIR)
+        
     # set to firebase gcloud project both Windows & Mac
     switch_gcloud_project('chlorodize-bipennated-8024348')
 

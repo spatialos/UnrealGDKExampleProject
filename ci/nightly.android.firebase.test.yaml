@@ -38,6 +38,6 @@ steps:
     command: "python ci/run-firebase-test.py android ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
     <<: *windows
     artifact_paths:
-      - "android.txt"
+      - "firebase_log/*.txt"
     depends_on:
       - "setup-and-build-windows-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"

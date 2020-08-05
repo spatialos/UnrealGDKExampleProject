@@ -38,7 +38,7 @@ steps:
     command: "python ci/run-firebase-test.py ios ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
     <<: *windows
     artifact_paths:
-      - "ios.txt"
+      - "firebase_log/*.txt"
     depends_on:
       - "setup-and-build-windows-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
       - "setup-and-build-macos-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
