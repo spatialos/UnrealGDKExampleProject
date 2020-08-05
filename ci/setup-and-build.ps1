@@ -125,7 +125,8 @@ pushd "$exampleproject_home"
             "GDKShooter", `
             "Win64", `
             "Development", `
-            "GDKShooter.uproject"
+            "GDKShooter.uproject", `
+            "-nocompile"
         )       
         $build_client_handle = $build_client_proc.Handle
         Wait-Process -InputObject $build_client_proc
@@ -140,7 +141,8 @@ pushd "$exampleproject_home"
             "GDKShooterServer", `
             "Linux", `
             "Development", `
-            "GDKShooter.uproject"
+            "GDKShooter.uproject", `
+            "-nocompile"
         )       
         $build_server_handle = $build_server_proc.Handle
         Wait-Process -InputObject $build_server_proc
@@ -191,10 +193,6 @@ pushd "$exampleproject_home"
             "-utf8output", `
             "-cmdline=`"${cmdline}`""
         )
-        # Example project CI would fail in 4.25 if -compile is passed (because it's using an installed engine build).
-        # if ($engine_commit_formatted_hash.contains("4_24")) {
-        #     $argumentlist.Add("-compile")
-        # }
 
         $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList $argumentlist
