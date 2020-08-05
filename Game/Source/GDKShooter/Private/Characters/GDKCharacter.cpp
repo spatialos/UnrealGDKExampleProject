@@ -41,6 +41,11 @@ void AGDKCharacter::BeginPlay()
 
 	// yunjie: binding hit event
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AGDKCharacter::OnCapsuleCompHit);
+
+	if (GetWorld()->GetGameInstance()->IsSimulatedPlayer())
+	{
+		
+	}
 }
 
 void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -240,7 +245,12 @@ void AGDKCharacter::OnCapsuleCompHit(UPrimitiveComponent* HitComp, AActor* Other
 		FString WorkerType = GetWorld()->GetGameInstance()->GetSpatialWorkerType().ToString();
 		FString WorkerLabel = GetWorld()->GetGameInstance()->GetSpatialWorkerLabel();
 		FString IsServer = GetWorld()->GetGameInstance()->IsDedicatedServerInstance() ? "YES" : "NO";
-		FString Authority = this->GetOwner()->HasAuthority() ? "YES" : "NO";
+		FString Authority;
+
+		if (this->GetOwner())
+		{
+			Authority = this->GetOwner()->HasAuthority() ? "YES" : "NO";
+		}
 
 		/*
 		UE_LOG(LogGDK, Warning, TEXT("%s - WorkerId:[%s] WorkerType:[%s] WorkerLabel:[%s] Name:[%s] OtherActorName:[%s] IsServer:[%s] Authority:[%s]"),
@@ -256,8 +266,6 @@ void AGDKCharacter::PrintCurrentBlastInfos(const FString& Func)
 	TArray<AActor*> FoundBlastActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
 
-	UE_LOG(LogGDK, Warning, TEXT("%s - BlastActor Total Count:[%d]"), *FuncName, FoundBlastActors.Num());
-
 	for (int i = 0; i < FoundBlastActors.Num(); ++i)
 	{
 		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
@@ -266,10 +274,12 @@ void AGDKCharacter::PrintCurrentBlastInfos(const FString& Func)
 			REAL_BLAST_MESH_COMPONENT* BlastComp = Cast<REAL_BLAST_MESH_COMPONENT>(BlastActor->GetBlastMeshComponent());
 			if (BlastComp)
 			{
-				UE_LOG(LogGDK, Warning, TEXT("%s - Index:[%d] Fracture Count:[%d]"), *FuncName, i, BlastComp->CanBeFracturedCount());
+				UE_LOG(LogGDK, Warning, TEXT("%s - Index:[%d] Fracture Count:[%d] DebrisCount:[%d]"), *FuncName, i, BlastComp->CanBeFracturedCount(), BlastComp->GetDebrisCount());
 			}
 		}
 	}
+
+	UE_LOG(LogGDK, Warning, TEXT("%s - BlastActor Total Count:[%d]"), *FuncName, FoundBlastActors.Num());
 }
 
 void AGDKCharacter::ClientPrintCurrentBlastInfos()
@@ -327,7 +337,7 @@ void AGDKCharacter::BlastTimerEvent()
 				// yunjie: one time damage may not destruct the whole blast actor, so do this few times to make sure it's entirely exploded
 				for (int32 damageCount = 0; damageCount < 2; damageCount++)
 				{
-					TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 200, 300, 1000, 500);
+					TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 200, 300, 1000, 500, true);
 				}
 
 				TmpBlastActor->IncBlastCount();
@@ -388,11 +398,24 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 {
 	UE_LOG(LogGDK, Warning, TEXT("%s"), *FString(__FUNCTION__));
 
+	int32 CountLimitation = INT_MAX;
+	int32 Count = 0;
+
+	int MatrixAWidth = 32;
+	int MatrixALength = 26;
+
+	int MatrixBWidth = 32;
+	int MatrixBLength = 26;
+
+	int MatrixACubeCount = MatrixAWidth * MatrixALength;
+	int MatrixBCubeCount = MatrixBWidth * MatrixBLength;
+	int TotalCubeCount = MatrixACubeCount + MatrixBCubeCount;
+
 	// yunjie: destroy all blast actors
 	TArray<AActor*> FoundBlastActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
 
-	if (FoundBlastActors.Num())
+	if (FoundBlastActors.Num() >= TotalCubeCount)
 	{
 		UE_LOG(LogGDK, Warning, TEXT("%s - start to destroy existing blast actors"), *FString(__FUNCTION__));
 
@@ -410,18 +433,15 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 			}
 		}
 	}
-	else
+	else if (FoundBlastActors.Num() < MatrixACubeCount)
 	{
-		UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn blast actors"), *FString(__FUNCTION__));
-
-		int32 CountLimitation = INT_MAX;
-		int32 Count = 0;
+		UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn maxtrix A blast actors"), *FString(__FUNCTION__));
 
 		int32 y = 3680;
 		for (int32 i = 0; i < 32; ++i)
 		{
 			int32 x = 60;
-			for (int32 j = 0; j < 15; ++j)
+			for (int32 j = 0; j < 26; ++j)
 			{
 				FVector v = FVector(x, y, 60);
 				// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
@@ -430,15 +450,38 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 				{
 					goto RETURN_LABEL;
 				}
-				
+
 				x -= 120;
 			}
 			y -= 120;
 		}
-
-		RETURN_LABEL:
-		return;
 	}
+	else
+	{
+		UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn maxtrix B blast actors"), *FString(__FUNCTION__));
+
+		int y = 280;
+		for (int32 i = 0; i < 32; ++i)
+		{
+			int32 x = 3660;
+			for (int32 j = 0; j < 26; ++j)
+			{
+				FVector v = FVector(x, y, 60);
+				// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
+				ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+				if (++Count >= CountLimitation)
+				{
+					goto RETURN_LABEL;
+				}
+
+				x -= 120;
+			}
+			y -= 120;
+		}
+	}
+
+	RETURN_LABEL:
+		return;
 }
 
 void AGDKCharacter::SetDebrisLifetime_Quick()
@@ -481,3 +524,20 @@ void AGDKCharacter::ServerSetDebrisLifetime_Implementation(int32 min, int32 max)
 
 }
 
+
+void AGDKCharacter::StartPrimaryUse()
+{
+	if (EquippedComponent)
+	{
+		EquippedComponent->StartPrimaryUse();
+	}
+}
+
+void AGDKCharacter::StopPrimaryUse()
+{
+
+	if (EquippedComponent)
+	{
+		EquippedComponent->StopPrimaryUse();
+	}
+}

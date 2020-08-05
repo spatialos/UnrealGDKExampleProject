@@ -123,6 +123,16 @@ private:
 	UFUNCTION()
 	void BlastTimerEvent();
 
+public:
+	// yunjie
+	UFUNCTION()
+	void StartPrimaryUse();
+	UFUNCTION()
+	void StopPrimaryUse();
+
+
+private:
+
 	FTimerHandle BlastTimer;
 	FTimerDelegate BlastDelegate;
 

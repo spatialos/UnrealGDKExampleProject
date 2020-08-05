@@ -74,7 +74,7 @@ void AInstantWeapon::DoFire_Implementation()
 			if (blastComp)
 			{
 				// blastComp->ApplyRadialDamage(HitInfo.Location, 50, 80, 100, 100);
-				blastComp->ApplyRadialDamage(HitInfo.Location, 200, 300, 1000, 500);
+				// blastComp->ApplyRadialDamage(HitInfo.Location, 200, 300, 1000, 500);
 			}
 		}
 	}
