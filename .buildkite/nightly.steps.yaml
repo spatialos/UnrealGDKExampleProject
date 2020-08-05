@@ -39,7 +39,7 @@ windows: &windows
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-03-26-102432-bk9951-8afe0ffb}"
+    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-08-03-061331-bk13849-b66f334e-d}"
   timeout_in_minutes: 60
   retry:
     automatic:
@@ -51,6 +51,12 @@ windows: &windows
 
 # NOTE: step labels turn into commit-status names like {org}/{repo}/{pipeline}/{step-label}, lower-case and hyphenated.
 # These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
+env:
+    SLACK_CHANNEL: "#unreal-gdk-builds"
+    GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
+    MAIN_MAP_NAME: "Control_Small"
+    SPATIAL_PROJECT_NAME: "unreal_gdk"
+    SPATIAL_RUNTIME_VERSION: "0.4.3" ## the runtime version of SpatialOS
 
 steps:
   - label: "generate-pipeline-steps"
@@ -64,6 +70,10 @@ steps:
   - wait
 
   - label: "slack-notify"
-    if: build.env("SLACK_NOTIFY") == "true" || build.branch == "master"
-    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/slack-notify.ps1"
+    if: |
+      build.env("NIGHTLY_BUILD") == "true" || 
+      build.env("SLACK_NOTIFY") == "true" || 
+      build.env("FIREBASE_TEST") == "true" || 
+      build.branch == "master"
+    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci/slack-notify.ps1"
     <<: *windows

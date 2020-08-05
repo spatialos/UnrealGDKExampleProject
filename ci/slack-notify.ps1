@@ -2,8 +2,11 @@
 
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
+$slack_channel = Get-Env-Variable-Value-Or-Default -environment_variable_name "SLACK_CHANNEL" -default_value "#unreal-gdk-builds"
 $engine_version_count = buildkite-agent meta-data get "engine-version-count"
-$project_name = buildkite-agent meta-data get "project-name"
+$project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
+$mac_build = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAC_BUILD" -default_value "false"
+$firebase_test = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_TEST" -default_value "false"
 $gdk_commit_hash = buildkite-agent meta-data get "gdk_commit_hash"
 
 # Send a Slack notification with a link to the new deployment and to the build.
@@ -11,6 +14,9 @@ Start-Event "slack-notify" "slack-notify"
     # Build Slack text
     if ($env:NIGHTLY_BUILD -eq "true") {
         $slack_text = ":night_with_stars: Nightly build of *Example Project* succeeded."
+    }
+    elseif ($firebase_test -eq "true") {
+        $slack_text = ":night_with_stars: Firebase Connection Tests for the *Example Project* succeeded."
     } else {
         $slack_text = "*Example Project* build by $env:BUILDKITE_BUILD_CREATOR succeeded."
     }
@@ -24,11 +30,26 @@ Start-Event "slack-notify" "slack-notify"
     $build_url = "$env:BUILDKITE_BUILD_URL"
     $json_message = [ordered]@{
         text = "$slack_text"
+        channel = "$slack_channel"
         attachments= @(
                 @{
                     fallback = "Find build here: $build_url."
                     color = "good"
                     fields = @(
+                            if ($firebase_test -eq "true") {
+                                @{
+                                    title = "Android Test Result"
+                                    value = "succeeded"
+                                    short = "true"
+                                }
+                                if($mac_build -eq "true") {
+                                    @{
+                                        title = "iOS Test Result"
+                                        value = "succeeded"
+                                        short = "true"
+                                    }
+                                }
+                            }
                             @{
                                 title = "Build Message"
                                 value = "$env:BUILDKITE_MESSAGE".Substring(0, [System.Math]::Min(64, "$env:BUILDKITE_MESSAGE".Length)) 
