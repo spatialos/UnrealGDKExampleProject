@@ -17,7 +17,7 @@ import sys
 import common
 import platform
 
-# Base on artifact_paths of nightly.android.firebase.test and nightly.ios.firebase.test
+# Base on artifact_paths of nightly.android.firebase.test.yaml and nightly.ios.firebase.test.yaml
 FIREBASE_LOG_DIR="firebase_log"
 
 def switch_gcloud_project(project_id):
@@ -131,21 +131,21 @@ if __name__ == "__main__":
     if os.path.exists(FIREBASE_LOG_DIR):
         os.mkdir(FIREBASE_LOG_DIR)
         
-    # set to firebase gcloud project both Windows & Mac
+    # Set to firebase gcloud project both Windows & Mac
     switch_gcloud_project('chlorodize-bipennated-8024348')
 
-    # download app to local
+    # Download app to local
     localpath = download_app(app_platform, engine_commit_formatted_hash)
 
-    # upload local app to firebase for test
+    # Upload local app to firebase for test
     success_keyword = 'PlayerSpawn returned from server sucessfully'
     gcloud_storage_keyword = 'https://console.developers.google.com/storage/browser/'
     succeed, total = gcloud_upload(
         app_platform, localpath, gcloud_storage_keyword, success_keyword)
 
-    # set to buildkite infrastructure gcloud project
+    # Set to buildkite infrastructure gcloud project
     switch_gcloud_project(project)
 
-    # update firebase succeed/total value
+    # Update firebase succeed/total value
     exit_value = 0 if succeed == total and succeed != 0 else 1
     exit(exit_value)
