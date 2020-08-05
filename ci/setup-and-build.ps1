@@ -169,7 +169,7 @@ pushd "$exampleproject_home"
         Write-Host "Cloud deployment to connect to: $deployment_name"
         $cmdline="127.0.0.1 -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"
 
-        $argumentlist = @(`
+        $argumentlist = [System.Collections.ArrayList]@(`
             "-ScriptsForProject=$game_project", `
             "BuildCookRun", `
             "-nocompileeditor", `
@@ -189,10 +189,13 @@ pushd "$exampleproject_home"
             "-cookflavor=ASTC", `
             "-build", `
             "-utf8output", `
-            "-compile", `
             "-cmdline=`"${cmdline}`""
         )
-
+        # Example project CI would fail in 4.25 if -compile is passed (because it's using an installed engine build).
+        if ($engine_commit_formatted_hash.contains("4_24")) {
+            $argumentlist.Add("-compile")
+        }
+        
         $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList $argumentlist
 
