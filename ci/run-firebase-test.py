@@ -37,6 +37,7 @@ def check_firebase_log(app_platform, url, device, success_keyword):
         return False
     fullurl = 'gs://%s%s/%s' % (url, device, filename)
     common.run_command('gsutil', 'cp %s %s' % (fullurl, localfilename))
+    print(os.path.abspath(localfilename))
     if os.path.exists(localfilename):
         with io.open(localfilename, encoding="utf8") as fp:
             line = fp.readline()
