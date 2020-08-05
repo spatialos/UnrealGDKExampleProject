@@ -192,10 +192,10 @@ pushd "$exampleproject_home"
             "-cmdline=`"${cmdline}`""
         )
         # Example project CI would fail in 4.25 if -compile is passed (because it's using an installed engine build).
-        if ($engine_commit_formatted_hash.contains("4_24")) {
-            $argumentlist.Add("-compile")
-        }
-        
+        # if ($engine_commit_formatted_hash.contains("4_24")) {
+        #     $argumentlist.Add("-compile")
+        # }
+
         $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
         $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList $argumentlist
 
