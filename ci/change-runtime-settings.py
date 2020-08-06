@@ -33,7 +33,7 @@ class CustomWriter:
         self.output_file.write(what.replace('\n\t','\n'))
         
 
-# modify runtime settings before cook
+# Modify runtime settings before cook
 def change_runtime_settings(project_home):
     default_engine_ini = os.path.join(project_home, 'Game', 'Config', 'DefaultEngine.ini')
     config = configparser.ConfigParser(strict=False, dict_type=MultiOrderedDict, interpolation=CustomInterpolation())
@@ -44,7 +44,7 @@ def change_runtime_settings(project_home):
     if not config.has_section(IOSRuntimeSettings):
         config.add_section(IOSRuntimeSettings)
     
-    # for ios runtime settings
+    # Modify iOS runtime settings
     AdditionalPlistData = '<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLName</key><string></string><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLSchemes</key><array><string>firebase-game-loop</string></array></dict></array>'
     config[IOSRuntimeSettings]['AdditionalPlistData'] = AdditionalPlistData
     config[IOSRuntimeSettings]['BundleIdentifier'] = 'io.improbable.unrealgdkdemo'
@@ -59,7 +59,7 @@ def change_runtime_settings(project_home):
     config[IOSRuntimeSettings]['bEnableAdvertisingIdentifier'] = 'False'
     config[IOSRuntimeSettings]['bEnableCloudKitSupport'] = 'False'
     
-    # for Android extra activity settings
+    # Modify Android extra activity settings
     AndroidRuntimeSettings = '/Script/AndroidRuntimeSettings.AndroidRuntimeSettings'
     if not config.has_section(AndroidRuntimeSettings):
         config.add_section(AndroidRuntimeSettings)
