@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GDKLogging.h"
 #include "Materials/MaterialInstance.h"
 #include "GameFramework/Character.h"
 #include "Characters/Components/HealthComponent.h"
@@ -14,6 +15,8 @@
 #include "TimerManager.h"
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "Runtime/AIModule/Classes/Perception/AISightTargetInterface.h"
+#include "BlastRuntime/Public/BlastMeshActor.h"
+#include "BlastRuntime/Public/TestBlastMesh/TestBlastMeshActor.h"
 #include "GDKCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FBoolean, bool);
@@ -120,15 +123,15 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerSetDebrisLifetime(int32 min, int32 max);
 
+	UFUNCTION(Server, Reliable)
+	void ServerPrintBlastStats();
+
 	UFUNCTION()
 	void BlastTimerEvent();
 
-public:
-	// yunjie
-	UFUNCTION()
-	void StartPrimaryUse();
-	UFUNCTION()
-	void StopPrimaryUse();
+	// yunjie: for directly called from client in blueprint
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "GDKCharacter")
+	void ServerApplyDamage(ATestBlastMeshActor* BlastActor, FVector Origin, float MinRadius, float MaxRadius, float Damage = 100.0f, float ImpulseStrength = 0.0f, bool bImpulseVelChange = true);
 
 
 private:

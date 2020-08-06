@@ -48,7 +48,7 @@ void AInstantWeapon::DoFire_Implementation()
 {
 	bool bFlag = GetGameInstance()->IsDedicatedServerInstance();
 	FString serverString = bFlag ? "SERVER" : "CLIENT";
-	UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation, %s"), *serverString);
+	// UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DoFire_Implementation, %s"), *serverString);
 
 	if (!bIsActive)
 	{
@@ -193,7 +193,7 @@ void AInstantWeapon::DealDamage(const FInstantHitInfo& HitInfo)
 	
 	bool bFlag = GetGameInstance()->IsDedicatedServerInstance();
 	FString serverString = bFlag ? "SERVER" : "CLIENT";
-	UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DealDamage, %s"), *serverString);
+	// UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::DealDamage, %s"), *serverString);
 
 	if (APawn* Pawn = Cast<APawn>(GetOwner()))
 	{
@@ -210,7 +210,7 @@ void AInstantWeapon::ServerDidHit_Implementation(const FInstantHitInfo& HitInfo)
 {
 	bool bFlag = GetGameInstance()->IsDedicatedServerInstance();
 	FString serverString = bFlag ? "SERVER" : "CLIENT";
-	UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::ServerDidHit_Implementation, %s"), *serverString);
+	// UE_LOG(LogGDK, Warning, TEXT("AInstantWeapon::ServerDidHit_Implementation, %s"), *serverString);
 	bool bDoNotifyHit = false;
 
 	if (HitInfo.HitActor == nullptr)
@@ -220,10 +220,10 @@ void AInstantWeapon::ServerDidHit_Implementation(const FInstantHitInfo& HitInfo)
 	else
 	{
 		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(HitInfo.HitActor);
-		UE_LOG(LogGDK, Warning, TEXT("%s - hit something!!!!!!!!!!!"), *FString(__FUNCTION__));
+		// UE_LOG(LogGDK, Warning, TEXT("%s - hit something!!!!!!!!!!!"), *FString(__FUNCTION__));
 		if (BlastActor)
 		{
-			UE_LOG(LogGDK, Warning, TEXT("%s - hit blast actor!!!!!!!!!!!"), *FString(__FUNCTION__));
+			// UE_LOG(LogGDK, Warning, TEXT("%s - hit blast actor!!!!!!!!!!!"), *FString(__FUNCTION__));
 			// yunjie: special case for blast actor, should be forwarded to offloading unreal worker
 			// BlastActor->CrossServerApplyDamage(HitInfo.Location, 50, 80, 100, 100, true);
 			BlastActor->CrossServerApplyDamage(HitInfo.Location, 200, 300, 1000, 500, true);
@@ -237,7 +237,7 @@ void AInstantWeapon::ServerDidHit_Implementation(const FInstantHitInfo& HitInfo)
 			}
 			else
 			{
-				UE_LOG(LogGDK, Verbose, TEXT("%s server: rejected hit of actor %s"), *this->GetName(), *HitInfo.HitActor->GetName());
+				// UE_LOG(LogGDK, Verbose, TEXT("%s server: rejected hit of actor %s"), *this->GetName(), *HitInfo.HitActor->GetName());
 			}
 		}
 	}

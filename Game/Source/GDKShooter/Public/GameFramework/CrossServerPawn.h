@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Perception/AISightTargetInterface.h"
+
 #include "CrossServerPawn.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FIncomingDamageEvent, float, Damage, const struct FDamageEvent&, DamageEvent, AController*, EventInstigator, AActor*, DamageCauser);

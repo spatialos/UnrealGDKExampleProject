@@ -95,6 +95,7 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("1", IE_Pressed, this, &AGDKCharacter::ClientPrintCurrentBlastInfos);
 	PlayerInputComponent->BindAction("2", IE_Pressed, this, &AGDKCharacter::ServerPrintCurrentBlastInfos);
 	PlayerInputComponent->BindAction("3", IE_Pressed, this, &AGDKCharacter::ServerStartTimerToBlast);
+	PlayerInputComponent->BindAction("6", IE_Pressed, this, &AGDKCharacter::ServerPrintBlastStats);
 	PlayerInputComponent->BindAction("7", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Quick);
 	PlayerInputComponent->BindAction("8", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Normal);
 	PlayerInputComponent->BindAction("9", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Forever);
@@ -524,20 +525,26 @@ void AGDKCharacter::ServerSetDebrisLifetime_Implementation(int32 min, int32 max)
 
 }
 
-
-void AGDKCharacter::StartPrimaryUse()
+void AGDKCharacter::ServerApplyDamage_Implementation(REAL_BLAST_MESH_ACTOR* BlastActor, FVector Origin, float MinRadius, float MaxRadius, float Damage, float ImpulseStrength, bool bImpulseVelChange)
 {
-	if (EquippedComponent)
+	BlastActor->CrossServerApplyDamage(Origin, MinRadius, MaxRadius, Damage, ImpulseStrength, bImpulseVelChange);
+}
+
+
+void AGDKCharacter::ServerPrintBlastStats_Implementation()
+{
+	TArray<AActor*> FoundBlastActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
+	if (FoundBlastActors.Num() > 0)
 	{
-		EquippedComponent->StartPrimaryUse();
+		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[0]);
+		if (BlastActor)
+		{
+			if (!BlastActor->HasAuthority())
+			{
+				BlastActor->CrossServerPrintBlastStats();
+			}
+		}
 	}
 }
 
-void AGDKCharacter::StopPrimaryUse()
-{
-
-	if (EquippedComponent)
-	{
-		EquippedComponent->StopPrimaryUse();
-	}
-}

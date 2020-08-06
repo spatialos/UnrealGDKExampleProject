@@ -13,6 +13,14 @@ public class GDKShooter : ModuleRules
 
         string engine_path = Path.GetFullPath(Target.RelativeEnginePath);
 
+        PublicIncludePaths.AddRange(
+                        new string[] {
+                    Path.GetFullPath(Path.Combine(engine_path, "Plugins/GameWorks/Blast/Source/")),
+                    Path.GetFullPath(Path.Combine(engine_path, "Plugins/GameWorks/Blast/Source/BlastRuntime/Public/extensions/shaders/include")),
+                        }
+                    );
+
+
         PrivateIncludePaths.AddRange(
                         new string[] {
                     Path.GetFullPath(Path.Combine(engine_path, "Plugins/GameWorks/Blast/Source/")),
