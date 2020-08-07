@@ -13,6 +13,7 @@ bk_interrupted_by_signal: &bk_interrupted_by_signal
   exit_status: 15
   limit: 3
 
+# TODO: UNR-3893 Replace the windows agent with a linux agent
 windows: &windows
   agents:
     - "agent_count=1"
