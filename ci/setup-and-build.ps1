@@ -171,7 +171,7 @@ pushd "$exampleproject_home"
         Write-Host "Cloud deployment to connect to: $deployment_name"
         $cmdline="127.0.0.1 -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"
 
-        $argumentlist = [System.Collections.ArrayList]@(`
+        $argumentlist = @(`
             "-ScriptsForProject=$game_project", `
             "BuildCookRun", `
             "-nocompileeditor", `
