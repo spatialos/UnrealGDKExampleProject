@@ -27,7 +27,7 @@ Finish-Event "generate-project-name" "generate-auth-token-and-deployment-:window
 pushd "$exampleproject_home" 
     pushd "spatial"
         Start-Event "generate-auth-token" "generate-auth-token-and-deployment-:windows:"
-            $dev_auth_token_result = spatial project auth dev-auth-token create --description="Token generated for Example Project CI" --project_name=$project_name | Out-String
+            $dev_auth_token_result = spatial project auth dev-auth-token create --description="Token generated for Example Project CI" --lifetime=24h --project_name=$project_name | Out-String
             $found_dev_token = $dev_auth_token_result -match 'token_secret:\\"(.+)\\"'
             if ($found_dev_token -eq 0) {
                 Write-Log "Failed to find dev auth token"

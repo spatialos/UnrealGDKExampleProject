@@ -30,6 +30,7 @@ script_runner: &script_runner
       - <<: *bk_system_error
       - <<: *bk_interrupted_by_signal
 
+# TODO: UNR-3894 Replace the windows agent with a linux agent
 windows: &windows
   agents:
     - "agent_count=1"

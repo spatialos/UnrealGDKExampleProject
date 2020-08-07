@@ -65,7 +65,7 @@ steps:
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
       # ENGINE_COMMIT_FORMATTED_HASH is a enviroment variable for subsequent steps
-      # It's very similar to ENGINE_COMMIT_HASH, but replace ' ','.','-' as '_' to distinguish engine_version of UnrealEngine.
+      # It's very similar to ENGINE_COMMIT_HASH, but it replaces ' ','.','-' with '_' to be able to use it as a buildkite key to distinguish between engine versions.
       # For more information: https://buildkite.com/docs/pipelines/block-step#text-input-attributes
       ENGINE_COMMIT_FORMATTED_HASH: "ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
       STEP_NUMBER: "${STEP_NUMBER}"

@@ -43,10 +43,9 @@ insert_setup_build_step(){
     AGENT="${2}"
     COMMAND="${3}"
     FILENAME="ci/nightly.template.steps.yaml"
-    # ENGINE_COMMIT_FORMATTED_HASH means it from ENGINE_COMMIT_HASH but only change ' ','.','-' as '_'
+    # ENGINE_COMMIT_FORMATTED_HASH is the same as ENGINE_COMMIT_HASH, but replace ' ','.','-' with '_' to use it as a buildkite key.
     # So as to make the steps indentify for different engine_version
-    # We use ENGINE_COMMIT_FORMATTED_HASH for buildkite key and depends_on can not have spaces
-    # For more information:https://buildkite.com/docs/pipelines/block-step#text-input-attributes
+    # For more information: https://buildkite.com/docs/pipelines/block-step#text-input-attributes
     ENGINE_COMMIT_FORMATTED_HASH=$(sed "s/ /_/g" <<< ${VERSION} | sed "s/-/_/g" | sed "s/\./_/g")
     REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSION}|g"
     REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"

@@ -17,7 +17,7 @@ import sys
 import common
 import platform
 
-# Base on artifact_paths of nightly.android.firebase.test.yaml and nightly.ios.firebase.test.yaml
+# Based on artifact_paths in nightly.android.firebase.test.yaml and nightly.ios.firebase.test.yaml
 FIREBASE_LOG_DIR="firebase_log"
 
 def switch_gcloud_project(project_id):
@@ -88,8 +88,12 @@ def get_gcs_and_local_path(app_platform, engine_commit_formatted_hash):
     localfilename = ''
     path = 'cooked-%s' % app_platform
     if app_platform == 'android':
-        localfilename = 'GDKShooter-armv7-es2.apk'
-        filename = '%s/Android_ASTC/%s' % (path, localfilename)
+        # UnrealEngine 4.24 and 4.25 create different android file names
+        if '4_24' in engine_commit_formatted_hash:
+            localfilename = 'GDKShooter-armv7-es2.apk'
+        else:
+            localfilename = 'GDKShooter-armv7.apk'
+        filename = '%s/Android_ETC2/%s' % (path, localfilename)
         agentplatform = 'windows'
     else:
         localfilename = 'GDKShooter.ipa'

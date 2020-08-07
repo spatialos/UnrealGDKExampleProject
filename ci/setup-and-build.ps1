@@ -127,7 +127,7 @@ pushd "$exampleproject_home"
             "Development", `
             "GDKShooter.uproject", `
             "-nocompile"
-        )       
+        )
         $build_client_handle = $build_client_proc.Handle
         Wait-Process -InputObject $build_client_proc
         if ($build_client_proc.ExitCode -ne 0) {
@@ -143,7 +143,7 @@ pushd "$exampleproject_home"
             "Development", `
             "GDKShooter.uproject", `
             "-nocompile"
-        )       
+        )
         $build_server_handle = $build_server_proc.Handle
         Wait-Process -InputObject $build_server_proc
 
@@ -171,7 +171,7 @@ pushd "$exampleproject_home"
         Write-Host "Cloud deployment to connect to: $deployment_name"
         $cmdline="127.0.0.1 -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"
 
-        $argumentlist = [System.Collections.ArrayList]@(`
+        $argumentlist = @(`
             "-ScriptsForProject=$game_project", `
             "BuildCookRun", `
             "-nocompileeditor", `
@@ -188,7 +188,7 @@ pushd "$exampleproject_home"
             "-prereqs", `
             "-nodebuginfo", `
             "-targetplatform=Android", `
-            "-cookflavor=ASTC", `
+            "-cookflavor=ETC2", `
             "-build", `
             "-utf8output", `
             "-cmdline=`"${cmdline}`""
