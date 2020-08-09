@@ -53,7 +53,7 @@ def check_firebase_log(app_platform, url, device, success_keyword):
 def gcloud_upload(app_platform, app_path, gcloud_storage_keyword, success_keyword):
     cmds = [
         'gcloud',
-        'beta',
+        'alpha',
         'firebase',
         'test',
         app_platform,
