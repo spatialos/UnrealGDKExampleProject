@@ -25,9 +25,11 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	TeamComponent = CreateDefaultSubobject<UTeamComponent>(TEXT("Team"));
 	GDKMovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement());
 
-	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/BlastCubeBlueprint.BlastCubeBlueprint'"));
+	// static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/BlastCubeBlueprint.BlastCubeBlueprint'"));
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint(TEXT("Class'/Game/Blueprints/BlastCubeBlueprint.BlastCubeBlueprint_C'"));
 	if (ItemBlueprint.Object) {
-		BlastCubeBlueprint = (UClass*)ItemBlueprint.Object->GeneratedClass;
+		// BlastCubeBlueprint = (UClass*)ItemBlueprint.Object->GeneratedClass;
+		BlastCubeBlueprint = (UClass*)ItemBlueprint.Object;
 	}
 }
 
@@ -192,6 +194,9 @@ float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 
 void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	// yunjie: temporarily commented
+	return;
+	
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 
@@ -400,7 +405,10 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 	UE_LOG(LogGDK, Warning, TEXT("%s"), *FString(__FUNCTION__));
 
 	int32 CountLimitation = INT_MAX;
-	int32 Count = 0;
+	CountLimitation = 200;
+	static int32 AccCount = 0;
+	int32 CurrentCount = 0;
+	int32 CurrentSkipIndex = 0;
 
 	int MatrixAWidth = 32;
 	int MatrixALength = 26;
@@ -433,6 +441,8 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 				break;
 			}
 		}
+
+		AccCount = 0;
 	}
 	else if (FoundBlastActors.Num() < MatrixACubeCount)
 	{
@@ -444,12 +454,16 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 			int32 x = 60;
 			for (int32 j = 0; j < 26; ++j)
 			{
-				FVector v = FVector(x, y, 60);
-				// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
-				ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
-				if (++Count >= CountLimitation)
+				if (CurrentSkipIndex++ >= AccCount)
 				{
-					goto RETURN_LABEL;
+					FVector v = FVector(x, y, 60);
+					// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
+					ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+					++AccCount;
+					if (++CurrentCount >= CountLimitation)
+					{
+						goto RETURN_LABEL;
+					}
 				}
 
 				x -= 120;
@@ -461,28 +475,37 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 	{
 		UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn maxtrix B blast actors"), *FString(__FUNCTION__));
 
+		if (AccCount == MatrixACubeCount)
+		{
+			AccCount = 0;
+		}
+
 		int y = 280;
 		for (int32 i = 0; i < 32; ++i)
 		{
 			int32 x = 3660;
 			for (int32 j = 0; j < 26; ++j)
 			{
-				FVector v = FVector(x, y, 60);
-				// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
-				ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
-				if (++Count >= CountLimitation)
+				if (CurrentSkipIndex++ >= AccCount)
 				{
-					goto RETURN_LABEL;
+					FVector v = FVector(x, y, 60);
+					// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
+					ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+					++AccCount;
+					if (++CurrentCount >= CountLimitation)
+					{
+						goto RETURN_LABEL;
+					}
 				}
-
+				
 				x -= 120;
 			}
 			y -= 120;
 		}
 	}
 
-	RETURN_LABEL:
-		return;
+RETURN_LABEL:
+	return;
 }
 
 void AGDKCharacter::SetDebrisLifetime_Quick()

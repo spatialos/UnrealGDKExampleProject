@@ -9,5 +9,8 @@ public class GDKShooterTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		ExtraModuleNames.Add("GDKShooter");
-	}
+
+        bUseLoggingInShipping = true;
+
+    }
 }

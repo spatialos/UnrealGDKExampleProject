@@ -57,5 +57,34 @@ public class GDKShooter : ModuleRules
                 "BlastRuntime"
                     });
 
+        // yunjie: without adding library paths, server worker and client worker will be failed to start due to can not find the blast libraries
+        PublicLibraryPaths.AddRange(
+                    new string[] {
+                    Path.GetFullPath(Path.Combine(engine_path, "Plugins/GameWorks/Blast/Libraries/Win64")),
+                    Path.GetFullPath(Path.Combine(engine_path, "Plugins/GameWorks/Blast/Libraries/Linux")),
+                        }
+            );
+        PublicRuntimeLibraryPaths.AddRange(
+                        new string[] {
+                    Path.GetFullPath(Path.Combine(engine_path, "Plugins/GameWorks/Blast/Libraries/Win64")),
+                    Path.GetFullPath(Path.Combine(engine_path, "Plugins/GameWorks/Blast/Libraries/Linux")),
+                        }
+
+            );
+
+
+        if (Target.Platform == UnrealTargetPlatform.Win32 || Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            PublicDelayLoadDLLs.AddRange(
+                new string[]
+                {
+                    "NvBlast_x64.dll",
+                    "NvBlastExtSerialization_x64.dll",
+                    "NvBlastExtShaders_x64.dll",
+                    "NvBlastExtStress_x64.dll",
+                    "NvBlastGlobals_x64.dll",
+                });
+        }
     }
 }
+
