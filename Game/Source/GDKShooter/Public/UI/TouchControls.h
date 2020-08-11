@@ -69,7 +69,7 @@ protected:
 	virtual void NativeTick(const FGeometry& AllottedGeometry, float InDeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-		void ShowAllActionButtons(bool Enable) const;
+	void ShowAllActionButtons(bool Enable) const;
 
 private:
 	UFUNCTION()
