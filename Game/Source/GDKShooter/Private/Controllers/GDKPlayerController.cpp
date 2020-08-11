@@ -71,7 +71,7 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 		SetViewTarget(InPawn);
 		// Make the new pawn's camera this controller's camera.
 		this->ClientSetRotation(InPawn->GetActorRotation(), true);
-		if (SVirtualJoystick::ShouldDisplayTouchInterface() && wTouchUI)
+		if (SVirtualJoystick::ShouldDisplayTouchInterface() && wTouchUI != nullptr)
 		{
 			touchUI = CreateWidget<UTouchControls>(this, wTouchUI);
 			if (touchUI)

@@ -15,8 +15,12 @@
 
 DEFINE_LOG_CATEGORY(LogTouchControls);
 
-const float MaxAvailableAngle = -PI / 4;
-const float MinAvailableAngle = -3 * PI / 4;
+namespace
+{
+	const int32 DefaultControllerId = 0;
+	const float MaxAvailableAngle = -PI / 4;
+	const float MinAvailableAngle = -3 * PI / 4;
+}
 
 bool FORCEINLINE InLeftControllerResponseArea(const FVector2D& LocalPosition, const FVector2D& ScreenSize)
 {
@@ -30,11 +34,10 @@ void UTouchControls::NativeConstruct()
 	Super::NativeConstruct();
 
 	APlayerController* PlayerController = GetOwningPlayer();
-	if (PlayerController)
-	{
-		PlayerController->InputYawScale = 1.0f;
-		PlayerController->InputPitchScale = -1.0f;
-	}
+	check(PlayerController); //sanity check the player controller exists
+
+	PlayerController->InputYawScale = 1.0f;
+	PlayerController->InputPitchScale = -1.0f;
 
 	// Get the left controller center position through the fore icon in blueprint.
 	LeftForeImageCanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(LeftControllerForeImage);
@@ -92,15 +95,12 @@ FReply UTouchControls::NativeOnTouchStarted(const FGeometry& InGeometry, const F
 		LeftControllerInfo.TouchIndex = TouchIndex;
 		return FReply::Handled();
 	}
-	else
+	else if (!CameraTouch.active)
 	{
-		if (!CameraTouch.active)
-		{
-			CameraTouch.LastPos = LocalPosition;
-			CameraTouch.FingerIndex = TouchIndex;
-			CameraTouch.active = true;
-			return FReply::Handled();
-		}
+		CameraTouch.LastPos = LocalPosition;
+		CameraTouch.FingerIndex = TouchIndex;
+		CameraTouch.active = true;
+		return FReply::Handled();
 	}
 	return FReply::Unhandled();
 }
@@ -119,10 +119,7 @@ FReply UTouchControls::NativeOnTouchMoved(const FGeometry& InGeometry, const FPo
 		HandleTouchMoveOnRightController(LocalPosition);
 		return FReply::Handled();
 	}
-	else
-	{
-		return FReply::Unhandled();
-	}
+	return FReply::Unhandled();
 }
 
 FReply UTouchControls::NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
@@ -139,17 +136,14 @@ FReply UTouchControls::NativeOnTouchEnded(const FGeometry& InGeometry, const FPo
 		HandleTouchEndOnRightController(LocalPosition);
 		return FReply::Handled();
 	}
-	else
-	{
-		return FReply::Unhandled();
-	}
+	return FReply::Unhandled();
 }
 
 void UTouchControls::NativeTick(const FGeometry& AllottedGeometry, float InDeltaTime)
 {
 	Super::NativeTick(AllottedGeometry, InDeltaTime);
-	FSlateApplication::Get().OnControllerAnalog(FGamepadKeyNames::LeftAnalogX, 0, LeftControllerInfo.MoveVelocity.X);
-	FSlateApplication::Get().OnControllerAnalog(FGamepadKeyNames::LeftAnalogY, 0, -LeftControllerInfo.MoveVelocity.Y);
+	FSlateApplication::Get().OnControllerAnalog(FGamepadKeyNames::LeftAnalogX, DefaultControllerId, LeftControllerInfo.MoveVelocity.X);
+	FSlateApplication::Get().OnControllerAnalog(FGamepadKeyNames::LeftAnalogY, DefaultControllerId, -LeftControllerInfo.MoveVelocity.Y);
 }
 
 void UTouchControls::ShowAllActionButtons(bool Enable) const
@@ -166,14 +160,14 @@ namespace
 {
 	static FEventReply HandlePressed(UWidget* Widget, FGamepadKeyNames::Type KeyName)
 	{
-		FEventReply Reply(FSlateApplication::Get().OnControllerButtonPressed(KeyName, 0, false));
+		FEventReply Reply(FSlateApplication::Get().OnControllerButtonPressed(KeyName, DefaultControllerId, false));
 		Reply.NativeReply.CaptureMouse(Widget->TakeWidget());
 		return Reply;
 	}
 
 	static FEventReply HandleReleased(UTouchControls* Controls, FGamepadKeyNames::Type KeyName)
 	{
-		FEventReply Reply(FSlateApplication::Get().OnControllerButtonReleased(KeyName, 0, false));
+		FEventReply Reply(FSlateApplication::Get().OnControllerButtonReleased(KeyName, DefaultControllerId, false));
 		if (Reply.NativeReply.GetMouseCaptor().IsValid() == false && Controls->HasMouseCapture())
 		{
 			Reply.NativeReply.ReleaseMouseCapture();
@@ -186,12 +180,12 @@ namespace
 		if (bEnabled)
 		{
 			Button->SetBrushColor(FLinearColor::White);
-			FSlateApplication::Get().OnControllerButtonReleased(KeyName, 0, false);
+			FSlateApplication::Get().OnControllerButtonReleased(KeyName, DefaultControllerId, false);
 		}
 		else
 		{
 			Button->SetBrushColor(FLinearColor::Green);
-			FSlateApplication::Get().OnControllerButtonPressed(KeyName, 0, false);
+			FSlateApplication::Get().OnControllerButtonPressed(KeyName, DefaultControllerId, false);
 		}
 		bEnabled = !bEnabled;
 		return true;
@@ -343,7 +337,6 @@ void UTouchControls::HandleTouchMoveOnRightController(const FVector2D& TouchPosi
 
 void UTouchControls::HandleTouchEndOnRightController(const FVector2D& TouchPosition)
 {
-	UE_LOG(LogTouchControls, Verbose, TEXT("Camera touch end"));
 	CameraTouch.active = false;
 	CameraTouch.FingerIndex = -1;
 	SpeedStatisticsX.ClearData();
