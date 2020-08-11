@@ -22,6 +22,14 @@
 DECLARE_DELEGATE_OneParam(FBoolean, bool);
 DECLARE_DELEGATE_OneParam(FHoldableSelection, int32);
 
+enum AIMode_E
+{
+	AIM_PAUSE = 0,	
+	AIM_LOW_FREQUENCY_FIRE,
+	AIM_HIGH_FREQUENCY_FIRE,
+	AIM_MAX
+};
+
 UCLASS()
 class GDKSHOOTER_API AGDKCharacter : public ACharacter, public IGenericTeamAgentInterface, public IAISightTargetInterface
 {
@@ -98,6 +106,18 @@ public:
 	UFUNCTION(CrossServer, Reliable)
 	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 
+	UFUNCTION(Server, Reliable)
+	void ServerSetAIMode();
+	UFUNCTION(Client, Reliable)
+	void ClientSetAIMode(int Mode);
+	void MulticastAIMode();
+
+	UFUNCTION(BlueprintCallable)
+	int GetAIMode() { return AIMode; }
+
+	UFUNCTION(BlueprintCallable)
+	float GetBurstDuration();
+
 private:
 	void PrintCurrentBlastInfos(const FString& Func = "");
 	void ClientPrintCurrentBlastInfos();
@@ -142,4 +162,6 @@ private:
 	int32				BlastActorCountPerSecond = 1;
 
 	TSubclassOf<class ATestBlastMeshActor>					BlastCubeBlueprint;
+
+	int						AIMode = 0;
 };

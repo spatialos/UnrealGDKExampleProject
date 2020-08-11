@@ -8,6 +8,7 @@
 #include "EngineClasses/SpatialNetDriver.h"
 #include "Net/UnrealNetwork.h"
 #include "GDKLogging.h"
+#include "Characters/GDKSimulatedCharacter.h"
 #include "Controllers/GDKPlayerController.h"
 #include "Controllers/Components/ControllerEventsComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -97,6 +98,7 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("1", IE_Pressed, this, &AGDKCharacter::ClientPrintCurrentBlastInfos);
 	PlayerInputComponent->BindAction("2", IE_Pressed, this, &AGDKCharacter::ServerPrintCurrentBlastInfos);
 	PlayerInputComponent->BindAction("3", IE_Pressed, this, &AGDKCharacter::ServerStartTimerToBlast);
+	PlayerInputComponent->BindAction("5", IE_Pressed, this, &AGDKCharacter::ServerSetAIMode);
 	PlayerInputComponent->BindAction("6", IE_Pressed, this, &AGDKCharacter::ServerPrintBlastStats);
 	PlayerInputComponent->BindAction("7", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Quick);
 	PlayerInputComponent->BindAction("8", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Normal);
@@ -569,5 +571,50 @@ void AGDKCharacter::ServerPrintBlastStats_Implementation()
 			}
 		}
 	}
+}
+
+
+void AGDKCharacter::ServerSetAIMode_Implementation()
+{
+	MulticastAIMode();
+}
+
+void AGDKCharacter::ClientSetAIMode_Implementation(int AIMode_)
+{
+	AIMode = AIMode_;
+	UE_LOG(LogGDK, Warning, TEXT("%s - AIMode:[%d]"), *FString(__FUNCTION__), AIMode);
+}
+
+void AGDKCharacter::MulticastAIMode()
+{
+	if (++AIMode >= (int)AIM_MAX)
+	{
+		AIMode = (int)AIM_PAUSE;
+	}
+
+	TArray<AActor*> FoundBlastActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGDKSimulatedCharacter::StaticClass(), FoundBlastActors);
+	for (int i = 0; i < FoundBlastActors.Num(); ++i)
+	{
+		if (FoundBlastActors[i])
+		{
+			auto simChar = Cast<AGDKSimulatedCharacter>(FoundBlastActors[i]);
+			simChar->ClientSetAIMode(AIMode);
+		}
+	}
+}
+
+float AGDKCharacter::GetBurstDuration()
+{
+	if (AIM_LOW_FREQUENCY_FIRE == AIMode)
+	{
+		return 0.2;
+	}
+	else if (AIM_HIGH_FREQUENCY_FIRE == AIMode)
+	{
+		return 0.7;
+	}
+
+	return 0.0;
 }
 

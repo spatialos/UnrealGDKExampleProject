@@ -9,5 +9,6 @@ public class GDKShooterServerTarget : TargetRules
 	{
 		Type = TargetType.Server;
 		ExtraModuleNames.Add("GDKShooter");
+        bUseLoggingInShipping = true;
 	}
 }
