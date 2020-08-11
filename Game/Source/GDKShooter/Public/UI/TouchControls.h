@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-
-#include <deque>
+#include "Containers/CircularQueue.h"
 
 #include "TouchControls.generated.h"
 
@@ -18,34 +17,30 @@ class UImage;
 
 struct SpeedStatistics
 {
-	SpeedStatistics() : MaxAvailableCount(10), ThresholdValue(10.0f), MaxAccelerateRatio(0.4f) { ClearData(); }
+	static const uint32 MaxAvailableCount = 10;
+	SpeedStatistics() : MoveStatisticsCache(MaxAvailableCount + 1), OffsetNum(0.0f), ThresholdValue(10.0f), MaxAccelerateRatio(0.4f) { ClearData(); }
+
 	void ClearData()
 	{
-		OffsetNum = 0;
-		MoveStatisticsCache.clear();
+		OffsetNum = 0.0f;
 	}
+
 	float RequestDynamicScale(float offset)
 	{
-		const int CurrentCacheCount = MoveStatisticsCache.size();
-		if (CurrentCacheCount < MaxAvailableCount)
+		if (MoveStatisticsCache.IsFull())
 		{
-			MoveStatisticsCache.push_back(offset);
-			OffsetNum += offset;
+			float OldestOffset;
+			check(MoveStatisticsCache.Dequeue(OldestOffset));
+			OffsetNum -= OldestOffset;
 		}
-		else
-		{
-			OffsetNum -= MoveStatisticsCache.front();
-			MoveStatisticsCache.pop_front();
-			MoveStatisticsCache.push_back(offset);
-			OffsetNum += offset;
-		}
+		MoveStatisticsCache.Enqueue(offset);
+		OffsetNum += offset;
 		const float PositiveOffsetNum = FMath::Abs(OffsetNum);
 		return PositiveOffsetNum < ThresholdValue ? 0.1f : FMath::Min(PositiveOffsetNum * 0.1f / ThresholdValue, MaxAccelerateRatio);
 	}
 
-	std::deque<float> MoveStatisticsCache;
+	TCircularQueue<float> MoveStatisticsCache;
 	float OffsetNum;
-	const int32 MaxAvailableCount;
 	const float ThresholdValue;
 	const float MaxAccelerateRatio;
 };
