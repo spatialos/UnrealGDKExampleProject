@@ -153,6 +153,7 @@ private:
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "GDKCharacter")
 	void ServerApplyDamage(ATestBlastMeshActor* BlastActor, FVector Origin, float MinRadius, float MaxRadius, float Damage = 100.0f, float ImpulseStrength = 0.0f, bool bImpulseVelChange = true);
 
+	void PrintSimBotsCount();
 
 private:
 

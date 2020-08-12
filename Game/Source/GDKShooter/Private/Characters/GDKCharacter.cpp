@@ -98,6 +98,7 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("1", IE_Pressed, this, &AGDKCharacter::ClientPrintCurrentBlastInfos);
 	PlayerInputComponent->BindAction("2", IE_Pressed, this, &AGDKCharacter::ServerPrintCurrentBlastInfos);
 	PlayerInputComponent->BindAction("3", IE_Pressed, this, &AGDKCharacter::ServerStartTimerToBlast);
+	PlayerInputComponent->BindAction("4", IE_Pressed, this, &AGDKCharacter::PrintSimBotsCount);
 	PlayerInputComponent->BindAction("5", IE_Pressed, this, &AGDKCharacter::ServerSetAIMode);
 	PlayerInputComponent->BindAction("6", IE_Pressed, this, &AGDKCharacter::ServerPrintBlastStats);
 	PlayerInputComponent->BindAction("7", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Quick);
@@ -422,87 +423,148 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 	int MatrixBCubeCount = MatrixBWidth * MatrixBLength;
 	int TotalCubeCount = MatrixACubeCount + MatrixBCubeCount;
 
+	bool bCenterCubes = true;
+
 	// yunjie: destroy all blast actors
 	TArray<AActor*> FoundBlastActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
 
-	if (FoundBlastActors.Num() >= TotalCubeCount)
+	if (bCenterCubes)
 	{
-		UE_LOG(LogGDK, Warning, TEXT("%s - start to destroy existing blast actors"), *FString(__FUNCTION__));
+		int MatrixCenterWidth = 22;
+		int MatrixCenterLength = 22;
+		int MatrixCenterTotalCount = MatrixCenterWidth * MatrixCenterLength;
+		TotalCubeCount = MatrixCenterTotalCount;
 
-		for (int i = 0; i < FoundBlastActors.Num(); ++i)
+		if (FoundBlastActors.Num() >= TotalCubeCount)
 		{
-			REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
-			if (BlastActor->HasAuthority())
-			{
-				BlastActor->Destroy();
-			}
-			else
-			{
-				BlastActor->CrossServerDestroyAllActors();
-				break;
-			}
-		}
+			UE_LOG(LogGDK, Warning, TEXT("%s - start to destroy existing blast actors"), *FString(__FUNCTION__));
 
-		AccCount = 0;
-	}
-	else if (FoundBlastActors.Num() < MatrixACubeCount)
-	{
-		UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn maxtrix A blast actors"), *FString(__FUNCTION__));
-
-		int32 y = 3680;
-		for (int32 i = 0; i < 32; ++i)
-		{
-			int32 x = 60;
-			for (int32 j = 0; j < 26; ++j)
+			for (int i = 0; i < FoundBlastActors.Num(); ++i)
 			{
-				if (CurrentSkipIndex++ >= AccCount)
+				REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
+				if (BlastActor->HasAuthority())
 				{
-					FVector v = FVector(x, y, 60);
-					// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
-					ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
-					++AccCount;
-					if (++CurrentCount >= CountLimitation)
-					{
-						goto RETURN_LABEL;
-					}
+					BlastActor->Destroy();
 				}
-
-				x -= 120;
+				else
+				{
+					BlastActor->CrossServerDestroyAllActors();
+					break;
+				}
 			}
-			y -= 120;
+
+			AccCount = 0;
 		}
+		else if (FoundBlastActors.Num() < TotalCubeCount)
+		{
+			UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn maxtrix center blast actors"), *FString(__FUNCTION__));
+
+			int32 y = 1690;
+			for (int32 i = 0; i < MatrixCenterWidth; ++i)
+			{
+				int32 x = 1720;
+				for (int32 j = 0; j < MatrixCenterLength; ++j)
+				{
+					if (CurrentSkipIndex++ >= AccCount)
+					{
+						FVector v = FVector(x, y, 60);
+						// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
+						ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+						++AccCount;
+						if (++CurrentCount >= CountLimitation)
+						{
+							goto RETURN_LABEL;
+						}
+					}
+
+					x -= 300;
+				}
+				y -= 300;
+			}
+		}
+
 	}
 	else
 	{
-		UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn maxtrix B blast actors"), *FString(__FUNCTION__));
-
-		if (AccCount == MatrixACubeCount)
+		if (FoundBlastActors.Num() >= TotalCubeCount)
 		{
+			UE_LOG(LogGDK, Warning, TEXT("%s - start to destroy existing blast actors"), *FString(__FUNCTION__));
+
+			for (int i = 0; i < FoundBlastActors.Num(); ++i)
+			{
+				REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
+				if (BlastActor->HasAuthority())
+				{
+					BlastActor->Destroy();
+				}
+				else
+				{
+					BlastActor->CrossServerDestroyAllActors();
+					break;
+				}
+			}
+
 			AccCount = 0;
 		}
-
-		int y = 280;
-		for (int32 i = 0; i < 32; ++i)
+		else if (FoundBlastActors.Num() < MatrixACubeCount)
 		{
-			int32 x = 3660;
-			for (int32 j = 0; j < 26; ++j)
+			UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn maxtrix A blast actors"), *FString(__FUNCTION__));
+
+			int32 y = 3680;
+			for (int32 i = 0; i < 32; ++i)
 			{
-				if (CurrentSkipIndex++ >= AccCount)
+				int32 x = 60;
+				for (int32 j = 0; j < 26; ++j)
 				{
-					FVector v = FVector(x, y, 60);
-					// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
-					ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
-					++AccCount;
-					if (++CurrentCount >= CountLimitation)
+					if (CurrentSkipIndex++ >= AccCount)
 					{
-						goto RETURN_LABEL;
+						FVector v = FVector(x, y, 60);
+						// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
+						ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+						++AccCount;
+						if (++CurrentCount >= CountLimitation)
+						{
+							goto RETURN_LABEL;
+						}
 					}
+
+					x -= 120;
 				}
-				
-				x -= 120;
+				y -= 120;
 			}
-			y -= 120;
+		}
+		else
+		{
+			UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn maxtrix B blast actors"), *FString(__FUNCTION__));
+
+			if (AccCount == MatrixACubeCount)
+			{
+				AccCount = 0;
+			}
+
+			int y = 280;
+			for (int32 i = 0; i < 32; ++i)
+			{
+				int32 x = 3660;
+				for (int32 j = 0; j < 26; ++j)
+				{
+					if (CurrentSkipIndex++ >= AccCount)
+					{
+						FVector v = FVector(x, y, 60);
+						// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
+						ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+						++AccCount;
+						if (++CurrentCount >= CountLimitation)
+						{
+							goto RETURN_LABEL;
+						}
+					}
+
+					x -= 120;
+				}
+				y -= 120;
+			}
 		}
 	}
 
@@ -608,13 +670,20 @@ float AGDKCharacter::GetBurstDuration()
 {
 	if (AIM_LOW_FREQUENCY_FIRE == AIMode)
 	{
-		return 0.2;
+		return 0.1;
 	}
 	else if (AIM_HIGH_FREQUENCY_FIRE == AIMode)
 	{
-		return 0.7;
+		return 0.4;
 	}
 
 	return 0.0;
+}
+
+void AGDKCharacter::PrintSimBotsCount()
+{
+	TArray<AActor*> FoundBlastActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGDKSimulatedCharacter::StaticClass(), FoundBlastActors);
+	UE_LOG(LogGDK, Warning, TEXT("%s - SimBots Count:[%d]"), *FString(__FUNCTION__), FoundBlastActors.Num());
 }
 
