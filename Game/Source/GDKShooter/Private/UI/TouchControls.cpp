@@ -91,15 +91,15 @@ FReply UTouchControls::NativeOnTouchStarted(const FGeometry& InGeometry, const F
 	if (InLeftControllerResponseArea(LocalPosition, ScreenSize))
 	{
 		LeftControllerInfo.LeftTouchStartPosition = LocalPosition;
-		LeftControllerInfo.LeftControllerActive = true;
+		LeftControllerInfo.bLeftControllerActive = true;
 		LeftControllerInfo.TouchIndex = TouchIndex;
 		return FReply::Handled();
 	}
-	else if (!CameraTouch.active)
+	else if (!CameraTouch.bActive)
 	{
 		CameraTouch.LastPos = LocalPosition;
 		CameraTouch.FingerIndex = TouchIndex;
-		CameraTouch.active = true;
+		CameraTouch.bActive = true;
 		return FReply::Handled();
 	}
 	return FReply::Unhandled();
@@ -109,12 +109,12 @@ FReply UTouchControls::NativeOnTouchMoved(const FGeometry& InGeometry, const FPo
 {
 	const uint32 TouchIndex = InGestureEvent.GetPointerIndex();
 	const FVector2D LocalPosition = InGeometry.AbsoluteToLocal(InGestureEvent.GetScreenSpacePosition());
-	if (LeftControllerInfo.LeftControllerActive && LeftControllerInfo.TouchIndex == TouchIndex)
+	if (LeftControllerInfo.bLeftControllerActive && LeftControllerInfo.TouchIndex == TouchIndex)
 	{
 		HandleTouchMoveOnLeftController(LocalPosition);
 		return FReply::Handled();
 	}
-	else if (CameraTouch.active && CameraTouch.FingerIndex == TouchIndex)
+	else if (CameraTouch.bActive && CameraTouch.FingerIndex == TouchIndex)
 	{
 		HandleTouchMoveOnRightController(LocalPosition);
 		return FReply::Handled();
@@ -126,12 +126,12 @@ FReply UTouchControls::NativeOnTouchEnded(const FGeometry& InGeometry, const FPo
 {
 	const uint32 TouchIndex = InGestureEvent.GetPointerIndex();
 	const FVector2D LocalPosition = InGeometry.AbsoluteToLocal(InGestureEvent.GetScreenSpacePosition());
-	if (LeftControllerInfo.LeftControllerActive && LeftControllerInfo.TouchIndex == TouchIndex)
+	if (LeftControllerInfo.bLeftControllerActive && LeftControllerInfo.TouchIndex == TouchIndex)
 	{
 		HandleTouchEndOnLeftController();
 		return FReply::Handled();
 	}
-	else if (CameraTouch.active && CameraTouch.FingerIndex == TouchIndex)
+	else if (CameraTouch.bActive && CameraTouch.FingerIndex == TouchIndex)
 	{
 		HandleTouchEndOnRightController(LocalPosition);
 		return FReply::Handled();
@@ -146,9 +146,9 @@ void UTouchControls::NativeTick(const FGeometry& AllottedGeometry, float InDelta
 	FSlateApplication::Get().OnControllerAnalog(FGamepadKeyNames::LeftAnalogY, DefaultControllerId, -LeftControllerInfo.MoveVelocity.Y);
 }
 
-void UTouchControls::ShowAllActionButtons(bool Enable) const
+void UTouchControls::ShowAllActionButtons(bool bEnable) const
 {
-	const ESlateVisibility SlateVisibility = Enable ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+	const ESlateVisibility SlateVisibility = bEnable ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
 	CrouchSlideButton->SetVisibility(SlateVisibility);
 	JumpButton->SetVisibility(SlateVisibility);
 	RightShootButton->SetVisibility(SlateVisibility);
@@ -304,7 +304,7 @@ void UTouchControls::HandleTouchMoveOnLeftController(const FVector2D& TouchPosit
 
 void UTouchControls::HandleTouchEndOnLeftController()
 {
-	LeftControllerInfo.LeftControllerActive = false;
+	LeftControllerInfo.bLeftControllerActive = false;
 	LeftControllerInfo.TouchIndex = -1;
 	LeftForeImageCanvasSlot->SetPosition(LeftControllerInfo.LeftControllerCenter);
 	LeftControllerInfo.MoveVelocity = FVector2D::ZeroVector;
@@ -312,32 +312,32 @@ void UTouchControls::HandleTouchEndOnLeftController()
 
 void UTouchControls::HandleTouchMoveOnRightController(const FVector2D& TouchPosition)
 {
-	const FVector2D currentPos = FVector2D(TouchPosition);
+	const FVector2D CurrentPos = FVector2D(TouchPosition);
 
-	float xdelta = currentPos.X - CameraTouch.LastPos.X;
-	float ydelta = currentPos.Y - CameraTouch.LastPos.Y;
-	xdelta = FMath::Clamp(xdelta, -10.0f, 10.0f) * SpeedStatisticsX.RequestDynamicScale(xdelta);
-	ydelta = FMath::Clamp(ydelta, -10.0f, 10.0f) * SpeedStatisticsY.RequestDynamicScale(ydelta);
+	float XDelta = CurrentPos.X - CameraTouch.LastPos.X;
+	float YDelta = CurrentPos.Y - CameraTouch.LastPos.Y;
+	XDelta = FMath::Clamp(XDelta, -10.0f, 10.0f) * SpeedStatisticsX.RequestDynamicScale(XDelta);
+	YDelta = FMath::Clamp(YDelta, -10.0f, 10.0f) * SpeedStatisticsY.RequestDynamicScale(YDelta);
 
 	APlayerController* Controller = GetOwningPlayer();
 	if (Controller)
 	{
-		if (!FMath::IsNearlyZero(xdelta))
+		if (!FMath::IsNearlyZero(XDelta))
 		{
-			Controller->AddYawInput(xdelta);
+			Controller->AddYawInput(XDelta);
 		}
-		if (!FMath::IsNearlyZero(ydelta))
+		if (!FMath::IsNearlyZero(YDelta))
 		{
-			Controller->AddPitchInput(ydelta);
+			Controller->AddPitchInput(YDelta);
 		}
 	}
 
-	CameraTouch.LastPos = currentPos;
+	CameraTouch.LastPos = CurrentPos;
 }
 
 void UTouchControls::HandleTouchEndOnRightController(const FVector2D& TouchPosition)
 {
-	CameraTouch.active = false;
+	CameraTouch.bActive = false;
 	CameraTouch.FingerIndex = -1;
 	SpeedStatisticsX.ClearData();
 	SpeedStatisticsY.ClearData();

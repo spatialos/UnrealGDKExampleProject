@@ -144,7 +144,7 @@ private:
 		FVector2D LeftControllerCenter;
 		FVector2D LeftTouchStartPosition;
 		FVector2D MoveVelocity;
-		bool LeftControllerActive = false;
+		bool bLeftControllerActive = false;
 		float DistanceToEdge = 0;
 		float DistanceToEdgeSquare = 0;
 		int32 TouchIndex = -1;
@@ -155,7 +155,7 @@ private:
 	{
 		FVector2D LastPos;
 		int32 FingerIndex = -1;
-		bool active = false;
+		bool bActive = false;
 	} CameraTouch;
 
 	bool bControlsBound;
