@@ -73,11 +73,11 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 		this->ClientSetRotation(InPawn->GetActorRotation(), true);
 		if (SVirtualJoystick::ShouldDisplayTouchInterface() && wTouchUI != nullptr)
 		{
-			touchUI = CreateWidget<UTouchControls>(this, wTouchUI);
-			if (touchUI)
+			TouchUI = CreateWidget<UTouchControls>(this, wTouchUI);
+			if (TouchUI)
 			{
-				touchUI->AddToViewport();
-				touchUI->BindControls();
+				TouchUI->AddToViewport();
+				TouchUI->BindControls();
 			}
 		}
 

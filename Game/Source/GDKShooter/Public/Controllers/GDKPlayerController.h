@@ -40,7 +40,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class UTouchControls> wTouchUI;
 	
-	UTouchControls* touchUI;
+	UTouchControls* TouchUI;
 
 protected:
 	UPROPERTY(BlueprintAssignable)

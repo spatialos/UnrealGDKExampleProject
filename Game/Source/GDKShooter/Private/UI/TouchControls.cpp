@@ -260,7 +260,7 @@ FEventReply UTouchControls::HandleSprintPressed(FGeometry Geometry, const FPoint
 	{
 		if (bCrouchPressed)
 		{
-			//if crouched release crouch then jump
+			//if crouched release crouch then sprint
 			HandleCrouchPressed(Geometry, MouseEvent);
 		}
 		if (bScopePressed)

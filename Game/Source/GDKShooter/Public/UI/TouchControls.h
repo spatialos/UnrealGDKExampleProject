@@ -25,7 +25,7 @@ struct SpeedStatistics
 		OffsetNum = 0.0f;
 	}
 
-	float RequestDynamicScale(float offset)
+	float RequestDynamicScale(float Offset)
 	{
 		if (MoveStatisticsCache.IsFull())
 		{
@@ -33,8 +33,8 @@ struct SpeedStatistics
 			check(MoveStatisticsCache.Dequeue(OldestOffset));
 			OffsetNum -= OldestOffset;
 		}
-		MoveStatisticsCache.Enqueue(offset);
-		OffsetNum += offset;
+		MoveStatisticsCache.Enqueue(Offset);
+		OffsetNum += Offset;
 		const float PositiveOffsetNum = FMath::Abs(OffsetNum);
 		return PositiveOffsetNum < ThresholdValue ? 0.1f : FMath::Min(PositiveOffsetNum * 0.1f / ThresholdValue, MaxAccelerateRatio);
 	}
