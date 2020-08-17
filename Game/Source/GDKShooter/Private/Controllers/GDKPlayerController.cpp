@@ -4,30 +4,38 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
-#include "Controllers/Components/ControllerEventsComponent.h"
 #include "Characters/Components/EquippedComponent.h"
 #include "Characters/Components/HealthComponent.h"
 #include "Characters/Components/MetaDataComponent.h"
+#include "Controllers/Components/ControllerEventsComponent.h"
 #include "EngineClasses/SpatialNetDriver.h"
-#include "Interop/Connection/SpatialWorkerConnection.h"
+#include "Game/Components/PlayerPublisher.h"
 #include "Game/Components/ScorePublisher.h"
 #include "Game/Components/SpawnRequestPublisher.h"
-#include "Game/Components/PlayerPublisher.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/TouchInterface.h"
+#include "Interop/Connection/SpatialWorkerConnection.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/TouchControls.h"
 #include "Weapons/Holdable.h"
 #include "Weapons/Projectile.h"
 #include "Weapons/Weapon.h"
+#include "Widgets/Input/SVirtualJoystick.h"
 
 
 AGDKPlayerController::AGDKPlayerController()
 	: bIgnoreActionInput(false)
 	, DeleteCharacterDelay(5.0f)
 {
+	static ConstructorHelpers::FClassFinder<UTouchControls> TouchUIFinder(TEXT("/Game/UI/TouchControls/BP_TouchControls"));
+	if (TouchUIFinder.Class != nullptr)
+	{
+		wTouchUI = TouchUIFinder.Class;
+	}
+
 	// Don't automatically switch the camera view when the pawn changes, to avoid weird camera jumps when a character dies.
 	bAutoManageActiveCameraTarget = false;
 
@@ -63,6 +71,16 @@ void AGDKPlayerController::SetPawn(APawn* InPawn)
 		SetViewTarget(InPawn);
 		// Make the new pawn's camera this controller's camera.
 		this->ClientSetRotation(InPawn->GetActorRotation(), true);
+		if (SVirtualJoystick::ShouldDisplayTouchInterface() && wTouchUI != nullptr)
+		{
+			TouchUI = CreateWidget<UTouchControls>(this, wTouchUI);
+			if (TouchUI)
+			{
+				TouchUI->AddToViewport();
+				TouchUI->BindControls();
+			}
+		}
+
 	}
 	else
 	{
