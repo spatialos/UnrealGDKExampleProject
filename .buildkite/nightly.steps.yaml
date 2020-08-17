@@ -21,7 +21,7 @@ script_runner: &script_runner
     - "machine_type=quarter"
     - "permission_set=builder"
     - "platform=linux"
-    - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-2019-12-12-bk5225-daecba805768d787}"
+    - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-20-08-12-083656-bk14222-38697241}"
     - "scaler_version=2"
     - "working_hours_time_zone=london"
   retry:
@@ -76,5 +76,5 @@ steps:
       build.env("SLACK_NOTIFY") == "true" || 
       build.env("FIREBASE_TEST") == "true" || 
       build.branch == "master"
-    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ci/slack-notify.ps1"
-    <<: *windows
+    command: "python3 ci/slack-notify.py"
+    <<: *script_runner
