@@ -30,26 +30,6 @@ script_runner: &script_runner
       - <<: *bk_system_error
       - <<: *bk_interrupted_by_signal
 
-# TODO: UNR-3894 Replace the windows agent with a linux agent
-windows: &windows
-  agents:
-    - "agent_count=1"
-    - "capable_of_building=gdk-for-unreal"
-    - "environment=production"
-    - "machine_type=quad"
-    - "permission_set=builder"
-    - "platform=windows"
-    - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-08-03-061331-bk13849-b66f334e-d}"
-  timeout_in_minutes: 60
-  retry:
-    automatic:
-      - <<: *agent_transients
-      - <<: *bk_system_error
-      - <<: *bk_interrupted_by_signal
-  plugins:
-    - ca-johnson/taskkill#v4.1: ~
-
 # NOTE: step labels turn into commit-status names like {org}/{repo}/{pipeline}/{step-label}, lower-case and hyphenated.
 # These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
 env:
