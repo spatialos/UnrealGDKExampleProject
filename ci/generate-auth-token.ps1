@@ -11,6 +11,9 @@ $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SP
 Start-Event "get-gdk-head-commit" "generate-auth-token-and-deployment-:windows:" 
     # Get the short commit hash of this gdk build for later use in assembly name
     $gdk_commit_hash = (git ls-remote --head $gdk_repo $gdk_branch_name).Substring(0,6)
+    
+    # This is used during the slack-notify step
+    buildkite-agent meta-data set "gdk_commit_hash" "$gdk_commit_hash"
     Write-Output "GDK at commit: $gdk_commit_hash on branch $gdk_branch_name"
 Finish-Event "get-gdk-head-commit" "generate-auth-token-and-deployment-:windows:"
 
