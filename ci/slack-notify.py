@@ -16,7 +16,7 @@ def slack_notify(channel, slack_webhook_url):
         'BUILDKITE_MESSAGE', 'test build message')
     gdk_branch_name = common.get_environment_variable('GDK_BRANCH', 'master')
     buildkite_commit = common.get_environment_variable('BUILDKITE_COMMIT', '')
-    # Set from generate-auto-token
+    # Set in generate-auth_token-and-deployment-name step
     gdk_commit_hash = common.get_buildkite_meta_data('gdk_commit_hash')
     gdk_commit_url = 'https://github.com/spatialos/UnrealGDK/commit/%s' % gdk_commit_hash
     project_commit_url = 'https://github.com/spatialos/UnrealGDKExampleProject/commit/%s' % buildkite_commit
@@ -107,7 +107,7 @@ def slack_notify(channel, slack_webhook_url):
             index_str = '%d' % (i + 1)
             name = 'deployment-name-%s' % index_str
 
-            # Set from generate-auto-token
+            # Set in generate-auth_token-and-deployment-name step
             deployment_name = common.get_buildkite_meta_data(name)
             deployment_url = 'https://console.improbable.io/projects/%s/deployments/%s/overview' % (
                 project_name, deployment_name)
