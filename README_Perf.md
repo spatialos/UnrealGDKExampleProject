@@ -15,7 +15,7 @@ You can quickly press "0" twice to generate 3900 cubes and get four possible res
 * Turn off ringbuffer, successfully replicated all cubes to runtime but takes roughly 40-60 seconds to finish the process which is really slow
 
 * Turn off ringbuffer, runtime will disconnect server worker
-  error message - "Disconnected: the server shutdoown with message: TRANSPORT: non-blocking attempt to send message to client with no available space in receive window, terminating, Driver = GameNetDriver SpatialNetDriver_2"
+  error message - "LogNet: Error: UEngine::BroadcastNetworkFailure: FailureType = ConnectionLost, ErrorString = Disconnected: the server shutdown with message: TRANSPORT: non-blocking attempt to send message to client with no available space in receive window, terminating, Driver = GameNetDriver SpatialNetDriver_2"
   
 * Turn off ringbuffer, always retrying to send RPC and never finished
   warning message - "LogSpatialSender: Sending create entity request for BlastCubeBlueprint_C_7082 with EntityId 7814, HasAuthority: 1
