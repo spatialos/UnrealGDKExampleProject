@@ -22,6 +22,8 @@
 DECLARE_DELEGATE_OneParam(FBoolean, bool);
 DECLARE_DELEGATE_OneParam(FHoldableSelection, int32);
 
+#define HAS_SYNC_BLAST_MODULE				0
+
 enum AIMode_E
 {
 	AIM_PAUSE = 0,	

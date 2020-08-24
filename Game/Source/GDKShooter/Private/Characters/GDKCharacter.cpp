@@ -283,7 +283,11 @@ void AGDKCharacter::PrintCurrentBlastInfos(const FString& Func)
 			REAL_BLAST_MESH_COMPONENT* BlastComp = Cast<REAL_BLAST_MESH_COMPONENT>(BlastActor->GetBlastMeshComponent());
 			if (BlastComp)
 			{
+#if HAS_SYNC_BLAST_MODULE
 				UE_LOG(LogGDK, Warning, TEXT("%s - Index:[%d] Fracture Count:[%d] DebrisCount:[%d]"), *FuncName, i, BlastComp->CanBeFracturedCount(), BlastComp->GetDebrisCount());
+#else
+				UE_LOG(LogGDK, Warning, TEXT("%s - Index:[%d] Fracture Count:[%d]"), *FuncName, i, BlastComp->CanBeFracturedCount());
+#endif
 			}
 		}
 	}
@@ -630,7 +634,9 @@ void AGDKCharacter::ServerPrintBlastStats_Implementation()
 		{
 			if (!BlastActor->HasAuthority())
 			{
+#if HAS_SYNC_BLAST_MODULE
 				BlastActor->CrossServerPrintBlastStats();
+#endif
 			}
 		}
 	}
