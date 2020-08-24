@@ -40,7 +40,7 @@
         "${IMPROBABLE_WORKER_ID}",
         "coordinator_start_delay_millis=10000",
 
-        "127.0.0.1",
+        "connect.to.spatialos",
         "+workerType",
         "UnrealClient",
         "+deployment",
