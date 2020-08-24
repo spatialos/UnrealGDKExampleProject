@@ -413,10 +413,10 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 	int32 CurrentCount = 0;
 	int32 CurrentSkipIndex = 0;
 
-	int MatrixAWidth = 70;
+	int MatrixAWidth = 65;
 	int MatrixALength = 30;
 
-	int MatrixBWidth = 70;
+	int MatrixBWidth = 65;
 	int MatrixBLength = 30;
 
 	int MatrixACubeCount = MatrixAWidth * MatrixALength;
