@@ -1,11 +1,7 @@
 param(
   [string] $exampleproject_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
-  [string] $gdk_repo = "git@github.com:spatialos/UnrealGDK.git",
-  [string] $gcs_publish_bucket = "io-internal-infra-unreal-artifacts-production/UnrealEngine",
   [string] $deployment_launch_configuration = "one_worker_test.json",
-  [string] $deployment_snapshot_path = "snapshots/Control_small.snapshot",
   [string] $deployment_cluster_region = "eu",
-  [string] $project_name = "unreal_gdk",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
   [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine"
 )
@@ -14,10 +10,15 @@ param(
 
 # When a build is launched custom environment variables can be specified.
 # Parse them here to use the set value or the default.
+$gdk_repo = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_REPOSITORY" -default_value ""
 $gdk_branch_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "GDK_BRANCH" -default_value "master"
 $launch_deployment = Get-Env-Variable-Value-Or-Default -environment_variable_name "START_DEPLOYMENT" -default_value "true"
+$engine_commit_formatted_hash = Get-Env-Variable-Value-Or-Default -environment_variable_name "ENGINE_COMMIT_FORMATTED_HASH" -default_value "0"
+$main_map_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "MAIN_MAP_NAME" -default_value "Control_Small"
+$run_firebase_test = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_TEST" -default_value "false"
 
-$gdk_home = "${exampleproject_home}\Game\Plugins\UnrealGDK"
+$gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
+$game_project = "$exampleproject_home/Game/GDKShooter.uproject"
 
 pushd "$exampleproject_home"
     Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
@@ -33,14 +34,6 @@ pushd "$exampleproject_home"
             popd
         popd
     Finish-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
-
-    Start-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
-        pushd $gdk_home
-            # Get the short commit hash of this gdk build for later use in assembly name
-            $gdk_commit_hash = (git rev-parse HEAD).Substring(0,6)
-            Write-Log "GDK at commit: $gdk_commit_hash on branch $gdk_branch_name"
-        popd
-    Finish-Event "get-gdk-head-commit" "build-unreal-gdk-example-project-:windows:"
 
     Start-Event "set-up-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
         pushd $gdk_home
@@ -62,7 +55,7 @@ pushd "$exampleproject_home"
 
             $find_engine_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath $unreal_version_selector_path -ArgumentList @(`
                 "-switchversionsilent", `
-                "${exampleproject_home}\Game\GDKShooter.uproject", `
+                "$game_project", `
                 "$unreal_engine_symlink_dir"
             )
 
@@ -73,9 +66,7 @@ pushd "$exampleproject_home"
         popd
     Finish-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
 
-
     $build_script_path = "$($gdk_home)\SpatialGDK\Build\Scripts\BuildWorker.bat"
-
 
     Start-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
         # Build the project editor to allow the snapshot and schema commandlet to run
@@ -100,12 +91,13 @@ pushd "$exampleproject_home"
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
         pushd "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
-            $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
-                "$($exampleproject_home)/Game/GDKShooter.uproject", `
+            $UE4Editor=((Convert-Path .) + "\UE4Editor-Cmd.exe")
+            $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
+                "$game_project", `
                 "-run=CookAndGenerateSchema", `
                 "-targetplatform=LinuxServer", `
                 "-SkipShaderCompile", `
-                "-map=`"/Maps/Control_small`""
+                "-map=`"/Maps/$main_map_name`""
             )
             $schema_gen_handle = $schema_gen_proc.Handle
             Wait-Process -InputObject $schema_gen_proc
@@ -114,10 +106,10 @@ pushd "$exampleproject_home"
                 Throw "Failed to generate schema"
             }
             
-            $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath ((Convert-Path .) + "\UE4Editor.exe") -ArgumentList @(`
-                "$($exampleproject_home)/Game/GDKShooter.uproject", `
+            $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
+                "$game_project", `
                 "-run=GenerateSnapshot", `
-                "-MapPaths=`"/Maps/Control_small`""
+                "-MapPaths=`"/Maps/$main_map_name`""
             )
             $snapshot_gen_handle = $snapshot_gen_proc.Handle
             Wait-Process -InputObject $snapshot_gen_proc
@@ -133,8 +125,9 @@ pushd "$exampleproject_home"
             "GDKShooter", `
             "Win64", `
             "Development", `
-            "GDKShooter.uproject"
-        )       
+            "GDKShooter.uproject", `
+            "-nocompile"
+        )
         $build_client_handle = $build_client_proc.Handle
         Wait-Process -InputObject $build_client_proc
         if ($build_client_proc.ExitCode -ne 0) {
@@ -148,8 +141,9 @@ pushd "$exampleproject_home"
             "GDKShooterServer", `
             "Linux", `
             "Development", `
-            "GDKShooter.uproject"
-        )       
+            "GDKShooter.uproject", `
+            "-nocompile"
+        )
         $build_server_handle = $build_server_proc.Handle
         Wait-Process -InputObject $build_server_proc
 
@@ -159,14 +153,30 @@ pushd "$exampleproject_home"
         }
     Finish-Event "build-linux-worker" "build-unreal-gdk-example-project-:windows:"
 
-    Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
-        $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
-        $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList @(`
-            "-ScriptsForProject=$($exampleproject_home)/Game/GDKShooter.uproject", `
+    if ($run_firebase_test -eq "true") {
+        # Prepare Android Project Settings for Firebase
+        Start-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
+            $proc = Start-Process -PassThru -NoNewWindow -FilePath "py" -ArgumentList @(`
+                "-3", `
+                "ci/change-runtime-settings.py", `
+                "`"$exampleproject_home`""
+            )
+            Wait-Process -InputObject $proc
+        Finish-Event "change-runtime-settings" "build-unreal-gdk-example-project-:windows:"
+    }
+        
+    Start-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"          
+        $auth_token = buildkite-agent meta-data get "auth-token"
+        $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"
+        Write-Host "Cloud deployment to connect to: $deployment_name"
+        $cmdline="127.0.0.1 -workerType UnrealClient -devauthToken $auth_token -deployment $deployment_name -linkProtocol Tcp"
+
+        $argumentlist = @(`
+            "-ScriptsForProject=$game_project", `
             "BuildCookRun", `
             "-nocompileeditor", `
             "-nop4", `
-            "-project=$($exampleproject_home)/Game/GDKShooter.uproject", `
+            "-project=$game_project", `
             "-cook", `
             "-stage", `
             "-archive", `
@@ -178,11 +188,14 @@ pushd "$exampleproject_home"
             "-prereqs", `
             "-nodebuginfo", `
             "-targetplatform=Android", `
-            "-cookflavor=Multi", `
+            "-cookflavor=ETC2", `
             "-build", `
             "-utf8output", `
-            "-compile"
+            "-cmdline=`"${cmdline}`""
         )
+
+        $unreal_uat_path = "${unreal_engine_symlink_dir}\Engine\Build\BatchFiles\RunUAT.bat"
+        $build_server_proc = Start-Process -PassThru -NoNewWindow -FilePath $unreal_uat_path -ArgumentList $argumentlist
 
         $build_server_handle = $build_server_proc.Handle
         Wait-Process -InputObject $build_server_proc
@@ -191,6 +204,9 @@ pushd "$exampleproject_home"
             Write-Log "Failed to build Android Development Client. Error: $($build_server_proc.ExitCode)"
             Throw "Failed to build Android Development Client"
         }
+        # Store the queue and job id to be able to construct the GCS path when running the firebase tests.
+        buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-job-id" "$env:BUILDKITE_JOB_ID"
+        buildkite-agent meta-data set "$engine_commit_formatted_hash-build-android-queue-id" "$env:BUILDKITE_AGENT_META_DATA_QUEUE"
     Finish-Event "build-android-client" "build-unreal-gdk-example-project-:windows:"
 
     # Deploy the project to SpatialOS

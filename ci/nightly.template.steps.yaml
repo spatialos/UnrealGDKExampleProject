@@ -22,9 +22,10 @@ windows: &windows
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-03-26-102432-bk9951-8afe0ffb}"
+    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-08-03-061331-bk13849-b66f334e-d}"
     - "boot_disk_size_gb=500"
-  timeout_in_minutes: 60 # TODO(ENG-548): reduce timeout once agent-cold-start is optimised.
+    - "experiment_normalised_upload_paths=true"
+  timeout_in_minutes: 60
   retry:
     automatic:
       - <<: *agent_transients
@@ -50,15 +51,24 @@ macos: &macos
   - ssh://git@github.com/improbable/apple-codesigning-plugin#v0.1.3: ~
 
 steps:
-  - label: "build-and-deploy-BUILKDITE_AGENT_PLACEHOLDER-${ENGINE_COMMIT_HASH}"
-    command: ${BUILDKITE_COMMAND}
-    <<: *BUILKDITE_AGENT_PLACEHOLDER 
+  - label: "build-and-deploy-AGENT_PLACEHOLDER-ENGINE_COMMIT_HASH_PLACEHOLDER"
+    command: "COMMAND_PLACEHOLDER"
+    <<: *AGENT_PLACEHOLDER 
+    key: "setup-and-build-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
+    depends_on:
+      - "generate-auth_token"
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "cooked-android/**/*"
       - "cooked-mac/**/*"
       - "cooked-ios/**/*"
     env:
-      ENGINE_COMMIT_HASH: "${ENGINE_COMMIT_HASH}"
+      ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
+      # ENGINE_COMMIT_FORMATTED_HASH is a enviroment variable for subsequent steps
+      # It's very similar to ENGINE_COMMIT_HASH, but it replaces ' ','.','-' with '_' to be able to use it as a buildkite key to distinguish between engine versions.
+      # For more information: https://buildkite.com/docs/pipelines/block-step#text-input-attributes
+      ENGINE_COMMIT_FORMATTED_HASH: "ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
       STEP_NUMBER: "${STEP_NUMBER}"
+      GDK_BRANCH: "${GDK_BRANCH}"
       UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
+      NDKROOT: "c:/Android/android-ndk-r21d"
