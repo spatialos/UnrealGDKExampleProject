@@ -97,15 +97,9 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("0", IE_Pressed, this, &AGDKCharacter::ServerSpawnBlastActors);
 	PlayerInputComponent->BindAction("1", IE_Pressed, this, &AGDKCharacter::ClientPrintCurrentBlastInfos);
 	PlayerInputComponent->BindAction("2", IE_Pressed, this, &AGDKCharacter::ServerPrintCurrentBlastInfos);
-	PlayerInputComponent->BindAction("3", IE_Pressed, this, &AGDKCharacter::ServerStartTimerToBlast);
 	PlayerInputComponent->BindAction("4", IE_Pressed, this, &AGDKCharacter::PrintSimBotsCount);
 	PlayerInputComponent->BindAction("5", IE_Pressed, this, &AGDKCharacter::ServerSetAIMode);
 	PlayerInputComponent->BindAction("6", IE_Pressed, this, &AGDKCharacter::ServerPrintBlastStats);
-	PlayerInputComponent->BindAction("7", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Quick);
-	PlayerInputComponent->BindAction("8", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Normal);
-	PlayerInputComponent->BindAction("9", IE_Pressed, this, &AGDKCharacter::SetDebrisLifetime_Forever);
-	PlayerInputComponent->BindAction("+", IE_Pressed, this, &AGDKCharacter::ServerIncreaseBlastActorCountPerSecond);
-	PlayerInputComponent->BindAction("-", IE_Pressed, this, &AGDKCharacter::ServerDecreaseBlastActorCountPerSecond);
 }
 
 void AGDKCharacter::MoveForward(float Value)
@@ -275,19 +269,6 @@ void AGDKCharacter::PrintCurrentBlastInfos(const FString& Func)
 	TArray<AActor*> FoundBlastActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
 
-	for (int i = 0; i < FoundBlastActors.Num(); ++i)
-	{
-		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
-		if (BlastActor)
-		{
-			REAL_BLAST_MESH_COMPONENT* BlastComp = Cast<REAL_BLAST_MESH_COMPONENT>(BlastActor->GetBlastMeshComponent());
-			if (BlastComp)
-			{
-				UE_LOG(LogGDK, Warning, TEXT("%s - Index:[%d] Fracture Count:[%d] DebrisCount:[%d]"), *FuncName, i, BlastComp->CanBeFracturedCount(), 0);
-			}
-		}
-	}
-
 	UE_LOG(LogGDK, Warning, TEXT("%s - BlastActor Total Count:[%d]"), *FuncName, FoundBlastActors.Num());
 }
 
@@ -299,109 +280,7 @@ void AGDKCharacter::ClientPrintCurrentBlastInfos()
 void AGDKCharacter::ServerPrintCurrentBlastInfos_Implementation()
 {
 	PrintCurrentBlastInfos(FString(__FUNCTION__));
-
-	TArray<AActor*> FoundBlastActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
-	if (FoundBlastActors.Num() > 0)
-	{
-		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[0]);
-		if (BlastActor)
-		{
-			if (!BlastActor->HasAuthority())
-			{
-				BlastActor->CrossServerPrintCurrentBlastInfos();
-			}
-		}
-	}
 }
-
-void AGDKCharacter::BlastTimerEvent()
-{
-	FString IsServer = GetGameInstance()->IsDedicatedServerInstance() ? "YES" : "NO";
-	UE_LOG(LogGDK, Warning, TEXT("%s - IsServer:[%s]"), *FString(__FUNCTION__), *IsServer);
-
-	int BlastCount = 0;
-	TArray<AActor*> FoundBlastActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
-	for (int i = 0; i < FoundBlastActors.Num(); ++i)
-	{
-		REAL_BLAST_MESH_ACTOR* TmpBlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[i]);
-		if (TmpBlastActor)
-		{
-			if (TmpBlastActor->GetBlastCount() >= 1)
-			{
-				continue;
-			}
-
-			REAL_BLAST_MESH_COMPONENT* BlastComp = Cast<REAL_BLAST_MESH_COMPONENT>(TmpBlastActor->GetBlastMeshComponent());
-			if (BlastComp)
-			{
-				/** yunjie: this fractured count is not the correct one on offloading worker, so don't rely on this
-				if (BlastComp->CanBeFracturedCount() <= 0)
-				{
-					continue;
-				}
-				*/
-
-				// yunjie: one time damage may not destruct the whole blast actor, so do this few times to make sure it's entirely exploded
-				for (int32 damageCount = 0; damageCount < 2; damageCount++)
-				{
-					TmpBlastActor->CrossServerApplyDamage(TmpBlastActor->GetActorLocation(), 200, 300, 1000, 500, true);
-				}
-
-				TmpBlastActor->IncBlastCount();
-
-				UE_LOG(LogGDK, Warning, TEXT("%s - Found one to blast, index:[%d]"), *FString(__FUNCTION__), i);
-
-				if (++BlastCount >= BlastActorCountPerSecond)
-				{
-					break;
-				}
-
-				REAL_BLAST_MESH_COMPONENT* Comp = Cast<REAL_BLAST_MESH_COMPONENT>(TmpBlastActor->GetBlastMeshComponent());
-				if (Comp)
-				{
-				}
-			}
-		}
-	}
-
-	BlastDelegate.BindUFunction(this, FName("BlastTimerEvent"));
-	GetWorldTimerManager().SetTimer(BlastTimer, BlastDelegate, 1, false);
-}
-
-void AGDKCharacter::ServerStartTimerToBlast_Implementation()
-{
-	if (!BlastTimer.IsValid())
-	{
-		UE_LOG(LogGDK, Warning, TEXT("%s - Set Timer"), *FString(__FUNCTION__));
-		BlastDelegate.BindUFunction(this, FName("BlastTimerEvent"));
-		GetWorldTimerManager().SetTimer(BlastTimer, BlastDelegate, 1, false);
-	}
-	else
-	{
-		UE_LOG(LogGDK, Warning, TEXT("%s - Clear Timer"), *FString(__FUNCTION__));
-		GetWorldTimerManager().ClearTimer(BlastTimer);
-	}
-}
-
-void AGDKCharacter::ServerIncreaseBlastActorCountPerSecond_Implementation()
-{
-	BlastActorCountPerSecond++;
-
-	UE_LOG(LogGDK, Warning, TEXT("%s - Count:[%d]"), *FString(__FUNCTION__), BlastActorCountPerSecond);
-}
-
-void AGDKCharacter::ServerDecreaseBlastActorCountPerSecond_Implementation()
-{
-	if (--BlastActorCountPerSecond <= 0)
-	{
-		BlastActorCountPerSecond = 1;
-	}
-
-	UE_LOG(LogGDK, Warning, TEXT("%s - Count:[%d]"), *FString(__FUNCTION__), BlastActorCountPerSecond);
-}
-
 
 void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 {
@@ -449,7 +328,7 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 				}
 				else
 				{
-					BlastActor->CrossServerDestroyAllActors();
+					// BlastActor->CrossServerDestroyAllActors();
 					break;
 				}
 			}
@@ -469,8 +348,7 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 					if (CurrentSkipIndex++ >= AccCount)
 					{
 						FVector v = FVector(x, y, 60);
-						// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
-						ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+						GetWorld()->SpawnActor<AActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
 						++AccCount;
 						if (++CurrentCount >= CountLimitation)
 						{
@@ -500,7 +378,7 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 				}
 				else
 				{
-					BlastActor->CrossServerDestroyAllActors();
+					// BlastActor->CrossServerDestroyAllActors();
 					break;
 				}
 			}
@@ -520,8 +398,7 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 					if (CurrentSkipIndex++ >= AccCount)
 					{
 						FVector v = FVector(x, y, 60);
-						// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
-						ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+						GetWorld()->SpawnActor<AActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
 						++AccCount;
 						if (++CurrentCount >= CountLimitation)
 						{
@@ -552,8 +429,7 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 					if (CurrentSkipIndex++ >= AccCount)
 					{
 						FVector v = FVector(x, y, 60);
-						// ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(ATestBlastMeshActor::StaticClass(), v, FRotator::ZeroRotator);
-						ATestBlastMeshActor* BlastActor = GetWorld()->SpawnActor<ATestBlastMeshActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
+						GetWorld()->SpawnActor<AActor>(BlastCubeBlueprint, v, FRotator::ZeroRotator);
 						++AccCount;
 						if (++CurrentCount >= CountLimitation)
 						{
@@ -571,52 +447,6 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 RETURN_LABEL:
 	return;
 }
-
-void AGDKCharacter::SetDebrisLifetime_Quick()
-{
-	REAL_BLAST_MESH_ACTOR::SetAllDebrisLifeTime(GetWorld(), DEBRIS_LIFETIME_QUICK_MIN, DEBRIS_LIFETIME_QUICK_MAX);
-	ServerSetDebrisLifetime(DEBRIS_LIFETIME_QUICK_MIN, DEBRIS_LIFETIME_QUICK_MAX);
-}
-
-void AGDKCharacter::SetDebrisLifetime_Normal()
-{
-	REAL_BLAST_MESH_ACTOR::SetAllDebrisLifeTime(GetWorld(), DEBRIS_LIFETIME_NORMAL_MIN, DEBRIS_LIFETIME_NORMAL_MAX);
-	ServerSetDebrisLifetime(DEBRIS_LIFETIME_NORMAL_MIN, DEBRIS_LIFETIME_NORMAL_MAX);
-}
-
-void AGDKCharacter::SetDebrisLifetime_Forever()
-{
-	REAL_BLAST_MESH_ACTOR::SetAllDebrisLifeTime(GetWorld(), DEBRIS_LIFETIME_FOREVER_MIN, DEBRIS_LIFETIME_FOREVER_MAX);
-	ServerSetDebrisLifetime(DEBRIS_LIFETIME_FOREVER_MIN, DEBRIS_LIFETIME_FOREVER_MAX);
-}
-
-void AGDKCharacter::ServerSetDebrisLifetime_Implementation(int32 min, int32 max)
-{
-	UE_LOG(LogGDK, Warning, TEXT("%s - min:[%d], max:[%d]"), *FString(__FUNCTION__), min, max);
-
-	REAL_BLAST_MESH_ACTOR::SetAllDebrisLifeTime(GetWorld(), min, max);
-
-	TArray<AActor*> FoundBlastActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), REAL_BLAST_MESH_ACTOR::StaticClass(), FoundBlastActors);
-	if (FoundBlastActors.Num() > 0)
-	{
-		REAL_BLAST_MESH_ACTOR* BlastActor = Cast<REAL_BLAST_MESH_ACTOR>(FoundBlastActors[0]);
-		if (BlastActor)
-		{
-			if (!BlastActor->HasAuthority())
-			{
-				BlastActor->CrossServerSetAllDebrisLifetime(min, max);
-			}
-		}
-	}
-
-}
-
-void AGDKCharacter::ServerApplyDamage_Implementation(REAL_BLAST_MESH_ACTOR* BlastActor, FVector Origin, float MinRadius, float MaxRadius, float Damage, float ImpulseStrength, bool bImpulseVelChange)
-{
-	BlastActor->CrossServerApplyDamage(Origin, MinRadius, MaxRadius, Damage, ImpulseStrength, bImpulseVelChange);
-}
-
 
 void AGDKCharacter::ServerPrintBlastStats_Implementation()
 {

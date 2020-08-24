@@ -15,8 +15,6 @@
 #include "TimerManager.h"
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "Runtime/AIModule/Classes/Perception/AISightTargetInterface.h"
-#include "BlastRuntime/Public/BlastMeshActor.h"
-#include "BlastRuntime/Public/TestBlastMesh/TestBlastMeshActor.h"
 #include "GDKCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FBoolean, bool);
@@ -30,8 +28,27 @@ enum AIMode_E
 	AIM_MAX
 };
 
-UCLASS()
-class GDKSHOOTER_API AGDKCharacter : public ACharacter, public IGenericTeamAgentInterface, public IAISightTargetInterface
+UCLASS(Blueprintable, ComponentWrapperClass, ConversionRoot, meta = (ChildCanTick))
+class ATestCubeActor : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	ATestCubeActor(const FObjectInitializer& ObjectInitializer)
+	{
+		bReplicates = true;
+		bReplicateMovement = false;
+		bNetLoadOnClient = true;
+		NetPriority = 1.0f;
+		NetUpdateFrequency = 2.0f;
+		MinNetUpdateFrequency = 1.0f;
+	}
+};
+
+#define REAL_BLAST_MESH_ACTOR		ATestCubeActor
+
+	UCLASS()
+	class GDKSHOOTER_API AGDKCharacter : public ACharacter, public IGenericTeamAgentInterface, public IAISightTargetInterface
 {
 	GENERATED_BODY()
 
@@ -125,33 +142,10 @@ private:
 	void ServerPrintCurrentBlastInfos();
 
 	UFUNCTION(Server, Reliable)
-	void ServerStartTimerToBlast();
-
-	UFUNCTION(Server, Reliable)
-	void ServerIncreaseBlastActorCountPerSecond();
-
-	UFUNCTION(Server, Reliable)
-	void ServerDecreaseBlastActorCountPerSecond();
-
-	UFUNCTION(Server, Reliable)
 	void ServerSpawnBlastActors();
-
-	void SetDebrisLifetime_Quick();
-	void SetDebrisLifetime_Normal();
-	void SetDebrisLifetime_Forever();
-
-	UFUNCTION(Server, Reliable)
-	void ServerSetDebrisLifetime(int32 min, int32 max);
 
 	UFUNCTION(Server, Reliable)
 	void ServerPrintBlastStats();
-
-	UFUNCTION()
-	void BlastTimerEvent();
-
-	// yunjie: for directly called from client in blueprint
-	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "GDKCharacter")
-	void ServerApplyDamage(ATestBlastMeshActor* BlastActor, FVector Origin, float MinRadius, float MaxRadius, float Damage = 100.0f, float ImpulseStrength = 0.0f, bool bImpulseVelChange = true);
 
 	void PrintSimBotsCount();
 
@@ -162,7 +156,8 @@ private:
 
 	int32				BlastActorCountPerSecond = 1;
 
-	TSubclassOf<class ATestBlastMeshActor>					BlastCubeBlueprint;
+	// TSubclassOf<class ATestBlastMeshActor>					BlastCubeBlueprint;
+	TSubclassOf<class AActor>									BlastCubeBlueprint;
 
 	int						AIMode = 0;
 };

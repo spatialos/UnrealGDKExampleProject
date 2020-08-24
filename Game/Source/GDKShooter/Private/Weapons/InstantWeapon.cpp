@@ -70,12 +70,6 @@ void AInstantWeapon::DoFire_Implementation()
 
 		if (blastActor)
 		{
-			REAL_BLAST_MESH_COMPONENT* blastComp = Cast<REAL_BLAST_MESH_COMPONENT>(blastActor->GetBlastMeshComponent());
-			if (blastComp)
-			{
-				// blastComp->ApplyRadialDamage(HitInfo.Location, 50, 80, 100, 100);
-				// blastComp->ApplyRadialDamage(HitInfo.Location, 200, 300, 1000, 500);
-			}
 		}
 	}
 	else
@@ -226,7 +220,7 @@ void AInstantWeapon::ServerDidHit_Implementation(const FInstantHitInfo& HitInfo)
 			// UE_LOG(LogGDK, Warning, TEXT("%s - hit blast actor!!!!!!!!!!!"), *FString(__FUNCTION__));
 			// yunjie: special case for blast actor, should be forwarded to offloading unreal worker
 			// BlastActor->CrossServerApplyDamage(HitInfo.Location, 50, 80, 100, 100, true);
-			BlastActor->CrossServerApplyDamage(HitInfo.Location, 200, 300, 1000, 500, true);
+			// BlastActor->CrossServerApplyDamage(HitInfo.Location, 200, 300, 1000, 500, true);
 		}
 		else
 		{

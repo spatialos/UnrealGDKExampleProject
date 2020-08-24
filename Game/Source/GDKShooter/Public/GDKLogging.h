@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 
-#include "BlastRuntime/Public/BlastMeshActor.h"
-#include "BlastRuntime/Public/TestBlastMesh/TestBlastMeshActor.h"
+// #include "BlastRuntime/Public/BlastMeshActor.h"
+// #include "BlastRuntime/Public/TestBlastMesh/TestBlastMeshActor.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogGDK, Log, All);
 
