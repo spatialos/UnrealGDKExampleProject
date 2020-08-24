@@ -283,7 +283,7 @@ void AGDKCharacter::PrintCurrentBlastInfos(const FString& Func)
 			REAL_BLAST_MESH_COMPONENT* BlastComp = Cast<REAL_BLAST_MESH_COMPONENT>(BlastActor->GetBlastMeshComponent());
 			if (BlastComp)
 			{
-				UE_LOG(LogGDK, Warning, TEXT("%s - Index:[%d] Fracture Count:[%d] DebrisCount:[%d]"), *FuncName, i, BlastComp->CanBeFracturedCount(), BlastComp->GetDebrisCount());
+				UE_LOG(LogGDK, Warning, TEXT("%s - Index:[%d] Fracture Count:[%d] DebrisCount:[%d]"), *FuncName, i, BlastComp->CanBeFracturedCount(), 0);
 			}
 		}
 	}
@@ -408,22 +408,22 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 	UE_LOG(LogGDK, Warning, TEXT("%s"), *FString(__FUNCTION__));
 
 	int32 CountLimitation = INT_MAX;
-	CountLimitation = 200;
+	CountLimitation = 20000;
 	static int32 AccCount = 0;
 	int32 CurrentCount = 0;
 	int32 CurrentSkipIndex = 0;
 
-	int MatrixAWidth = 32;
-	int MatrixALength = 26;
+	int MatrixAWidth = 64;
+	int MatrixALength = 30;
 
-	int MatrixBWidth = 32;
-	int MatrixBLength = 26;
+	int MatrixBWidth = 64;
+	int MatrixBLength = 30;
 
 	int MatrixACubeCount = MatrixAWidth * MatrixALength;
 	int MatrixBCubeCount = MatrixBWidth * MatrixBLength;
 	int TotalCubeCount = MatrixACubeCount + MatrixBCubeCount;
 
-	bool bCenterCubes = true;
+	bool bCenterCubes = false;
 
 	// yunjie: destroy all blast actors
 	TArray<AActor*> FoundBlastActors;
@@ -512,10 +512,10 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 			UE_LOG(LogGDK, Warning, TEXT("%s - start to spawn maxtrix A blast actors"), *FString(__FUNCTION__));
 
 			int32 y = 3680;
-			for (int32 i = 0; i < 32; ++i)
+			for (int32 i = 0; i < MatrixAWidth; ++i)
 			{
 				int32 x = 60;
-				for (int32 j = 0; j < 26; ++j)
+				for (int32 j = 0; j < MatrixALength; ++j)
 				{
 					if (CurrentSkipIndex++ >= AccCount)
 					{
@@ -529,9 +529,9 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 						}
 					}
 
-					x -= 120;
+					x -= 110;
 				}
-				y -= 120;
+				y -= 110;
 			}
 		}
 		else
@@ -543,11 +543,11 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 				AccCount = 0;
 			}
 
-			int y = 280;
-			for (int32 i = 0; i < 32; ++i)
+			int y = 3680;
+			for (int32 i = 0; i < MatrixBWidth; ++i)
 			{
 				int32 x = 3660;
-				for (int32 j = 0; j < 26; ++j)
+				for (int32 j = 0; j < MatrixBLength; ++j)
 				{
 					if (CurrentSkipIndex++ >= AccCount)
 					{
@@ -561,9 +561,9 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 						}
 					}
 
-					x -= 120;
+					x -= 110;
 				}
-				y -= 120;
+				y -= 110;
 			}
 		}
 	}
@@ -629,7 +629,7 @@ void AGDKCharacter::ServerPrintBlastStats_Implementation()
 		{
 			if (!BlastActor->HasAuthority())
 			{
-				BlastActor->CrossServerPrintBlastStats();
+				// BlastActor->CrossServerPrintBlastStats();
 			}
 		}
 	}
