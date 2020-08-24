@@ -11,7 +11,7 @@ Press the "0" twice - generate another 1950(65x30) cubes
 
 Press the "0" three times - destroy all cubes
 
-You can quickly press "0" twice to generate 3900 cubes and get three result:
+You can quickly press "0" twice to generate 3900 cubes and get four possible results:
 * Turn off ringbuffer, successfully replicated all cubes to runtime but takes 40 seconds to finish the process
 
 * Turn off ringbuffer, runtime will disconnect server worker
