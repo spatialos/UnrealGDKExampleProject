@@ -412,16 +412,16 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 	UE_LOG(LogGDK, Warning, TEXT("%s"), *FString(__FUNCTION__));
 
 	int32 CountLimitation = INT_MAX;
-	CountLimitation = 2000;
+	CountLimitation = 5000;
 	static int32 AccCount = 0;
 	int32 CurrentCount = 0;
 	int32 CurrentSkipIndex = 0;
 
 	int MatrixAWidth = 65;
-	int MatrixALength = 30;
+	int MatrixALength = 33;
 
 	int MatrixBWidth = 65;
-	int MatrixBLength = 30;
+	int MatrixBLength = 33;
 
 	int MatrixACubeCount = MatrixAWidth * MatrixALength;
 	int MatrixBCubeCount = MatrixBWidth * MatrixBLength;
@@ -533,9 +533,9 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 						}
 					}
 
-					x -= 120;
+					x -= 110;
 				}
-				y -= 120;
+				y -= 110;
 			}
 		}
 		else
@@ -566,9 +566,9 @@ void AGDKCharacter::ServerSpawnBlastActors_Implementation()
 						}
 					}
 
-					x -= 120;
+					x -= 110;
 				}
-				y -= 120;
+				y -= 110;
 			}
 		}
 	}
