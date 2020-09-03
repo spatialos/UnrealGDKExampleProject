@@ -1,0 +1,44 @@
+---
+# This is designed to trap and retry failures because agent lost
+# connection. Agent exits with -1 in this case.
+agent_transients: &agent_transients
+  exit_status: -1
+  limit: 3
+# BK system error
+bk_system_error: &bk_system_error
+  exit_status: 255
+  limit: 3
+# job was interrupted by a signal (e.g. ctrl+c etc)
+bk_interrupted_by_signal: &bk_interrupted_by_signal
+  exit_status: 15
+  limit: 3
+
+# TODO: UNR-3893 Replace the windows agent with a linux agent
+windows: &windows
+  agents:
+    - "agent_count=1"
+    - "capable_of_building=gdk-for-unreal"
+    - "environment=production"
+    - "machine_type=quad"
+    - "permission_set=builder"
+    - "platform=windows"
+    - "scaler_version=2"
+    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-08-03-061331-bk13849-b66f334e-d}"
+    - "boot_disk_size_gb=500"
+  timeout_in_minutes: 60
+  retry:
+    automatic:
+      - <<: *agent_transients
+      - <<: *bk_system_error
+      - <<: *bk_interrupted_by_signal
+  plugins:
+    - ca-johnson/taskkill#v4.1: ~
+
+steps:
+  - label: "firebase-test-android-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
+    command: "python ci/run-firebase-test.py android ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
+    <<: *windows
+    artifact_paths:
+      - "firebase_log/*.txt"
+    depends_on:
+      - "setup-and-build-windows-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
