@@ -24,10 +24,28 @@ UTeamDeathmatchSpawnerComponent::UTeamDeathmatchSpawnerComponent()
 	bUseTeamPlayerStarts = true;
 	bShufflePlayerStarts = true;
 	NextPlayerStart = 0;
+
+	SetIsReplicatedByDefault(true);
+
+	UE_LOG(LogTeamDeathmatchSpawnerComponent, Warning, TEXT("%s"), *FString(__FUNCTION__));
 }
 
 void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
 {
+	FString WorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+	FString WorkerType = GetWorld()->GetGameInstance()->GetSpatialWorkerType().ToString();
+	FString WorkerLabel = GetWorld()->GetGameInstance()->GetSpatialWorkerLabel();
+	FString IsServer = GetWorld()->GetGameInstance()->IsDedicatedServerInstance() ? "YES" : "NO";
+	FString Authority;
+
+	if (this->GetOwner())
+	{
+		Authority = this->GetOwner()->HasAuthority() ? "YES" : "NO";
+	}
+
+	UE_LOG(LogTeamDeathmatchSpawnerComponent, Warning, TEXT("%s - WorkerId:[%s] WorkerType:[%s] WorkerLabel:[%s] Name:[%s] IsServer:[%s] Authority:[%s]"),
+		*FString(__FUNCTION__), *WorkerId, *WorkerType, *WorkerLabel, *GetFName().ToString(), *IsServer, *Authority);
+
 	for (FGenericTeamId TeamId : TeamIds)
 	{
 		TeamAssignments.Add(TeamId.GetId(), 0);
@@ -63,6 +81,20 @@ void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
 
 void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller)
 {
+	FString WorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+	FString WorkerType = GetWorld()->GetGameInstance()->GetSpatialWorkerType().ToString();
+	FString WorkerLabel = GetWorld()->GetGameInstance()->GetSpatialWorkerLabel();
+	FString IsServer = GetWorld()->GetGameInstance()->IsDedicatedServerInstance() ? "YES" : "NO";
+	FString Authority;
+
+	if (this->GetOwner())
+	{
+		Authority = this->GetOwner()->HasAuthority() ? "YES" : "NO";
+	}
+
+	UE_LOG(LogTeamDeathmatchSpawnerComponent, Warning, TEXT("%s - WorkerId:[%s] WorkerType:[%s] WorkerLabel:[%s] Name:[%s] IsServer:[%s] Authority:[%s]"),
+		*FString(__FUNCTION__), *WorkerId, *WorkerType, *WorkerLabel, *GetFName().ToString(), *IsServer, *Authority);
+
 	if (TeamAssignments.Num() == 0)
 	{
 		UE_LOG(LogTeamDeathmatchSpawnerComponent, Error, TEXT("Requested spawn but Spawner component hasn't been initialized! Controller: %s"), *GetNameSafe(Controller));
@@ -210,3 +242,20 @@ void UTeamDeathmatchSpawnerComponent::ShufflePlayerStartArray(TArray<APlayerStar
 		}
 	}
 }
+
+void UTeamDeathmatchSpawnerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	/*
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, bUseTeamPlayerStarts);
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, bShufflePlayerStarts);
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, PlayerStarts);
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, TeamPlayerStarts);
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, TeamAssignments);
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, SpawnedPlayers);
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, NextTeamPlayerStart);
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, NextPlayerStart);
+	*/
+}
+

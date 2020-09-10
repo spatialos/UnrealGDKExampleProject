@@ -17,6 +17,8 @@ class GDKSHOOTER_API UTeamDeathmatchSpawnerComponent : public UActorComponent
 public:	
 	UTeamDeathmatchSpawnerComponent();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UFUNCTION(BlueprintCallable)
 	void SetTeams(TArray<FGenericTeamId> TeamIds);
 
@@ -42,9 +44,14 @@ protected:
 	class APlayerStart* GetNextPlayerStart();
 
 	TArray<class APlayerStart*> PlayerStarts;
+
 	TArray<class APlayerStart*> TeamPlayerStarts;
+
 	TMap<int32, int32> TeamAssignments;
+
 	TMap<APlayerController*, int32> SpawnedPlayers;
+
 	TMap<FGenericTeamId, int32> NextTeamPlayerStart;
+
 	int32 NextPlayerStart;
 };
