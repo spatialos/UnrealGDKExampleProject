@@ -12,6 +12,8 @@
 #include "Controllers/Components/ControllerEventsComponent.h"
 #include "Weapons/Holdable.h"
 
+#include "Kismet/GameplayStatics.h"
+
 AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGDKMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
@@ -70,7 +72,7 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction< FHoldableSelection>("7", IE_Pressed, EquippedComponent, &UEquippedComponent::ServerRequestEquip, 6);
 	PlayerInputComponent->BindAction< FHoldableSelection>("8", IE_Pressed, EquippedComponent, &UEquippedComponent::ServerRequestEquip, 7);
 	PlayerInputComponent->BindAction< FHoldableSelection>("9", IE_Pressed, EquippedComponent, &UEquippedComponent::ServerRequestEquip, 8);
-	PlayerInputComponent->BindAction< FHoldableSelection>("0", IE_Pressed, EquippedComponent, &UEquippedComponent::ServerRequestEquip, 9);
+	PlayerInputComponent->BindAction("0", IE_Pressed, this, &AGDKCharacter::ToggleAIState);
 	PlayerInputComponent->BindAction("QuickToggle", IE_Pressed, EquippedComponent, &UEquippedComponent::QuickToggle);
 	PlayerInputComponent->BindAction("ToggleMode", IE_Pressed, EquippedComponent, &UEquippedComponent::ToggleMode);
 	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollUp);
@@ -209,3 +211,33 @@ bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutS
 	OutSightStrength = (float)PositiveHits / (float)NumberOfLoSChecksPerformed;
 	return PositiveHits > 0;
 }
+
+
+void AGDKCharacter::ToggleAIState()
+{
+	bAIPause = !bAIPause;
+	UE_LOG(LogGDK, Warning, TEXT("%s - state:[%d]"), *FString(__FUNCTION__), bAIPause);
+
+	ServerToggleAIState(bAIPause);
+}
+
+void AGDKCharacter::ServerToggleAIState_Implementation(bool state)
+{
+	UE_LOG(LogGDK, Warning, TEXT("%s - state:[%d]"), *FString(__FUNCTION__), state);
+
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGDKCharacter::StaticClass(), FoundActors);
+	for (int i = 0; i < FoundActors.Num(); ++i)
+	{
+		AGDKCharacter* AI = Cast<AGDKCharacter>(FoundActors[i]);
+		AI->bAIPause = state;
+	}
+}
+
+void AGDKCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGDKCharacter, bAIPause);
+}
+

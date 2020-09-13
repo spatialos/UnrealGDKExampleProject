@@ -28,6 +28,8 @@ public:
 	AGDKCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -90,4 +92,15 @@ public:
 
 	UFUNCTION(CrossServer, Reliable)
 	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+
+
+	void ToggleAIState();
+
+	UFUNCTION(Server, Reliable)
+	void ServerToggleAIState(bool state);
+
+public:
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	bool			bAIPause = false;
 };
+
