@@ -21,6 +21,10 @@ $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
 $game_project = "$exampleproject_home/Game/GDKShooter.uproject"
 
 pushd "$exampleproject_home"
+
+    New-Item -Path "$exampleproject_home\Game\Content\Spatial\" -ItemType Directory 
+    buildkite-agent artifact download "*SchemaDatabase.uasset" "$exampleproject_home"
+
     Start-Event "clone-gdk-plugin" "build-unreal-gdk-example-project-:windows:"
         pushd "Game"
             New-Item -Name "Plugins" -ItemType Directory -Force
@@ -67,59 +71,6 @@ pushd "$exampleproject_home"
     Finish-Event "associate-uproject-with-engine" "build-unreal-gdk-example-project-:windows:"
 
     $build_script_path = "$($gdk_home)\SpatialGDK\Build\Scripts\BuildWorker.bat"
-
-    Start-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
-        # Build the project editor to allow the snapshot and schema commandlet to run
-        $build_editor_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
-            "GDKShooterEditor", `
-            "Win64", `
-            "Development", `
-            "GDKShooter.uproject"
-        )
-
-        # Explicitly hold on to the process handle. 
-        # This works around an issue whereby Wait-Process would fail to find build_editor_proc 
-        $build_editor_handle = $build_editor_proc.Handle
-
-        Wait-Process -InputObject $build_editor_proc
-        if ($build_editor_proc.ExitCode -ne 0) {
-            Write-Log "Failed to build Win64 Development Editor. Error: $($build_editor_proc.ExitCode)"
-            Throw "Failed to build Win64 Development Editor"
-        }
-    Finish-Event "build-editor" "build-unreal-gdk-example-project-:windows:"
-
-    # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
-    Start-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
-        pushd "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
-            $UE4Editor=((Convert-Path .) + "\UE4Editor-Cmd.exe")
-            $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
-                "$game_project", `
-                "-run=CookAndGenerateSchema", `
-                "-targetplatform=LinuxServer", `
-                "-SkipShaderCompile", `
-                "-map=`"/Maps/$main_map_name`""
-            )
-            $schema_gen_handle = $schema_gen_proc.Handle
-            Wait-Process -InputObject $schema_gen_proc
-            if ($schema_gen_proc.ExitCode -ne 0) {
-                Write-Log "Failed to generate schema. Error: $($schema_gen_proc.ExitCode)"
-                Throw "Failed to generate schema"
-            }
-            
-            $snapshot_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
-                "$game_project", `
-                "-run=GenerateSnapshot", `
-                "-MapPaths=`"/Maps/$main_map_name`""
-            )
-            $snapshot_gen_handle = $snapshot_gen_proc.Handle
-            Wait-Process -InputObject $snapshot_gen_proc
-            if ($snapshot_gen_proc.ExitCode -ne 0) {
-                Write-Log "Failed to generate snapshot. Error: $($snapshot_gen_proc.ExitCode)"
-                Throw "Failed to generate snapshot"
-            }
-        popd
-    Finish-Event "generate-schema" "build-unreal-gdk-example-project-:windows:"
-
     Start-Event "build-win64-client" "build-unreal-gdk-example-project-:windows:"
         $build_client_proc = Start-Process -PassThru -NoNewWindow -FilePath $build_script_path -ArgumentList @(`
             "GDKShooter", `
