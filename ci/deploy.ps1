@@ -6,14 +6,16 @@ param(
 . "$PSScriptRoot\common.ps1"
 
 # Grab Artifacts
-Start-Event "fetch-artifacts" "Upload Assembly"
-  New-Item -ItemType directory -Path staging | Out-Null
-  if (-Not (Test-Path Game/Content/Spatial)) {New-Item -ItemType directory -Path Stavka\Game\Content\Spatial}
-  buildkite-agent artifact download "*Schema.zip" staging
-  7z x staging/artifacts/Schema.zip -aoa -ospatial
-  buildkite-agent artifact download "*Snapshots.zip" staging
-  7z x staging/artifacts/Snapshots.zip -aoa -ospatial
-Finish-Event "fetch-artifacts" "Upload Assembly"
+Start-Event "fetch-artifacts" "build-unreal-gdk-example-project-:windows:"
+    New-Item -ItemType directory -Path staging | Out-Null
+    if (-Not (Test-Path Game/Content/Spatial)) {
+        New-Item -ItemType directory -Path Game\Content\Spatial
+    }
+    buildkite-agent artifact download "*Schema.zip" staging
+    7z x staging/artifacts/Schema.zip -aoa -ospatial
+    buildkite-agent artifact download "*Snapshots.zip" staging
+    7z x staging/artifacts/Snapshots.zip -aoa -ospatial
+Finish-Event "fetch-artifacts" "build-unreal-gdk-example-project-:windows:"
 
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
     # deployment_name is created during the generate-auth_token-and-deployment-name step
