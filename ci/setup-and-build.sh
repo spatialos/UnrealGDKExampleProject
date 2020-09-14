@@ -115,7 +115,7 @@ pushd "$(dirname "$0")"
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"       
     fi
 
-    # zip up the built-out mac client
+    # Zip up the built-out mac client
     7z a -mx3 "${EXAMPLEPROJECT_HOME}/cooked-mac.zip" "${EXAMPLEPROJECT_HOME}/cooked-mac" 
     
     echo "--- build-ios-client"
