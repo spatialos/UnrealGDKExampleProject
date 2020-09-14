@@ -57,10 +57,11 @@ steps:
     key: "setup-and-build-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
     depends_on:
       - "generate-auth_token"
+      - "prepare-editor"
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "cooked-android/**/*"
-      - "cooked-mac/**/*"
+      - "cooked-mac.zip"
       - "cooked-ios/**/*"
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
