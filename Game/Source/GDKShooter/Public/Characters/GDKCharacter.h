@@ -95,7 +95,6 @@ public:
 
 
 	void ToggleAIState();
-
 	UFUNCTION(Server, Reliable)
 	void ServerToggleAIState(bool state);
 

@@ -168,9 +168,10 @@ float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 
 void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	UE_LOG(LogGDK, Warning, TEXT("%s - state:[%s]"), *FString(__FUNCTION__), *this->GetFName().ToString());
+
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
-
 }
 
 FGenericTeamId AGDKCharacter::GetGenericTeamId() const

@@ -178,6 +178,8 @@ void AInstantWeapon::DealDamage(const FInstantHitInfo& HitInfo)
 
 	if (APawn* Pawn = Cast<APawn>(GetOwner()))
 	{
+		// TODO yunjie: hardcode the damage here for convenient
+		ShotBaseDamage = 100.0f;
 		HitInfo.HitActor->TakeDamage(ShotBaseDamage, DmgEvent, Pawn->GetController(), this);
 	}
 }
