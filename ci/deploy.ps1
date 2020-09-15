@@ -5,16 +5,18 @@ param(
 
 . "$PSScriptRoot\common.ps1"
 
+
 # Grab Artifacts
 Start-Event "fetch-artifacts" "build-unreal-gdk-example-project-:windows:"
+    $schema_path = "Game\Content\Spatial"
     New-Item -ItemType directory -Path staging | Out-Null
-    if (-Not (Test-Path Game/Content/Spatial)) {
-        New-Item -ItemType directory -Path Game\Content\Spatial
+    if (-Not (Test-Path $schema_path)) {
+        New-Item -ItemType directory -Path $schema_path
     }
     buildkite-agent artifact download "*Schema.zip" staging
-    7z x staging/artifacts/Schema.zip -aoa -ospatial
+    7z x staging\artifacts\Schema.zip -aoa -ospatial
     buildkite-agent artifact download "*Snapshots.zip" staging
-    7z x staging/artifacts/Snapshots.zip -aoa -ospatial
+    7z x staging\artifacts\Snapshots.zip -aoa -ospatial
 Finish-Event "fetch-artifacts" "build-unreal-gdk-example-project-:windows:"
 
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"

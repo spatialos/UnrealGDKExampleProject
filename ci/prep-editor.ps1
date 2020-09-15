@@ -15,7 +15,7 @@ $main_map_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "M
 $run_firebase_test = Get-Env-Variable-Value-Or-Default -environment_variable_name "FIREBASE_TEST" -default_value "false"
 
 $gdk_home = "$exampleproject_home\Game\Plugins\UnrealGDK"
-$game_project = "$exampleproject_home/Game/GDKShooter.uproject"
+$game_project = "$exampleproject_home\Game\GDKShooter.uproject"
 
 pushd "$exampleproject_home"
     Start-Event "clone-gdk-plugin" "prep-editor"
@@ -85,7 +85,7 @@ pushd "$exampleproject_home"
 
     # Invoke the GDK commandlet to generate schema and snapshot. Note: this needs to be run prior to cooking 
     Start-Event "generate-schema" "prep-editor"
-        pushd "${unreal_engine_symlink_dir}/Engine/Binaries/Win64"
+        pushd "${unreal_engine_symlink_dir}\Engine\Binaries\Win64"
             $UE4Editor=((Convert-Path .) + "\UE4Editor-Cmd.exe")
             $schema_gen_proc = Start-Process -PassThru -NoNewWindow -FilePath $UE4Editor -ArgumentList @(`
                 "$game_project", `
@@ -121,8 +121,8 @@ pushd "$exampleproject_home"
         $zip_proc = Start-Process -Wait -PassThru -NoNewWindow "7z" -ArgumentList @(`
             "a", `
             "-mx3", `
-            "artifacts/Schema.zip", `
-            "$PSScriptRoot/../spatial/schema" `
+            "artifacts\Schema.zip", `
+            "$PSScriptRoot\..\spatial\schema" `
         )
         if ($zip_proc.ExitCode -ne 0) {
             Write-Log "Failed to zip schema. Error: $($zip_proc.ExitCode)"
@@ -133,8 +133,8 @@ pushd "$exampleproject_home"
         $zip_proc = Start-Process -Wait -PassThru -NoNewWindow "7z" -ArgumentList @(`
             "a", `
             "-mx3", `
-            "artifacts/Snapshots.zip", `
-            "$PSScriptRoot/../spatial/snapshots" `
+            "artifacts\Snapshots.zip", `
+            "$PSScriptRoot\..\spatial\snapshots" `
         )
 
         if ($zip_proc.ExitCode -ne 0) {
