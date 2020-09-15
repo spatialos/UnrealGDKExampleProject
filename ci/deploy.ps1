@@ -5,7 +5,6 @@ param(
 
 . "$PSScriptRoot\common.ps1"
 
-
 # Grab Artifacts
 Start-Event "fetch-artifacts" "build-unreal-gdk-example-project-:windows:"
     $schema_path = "Game\Content\Spatial"
