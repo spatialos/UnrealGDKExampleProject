@@ -25,6 +25,7 @@ windows: &windows
     - "scaler_version=2"
     - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-08-03-061331-bk13849-b66f334e-d}"
     - "boot_disk_size_gb=500"
+    - "experiment_normalised_upload_paths=true"
   timeout_in_minutes: 60
   retry:
     automatic:
