@@ -5,11 +5,8 @@
 #include "LoadBalancing/AbstractLBStrategy.h"
 
 #include "CoreMinimal.h"
-
 #include "Math/Box2D.h"
 #include "Math/Vector2D.h"
-
-#include "LoadBalancing/GridBasedLBStrategy.h"
 
 #include "CustomShapeLBStrategy.generated.h"
 
@@ -30,7 +27,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCustomShapeLBStrategy, Log, All)
  * the Cols, Rows, WorldWidth, WorldHeight.
  */
 UCLASS(Blueprintable, HideDropdown)
-class UCustomShapeLBStrategy : public UGridBasedLBStrategy
+class GDKSHOOTER_API UCustomShapeLBStrategy : public UAbstractLBStrategy
 {
 	GENERATED_BODY()
 
@@ -50,7 +47,7 @@ public:
 
 	virtual SpatialGDK::QueryConstraint GetWorkerInterestQueryConstraint() const override;
 
-	virtual bool RequiresHandoverData() const override { return Rows * Cols > 1; }
+	virtual bool RequiresHandoverData() const override { return WorkerCount > 1; }
 
 	virtual FVector GetWorkerEntityPosition() const override;
 
@@ -58,14 +55,38 @@ public:
 	virtual void SetVirtualWorkerIds(const VirtualWorkerId& FirstVirtualWorkerId, const VirtualWorkerId& LastVirtualWorkerId) override;
 	/* End UAbstractLBStrategy Interface */
 
-	virtual LBStrategyRegions GetLBStrategyRegions() const;
-
 protected:
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "1"), Category = "Grid Based Load Balancing")
+		uint32 WorkerCount;
+
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "1"), Category = "Grid Based Load Balancing")
+		uint32 GridRows;
+
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "1"), Category = "Grid Based Load Balancing")
+		uint32 GridCols;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Grid Based Load Balancing")
+		TArray<FString> WorkerGridIndices;
+
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "1"), Category = "Grid Based Load Balancing")
+		float WorldWidth;
+
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "1"), Category = "Grid Based Load Balancing")
+		float WorldHeight;
+
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "0"), Category = "Grid Based Load Balancing")
+		float InterestBorder;
 
 private:
+	TArray<VirtualWorkerId> VirtualWorkerIds;
+
 	TArray<TArray<FBox2D>> WorkerCellsSet;
+	uint32 LocalCellId;
+	bool bIsStrategyUsedOnLocalWorker;
+	mutable bool bHasUpdatedSpatialDebugger;
 
 	static bool IsInside(const FBox2D& Box, const FVector2D& Location);
 	TMap<int, int> GetCellsToWorkerMap(const FString input);
-};
 
+	void UpdateSpatialDebugger() const;
+};

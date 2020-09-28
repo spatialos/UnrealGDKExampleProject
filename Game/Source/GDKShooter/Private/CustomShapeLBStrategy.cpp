@@ -1,10 +1,11 @@
 // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-
 #include "CustomShapeLBStrategy.h"
 
 #include "EngineClasses/SpatialNetDriver.h"
+//#include "SpatialDebugger.h"
 #include "Utils/SpatialActorUtils.h"
+#include "Utils/SpatialDebugger.h"
 
 #include "Templates/Tuple.h"
 
@@ -12,7 +13,20 @@ DEFINE_LOG_CATEGORY(LogCustomShapeLBStrategy);
 
 UCustomShapeLBStrategy::UCustomShapeLBStrategy()
 	: Super()
+	, WorkerCount(1)
+	, GridRows(1)
+	, GridCols(1)
+	, WorldWidth(1000000.f)
+	, WorldHeight(1000000.f)
+	, InterestBorder(0.f)
+	, LocalCellId(0)
+	, bIsStrategyUsedOnLocalWorker(false)
+	, bHasUpdatedSpatialDebugger(false)
 {
+	for (uint32 i = 0; i < WorkerCount; i++)
+	{
+		WorkerGridIndices.Add(TEXT("1"));
+	}
 }
 
 void UCustomShapeLBStrategy::Init()
@@ -29,17 +43,17 @@ void UCustomShapeLBStrategy::Init()
 	float YMin = WorldWidthMin;
 	float XMax, YMax;
 
-	// Split the map to 9 cells, 3 rows by 3 columns
-	const float ColumnWidth = WorldWidth / 3;
-	const float RowHeight = WorldHeight / 3;
+	// Split the map to rows by columns
+	const float ColumnWidth = WorldWidth / GridCols;
+	const float RowHeight = WorldHeight / GridRows;
 
 	TMap<int, int> CellToWorkerMap = GetCellsToWorkerMap("CHANGE ME!");
 	int areaIndex = 1;
-	for (uint32 Col = 0; Col < 3; ++Col)
+	for (uint32 Col = 0; Col < GridCols; ++Col)
 	{
 		YMax = YMin + ColumnWidth;
 
-		for (uint32 Row = 0; Row < 3; ++Row)
+		for (uint32 Row = 0; Row < GridRows; ++Row)
 		{
 			XMax = XMin + RowHeight;
 
@@ -87,6 +101,8 @@ bool UCustomShapeLBStrategy::ShouldHaveAuthority(const AActor& Actor) const
 		UE_LOG(LogCustomShapeLBStrategy, Warning, TEXT("CustomShapeLBStrategy not ready to relinquish authority for Actor %s."), *AActor::GetDebugName(&Actor));
 		return false;
 	}
+
+	UpdateSpatialDebugger();
 
 	if (!bIsStrategyUsedOnLocalWorker)
 	{
@@ -168,7 +184,7 @@ FVector UCustomShapeLBStrategy::GetWorkerEntityPosition() const
 
 uint32 UCustomShapeLBStrategy::GetMinimumRequiredWorkers() const
 {
-	return Rows * Cols;
+	return WorkerCount;
 }
 
 void UCustomShapeLBStrategy::SetVirtualWorkerIds(const VirtualWorkerId& FirstVirtualWorkerId, const VirtualWorkerId& LastVirtualWorkerId)
@@ -183,67 +199,57 @@ void UCustomShapeLBStrategy::SetVirtualWorkerIds(const VirtualWorkerId& FirstVir
 bool UCustomShapeLBStrategy::IsInside(const FBox2D& Box, const FVector2D& Location)
 {
 	return Location.X >= Box.Min.X && Location.Y >= Box.Min.Y
-		&& Location.X < Box.Max.X&& Location.Y < Box.Max.Y;
+		&& Location.X < Box.Max.X && Location.Y < Box.Max.Y;
 }
 
 // TODO: Use the input instead of hardcoding the map!
 TMap<int, int> UCustomShapeLBStrategy::GetCellsToWorkerMap(const FString input)
 {
-	// Create a combination of 1, 2, 3; 4; 5, 6, 7, 8, 9; LB shape
-	TArray<int> Cells1;
-	Cells1.Add(1);
-	Cells1.Add(2);
-	Cells1.Add(3);
-	Cells1.Add(4);
-	Cells1.Add(5);
-	Cells1.Add(6);
-	Cells1.Add(7);
-
-	TArray<int> Cells2;
-	Cells2.Add(8);
-
-	TArray<int> Cells3;
-	Cells3.Add(9);
-
-	TArray<TArray<int>> AllCells;
-	AllCells.Add(Cells1);
-	AllCells.Add(Cells2);
-	AllCells.Add(Cells3);
-
 	// Initialise WorkerCells
-	for (int i = 0; i < 3; ++i)
+	for (uint32 i = 0; i < WorkerCount; ++i)
 	{
-		TArray<FBox2D> TmpWorkerCells;
-		WorkerCellsSet.Add(TmpWorkerCells);
+		TArray<FBox2D> WorkerCells;
+		WorkerCellsSet.Add(WorkerCells);
 	}
 
 	// Initialise TMap with cell indices mapping to WorkerCells
 	TMap<int, int> CellToWorkerMap;
-	for (int i = 0; i < AllCells.Num(); ++i)
+	for (int32 i = 0; i < WorkerGridIndices.Num(); ++i)
 	{
-		for (int j = 0; j < AllCells[i].Num(); ++j)
+		TArray<FString> StrIndicies;
+		WorkerGridIndices[i].ParseIntoArray(StrIndicies, TEXT(","), true);
+
+		for (int32 j = 0; j < StrIndicies.Num(); ++j)
 		{
-			CellToWorkerMap.Add(AllCells[i][j], i);
+			uint32 Index = FCString::Atoi(*StrIndicies[j]);
+			CellToWorkerMap.Add(Index, i);
 		}
 	}
 
 	return CellToWorkerMap;
 }
 
-UGridBasedLBStrategy::LBStrategyRegions UCustomShapeLBStrategy::GetLBStrategyRegions() const
+void UCustomShapeLBStrategy::UpdateSpatialDebugger() const
 {
-	LBStrategyRegions VirtualWorkerToCell;
-	VirtualWorkerToCell.SetNum(9);
+	if (bHasUpdatedSpatialDebugger)
+		return;
 
-	int index = 0;
+	const USpatialNetDriver* NetDriver = StaticCast<USpatialNetDriver*>(GetWorld()->GetNetDriver());
+	if (NetDriver->SpatialDebugger == nullptr)
+		return;
 
-	for (int i = 0; i < WorkerCellsSet.Num(); i++)
+	NetDriver->SpatialDebugger->WorkerRegions.Empty();
+	for (int WorkerIndex = 0; WorkerIndex < WorkerCellsSet.Num(); WorkerIndex++)
 	{
-		for (int j = 0; j < WorkerCellsSet[i].Num(); j++)
+		TArray<FBox2D> Cells = WorkerCellsSet[WorkerIndex];
+		const FColor WorkerColor = FColor::MakeRandomColor();
+		for (int CellIndex = 0; CellIndex < Cells.Num(); CellIndex++)
 		{
-			VirtualWorkerToCell[index++] = MakeTuple(VirtualWorkerIds[i], WorkerCellsSet[i][j]);
+			FWorkerRegionInfo WorkerRegionInfo;
+			WorkerRegionInfo.Color = WorkerColor;
+			WorkerRegionInfo.Extents = Cells[CellIndex];
+			NetDriver->SpatialDebugger->WorkerRegions.Add(WorkerRegionInfo);
 		}
 	}
-	return VirtualWorkerToCell;
+	bHasUpdatedSpatialDebugger = true;
 }
-
