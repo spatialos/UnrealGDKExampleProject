@@ -40,6 +40,8 @@ steps:
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/generate-auth-token.ps1"
     <<: *windows 
     key: "generate-auth_token"
+    env:
+      GDK_BRANCH: "${GDK_BRANCH}"
 
   - label: "prepare-editor"
     command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/prep-editor.ps1"
