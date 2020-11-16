@@ -22,7 +22,7 @@ Start-Event "generate-project-name" "generate-auth-token-and-deployment-:windows
     $engine_version_count = buildkite-agent meta-data get "engine-version-count"
     for ($i = 0; $i -lt $engine_version_count; $i++){
         $index_string = "$($i+1)"
-        $random_salt = -join ((65..90) + (97..122) | Get-Random -Count 4 | ForEach-Object {[char]$_})
+        $random_salt = -join ((48..57) + (97..122) | Get-Random -Count 4 | ForEach-Object {[char]$_})
         $deployment_name = "EPCI_${random_salt}_$(${index_string})_${date_and_time}_$($gdk_commit_hash)"
         buildkite-agent meta-data set "deployment-name-$index_string" "$deployment_name"
     }
