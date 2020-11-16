@@ -49,3 +49,5 @@ steps:
       - "Game/Content/Spatial/SchemaDatabase.uasset"
       - "artifacts/Schema.zip"
       - "artifacts/Snapshots.zip"
+    env:
+      GDK_BRANCH: "${GDK_BRANCH}"
