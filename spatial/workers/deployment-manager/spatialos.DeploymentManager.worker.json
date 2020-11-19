@@ -3,15 +3,15 @@
     "tasks": [
       {
         "name": "Codegen",
-        "steps": [{"name": "** Load Unity to generate code **", "command": "echo", "arguments": ["No-op."]}]
+        "steps": [{"name": "** Load Unity to generate code **", "command": "cmd", "arguments": ["/k echo No-op."]}]
       },
       {
         "name": "build",
-        "steps": [{"name": "** Run ci/build-client.sh instead **", "command": "echo", "arguments": ["No-op."]}]
+        "steps": [{"name": "** Run ci/build-client.sh instead **", "command": "cmd", "arguments": ["/k echo No-op."]}]
       },
       {
         "name": "clean",
-        "steps": [{"name": "No-op", "command": "echo", "arguments": ["No-op."]}]
+        "steps": [{"name": "No-op", "command": "cmd", "arguments": ["/k echo No-op."]}]
       }
     ]
   },
