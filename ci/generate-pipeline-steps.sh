@@ -170,4 +170,5 @@ else
 fi
 
 # Generate auth token for both android and ios firebase test
+export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
 buildkite-agent pipeline upload "ci/nightly.gen.auth.token.yaml"
