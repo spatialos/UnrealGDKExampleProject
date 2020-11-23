@@ -23,10 +23,6 @@
       "attributes": [
         "UnrealClient"
       ]
-    },
-    "component_delivery": {
-      "default": "RELIABLE_ORDERED",
-      "checkout_all_initially": true
     }
   }
 }
