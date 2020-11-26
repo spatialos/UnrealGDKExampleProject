@@ -48,6 +48,8 @@ insert_setup_build_step(){
     # For more information: https://buildkite.com/docs/pipelines/block-step#text-input-attributes
     ENGINE_COMMIT_FORMATTED_HASH=$(sed "s/ /_/g" <<< ${VERSION} | sed "s/-/_/g" | sed "s/\./_/g")
     echo "VERSION=${VERSION}"
+    echo "AGENT=${AGENT}"
+    echo "COMMAND=${COMMAND}"
     REPLACE_ENGINE_COMMIT_HASH="s|ENGINE_COMMIT_HASH_PLACEHOLDER|${VERSION}|g"
     REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"
     REPLACE_AGENT="s|AGENT_PLACEHOLDER|${AGENT}|g"
