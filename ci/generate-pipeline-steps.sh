@@ -39,9 +39,6 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
 done
 
 insert_setup_build_step(){
-    VERSION="${1}"
-    AGENT="${2}"
-    COMMAND="${3}"
     FILENAME="ci/nightly.template.steps.yaml"
     # ENGINE_COMMIT_FORMATTED_HASH is the same as ENGINE_COMMIT_HASH, but replace ' ','.','-' with '_' to use it as a buildkite key.
     # So as to make the steps indentify for different engine_version
@@ -123,12 +120,13 @@ if [ -z "${ENGINE_VERSION}" ]; then
         echo "--- insert-firebase-test-steps"
         COUNT=1
         for VERSION in ${VERSIONS}; do
-            echo --- handle-firebase-:${VERSION}-COUNT:${COUNT}
+            TRIMED_VERSION=$(sed 's/ *$//g' <<< ${VERSION})
+            echo --- handle-firebase-:${TRIMED_VERSION}-COUNT:${COUNT}
             if ((COUNT > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
                 break
             fi
 
-            insert_firebase_test_steps "${VERSION}"
+            insert_firebase_test_steps "${TRIMED_VERSION}"
             COUNT=$((COUNT+1))
         done
     fi
