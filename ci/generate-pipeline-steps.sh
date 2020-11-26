@@ -39,6 +39,9 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
 done
 
 insert_setup_build_step(){
+    VERSION="${1}"
+    AGENT="${2}"
+    COMMAND="${3}"
     FILENAME="ci/nightly.template.steps.yaml"
     # ENGINE_COMMIT_FORMATTED_HASH is the same as ENGINE_COMMIT_HASH, but replace ' ','.','-' with '_' to use it as a buildkite key.
     # So as to make the steps indentify for different engine_version
