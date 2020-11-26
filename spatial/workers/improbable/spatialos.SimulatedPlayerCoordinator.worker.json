@@ -18,13 +18,6 @@
       }
     ]
   },
-  "bridge": {
-    "worker_attribute_set": {
-      "attributes": [
-        "SimulatedPlayerCoordinator"
-      ]
-    }
-  },
   "managed": {
     "linux": {
       "artifact_name": "UnrealSimulatedPlayer@Linux.zip",

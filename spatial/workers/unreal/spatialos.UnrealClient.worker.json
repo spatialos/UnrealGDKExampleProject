@@ -17,12 +17,5 @@
         "steps": [{"name": "No-op", "command": "cmd", "arguments": ["/k echo No-op."]}]
       }
     ]
-  },
-  "bridge": {
-    "worker_attribute_set": {
-      "attributes": [
-        "UnrealClient"
-      ]
-    }
   }
 }
