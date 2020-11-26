@@ -56,7 +56,7 @@ insert_setup_build_step(){
     REPLACE_COMMAND="s|COMMAND_PLACEHOLDER|${COMMAND}|g"
     echo "FileContent**********************************************************************"
     cat ${FILENAME}
-    CONTENT1=`sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}"`
+    CONTENT1=$(sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}")
     echo "CONTENT1**********************************************************************"
     echo ${CONTENT1}
     CONTENT2=$(sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" <<< ${CONTENT1})
