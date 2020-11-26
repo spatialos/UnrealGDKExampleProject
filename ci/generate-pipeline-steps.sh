@@ -51,11 +51,20 @@ insert_setup_build_step(){
     REPLACE_ENGINE_COMMIT_FORMATTED_HASH="s|ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER|${ENGINE_COMMIT_FORMATTED_HASH}|g"
     REPLACE_AGENT="s|AGENT_PLACEHOLDER|${AGENT}|g"
     REPLACE_COMMAND="s|COMMAND_PLACEHOLDER|${COMMAND}|g"
+    echo "FileContent**********************************************************************"
     cat ${FILENAME}
-    CONTENT=`sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}" | sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" | sed "${REPLACE_AGENT}" | sed "${REPLACE_COMMAND}"`
-    echo "------------------------------------------------"
-    echo ${CONTENT}
-    echo "------------------------------------------------"
+    CONTENT1=$(sed "${REPLACE_ENGINE_COMMIT_HASH}" "${FILENAME}")
+    echo "CONTENT1**********************************************************************"
+    echo ${CONTENT1}
+    CONTENT2=$(sed "${REPLACE_ENGINE_COMMIT_FORMATTED_HASH}" <<< ${CONTENT1})
+    echo "CONTENT2**********************************************************************"
+    echo ${CONTENT2}
+    CONTENT3=$(sed "${REPLACE_AGENT}"  <<< ${CONTENT2})
+    echo "CONTENT3**********************************************************************"
+    echo ${CONTENT3}
+    CONTENT4=$(sed "${REPLACE_COMMAND}"  <<< ${CONTENT3})
+    echo "CONTENT4**********************************************************************"
+    echo ${CONTENT4}
     buildkite-agent pipeline upload ${CONTENT}
 }
 
