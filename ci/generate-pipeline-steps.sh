@@ -39,9 +39,8 @@ while [ $NUMBER_OF_TRIES -lt 5 ]; do
 done
 
 upload_step(){
-    CONTENT="${1}"
-    echo "${CONTENT}"
-    buildkite-agent pipeline upload "${CONTENT}"
+    echo "${1}"
+    buildkite-agent pipeline upload "${1}"
 }
 
 insert_setup_build_step(){
