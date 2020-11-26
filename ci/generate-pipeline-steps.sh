@@ -153,16 +153,17 @@ if [ -z "${ENGINE_VERSION}" ]; then
 
     STEP_NUMBER=1
     for VERSION in ${VERSIONS}; do
-        echo "--- handle-setup-and-build-:${VERSION}-STEP_NUMBER:${STEP_NUMBER}"
+        TRIMED_VERSION=$(sed 's/ *$//g' <<< ${VERSION})
+        echo "--- handle-setup-and-build-:${TRIMED_VERSION}-STEP_NUMBER:${STEP_NUMBER}"
         if ((STEP_NUMBER > MAXIMUM_ENGINE_VERSION_COUNT_LOCAL)); then
             break
         fi
 
-        export ENGINE_COMMIT_HASH="${VERSION}"
+        export ENGINE_COMMIT_HASH="${TRIMED_VERSION}"
         export STEP_NUMBER
         export GDK_BRANCH="${GDK_BRANCH_LOCAL}"
             
-        insert_setup_build_steps "${VERSION}"
+        insert_setup_build_steps "${TRIMED_VERSION}"
 
         STEP_NUMBER=$((STEP_NUMBER+1))
     done
@@ -174,17 +175,18 @@ if [ -z "${ENGINE_VERSION}" ]; then
 
 else
     echo "--- Generating steps for the specified engine version: ${ENGINE_VERSION}"
-    export ENGINE_COMMIT_HASH="${ENGINE_VERSION}"
+    TRIMED_VERSION=$(sed 's/ *$//g' <<< ${ENGINE_VERSION})
+    export ENGINE_COMMIT_HASH="${TRIMED_VERSION}"
     export GDK_BRANCH="${GDK_BRANCH_LOCAL}"    
     # If the specified version is set, the STEP_NUMBER should be 1
     export STEP_NUMBER=1
     
     # Turn on Firebase test steps
     echo "--- insert-firebase-test-steps"
-    insert_firebase_test_steps "${ENGINE_VERSION}"
+    insert_firebase_test_steps "${TRIMED_VERSION}"
 
     echo "--- insert-setup-and-build-steps"
-    insert_setup_build_steps "${ENGINE_VERSION}"
+    insert_setup_build_steps "${TRIMED_VERSION}"
 
     # If the specified version is set, the engine-version-count should be 1
     buildkite-agent meta-data set "engine-version-count" "1"
