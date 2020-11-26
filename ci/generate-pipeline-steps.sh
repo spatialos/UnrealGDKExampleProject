@@ -112,7 +112,7 @@ if [ -z "${ENGINE_VERSION}" ]; then
     echo "Generating build steps for the first ${MAXIMUM_ENGINE_VERSION_COUNT_LOCAL} engine versions listed in unreal-engine.version"
     
     IFS=$'\n'
-    VERSIONS=$(cat < ci/unreal-engine.version)
+    VERSIONS=$(cat < ci/unreal-engine.version | tr -d '\r')
 
     # Turn on Firebase test steps
     echo "--- handle-firebase-steps"
