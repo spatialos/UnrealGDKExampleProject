@@ -18,13 +18,6 @@
       }
     ]
   },
-  "bridge": {
-    "worker_attribute_set": {
-      "attributes": [
-        "UnrealWorker"
-      ]
-    }
-  },
   "managed": {
     "windows": {
       "artifact_name": "UnrealEditor@Windows.zip",
