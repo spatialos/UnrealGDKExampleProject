@@ -71,11 +71,7 @@ public:
 
 	//Recoil applied as a CameraShake
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-#if ENGINE_MINOR_VERSION > 25
 	TSubclassOf<UCameraShakeBase> RecoilShake;
-#else
-	TSubclassOf<UCameraShake> RecoilShake;
-#endif
 
 	virtual void StartPrimaryUse_Implementation() override;
 	virtual void StopPrimaryUse_Implementation() override;
