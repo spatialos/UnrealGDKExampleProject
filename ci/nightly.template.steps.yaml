@@ -32,7 +32,7 @@ windows: &windows
       - <<: *bk_system_error
       - <<: *bk_interrupted_by_signal
   plugins:
-    - ca-johnson/taskkill#v4.1: ~
+    - improbable-eng/taskkill#v4.4.1: ~
 
 macos: &macos
   agents:
