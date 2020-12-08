@@ -33,7 +33,7 @@ windows: &windows
       - <<: *bk_system_error
       - <<: *bk_interrupted_by_signal
   plugins:
-    - ca-johnson/taskkill#v4.1: ~
+    - improbable-eng/taskkill#v4.4.1: ~
 
 steps:
   - label: "firebase-test-ios-connect-to-spatialos-ENGINE_COMMIT_HASH_PLACEHOLDER"
