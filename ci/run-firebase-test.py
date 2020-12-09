@@ -63,6 +63,12 @@ def gcloud_upload(app_platform, app_path, gcloud_storage_keyword, success_keywor
         '--scenario-numbers 1',
         '--format="json"',
     ]
+
+    if app_platform == 'ios':
+        ios_device = common.get_environment_variable(
+        'IOS_DEVICE_AND_VERSION', 'model=iphonexs,version=12.0')
+        cmds.append('--device ' + ios_device)
+
     res = common.run_shell(cmds)
     gcloud_storage_url = ''
     for line in res.stderr.readlines():
@@ -131,7 +137,7 @@ if __name__ == "__main__":
     res = common.run_shell(cmds)
     project = res.stdout.read().decode('UTF-8')
 
-    # Makre sure FIREBASE_LOG_DIR is exist
+    # Make sure FIREBASE_LOG_DIR is exist
     if os.path.exists(FIREBASE_LOG_DIR):
         os.mkdir(FIREBASE_LOG_DIR)
         
