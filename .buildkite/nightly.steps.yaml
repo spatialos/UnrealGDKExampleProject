@@ -41,10 +41,10 @@ env:
 
 steps:
   - label: "Package-Generate-Auth-Token-Image"
-    <<: *pusher
-    key: publish
+    <<: *script_runner
+    key: publish-generate-auth-token-image
     command: "build-image/generate-auth-token/build.sh"
   - label: "Package-Run-Firebase-Image"
-    <<: *pusher
-    key: publish
+    <<: *script_runner
+    key: publish-run-firebase-image
     command: "build-image/run-firebase/build.sh"
