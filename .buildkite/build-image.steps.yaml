@@ -1,0 +1,33 @@
+---
+anchors:
+  agent_transients: &agent_transients
+    # This is designed to trap and retry failures because agent lost
+    # connection. Agent exits with -1 in this case.
+    exit_status: -1
+    limit: 3
+
+  pusher: &pusher
+    agents:
+      - capable_of_building=platform
+      - environment=production
+      - permission_set=pusher
+      - platform=linux
+      - scaler_version=2
+      - agent_count=1
+      - machine_type=single
+      - node_stability=interruptible
+      - "queue=${CI_BUILDER_QUEUE:-v4-20-02-19-174703-bk8471-ae733641}"
+    timeout_in_minutes: 60
+    retry:
+      automatic:
+        - <<: *agent_transients
+
+steps:
+  - label: "Package-Generate-Auth-Token-Image"
+    <<: *pusher
+    key: publish
+    command: "build-image/generate-auth-token/build.sh"
+  - label: "Package-Run-Firebase-Image"
+    <<: *pusher
+    key: publish
+    command: "build-image/run-firebase/build.sh"
