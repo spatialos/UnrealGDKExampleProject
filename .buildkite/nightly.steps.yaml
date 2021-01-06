@@ -43,8 +43,8 @@ steps:
   - label: "Package-Generate-Auth-Token-Image"
     <<: *script_runner
     key: publish-generate-auth-token-image
-    command: "build-image/generate-auth-token/build.sh"
+    command: "ci/build-image/generate-auth-token/build.sh"
   - label: "Package-Run-Firebase-Image"
     <<: *script_runner
     key: publish-run-firebase-image
-    command: "build-image/run-firebase/build.sh"
+    command: "ci/build-image/run-firebase/build.sh"
