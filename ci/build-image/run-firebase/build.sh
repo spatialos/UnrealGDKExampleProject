@@ -5,7 +5,7 @@ set -e -u -o pipefail
 COMMIT_SHA=$(git rev-parse HEAD)
 
 TAG="run-firebase-autotest"
-docker build --tag "${TAG}" --file Dockerfile .
+docker build --tag "${TAG}" --file ci/build-image/run-firebase/Dockerfile .
 echo "## imp-ci group-end Build image"
 
 mkdir -p build

@@ -5,7 +5,7 @@ set -e -u -o pipefail
 COMMIT_SHA=$(git rev-parse HEAD)
 
 TAG="generate-auth-token"
-docker build --tag "${TAG}" --file Dockerfile .
+docker build --tag "${TAG}" --file ci/build-image/generate-auth-token/Dockerfile .
 echo "## imp-ci group-end Build image"
 
 mkdir -p build
