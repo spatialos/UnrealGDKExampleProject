@@ -40,21 +40,11 @@ env:
     SPATIAL_RUNTIME_VERSION: "15.0.0-preview-6" ## the runtime version of SpatialOS
 
 steps:
-  - label: "generate-pipeline-steps"
-    commands: 
-      - "chmod -R +rwx ci"
-      - "ci/generate-pipeline-steps.sh"
-    env:
-      ENGINE_VERSION: "${ENGINE_VERSION}"
-    <<: *script_runner
-
-  - wait
-
-  - label: "slack-notify"
-    if: |
-      build.env("NIGHTLY_BUILD") == "true" || 
-      build.env("SLACK_NOTIFY") == "true" || 
-      build.env("FIREBASE_TEST") == "true" || 
-      build.branch == "master"
-    command: "python3 ci/slack-notify.py"
-    <<: *script_runner
+  - label: "Package-Generate-Auth-Token-Image"
+    <<: *pusher
+    key: publish
+    command: "build-image/generate-auth-token/build.sh"
+  - label: "Package-Run-Firebase-Image"
+    <<: *pusher
+    key: publish
+    command: "build-image/run-firebase/build.sh"
