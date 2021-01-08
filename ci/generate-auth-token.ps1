@@ -24,6 +24,7 @@ Start-Event "generate-project-name" "generate-auth-token-and-deployment-:windows
         $index_string = "$($i+1)"
         $random_salt = -join ((48..57) + (97..122) | Get-Random -Count 4 | ForEach-Object {[char]$_})
         $deployment_name = "epci$(${index_string})_${random_salt}_${date_and_time}_$($gdk_commit_hash)"
+        Write-Output "deployment_name-$index_string=$deployment_name"
         buildkite-agent meta-data set "deployment-name-$index_string" "$deployment_name"
     }
 Finish-Event "generate-project-name" "generate-auth-token-and-deployment-:windows:"
@@ -39,6 +40,7 @@ pushd "$exampleproject_home"
             }
 
             $auth_token = $matches[1]
+            Write-Output "auth_token=$auth_token"
             buildkite-agent meta-data set "auth-token" "$auth_token"
         Finish-Event "generate-auth-token" "generate-auth-token-and-deployment-:windows:"
     popd
