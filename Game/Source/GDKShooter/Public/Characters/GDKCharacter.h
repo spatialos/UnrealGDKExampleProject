@@ -78,9 +78,10 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void StartRagdoll();
 
-	// HACK HACK HACK, do not do that in production!!
+	// ----- HACKY WORKAROUND, KEEP AWAY FROM PRODUCTION CODE ----
 	// This class is used by simplayer, which locally replaces the Pawn's controller without the server's knowledge
 	// Unpossessing a character resets its movement data, so this is used to inform the server that it happened.
+	// Getting rid of this hack means adding AIController-like capabilities to the regular PlayerController.
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ClientMovementReset();
 
