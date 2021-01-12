@@ -78,6 +78,9 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void StartRagdoll();
 
+	UFUNCTION(BlueprintCallable, Server, Unreliable)
+	void ClientMovementReset();
+
 private:
 	UFUNCTION()
 	void DeleteSelf();
