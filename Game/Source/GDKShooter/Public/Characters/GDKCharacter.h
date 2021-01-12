@@ -78,7 +78,9 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void StartRagdoll();
 
-	// HACK HACK HACK, done for SimPlayer, do not do that in production!!
+	// HACK HACK HACK, do not do that in production!!
+	// This class is used by simplayer, which locally replaces the Pawn's controller without the server's knowledge
+	// Unpossessing a character resets its movement data, so this is used to inform the server that it happened.
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ClientMovementReset();
 
