@@ -78,6 +78,7 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void StartRagdoll();
 
+	// HACK HACK HACK, done for SimPlayer, do not do that in production!!
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ClientMovementReset();
 
