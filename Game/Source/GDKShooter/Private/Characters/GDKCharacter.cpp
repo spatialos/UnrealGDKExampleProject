@@ -209,3 +209,8 @@ bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutS
 	OutSightStrength = (float)PositiveHits / (float)NumberOfLoSChecksPerformed;
 	return PositiveHits > 0;
 }
+
+void AGDKCharacter::ClientMovementReset_Implementation()
+{
+	GetCharacterMovement()->ResetPredictionData_Server();
+}
