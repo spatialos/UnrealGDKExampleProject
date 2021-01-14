@@ -37,7 +37,7 @@ env:
     GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
     MAIN_MAP_NAME: "Control_Small"
     SPATIAL_PROJECT_NAME: "unreal_gdk"
-    SPATIAL_RUNTIME_VERSION: "15.0.0-preview-6" ## the runtime version of SpatialOS
+    SPATIAL_RUNTIME_VERSION: "15.0.0-preview-8" ## the runtime version of SpatialOS
 
 steps:
   - label: "generate-pipeline-steps"
