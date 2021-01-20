@@ -1,0 +1,93 @@
+{
+    "objects": [
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": []}"
+                },
+                "savedSearchId": "Syslog-system-logs-ecs",
+                "title": "Syslog events by hostname [Filebeat System] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"histogram\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"date_histogram\", \"enabled\": true, \"params\": {\"field\": \"@timestamp\", \"min_doc_count\": 1, \"interval\": \"auto\", \"extended_bounds\": {}, \"customInterval\": \"2h\"}}, {\"schema\": \"group\", \"id\": \"3\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"host.hostname\", \"order\": \"desc\", \"size\": 5}}], \"title\": \"Syslog events by hostname ECS\", \"params\": {\"addTooltip\": true, \"addTimeMarker\": false, \"legendPosition\": \"right\", \"yAxis\": {}, \"times\": [], \"scale\": \"linear\", \"setYExtents\": false, \"addLegend\": true, \"mode\": \"stacked\", \"shareYAxis\": true, \"defaultYExtents\": false}, \"listeners\": {}}"
+            },
+            "id": "Syslog-events-by-hostname-ecs",
+            "type": "visualization",
+            "version": 2
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": []}"
+                },
+                "savedSearchId": "Syslog-system-logs-ecs",
+                "title": "Syslog hostnames and processes [Filebeat System] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"pie\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"host.hostname\", \"order\": \"desc\", \"size\": 5}}, {\"schema\": \"segment\", \"id\": \"3\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"process.name\", \"order\": \"desc\", \"size\": 5}}], \"title\": \"Syslog hostnames and processes ECS\", \"params\": {\"addLegend\": true, \"addTooltip\": true, \"legendPosition\": \"bottom\", \"isDonut\": true, \"shareYAxis\": true}, \"listeners\": {}}"
+            },
+            "id": "Syslog-hostnames-and-processes-ecs",
+            "type": "visualization",
+            "version": 2
+        },
+        {
+            "attributes": {
+                "columns": [
+                    "host.hostname",
+                    "process.name",
+                    "message"
+                ],
+                "description": "",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"highlight\": {\"post_tags\": [\"@/kibana-highlighted-field@\"], \"pre_tags\": [\"@kibana-highlighted-field@\"], \"require_field_match\": false, \"fields\": {\"*\": {}}, \"fragment_size\": 2147483647}, \"highlightAll\": true, \"query\": {\"query\": \"event.dataset:system.syslog\", \"language\": \"kuery\"}, \"index\": \"filebeat-*\"}"
+                },
+                "sort": [
+                    "@timestamp",
+                    "desc"
+                ],
+                "title": "Syslog logs [Filebeat System] ECS",
+                "version": 1
+            },
+            "id": "Syslog-system-logs-ecs",
+            "type": "search",
+            "version": 2
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{}"
+                },
+                "title": "Dashboards [Filebeat System] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"markdown\", \"aggs\": [], \"title\": \"Dashboards [Filebeat System] ECS\", \"params\": {\"fontSize\": 12, \"markdown\": \"[Syslog](#/dashboard/Filebeat-syslog-dashboard-ecs) | [Sudo commands](#/dashboard/277876d0-fa2c-11e6-bbd3-29c986c96e5a-ecs) | [SSH logins](#/dashboard/5517a150-f9ce-11e6-8115-a7c18106d86a-ecs) | [New users and groups](#/dashboard/0d3f2380-fa78-11e6-ae9b-81e5311e8cab-ecs)\"}}"
+            },
+            "id": "327417e0-8462-11e7-bab8-bd2f0fb42c54-ecs",
+            "type": "visualization",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "Syslog dashboard from the Filebeat System module",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"highlightAll\": true, \"version\": true}"
+                },
+                "optionsJSON": "{\"darkTheme\": false}",
+                "panelsJSON": "[{\"type\": \"visualization\", \"col\": 1, \"row\": 2, \"size_x\": 8, \"id\": \"Syslog-events-by-hostname-ecs\", \"size_y\": 4, \"panelIndex\": 1}, {\"type\": \"visualization\", \"col\": 9, \"row\": 2, \"size_x\": 4, \"id\": \"Syslog-hostnames-and-processes-ecs\", \"size_y\": 4, \"panelIndex\": 2}, {\"type\": \"search\", \"sort\": [\"@timestamp\", \"desc\"], \"col\": 1, \"size_x\": 12, \"row\": 6, \"columns\": [\"host.hostname\", \"process.name\", \"message\"], \"id\": \"Syslog-system-logs-ecs\", \"size_y\": 7, \"panelIndex\": 3}, {\"type\": \"visualization\", \"col\": 1, \"row\": 1, \"size_x\": 12, \"id\": \"327417e0-8462-11e7-bab8-bd2f0fb42c54-ecs\", \"size_y\": 1, \"panelIndex\": 4}]",
+                "timeRestore": false,
+                "title": "[Filebeat System] Syslog dashboard ECS",
+                "uiStateJSON": "{}",
+                "version": 1
+            },
+            "id": "Filebeat-syslog-dashboard-ecs",
+            "type": "dashboard",
+            "version": 6
+        }
+    ],
+    "version": "6.0.0-beta1-SNAPSHOT"
+}

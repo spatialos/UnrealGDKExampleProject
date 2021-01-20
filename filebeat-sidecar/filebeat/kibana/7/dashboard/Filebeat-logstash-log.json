@@ -1,0 +1,79 @@
+{
+    "objects": [
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query\": \"\", \"language\": \"kuery\"}}"
+                },
+                "savedSearchId": "cfaba090-cbda-11e7-9852-73e0a9df1bb6-ecs",
+                "title": "Logs Severity [Filebeat Logstash] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"pie\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"log.level\", \"order\": \"desc\", \"size\": 5}}], \"title\": \"Logs Severity [Filebeat Logstash] ECS\", \"params\": {\"addLegend\": true, \"addTooltip\": true, \"legendPosition\": \"right\", \"type\": \"pie\", \"isDonut\": true}}"
+            },
+            "id": "0b1dace0-cbdb-11e7-9852-73e0a9df1bb6-ecs",
+            "type": "visualization",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query\": \"\", \"language\": \"kuery\"}}"
+                },
+                "savedSearchId": "cfaba090-cbda-11e7-9852-73e0a9df1bb6-ecs",
+                "title": "logs over time [Filebeat Logstash] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"histogram\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"date_histogram\", \"enabled\": true, \"params\": {\"field\": \"@timestamp\", \"min_doc_count\": 1, \"interval\": \"auto\", \"extended_bounds\": {}, \"customInterval\": \"2h\"}}, {\"schema\": \"group\", \"id\": \"3\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"log.level\", \"order\": \"desc\", \"size\": 5}}], \"title\": \"logs over time [Filebeat Logstash] ECS\", \"params\": {\"type\": \"histogram\", \"addTooltip\": true, \"addTimeMarker\": false, \"legendPosition\": \"right\", \"categoryAxes\": [{\"type\": \"category\", \"labels\": {\"show\": true, \"truncate\": 100}, \"show\": true, \"title\": {}, \"position\": \"bottom\", \"style\": {}, \"scale\": {\"type\": \"linear\"}, \"id\": \"CategoryAxis-1\"}], \"valueAxes\": [{\"type\": \"value\", \"labels\": {\"filter\": false, \"rotate\": 0, \"show\": true, \"truncate\": 100}, \"show\": true, \"title\": {\"text\": \"Count\"}, \"position\": \"left\", \"style\": {}, \"scale\": {\"type\": \"linear\", \"mode\": \"normal\"}, \"name\": \"LeftAxis-1\", \"id\": \"ValueAxis-1\"}], \"addLegend\": true, \"times\": [], \"seriesParams\": [{\"type\": \"histogram\", \"valueAxis\": \"ValueAxis-1\", \"show\": \"true\", \"drawLinesBetweenPoints\": true, \"showCircles\": true, \"mode\": \"stacked\", \"data\": {\"id\": \"1\", \"label\": \"Count\"}}], \"grid\": {\"categoryLines\": false, \"style\": {\"color\": \"#eee\"}}}}"
+            },
+            "id": "e90b7240-cbda-11e7-9852-73e0a9df1bb6-ecs",
+            "type": "visualization",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "columns": [
+                    "log.level",
+                    "logstash.log.module",
+                    "message",
+                    "source"
+                ],
+                "description": "",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [{\"query\": {\"match\": {\"event.module\": {\"query\": \"logstash\", \"type\": \"phrase\"}}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"key\": \"event.module\", \"index\": \"filebeat-*\", \"value\": \"logstash\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"logstash\", \"type\": \"phrase\"}, \"negate\": false}}, {\"query\": {\"match\": {\"fileset.name\": {\"query\": \"log\", \"type\": \"phrase\"}}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"key\": \"fileset.name\", \"index\": \"filebeat-*\", \"value\": \"log\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"log\", \"type\": \"phrase\"}, \"negate\": false}}], \"index\": \"filebeat-*\", \"highlightAll\": true, \"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"version\": true}"
+                },
+                "sort": [
+                    "@timestamp",
+                    "desc"
+                ],
+                "title": "logs [Filebeat Logstash] ECS",
+                "version": 1
+            },
+            "id": "cfaba090-cbda-11e7-9852-73e0a9df1bb6-ecs",
+            "type": "search",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "Overview of Logstash logs",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"highlightAll\": true, \"version\": true}"
+                },
+                "optionsJSON": "{\"darkTheme\": false}",
+                "panelsJSON": "[{\"type\": \"visualization\", \"col\": 7, \"row\": 1, \"size_x\": 6, \"id\": \"0b1dace0-cbdb-11e7-9852-73e0a9df1bb6-ecs\", \"size_y\": 3, \"panelIndex\": 2}, {\"type\": \"visualization\", \"col\": 1, \"row\": 1, \"size_x\": 6, \"id\": \"e90b7240-cbda-11e7-9852-73e0a9df1bb6-ecs\", \"size_y\": 3, \"panelIndex\": 3}, {\"type\": \"search\", \"sort\": [\"@timestamp\", \"desc\"], \"col\": 1, \"size_x\": 12, \"row\": 4, \"columns\": [\"log.level\", \"logstash.log.module\", \"message\", \"source\"], \"id\": \"cfaba090-cbda-11e7-9852-73e0a9df1bb6-ecs\", \"size_y\": 10, \"panelIndex\": 4}]",
+                "timeRestore": false,
+                "title": "[Filebeat Logstash] Logstash Logs ECS",
+                "uiStateJSON": "{}",
+                "version": 1
+            },
+            "id": "Filebeat-Logstash-Log-Dashboard-ecs",
+            "type": "dashboard",
+            "version": 1
+        }
+    ],
+    "version": "6.0.0"
+}

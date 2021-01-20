@@ -1,0 +1,252 @@
+{
+    "objects": [
+        {
+            "attributes": {
+                "description": "Netflow exporters",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [{\"query\": {\"match\": {\"input.type\": {\"query\": \"netflow\", \"type\": \"phrase\"}}}, \"$state\": {\"store\": \"globalState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\", \"key\": \"input.type\", \"value\": \"netflow\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"netflow\"}, \"negate\": false}}], \"highlightAll\": true, \"version\": true}"
+                },
+                "optionsJSON": "{\"darkTheme\": false}",
+                "panelsJSON": "[{\"col\": 1, \"row\": 1, \"size_x\": 12, \"size_y\": 1, \"panelRefName\": \"panel_0\", \"panelIndex\": 1}, {\"col\": 1, \"row\": 2, \"size_x\": 4, \"size_y\": 2, \"panelRefName\": \"panel_1\", \"panelIndex\": 2}, {\"col\": 5, \"row\": 2, \"size_x\": 4, \"size_y\": 2, \"panelRefName\": \"panel_2\", \"panelIndex\": 3}, {\"col\": 9, \"row\": 2, \"size_x\": 4, \"size_y\": 2, \"panelRefName\": \"panel_3\", \"panelIndex\": 4}, {\"col\": 7, \"row\": 4, \"size_x\": 6, \"size_y\": 2, \"panelRefName\": \"panel_4\", \"panelIndex\": 5}, {\"col\": 7, \"row\": 6, \"size_x\": 6, \"size_y\": 2, \"panelRefName\": \"panel_5\", \"panelIndex\": 6}, {\"col\": 1, \"row\": 6, \"size_x\": 6, \"size_y\": 2, \"panelRefName\": \"panel_6\", \"panelIndex\": 8}, {\"col\": 1, \"row\": 4, \"size_x\": 6, \"size_y\": 2, \"panelRefName\": \"panel_7\", \"panelIndex\": 10}]",
+                "timeRestore": false,
+                "title": "[Filebeat Netflow] Flow Exporters",
+                "uiStateJSON": "{}",
+                "version": 1
+            },
+            "id": "feebb4e6-b13e-4e4e-b9fc-d3a178276425",
+            "migrationVersion": {
+                "dashboard": "7.0.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "d4e6520a-9ced-47c9-a8f2-7246e8cbd2d3",
+                    "name": "panel_0",
+                    "type": "visualization"
+                },
+                {
+                    "id": "441c6c50-fa1a-489c-96c6-76f7925dea24",
+                    "name": "panel_1",
+                    "type": "visualization"
+                },
+                {
+                    "id": "14c7136d-b4aa-4367-9461-52bf8b5c4796",
+                    "name": "panel_2",
+                    "type": "visualization"
+                },
+                {
+                    "id": "4ac97841-c89f-4d50-b3c6-6253f7e1dd1a",
+                    "name": "panel_3",
+                    "type": "visualization"
+                },
+                {
+                    "id": "85ebf558-402b-45d2-a186-e15f8673ec07",
+                    "name": "panel_4",
+                    "type": "visualization"
+                },
+                {
+                    "id": "f86a7769-8ef6-408d-bbe3-985d0ea0a3f7",
+                    "name": "panel_5",
+                    "type": "visualization"
+                },
+                {
+                    "id": "1cd36f5d-d9c7-4098-acdb-14d312ecfb72",
+                    "name": "panel_6",
+                    "type": "visualization"
+                },
+                {
+                    "id": "d3df8d28-65f8-4ea1-8b33-f479380a0600",
+                    "name": "panel_7",
+                    "type": "visualization"
+                }
+            ],
+            "type": "dashboard",
+            "updated_at": "2019-07-11T04:44:33.653Z",
+            "version": "WzM0MTgsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}}"
+                },
+                "title": "Dashboard Navigation [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"markdown\", \"aggs\": [], \"title\": \"Dashboard Navigation [Filebeat Netflow]\", \"params\": {\"markdown\": \"[Overview](#/dashboard/34e26884-161a-4448-9556-43b5bf2f62a2) | [Conversation Partners](#/dashboard/acd7a630-0c71-4840-bc9e-4a3801374a32) | [Traffic Analysis](#/dashboard/38012abe-c611-4124-8497-381fcd85acc8) | [Top-N](#/dashboard/14387a13-53bc-43a4-b9cd-63977aa8d87c) | [Geo Location](#/dashboard/77326664-23be-4bf1-a126-6d7e60cfc024) | [Autonomous Systems](#/dashboard/c64665f9-d222-421e-90b0-c7310d944b8a) | [Flow Exporters](#/dashboard/feebb4e6-b13e-4e4e-b9fc-d3a178276425) | [Raw Flow Records](#/dashboard/94972700-de4a-4272-9143-2fa8d4981365)\\n***\"}, \"listeners\": {}}"
+            },
+            "id": "d4e6520a-9ced-47c9-a8f2-7246e8cbd2d3",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:38.685Z",
+            "version": "WzM0NjQsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Flow Exporters (flow records) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"pie\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"agent.hostname\", \"order\": \"desc\", \"size\": 50, \"customLabel\": \"Flow Exporter\"}}], \"title\": \"Flow Exporters (flow records) [Filebeat Netflow]\", \"params\": {\"addLegend\": true, \"addTooltip\": true, \"legendPosition\": \"right\", \"isDonut\": true}, \"listeners\": {}}"
+            },
+            "id": "441c6c50-fa1a-489c-96c6-76f7925dea24",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:33.653Z",
+            "version": "WzM0MjAsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Ingress Interfaces (flow records) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"pie\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"netflow.ingress_interface\", \"order\": \"desc\", \"size\": 50, \"customLabel\": \"Ingress Interface\"}}], \"title\": \"Ingress Interfaces (flow records) [Filebeat Netflow]\", \"params\": {\"addLegend\": true, \"addTooltip\": true, \"legendPosition\": \"right\", \"isDonut\": true}, \"listeners\": {}}"
+            },
+            "id": "14c7136d-b4aa-4367-9461-52bf8b5c4796",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:33.653Z",
+            "version": "WzM0MjEsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Egress Interfaces (flow records) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"pie\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"netflow.egress_interface\", \"order\": \"desc\", \"size\": 50, \"customLabel\": \"Egress Interface\"}}], \"title\": \"Egress Interfaces (flow records) [Filebeat Netflow]\", \"params\": {\"addLegend\": true, \"addTooltip\": true, \"legendPosition\": \"right\", \"isDonut\": true}, \"listeners\": {}}"
+            },
+            "id": "4ac97841-c89f-4d50-b3c6-6253f7e1dd1a",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:33.653Z",
+            "version": "WzM0MjIsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"query\": \"*\"}}}"
+                },
+                "title": "Egress Interfaces (bytes) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"timelion\", \"aggs\": [], \"title\": \"Egress Interfaces (bytes) [Filebeat Netflow]\", \"params\": {\"expression\": \".es(index=\\\"filebeat-*\\\", metric=\\\"sum:network.bytes\\\", split=\\\"netflow.egress_interface:10\\\", kibana=true).scale_interval(1s).fit(mode=scale).if(operator=\\\"lt\\\", if=0, then=0).trim(start=2,end=1).label(regex=\\\"^.* netflow.egress_interface:(.+) > .*$\\\", label=\\\"$1\\\").lines(width=1, stack=true, fill=1).yaxis(label=\\\"bytes / sec\\\", min=0)\", \"interval\": \"auto\"}, \"listeners\": {}}"
+            },
+            "id": "85ebf558-402b-45d2-a186-e15f8673ec07",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:33.653Z",
+            "version": "WzM0MjMsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"query\": \"*\"}}}"
+                },
+                "title": "Egress Interfaces (packets) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"timelion\", \"aggs\": [], \"title\": \"Egress Interfaces (packets) [Filebeat Netflow]\", \"params\": {\"expression\": \".es(index=\\\"filebeat-*\\\", metric=\\\"sum:network.packets\\\", split=\\\"netflow.egress_interface:10\\\", kibana=true).scale_interval(1s).fit(mode=scale).if(operator=\\\"lt\\\", if=0, then=0).trim(start=2,end=1).label(regex=\\\"^.* netflow.egress_interface:(.+) > .*$\\\", label=\\\"$1\\\").lines(width=1, stack=true, fill=1).yaxis(label=\\\"packets / sec\\\", min=0)\", \"interval\": \"auto\"}, \"listeners\": {}}"
+            },
+            "id": "f86a7769-8ef6-408d-bbe3-985d0ea0a3f7",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:33.653Z",
+            "version": "WzM0MjQsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"query\": \"*\"}}}"
+                },
+                "title": "Ingress Interfaces (packets) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"timelion\", \"aggs\": [], \"title\": \"Ingress Interfaces (packets) [Filebeat Netflow]\", \"params\": {\"expression\": \".es(index=\\\"filebeat-*\\\", metric=\\\"sum:network.packets\\\", split=\\\"netflow.ingress_interface:10\\\", kibana=true).scale_interval(1s).fit(mode=scale).if(operator=\\\"lt\\\", if=0, then=0).trim(start=2,end=1).label(regex=\\\"^.* netflow.ingress_interface:(.+) > .*$\\\", label=\\\"$1\\\").lines(width=1, stack=true, fill=1).yaxis(label=\\\"packets / sec\\\", min=0)\", \"interval\": \"auto\"}, \"listeners\": {}}"
+            },
+            "id": "1cd36f5d-d9c7-4098-acdb-14d312ecfb72",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:33.653Z",
+            "version": "WzM0MjUsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"query\": \"*\"}}}"
+                },
+                "title": "Ingress Interfaces (bytes) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"timelion\", \"aggs\": [], \"title\": \"Ingress Interfaces (bytes) [Filebeat Netflow]\", \"params\": {\"expression\": \".es(index=\\\"filebeat-*\\\", metric=\\\"sum:network.bytes\\\", split=\\\"netflow.ingress_interface:10\\\", kibana=true).scale_interval(1s).fit(mode=scale).if(operator=\\\"lt\\\", if=0, then=0).trim(start=2,end=1).label(regex=\\\"^.* netflow.ingress_interface:(.+) > .*$\\\", label=\\\"$1\\\").lines(width=1, stack=true, fill=1).yaxis(label=\\\"bytes / sec\\\", min=0)\", \"interval\": \"auto\"}, \"listeners\": {}}"
+            },
+            "id": "d3df8d28-65f8-4ea1-8b33-f479380a0600",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:33.653Z",
+            "version": "WzM0MjYsMV0="
+        }
+    ],
+    "version": "7.2.0"
+}

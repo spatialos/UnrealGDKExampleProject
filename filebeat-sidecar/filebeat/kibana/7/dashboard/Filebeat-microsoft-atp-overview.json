@@ -1,0 +1,524 @@
+{
+    "objects": [
+        {
+            "attributes": {
+                "description": "Microsoft Defender ATP Alert Overview",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query\": \"\", \"language\": \"kuery\"}}"
+                },
+                "optionsJSON": "{\"hidePanelTitles\": false, \"useMargins\": true}",
+                "panelsJSON": "[{\"version\": \"7.8.1\", \"embeddableConfig\": {\"title\": \"\"}, \"gridData\": {\"w\": 4, \"i\": \"8343f7ea-b977-44bf-bf81-6d41742093a4\", \"y\": 0, \"x\": 0, \"h\": 6}, \"panelRefName\": \"panel_0\", \"panelIndex\": \"8343f7ea-b977-44bf-bf81-6d41742093a4\"}, {\"version\": \"7.8.1\", \"embeddableConfig\": {}, \"gridData\": {\"w\": 25, \"i\": \"74d36139-4d22-44d4-bfc8-020c575febb1\", \"y\": 0, \"x\": 4, \"h\": 24}, \"panelRefName\": \"panel_1\", \"panelIndex\": \"74d36139-4d22-44d4-bfc8-020c575febb1\"}, {\"version\": \"7.8.1\", \"title\": \"ATP Techniques [Filebeat Microsoft]\", \"embeddableConfig\": {\"title\": \"ATP Techniques [Filebeat Microsoft]\"}, \"gridData\": {\"w\": 19, \"i\": \"a3e140ed-a0ed-4da0-8142-72d68fd7c5e5\", \"y\": 0, \"x\": 29, \"h\": 24}, \"panelRefName\": \"panel_2\", \"panelIndex\": \"a3e140ed-a0ed-4da0-8142-72d68fd7c5e5\"}, {\"version\": \"7.8.1\", \"embeddableConfig\": {\"title\": \"\"}, \"gridData\": {\"w\": 4, \"i\": \"f3843ab0-8b0f-4f64-805c-4ab0d0965d8a\", \"y\": 6, \"x\": 0, \"h\": 6}, \"panelRefName\": \"panel_3\", \"panelIndex\": \"f3843ab0-8b0f-4f64-805c-4ab0d0965d8a\"}, {\"version\": \"7.8.1\", \"embeddableConfig\": {\"title\": \"\"}, \"gridData\": {\"w\": 4, \"i\": \"16e7059b-70a5-4ea4-b622-9015d7430419\", \"y\": 12, \"x\": 0, \"h\": 6}, \"panelRefName\": \"panel_4\", \"panelIndex\": \"16e7059b-70a5-4ea4-b622-9015d7430419\"}, {\"version\": \"7.8.1\", \"embeddableConfig\": {\"title\": \"\"}, \"gridData\": {\"w\": 4, \"i\": \"d8a5a667-ed0b-42ed-ae7d-edbfa722677f\", \"y\": 18, \"x\": 0, \"h\": 6}, \"panelRefName\": \"panel_5\", \"panelIndex\": \"d8a5a667-ed0b-42ed-ae7d-edbfa722677f\"}, {\"version\": \"7.8.1\", \"embeddableConfig\": {}, \"gridData\": {\"w\": 48, \"i\": \"cb8de6bb-1096-427d-834e-210963aad3e5\", \"y\": 24, \"x\": 0, \"h\": 16}, \"panelRefName\": \"panel_6\", \"panelIndex\": \"cb8de6bb-1096-427d-834e-210963aad3e5\"}]",
+                "timeRestore": false,
+                "title": "[Filebeat Microsoft] ATP Overview",
+                "version": 1
+            },
+            "id": "65402c30-ca6a-11ea-9d4d-9737a63aaa55",
+            "migrationVersion": {
+                "dashboard": "7.3.0"
+            },
+            "references": [
+                {
+                    "id": "3c64f400-ca68-11ea-9d4d-9737a63aaa55",
+                    "name": "panel_0",
+                    "type": "visualization"
+                },
+                {
+                    "id": "e415af10-ca67-11ea-9d4d-9737a63aaa55",
+                    "name": "panel_1",
+                    "type": "lens"
+                },
+                {
+                    "id": "14d367f0-ca68-11ea-9d4d-9737a63aaa55",
+                    "name": "panel_2",
+                    "type": "lens"
+                },
+                {
+                    "id": "9e902dc0-ca68-11ea-9d4d-9737a63aaa55",
+                    "name": "panel_3",
+                    "type": "visualization"
+                },
+                {
+                    "id": "b9fcbf60-ca68-11ea-9d4d-9737a63aaa55",
+                    "name": "panel_4",
+                    "type": "visualization"
+                },
+                {
+                    "id": "62f081c0-ca68-11ea-9d4d-9737a63aaa55",
+                    "name": "panel_5",
+                    "type": "visualization"
+                },
+                {
+                    "id": "00e8fca0-ca68-11ea-9d4d-9737a63aaa55",
+                    "name": "panel_6",
+                    "type": "visualization"
+                }
+            ],
+            "type": "dashboard",
+            "updated_at": "2020-07-20T09:45:23.877Z",
+            "version": "WzEzLDFd"
+        },
+        {
+            "attributes": {
+                "description": "Microsoft Defender ATP Counter for new incidents",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [{\"query\": {\"match_phrase\": {\"event.module\": \"microsoft\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\", \"key\": \"event.module\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft\"}, \"negate\": false}}, {\"query\": {\"match_phrase\": {\"event.dataset\": \"microsoft.defender_atp\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index\", \"key\": \"event.dataset\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft.defender_atp\"}, \"negate\": false}}], \"query\": {\"query\": \"event.dataset:\\\"microsoft.defender_atp\\\" \", \"language\": \"kuery\"}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "ATP New Incidents Counter [Filebeat Microsoft]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"metric\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"cardinality\", \"enabled\": true, \"params\": {\"field\": \"microsoft.defender_atp.incidentId\", \"customLabel\": \"New Incidents\"}}], \"title\": \"ATP New Incidents Counter [Filebeat Microsoft]\", \"params\": {\"addLegend\": false, \"addTooltip\": true, \"type\": \"metric\", \"metric\": {\"colorSchema\": \"Green to Red\", \"percentageMode\": false, \"metricColorMode\": \"None\", \"invertColors\": false, \"style\": {\"bgFill\": \"#000\", \"fontSize\": 30, \"labelColor\": false, \"subText\": \"\", \"bgColor\": false}, \"labels\": {\"show\": true}, \"useRanges\": false, \"colorsRange\": [{\"from\": 0, \"to\": 1}, {\"from\": 1, \"to\": 10000}]}}}"
+            },
+            "id": "3c64f400-ca68-11ea-9d4d-9737a63aaa55",
+            "migrationVersion": {
+                "visualization": "7.8.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2020-07-20T09:45:23.877Z",
+            "version": "WzYsMV0="
+        },
+        {
+            "attributes": {
+                "expression": "kibana\n| kibana_context  query=\"{\\\"query\\\":\\\"\\\",\\\"language\\\":\\\"kuery\\\"}\" \n  filters=\"[{\\\"meta\\\":{\\\"index\\\":\\\"filebeat-*\\\",\\\"alias\\\":null,\\\"negate\\\":false,\\\"disabled\\\":false,\\\"type\\\":\\\"phrase\\\",\\\"key\\\":\\\"event.module\\\",\\\"params\\\":{\\\"query\\\":\\\"microsoft\\\"}},\\\"query\\\":{\\\"match_phrase\\\":{\\\"event.module\\\":\\\"microsoft\\\"}},\\\"$state\\\":{\\\"store\\\":\\\"appState\\\"}},{\\\"meta\\\":{\\\"index\\\":\\\"filebeat-*\\\",\\\"alias\\\":null,\\\"negate\\\":false,\\\"disabled\\\":false,\\\"type\\\":\\\"phrase\\\",\\\"key\\\":\\\"event.dataset\\\",\\\"params\\\":{\\\"query\\\":\\\"microsoft.defender_atp\\\"}},\\\"query\\\":{\\\"match_phrase\\\":{\\\"event.dataset\\\":\\\"microsoft.defender_atp\\\"}},\\\"$state\\\":{\\\"store\\\":\\\"appState\\\"}}]\"\n| lens_merge_tables layerIds=\"ac550ae9-6e17-4944-9545-25bbe83d9dbb\" \n  tables={esaggs index=\"filebeat-*\" metricsAtAllLevels=true partialRows=true includeFormatHints=true timeFields=\"@timestamp\" aggConfigs=\"[{\\\"id\\\":\\\"19ade524-0042-4ecd-ac59-9696c8c2e225\\\",\\\"enabled\\\":true,\\\"type\\\":\\\"terms\\\",\\\"schema\\\":\\\"segment\\\",\\\"params\\\":{\\\"field\\\":\\\"event.severity\\\",\\\"orderBy\\\":\\\"27212c7c-83ee-4292-a4c6-396d9b77dce6\\\",\\\"order\\\":\\\"desc\\\",\\\"size\\\":6,\\\"otherBucket\\\":false,\\\"otherBucketLabel\\\":\\\"Other\\\",\\\"missingBucket\\\":false,\\\"missingBucketLabel\\\":\\\"Missing\\\"}},{\\\"id\\\":\\\"677e5501-ca31-435c-8eab-38b5297e54c2\\\",\\\"enabled\\\":true,\\\"type\\\":\\\"date_histogram\\\",\\\"schema\\\":\\\"segment\\\",\\\"params\\\":{\\\"field\\\":\\\"@timestamp\\\",\\\"useNormalizedEsInterval\\\":true,\\\"interval\\\":\\\"24h\\\",\\\"drop_partials\\\":false,\\\"min_doc_count\\\":0,\\\"extended_bounds\\\":{}}},{\\\"id\\\":\\\"27212c7c-83ee-4292-a4c6-396d9b77dce6\\\",\\\"enabled\\\":true,\\\"type\\\":\\\"cardinality\\\",\\\"schema\\\":\\\"metric\\\",\\\"params\\\":{\\\"field\\\":\\\"microsoft.defender_atp.incidentId\\\",\\\"missing\\\":0}}]\" | lens_rename_columns idMap=\"{\\\"col-0-19ade524-0042-4ecd-ac59-9696c8c2e225\\\":{\\\"label\\\":\\\"Top values of event.severity\\\",\\\"dataType\\\":\\\"number\\\",\\\"operationType\\\":\\\"terms\\\",\\\"scale\\\":\\\"ordinal\\\",\\\"sourceField\\\":\\\"event.severity\\\",\\\"isBucketed\\\":true,\\\"params\\\":{\\\"size\\\":6,\\\"orderBy\\\":{\\\"type\\\":\\\"column\\\",\\\"columnId\\\":\\\"27212c7c-83ee-4292-a4c6-396d9b77dce6\\\"},\\\"orderDirection\\\":\\\"desc\\\"},\\\"id\\\":\\\"19ade524-0042-4ecd-ac59-9696c8c2e225\\\"},\\\"col-2-677e5501-ca31-435c-8eab-38b5297e54c2\\\":{\\\"label\\\":\\\"@timestamp\\\",\\\"dataType\\\":\\\"date\\\",\\\"operationType\\\":\\\"date_histogram\\\",\\\"sourceField\\\":\\\"@timestamp\\\",\\\"isBucketed\\\":true,\\\"scale\\\":\\\"interval\\\",\\\"params\\\":{\\\"interval\\\":\\\"24h\\\"},\\\"id\\\":\\\"677e5501-ca31-435c-8eab-38b5297e54c2\\\"},\\\"col-3-27212c7c-83ee-4292-a4c6-396d9b77dce6\\\":{\\\"label\\\":\\\"Number of incidents\\\",\\\"dataType\\\":\\\"number\\\",\\\"operationType\\\":\\\"cardinality\\\",\\\"scale\\\":\\\"ratio\\\",\\\"sourceField\\\":\\\"microsoft.defender_atp.incidentId\\\",\\\"isBucketed\\\":false,\\\"params\\\":{\\\"format\\\":{\\\"id\\\":\\\"number\\\",\\\"params\\\":{\\\"decimals\\\":0}}},\\\"id\\\":\\\"27212c7c-83ee-4292-a4c6-396d9b77dce6\\\"}}\" | lens_format_column format=\"number\" columnId=\"27212c7c-83ee-4292-a4c6-396d9b77dce6\" decimals=0}\n| lens_xy_chart xTitle=\"@timestamp\" yTitle=\"Number of incidents\" legend={lens_xy_legendConfig isVisible=true position=\"right\"} \n  layers={lens_xy_layer layerId=\"ac550ae9-6e17-4944-9545-25bbe83d9dbb\" hide=false xAccessor=\"677e5501-ca31-435c-8eab-38b5297e54c2\" yScaleType=\"linear\" xScaleType=\"time\" isHistogram=true splitAccessor=\"19ade524-0042-4ecd-ac59-9696c8c2e225\" seriesType=\"line\" accessors=\"27212c7c-83ee-4292-a4c6-396d9b77dce6\" columnToLabel=\"{\\\"27212c7c-83ee-4292-a4c6-396d9b77dce6\\\":\\\"Number of incidents\\\",\\\"19ade524-0042-4ecd-ac59-9696c8c2e225\\\":\\\"Top values of event.severity\\\"}\"}",
+                "state": {
+                    "datasourceMetaData": {
+                        "filterableIndexPatterns": [
+                            {
+                                "id": "filebeat-*",
+                                "title": "filebeat-*"
+                            }
+                        ]
+                    },
+                    "datasourceStates": {
+                        "indexpattern": {
+                            "currentIndexPatternId": "filebeat-*",
+                            "layers": {
+                                "ac550ae9-6e17-4944-9545-25bbe83d9dbb": {
+                                    "columnOrder": [
+                                        "19ade524-0042-4ecd-ac59-9696c8c2e225",
+                                        "677e5501-ca31-435c-8eab-38b5297e54c2",
+                                        "27212c7c-83ee-4292-a4c6-396d9b77dce6"
+                                    ],
+                                    "columns": {
+                                        "19ade524-0042-4ecd-ac59-9696c8c2e225": {
+                                            "dataType": "number",
+                                            "isBucketed": true,
+                                            "label": "Top values of event.severity",
+                                            "operationType": "terms",
+                                            "params": {
+                                                "orderBy": {
+                                                    "columnId": "27212c7c-83ee-4292-a4c6-396d9b77dce6",
+                                                    "type": "column"
+                                                },
+                                                "orderDirection": "desc",
+                                                "size": 6
+                                            },
+                                            "scale": "ordinal",
+                                            "sourceField": "event.severity"
+                                        },
+                                        "27212c7c-83ee-4292-a4c6-396d9b77dce6": {
+                                            "dataType": "number",
+                                            "isBucketed": false,
+                                            "label": "Number of incidents",
+                                            "operationType": "cardinality",
+                                            "params": {
+                                                "format": {
+                                                    "id": "number",
+                                                    "params": {
+                                                        "decimals": 0
+                                                    }
+                                                }
+                                            },
+                                            "scale": "ratio",
+                                            "sourceField": "microsoft.defender_atp.incidentId"
+                                        },
+                                        "677e5501-ca31-435c-8eab-38b5297e54c2": {
+                                            "dataType": "date",
+                                            "isBucketed": true,
+                                            "label": "@timestamp",
+                                            "operationType": "date_histogram",
+                                            "params": {
+                                                "interval": "24h"
+                                            },
+                                            "scale": "interval",
+                                            "sourceField": "@timestamp"
+                                        }
+                                    },
+                                    "indexPatternId": "filebeat-*"
+                                }
+                            }
+                        }
+                    },
+                    "filters": [
+                        {
+                            "$state": {
+                                "store": "appState"
+                            },
+                            "meta": {
+                                "alias": null,
+                                "disabled": false,
+                                "index": "filebeat-*",
+                                "key": "event.module",
+                                "negate": false,
+                                "params": {
+                                    "query": "microsoft"
+                                },
+                                "type": "phrase"
+                            },
+                            "query": {
+                                "match_phrase": {
+                                    "event.module": "microsoft"
+                                }
+                            }
+                        },
+                        {
+                            "$state": {
+                                "store": "appState"
+                            },
+                            "meta": {
+                                "alias": null,
+                                "disabled": false,
+                                "index": "filebeat-*",
+                                "key": "event.dataset",
+                                "negate": false,
+                                "params": {
+                                    "query": "microsoft.defender_atp"
+                                },
+                                "type": "phrase"
+                            },
+                            "query": {
+                                "match_phrase": {
+                                    "event.dataset": "microsoft.defender_atp"
+                                }
+                            }
+                        }
+                    ],
+                    "query": {
+                        "language": "kuery",
+                        "query": ""
+                    },
+                    "visualization": {
+                        "layers": [
+                            {
+                                "accessors": [
+                                    "27212c7c-83ee-4292-a4c6-396d9b77dce6"
+                                ],
+                                "layerId": "ac550ae9-6e17-4944-9545-25bbe83d9dbb",
+                                "position": "top",
+                                "seriesType": "line",
+                                "showGridlines": false,
+                                "splitAccessor": "19ade524-0042-4ecd-ac59-9696c8c2e225",
+                                "xAccessor": "677e5501-ca31-435c-8eab-38b5297e54c2"
+                            }
+                        ],
+                        "legend": {
+                            "isVisible": true,
+                            "position": "right"
+                        },
+                        "preferredSeriesType": "line"
+                    }
+                },
+                "title": "ATP New Incidents [Filebeat Microsoft]",
+                "visualizationType": "lnsXY"
+            },
+            "id": "e415af10-ca67-11ea-9d4d-9737a63aaa55",
+            "migrationVersion": {
+                "lens": "7.8.0"
+            },
+            "references": [],
+            "type": "lens",
+            "updated_at": "2020-07-20T09:45:23.877Z",
+            "version": "WzcsMV0="
+        },
+        {
+            "attributes": {
+                "expression": "kibana\n| kibana_context  query=\"{\\\"query\\\":\\\"\\\",\\\"language\\\":\\\"kuery\\\"}\" \n  filters=\"[{\\\"meta\\\":{\\\"index\\\":\\\"filebeat-*\\\",\\\"alias\\\":null,\\\"negate\\\":false,\\\"disabled\\\":false,\\\"type\\\":\\\"phrase\\\",\\\"key\\\":\\\"event.module\\\",\\\"params\\\":{\\\"query\\\":\\\"microsoft\\\"}},\\\"query\\\":{\\\"match_phrase\\\":{\\\"event.module\\\":\\\"microsoft\\\"}},\\\"$state\\\":{\\\"store\\\":\\\"appState\\\"}},{\\\"meta\\\":{\\\"index\\\":\\\"filebeat-*\\\",\\\"alias\\\":null,\\\"negate\\\":false,\\\"disabled\\\":false,\\\"type\\\":\\\"phrase\\\",\\\"key\\\":\\\"event.dataset\\\",\\\"params\\\":{\\\"query\\\":\\\"microsoft.defender_atp\\\"}},\\\"query\\\":{\\\"match_phrase\\\":{\\\"event.dataset\\\":\\\"microsoft.defender_atp\\\"}},\\\"$state\\\":{\\\"store\\\":\\\"appState\\\"}}]\"\n| lens_merge_tables layerIds=\"f93e2634-0dd5-4aec-b6de-45284dd39630\" \n  tables={esaggs index=\"filebeat-*\" metricsAtAllLevels=true partialRows=true includeFormatHints=true  aggConfigs=\"[{\\\"id\\\":\\\"12ecaf1f-b957-4c15-8f43-8f043a7d1d51\\\",\\\"enabled\\\":true,\\\"type\\\":\\\"terms\\\",\\\"schema\\\":\\\"segment\\\",\\\"params\\\":{\\\"field\\\":\\\"threat.technique.name\\\",\\\"orderBy\\\":\\\"_key\\\",\\\"order\\\":\\\"asc\\\",\\\"size\\\":10,\\\"otherBucket\\\":false,\\\"otherBucketLabel\\\":\\\"Other\\\",\\\"missingBucket\\\":false,\\\"missingBucketLabel\\\":\\\"Missing\\\"}},{\\\"id\\\":\\\"0f67be87-cc6f-48e7-8afd-d9401037d006\\\",\\\"enabled\\\":true,\\\"type\\\":\\\"count\\\",\\\"schema\\\":\\\"metric\\\",\\\"params\\\":{}}]\" | lens_rename_columns idMap=\"{\\\"col-0-12ecaf1f-b957-4c15-8f43-8f043a7d1d51\\\":{\\\"label\\\":\\\"Related MITRE attach techniques\\\",\\\"dataType\\\":\\\"string\\\",\\\"operationType\\\":\\\"terms\\\",\\\"scale\\\":\\\"ordinal\\\",\\\"sourceField\\\":\\\"threat.technique.name\\\",\\\"isBucketed\\\":true,\\\"params\\\":{\\\"size\\\":10,\\\"orderBy\\\":{\\\"type\\\":\\\"alphabetical\\\"},\\\"orderDirection\\\":\\\"asc\\\"},\\\"id\\\":\\\"12ecaf1f-b957-4c15-8f43-8f043a7d1d51\\\"},\\\"col-1-0f67be87-cc6f-48e7-8afd-d9401037d006\\\":{\\\"label\\\":\\\"Number of techniques\\\",\\\"dataType\\\":\\\"number\\\",\\\"operationType\\\":\\\"count\\\",\\\"isBucketed\\\":false,\\\"scale\\\":\\\"ratio\\\",\\\"sourceField\\\":\\\"Records\\\",\\\"id\\\":\\\"0f67be87-cc6f-48e7-8afd-d9401037d006\\\"}}\"}\n| lens_pie shape=\"treemap\" hideLabels=false groups=\"12ecaf1f-b957-4c15-8f43-8f043a7d1d51\" metric=\"0f67be87-cc6f-48e7-8afd-d9401037d006\" numberDisplay=\"percent\" categoryDisplay=\"default\" legendDisplay=\"default\" percentDecimals=3 nestedLegend=false",
+                "state": {
+                    "datasourceMetaData": {
+                        "filterableIndexPatterns": [
+                            {
+                                "id": "filebeat-*",
+                                "title": "filebeat-*"
+                            }
+                        ]
+                    },
+                    "datasourceStates": {
+                        "indexpattern": {
+                            "currentIndexPatternId": "filebeat-*",
+                            "layers": {
+                                "f93e2634-0dd5-4aec-b6de-45284dd39630": {
+                                    "columnOrder": [
+                                        "12ecaf1f-b957-4c15-8f43-8f043a7d1d51",
+                                        "0f67be87-cc6f-48e7-8afd-d9401037d006"
+                                    ],
+                                    "columns": {
+                                        "0f67be87-cc6f-48e7-8afd-d9401037d006": {
+                                            "dataType": "number",
+                                            "isBucketed": false,
+                                            "label": "Number of techniques",
+                                            "operationType": "count",
+                                            "scale": "ratio",
+                                            "sourceField": "Records"
+                                        },
+                                        "12ecaf1f-b957-4c15-8f43-8f043a7d1d51": {
+                                            "dataType": "string",
+                                            "isBucketed": true,
+                                            "label": "Related MITRE attach techniques",
+                                            "operationType": "terms",
+                                            "params": {
+                                                "orderBy": {
+                                                    "type": "alphabetical"
+                                                },
+                                                "orderDirection": "asc",
+                                                "size": 10
+                                            },
+                                            "scale": "ordinal",
+                                            "sourceField": "threat.technique.name"
+                                        }
+                                    },
+                                    "indexPatternId": "filebeat-*"
+                                }
+                            }
+                        }
+                    },
+                    "filters": [
+                        {
+                            "$state": {
+                                "store": "appState"
+                            },
+                            "meta": {
+                                "alias": null,
+                                "disabled": false,
+                                "index": "filebeat-*",
+                                "key": "event.module",
+                                "negate": false,
+                                "params": {
+                                    "query": "microsoft"
+                                },
+                                "type": "phrase"
+                            },
+                            "query": {
+                                "match_phrase": {
+                                    "event.module": "microsoft"
+                                }
+                            }
+                        },
+                        {
+                            "$state": {
+                                "store": "appState"
+                            },
+                            "meta": {
+                                "alias": null,
+                                "disabled": false,
+                                "index": "filebeat-*",
+                                "key": "event.dataset",
+                                "negate": false,
+                                "params": {
+                                    "query": "microsoft.defender_atp"
+                                },
+                                "type": "phrase"
+                            },
+                            "query": {
+                                "match_phrase": {
+                                    "event.dataset": "microsoft.defender_atp"
+                                }
+                            }
+                        }
+                    ],
+                    "query": {
+                        "language": "kuery",
+                        "query": ""
+                    },
+                    "visualization": {
+                        "layers": [
+                            {
+                                "categoryDisplay": "default",
+                                "groups": [
+                                    "12ecaf1f-b957-4c15-8f43-8f043a7d1d51"
+                                ],
+                                "layerId": "f93e2634-0dd5-4aec-b6de-45284dd39630",
+                                "legendDisplay": "default",
+                                "metric": "0f67be87-cc6f-48e7-8afd-d9401037d006",
+                                "nestedLegend": false,
+                                "numberDisplay": "percent"
+                            }
+                        ],
+                        "shape": "treemap"
+                    }
+                },
+                "title": "ATP Techniques [Filebeat Microsoft]",
+                "visualizationType": "lnsPie"
+            },
+            "id": "14d367f0-ca68-11ea-9d4d-9737a63aaa55",
+            "migrationVersion": {
+                "lens": "7.8.0"
+            },
+            "references": [],
+            "type": "lens",
+            "updated_at": "2020-07-20T09:45:23.877Z",
+            "version": "WzgsMV0="
+        },
+        {
+            "attributes": {
+                "description": "Microsoft Defender ATP counter for related domains",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [{\"query\": {\"match_phrase\": {\"event.module\": \"microsoft\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\", \"key\": \"event.module\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft\"}, \"negate\": false}}, {\"query\": {\"match_phrase\": {\"event.dataset\": \"microsoft.defender_atp\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index\", \"key\": \"event.dataset\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft.defender_atp\"}, \"negate\": false}}], \"query\": {\"query\": \"event.dataset:\\\"microsoft.defender_atp\\\" \", \"language\": \"kuery\"}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "ATP Domains Counter [Filebeat Microsoft]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"metric\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"cardinality\", \"enabled\": true, \"params\": {\"field\": \"microsoft.defender_atp.evidence.domainName\", \"customLabel\": \"Related Domains\"}}], \"title\": \"ATP Domains Counter [Filebeat Microsoft]\", \"params\": {\"addLegend\": false, \"addTooltip\": true, \"type\": \"metric\", \"metric\": {\"colorSchema\": \"Green to Red\", \"percentageMode\": false, \"metricColorMode\": \"None\", \"invertColors\": false, \"style\": {\"bgFill\": \"#000\", \"fontSize\": 30, \"labelColor\": false, \"subText\": \"\", \"bgColor\": false}, \"labels\": {\"show\": true}, \"useRanges\": false, \"colorsRange\": [{\"from\": 0, \"to\": 10000}]}}}"
+            },
+            "id": "9e902dc0-ca68-11ea-9d4d-9737a63aaa55",
+            "migrationVersion": {
+                "visualization": "7.8.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2020-07-20T09:45:23.877Z",
+            "version": "WzksMV0="
+        },
+        {
+            "attributes": {
+                "description": "Microsoft Defender ATP counter for related IP Addresses",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [{\"query\": {\"match_phrase\": {\"event.module\": \"microsoft\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\", \"key\": \"event.module\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft\"}, \"negate\": false}}, {\"query\": {\"match_phrase\": {\"event.dataset\": \"microsoft.defender_atp\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index\", \"key\": \"event.dataset\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft.defender_atp\"}, \"negate\": false}}], \"query\": {\"query\": \"event.dataset:\\\"microsoft.defender_atp\\\" \", \"language\": \"kuery\"}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "ATP IP Addresses Counter [Filebeat Microsoft]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"metric\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"cardinality\", \"enabled\": true, \"params\": {\"field\": \"microsoft.defender_atp.evidence.ipAddress\", \"customLabel\": \"Related Networks\"}}], \"title\": \"ATP IP Addresses Counter [Filebeat Microsoft]\", \"params\": {\"addLegend\": false, \"addTooltip\": true, \"type\": \"metric\", \"metric\": {\"colorSchema\": \"Green to Red\", \"percentageMode\": false, \"metricColorMode\": \"None\", \"invertColors\": false, \"style\": {\"bgFill\": \"#000\", \"fontSize\": 30, \"labelColor\": false, \"subText\": \"\", \"bgColor\": false}, \"labels\": {\"show\": true}, \"useRanges\": false, \"colorsRange\": [{\"from\": 0, \"to\": 10000}]}}}"
+            },
+            "id": "b9fcbf60-ca68-11ea-9d4d-9737a63aaa55",
+            "migrationVersion": {
+                "visualization": "7.8.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2020-07-20T09:45:23.877Z",
+            "version": "WzEwLDFd"
+        },
+        {
+            "attributes": {
+                "description": "Microsoft Defender ATP counter for related Users",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [{\"query\": {\"match_phrase\": {\"event.module\": \"microsoft\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\", \"key\": \"event.module\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft\"}, \"negate\": false}}, {\"query\": {\"match_phrase\": {\"event.dataset\": \"microsoft.defender_atp\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index\", \"key\": \"event.dataset\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft.defender_atp\"}, \"negate\": false}}], \"query\": {\"query\": \"event.dataset:\\\"microsoft.defender_atp\\\" \", \"language\": \"kuery\"}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "ATP Related Users Counter [Filebeat Microsoft]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"metric\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"cardinality\", \"enabled\": true, \"params\": {\"field\": \"host.user.name\", \"customLabel\": \"Related Users\"}}], \"title\": \"ATP Related Users Counter [Filebeat Microsoft]\", \"params\": {\"addLegend\": false, \"addTooltip\": true, \"type\": \"metric\", \"metric\": {\"colorSchema\": \"Green to Red\", \"percentageMode\": false, \"metricColorMode\": \"None\", \"invertColors\": false, \"style\": {\"bgFill\": \"#000\", \"fontSize\": 30, \"labelColor\": false, \"subText\": \"\", \"bgColor\": false}, \"labels\": {\"show\": true}, \"useRanges\": false, \"colorsRange\": [{\"from\": 0, \"to\": 10000}]}}}"
+            },
+            "id": "62f081c0-ca68-11ea-9d4d-9737a63aaa55",
+            "migrationVersion": {
+                "visualization": "7.8.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2020-07-20T09:45:23.877Z",
+            "version": "WzExLDFd"
+        },
+        {
+            "attributes": {
+                "description": "Microsoft Defender ATP Incident Table",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [{\"query\": {\"match_phrase\": {\"event.module\": \"microsoft\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\", \"key\": \"event.module\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft\"}, \"negate\": false}}, {\"query\": {\"match_phrase\": {\"event.dataset\": \"microsoft.defender_atp\"}}, \"$state\": {\"store\": \"appState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index\", \"key\": \"event.dataset\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"microsoft.defender_atp\"}, \"negate\": false}}], \"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "ATP Incident Table [Filebeat Microsoft]",
+                "uiStateJSON": "{\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}",
+                "version": 1,
+                "visState": "{\"type\": \"table\", \"aggs\": [{\"schema\": \"bucket\", \"id\": \"2\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"order\": \"desc\", \"otherBucketLabel\": \"Other\", \"size\": 100, \"otherBucket\": false, \"orderBy\": \"_key\", \"field\": \"microsoft.defender_atp.incidentId\", \"missingBucket\": false, \"missingBucketLabel\": \"Missing\", \"customLabel\": \"Incident ID\"}}, {\"schema\": \"bucket\", \"id\": \"3\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"order\": \"desc\", \"otherBucketLabel\": \"Other\", \"size\": 1, \"otherBucket\": false, \"orderBy\": \"_key\", \"field\": \"microsoft.defender_atp.status\", \"missingBucket\": false, \"missingBucketLabel\": \"Missing\", \"customLabel\": \"Current Status\"}}, {\"schema\": \"bucket\", \"id\": \"5\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"order\": \"desc\", \"otherBucketLabel\": \"Other\", \"size\": 1, \"otherBucket\": false, \"orderBy\": \"_key\", \"field\": \"microsoft.defender_atp.assignedTo\", \"missingBucket\": false, \"missingBucketLabel\": \"Missing\", \"customLabel\": \"Assigned To\"}}, {\"schema\": \"bucket\", \"id\": \"9\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"order\": \"desc\", \"otherBucketLabel\": \"Other\", \"size\": 5, \"otherBucket\": false, \"orderBy\": \"_key\", \"field\": \"event.severity\", \"missingBucket\": false, \"missingBucketLabel\": \"Missing\", \"customLabel\": \"Severity\"}}, {\"schema\": \"bucket\", \"id\": \"4\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"order\": \"desc\", \"otherBucketLabel\": \"Other\", \"size\": 1, \"otherBucket\": false, \"orderBy\": \"_key\", \"field\": \"host.hostname\", \"missingBucket\": false, \"missingBucketLabel\": \"Missing\", \"customLabel\": \"Hostname\"}}, {\"schema\": \"bucket\", \"id\": \"6\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"order\": \"desc\", \"otherBucketLabel\": \"Other\", \"size\": 1, \"otherBucket\": false, \"orderBy\": \"_key\", \"field\": \"event.test.message\", \"missingBucket\": false, \"missingBucketLabel\": \"Missing\", \"customLabel\": \"Title\"}}, {\"schema\": \"metric\", \"id\": \"8\", \"type\": \"top_hits\", \"enabled\": true, \"params\": {\"field\": \"@timestamp\", \"aggregate\": \"concat\", \"sortField\": \"@timestamp\", \"size\": 1, \"sortOrder\": \"desc\"}}, {\"schema\": \"bucket\", \"id\": \"10\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"order\": \"desc\", \"otherBucketLabel\": \"Other\", \"size\": 1, \"otherBucket\": false, \"orderBy\": \"_key\", \"field\": \"threat.technique.name\", \"missingBucket\": false, \"missingBucketLabel\": \"Missing\", \"customLabel\": \"Category\"}}], \"title\": \"ATP Incident Table [Filebeat Microsoft]\", \"params\": {\"showMetricsAtAllLevels\": false, \"perPage\": 10, \"showPartialRows\": false, \"sort\": {\"columnIndex\": null, \"direction\": null}, \"row\": true, \"totalFunc\": \"sum\", \"showTotal\": false, \"percentageCol\": \"\"}}"
+            },
+            "id": "00e8fca0-ca68-11ea-9d4d-9737a63aaa55",
+            "migrationVersion": {
+                "visualization": "7.8.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[1].meta.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2020-07-20T09:45:23.877Z",
+            "version": "WzEyLDFd"
+        }
+    ],
+    "version": "7.8.0"
+}

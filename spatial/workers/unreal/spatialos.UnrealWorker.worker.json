@@ -63,8 +63,9 @@
     },
     "linux": {
       "artifact_name": "UnrealWorker@Linux.zip",
-      "command": "StartWorker.sh",
+      "command": "StartSidecarThenWorker.sh",
       "arguments": [
+        "StartWorker.sh",
         "${IMPROBABLE_WORKER_ID}",
         "${IMPROBABLE_LOG_FILE}",
         "ThirdPersonExampleMap",

@@ -1,0 +1,307 @@
+{
+    "objects": [
+        {
+            "attributes": {
+                "description": "Netflow Top N flows",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [{\"query\": {\"match\": {\"input.type\": {\"query\": \"netflow\", \"type\": \"phrase\"}}}, \"$state\": {\"store\": \"globalState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\", \"key\": \"input.type\", \"value\": \"netflow\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"netflow\"}, \"negate\": false}}], \"highlightAll\": true, \"version\": true}"
+                },
+                "optionsJSON": "{\"darkTheme\": false}",
+                "panelsJSON": "[{\"col\": 1, \"row\": 1, \"size_x\": 12, \"size_y\": 1, \"panelRefName\": \"panel_0\", \"panelIndex\": 1}, {\"col\": 1, \"row\": 2, \"size_x\": 6, \"size_y\": 5, \"panelRefName\": \"panel_1\", \"panelIndex\": 2}, {\"col\": 7, \"row\": 2, \"size_x\": 6, \"size_y\": 5, \"panelRefName\": \"panel_2\", \"panelIndex\": 3}, {\"col\": 1, \"row\": 7, \"size_x\": 6, \"size_y\": 5, \"panelRefName\": \"panel_3\", \"panelIndex\": 4}, {\"col\": 7, \"row\": 7, \"size_x\": 6, \"size_y\": 5, \"panelRefName\": \"panel_4\", \"panelIndex\": 5}, {\"col\": 1, \"row\": 12, \"size_x\": 6, \"size_y\": 5, \"panelRefName\": \"panel_5\", \"panelIndex\": 6}, {\"col\": 7, \"row\": 12, \"size_x\": 6, \"size_y\": 5, \"panelRefName\": \"panel_6\", \"panelIndex\": 7}, {\"col\": 1, \"row\": 17, \"size_x\": 6, \"size_y\": 5, \"panelRefName\": \"panel_7\", \"panelIndex\": 8}, {\"col\": 7, \"row\": 17, \"size_x\": 6, \"size_y\": 5, \"panelRefName\": \"panel_8\", \"panelIndex\": 9}]",
+                "timeRestore": false,
+                "title": "[Filebeat Netflow] Top-N",
+                "uiStateJSON": "{\"P-8\": {\"vis\": {\"params\": {\"sort\": {\"columnIndex\": 2, \"direction\": \"desc\"}}}}, \"P-7\": {\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}, \"P-4\": {\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}, \"P-3\": {\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}, \"P-2\": {\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}, \"P-9\": {\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}, \"P-6\": {\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}, \"P-5\": {\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}}",
+                "version": 1
+            },
+            "id": "14387a13-53bc-43a4-b9cd-63977aa8d87c",
+            "migrationVersion": {
+                "dashboard": "7.0.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "d4e6520a-9ced-47c9-a8f2-7246e8cbd2d3",
+                    "name": "panel_0",
+                    "type": "visualization"
+                },
+                {
+                    "id": "15295ea6-ba84-47db-8ced-9312abbf495c",
+                    "name": "panel_1",
+                    "type": "visualization"
+                },
+                {
+                    "id": "5303e99b-389c-47b7-ae7a-945c5a92ba49",
+                    "name": "panel_2",
+                    "type": "visualization"
+                },
+                {
+                    "id": "e9ad835b-b2f2-42d3-a3e7-555a593deacf",
+                    "name": "panel_3",
+                    "type": "visualization"
+                },
+                {
+                    "id": "31b5f6fd-eb9d-4e97-90fd-367062ef217f",
+                    "name": "panel_4",
+                    "type": "visualization"
+                },
+                {
+                    "id": "2b3d4e86-2254-4033-8fe3-ce4753fafd03",
+                    "name": "panel_5",
+                    "type": "visualization"
+                },
+                {
+                    "id": "036aef95-ec90-468d-ad7c-3cc4405e9e81",
+                    "name": "panel_6",
+                    "type": "visualization"
+                },
+                {
+                    "id": "5292a65b-c532-422a-9008-1251a8073a3a",
+                    "name": "panel_7",
+                    "type": "visualization"
+                },
+                {
+                    "id": "cccff92f-cb71-49a9-9caf-84867751d31e",
+                    "name": "panel_8",
+                    "type": "visualization"
+                }
+            ],
+            "type": "dashboard",
+            "updated_at": "2019-07-11T04:44:37.748Z",
+            "version": "WzM0NTIsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}}"
+                },
+                "title": "Dashboard Navigation [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"markdown\", \"aggs\": [], \"title\": \"Dashboard Navigation [Filebeat Netflow]\", \"params\": {\"markdown\": \"[Overview](#/dashboard/34e26884-161a-4448-9556-43b5bf2f62a2) | [Conversation Partners](#/dashboard/acd7a630-0c71-4840-bc9e-4a3801374a32) | [Traffic Analysis](#/dashboard/38012abe-c611-4124-8497-381fcd85acc8) | [Top-N](#/dashboard/14387a13-53bc-43a4-b9cd-63977aa8d87c) | [Geo Location](#/dashboard/77326664-23be-4bf1-a126-6d7e60cfc024) | [Autonomous Systems](#/dashboard/c64665f9-d222-421e-90b0-c7310d944b8a) | [Flow Exporters](#/dashboard/feebb4e6-b13e-4e4e-b9fc-d3a178276425) | [Raw Flow Records](#/dashboard/94972700-de4a-4272-9143-2fa8d4981365)\\n***\"}, \"listeners\": {}}"
+            },
+            "id": "d4e6520a-9ced-47c9-a8f2-7246e8cbd2d3",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:38.685Z",
+            "version": "WzM0NjQsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Top Sources [Filebeat Netflow]",
+                "uiStateJSON": "{\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}",
+                "version": 1,
+                "visState": "{\"type\": \"table\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"2\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.bytes\", \"customLabel\": \"Bytes\"}}, {\"schema\": \"metric\", \"id\": \"3\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.packets\", \"customLabel\": \"Packets\"}}, {\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"bucket\", \"id\": \"4\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"2\", \"field\": \"source.ip\", \"order\": \"desc\", \"size\": 500, \"customLabel\": \"Source\"}}], \"title\": \"Top Sources [Filebeat Netflow]\", \"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}, \"perPage\": 10, \"showPartialRows\": false, \"totalFunc\": \"sum\", \"showTotal\": true, \"showMeticsAtAllLevels\": false}, \"listeners\": {}}"
+            },
+            "id": "15295ea6-ba84-47db-8ced-9312abbf495c",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:37.748Z",
+            "version": "WzM0NTQsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Top Destinations [Filebeat Netflow]",
+                "uiStateJSON": "{\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}",
+                "version": 1,
+                "visState": "{\"type\": \"table\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"2\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.bytes\", \"customLabel\": \"Bytes\"}}, {\"schema\": \"metric\", \"id\": \"3\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.packets\", \"customLabel\": \"Packets\"}}, {\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"bucket\", \"id\": \"4\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"2\", \"field\": \"destination.ip\", \"order\": \"desc\", \"size\": 500, \"customLabel\": \"Destination\"}}], \"title\": \"Top Destinations [Filebeat Netflow]\", \"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}, \"perPage\": 10, \"showPartialRows\": false, \"totalFunc\": \"sum\", \"showTotal\": true, \"showMeticsAtAllLevels\": false}, \"listeners\": {}}"
+            },
+            "id": "5303e99b-389c-47b7-ae7a-945c5a92ba49",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:37.748Z",
+            "version": "WzM0NTUsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Top Source Ports [Filebeat Netflow]",
+                "uiStateJSON": "{\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}",
+                "version": 1,
+                "visState": "{\"type\": \"table\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"2\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.bytes\", \"customLabel\": \"Bytes\"}}, {\"schema\": \"metric\", \"id\": \"3\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.packets\", \"customLabel\": \"Packets\"}}, {\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"bucket\", \"id\": \"4\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"2\", \"field\": \"source.port\", \"order\": \"desc\", \"size\": 500, \"customLabel\": \"Source\"}}], \"title\": \"Top Source Ports [Filebeat Netflow]\", \"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}, \"perPage\": 10, \"showPartialRows\": false, \"totalFunc\": \"sum\", \"showTotal\": true, \"showMeticsAtAllLevels\": false}, \"listeners\": {}}"
+            },
+            "id": "e9ad835b-b2f2-42d3-a3e7-555a593deacf",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:37.748Z",
+            "version": "WzM0NTYsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Top Destination Ports [Filebeat Netflow]",
+                "uiStateJSON": "{\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}",
+                "version": 1,
+                "visState": "{\"type\": \"table\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"2\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.bytes\", \"customLabel\": \"Bytes\"}}, {\"schema\": \"metric\", \"id\": \"3\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.packets\", \"customLabel\": \"Packets\"}}, {\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"bucket\", \"id\": \"4\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"2\", \"field\": \"destination.port\", \"order\": \"desc\", \"size\": 500, \"customLabel\": \"Destination\"}}], \"title\": \"Top Destination Ports [Filebeat Netflow]\", \"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}, \"perPage\": 10, \"showPartialRows\": false, \"totalFunc\": \"sum\", \"showTotal\": true, \"showMeticsAtAllLevels\": false}, \"listeners\": {}}"
+            },
+            "id": "31b5f6fd-eb9d-4e97-90fd-367062ef217f",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:37.748Z",
+            "version": "WzM0NTcsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Top Protocols [Filebeat Netflow]",
+                "uiStateJSON": "{\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}",
+                "version": 1,
+                "visState": "{\"type\": \"table\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"2\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.bytes\", \"customLabel\": \"Bytes\"}}, {\"schema\": \"metric\", \"id\": \"3\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.packets\", \"customLabel\": \"Packets\"}}, {\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"bucket\", \"id\": \"4\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"2\", \"field\": \"network.transport\", \"order\": \"desc\", \"size\": 500, \"customLabel\": \"Protocol\"}}], \"title\": \"Top Protocols [Filebeat Netflow]\", \"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}, \"perPage\": 10, \"showPartialRows\": false, \"totalFunc\": \"sum\", \"showTotal\": true, \"showMeticsAtAllLevels\": false}, \"listeners\": {}}"
+            },
+            "id": "2b3d4e86-2254-4033-8fe3-ce4753fafd03",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:37.748Z",
+            "version": "WzM0NTgsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Top Autonomous Systems [Filebeat Netflow]",
+                "uiStateJSON": "{\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}",
+                "version": 1,
+                "visState": "{\"type\": \"table\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"2\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.bytes\", \"customLabel\": \"Bytes\"}}, {\"schema\": \"metric\", \"id\": \"3\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.packets\", \"customLabel\": \"Packets\"}}, {\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"bucket\", \"id\": \"4\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"2\", \"field\": \"destination.as.organization.name\", \"order\": \"desc\", \"size\": 500, \"customLabel\": \"Autonomous System\"}}], \"title\": \"Top Autonomous Systems [Filebeat Netflow]\", \"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}, \"perPage\": 10, \"showPartialRows\": false, \"totalFunc\": \"sum\", \"showTotal\": true, \"showMeticsAtAllLevels\": false}, \"listeners\": {}}"
+            },
+            "id": "036aef95-ec90-468d-ad7c-3cc4405e9e81",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:37.748Z",
+            "version": "WzM0NTksMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Top Cities [Filebeat Netflow]",
+                "uiStateJSON": "{\"vis\": {\"params\": {\"sort\": {\"columnIndex\": 2, \"direction\": \"desc\"}}}}",
+                "version": 1,
+                "visState": "{\"type\": \"table\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"2\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.bytes\", \"customLabel\": \"Bytes\"}}, {\"schema\": \"metric\", \"id\": \"3\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.packets\", \"customLabel\": \"Packets\"}}, {\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"bucket\", \"id\": \"4\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"2\", \"field\": \"destination.geo.country_name\", \"order\": \"desc\", \"size\": 500, \"customLabel\": \"Country\"}}, {\"schema\": \"bucket\", \"id\": \"5\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"2\", \"field\": \"destination.geo.city_name\", \"order\": \"desc\", \"size\": 500, \"customLabel\": \"City\"}}], \"title\": \"Top Cities [Filebeat Netflow]\", \"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}, \"perPage\": 10, \"showPartialRows\": true, \"totalFunc\": \"sum\", \"showTotal\": true, \"showMeticsAtAllLevels\": false}, \"listeners\": {}}"
+            },
+            "id": "5292a65b-c532-422a-9008-1251a8073a3a",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:37.748Z",
+            "version": "WzM0NjAsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Top Flow Exporters [Filebeat Netflow]",
+                "uiStateJSON": "{\"vis\": {\"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}}}}",
+                "version": 1,
+                "visState": "{\"type\": \"table\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"2\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.bytes\", \"customLabel\": \"Bytes\"}}, {\"schema\": \"metric\", \"id\": \"3\", \"type\": \"sum\", \"enabled\": true, \"params\": {\"field\": \"network.packets\", \"customLabel\": \"Packets\"}}, {\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"bucket\", \"id\": \"4\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"2\", \"field\": \"agent.hostname\", \"order\": \"desc\", \"size\": 500, \"customLabel\": \"Flow Exporter\"}}], \"title\": \"Top Flow Exporters [Filebeat Netflow]\", \"params\": {\"sort\": {\"columnIndex\": null, \"direction\": null}, \"perPage\": 10, \"showPartialRows\": false, \"totalFunc\": \"sum\", \"showTotal\": true, \"showMeticsAtAllLevels\": false}, \"listeners\": {}}"
+            },
+            "id": "cccff92f-cb71-49a9-9caf-84867751d31e",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:37.748Z",
+            "version": "WzM0NjEsMV0="
+        }
+    ],
+    "version": "7.2.0"
+}

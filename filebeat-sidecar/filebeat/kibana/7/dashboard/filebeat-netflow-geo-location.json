@@ -1,0 +1,183 @@
+{
+    "objects": [
+        {
+            "attributes": {
+                "description": "Netflow geo location",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [{\"query\": {\"match\": {\"input.type\": {\"query\": \"netflow\", \"type\": \"phrase\"}}}, \"$state\": {\"store\": \"globalState\"}, \"meta\": {\"type\": \"phrase\", \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\", \"key\": \"input.type\", \"value\": \"netflow\", \"alias\": null, \"disabled\": false, \"params\": {\"query\": \"netflow\"}, \"negate\": false}}]}"
+                },
+                "optionsJSON": "{\"darkTheme\": false}",
+                "panelsJSON": "[{\"col\": 5, \"row\": 2, \"size_x\": 8, \"size_y\": 6, \"panelRefName\": \"panel_0\", \"panelIndex\": 16}, {\"col\": 1, \"row\": 2, \"size_x\": 4, \"size_y\": 2, \"panelRefName\": \"panel_1\", \"panelIndex\": 17}, {\"col\": 1, \"row\": 4, \"size_x\": 4, \"size_y\": 2, \"panelRefName\": \"panel_2\", \"panelIndex\": 18}, {\"col\": 1, \"row\": 6, \"size_x\": 4, \"size_y\": 2, \"panelRefName\": \"panel_3\", \"panelIndex\": 19}, {\"col\": 1, \"row\": 1, \"size_x\": 12, \"size_y\": 1, \"panelRefName\": \"panel_4\", \"panelIndex\": 20}]",
+                "timeRestore": false,
+                "title": "[Filebeat Netflow] Geo Location",
+                "uiStateJSON": "{\"P-16\": {\"mapZoom\": 2, \"mapCenter\": [20.632784250388028, 16.69921875]}}",
+                "version": 1
+            },
+            "id": "77326664-23be-4bf1-a126-6d7e60cfc024",
+            "migrationVersion": {
+                "dashboard": "7.0.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+                    "type": "index-pattern"
+                },
+                {
+                    "id": "f4c8cb5a-7336-449e-ab99-6e867b435b85",
+                    "name": "panel_0",
+                    "type": "visualization"
+                },
+                {
+                    "id": "2316bb53-d98a-4f0f-8cd8-51e9fb317823",
+                    "name": "panel_1",
+                    "type": "visualization"
+                },
+                {
+                    "id": "aed09724-0a69-4331-84f5-3d2067c43930",
+                    "name": "panel_2",
+                    "type": "visualization"
+                },
+                {
+                    "id": "f531f957-e8c0-497a-ad41-ef39c2d29671",
+                    "name": "panel_3",
+                    "type": "visualization"
+                },
+                {
+                    "id": "d4e6520a-9ced-47c9-a8f2-7246e8cbd2d3",
+                    "name": "panel_4",
+                    "type": "visualization"
+                }
+            ],
+            "type": "dashboard",
+            "updated_at": "2019-07-11T04:44:35.630Z",
+            "version": "WzM0MzIsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Destination Geo Location Heatmap [Filebeat Netflow]",
+                "uiStateJSON": "{\"mapCenter\": [8.407168163601076, 9.4921875]}",
+                "version": 1,
+                "visState": "{\"type\": \"tile_map\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Records\"}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"geohash_grid\", \"enabled\": true, \"params\": {\"field\": \"destination.geo.location\", \"autoPrecision\": true, \"precision\": 2, \"customLabel\": \"Location\"}}], \"title\": \"Destination Geo Location Heatmap [Filebeat Netflow]\", \"params\": {\"heatMinOpacity\": \"0.32\", \"heatRadius\": \"24\", \"heatNormalizeData\": true, \"wms\": {\"options\": {\"layers\": \"0\", \"version\": \"1.3.0\", \"transparent\": true, \"format\": \"image/png\", \"attribution\": \"Maps provided by USGS\", \"styles\": \"\"}, \"enabled\": false, \"url\": \"https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WMSServer\"}, \"isDesaturated\": true, \"heatBlur\": \"16\", \"mapType\": \"Heatmap\", \"mapZoom\": 2, \"mapCenter\": [15, 5], \"addTooltip\": true, \"heatMaxZoom\": 16, \"legendPosition\": \"bottomright\"}, \"listeners\": {}}"
+            },
+            "id": "f4c8cb5a-7336-449e-ab99-6e867b435b85",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:35.630Z",
+            "version": "WzM0MzMsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Countries and Cities (flow records) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"pie\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"destination.geo.country_name\", \"order\": \"desc\", \"size\": 10, \"customLabel\": \"Country\"}}, {\"schema\": \"segment\", \"id\": \"3\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"destination.geo.city_name\", \"order\": \"desc\", \"size\": 10, \"customLabel\": \"City\"}}], \"title\": \"Countries and Cities (flow records) [Filebeat Netflow]\", \"params\": {\"addLegend\": true, \"addTooltip\": true, \"legendPosition\": \"right\", \"isDonut\": true}, \"listeners\": {}}"
+            },
+            "id": "2316bb53-d98a-4f0f-8cd8-51e9fb317823",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:35.630Z",
+            "version": "WzM0MzQsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Destinations and Sources (flow records) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"pie\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"destination.ip\", \"order\": \"desc\", \"size\": 50, \"customLabel\": \"Destination\"}}, {\"schema\": \"segment\", \"id\": \"3\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"source.ip\", \"order\": \"desc\", \"size\": 50, \"customLabel\": \"Source\"}}], \"title\": \"Destinations and Sources (flow records) [Filebeat Netflow]\", \"params\": {\"addLegend\": true, \"addTooltip\": true, \"legendPosition\": \"right\", \"isDonut\": true}, \"listeners\": {}}"
+            },
+            "id": "aed09724-0a69-4331-84f5-3d2067c43930",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:35.630Z",
+            "version": "WzM0MzUsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}, \"indexRefName\": \"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
+                },
+                "title": "Destination and Source Ports (flow records) [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"pie\", \"aggs\": [{\"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"enabled\": true, \"params\": {\"customLabel\": \"Flow Records\"}}, {\"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"destination.port\", \"order\": \"desc\", \"size\": 50, \"customLabel\": \"Destination Port\"}}, {\"schema\": \"segment\", \"id\": \"3\", \"type\": \"terms\", \"enabled\": true, \"params\": {\"orderBy\": \"1\", \"field\": \"source.port\", \"order\": \"desc\", \"size\": 50, \"customLabel\": \"Source Port\"}}], \"title\": \"Destination and Source Ports (flow records) [Filebeat Netflow]\", \"params\": {\"addLegend\": true, \"addTooltip\": true, \"legendPosition\": \"right\", \"isDonut\": true}, \"listeners\": {}}"
+            },
+            "id": "f531f957-e8c0-497a-ad41-ef39c2d29671",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [
+                {
+                    "id": "filebeat-*",
+                    "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
+                    "type": "index-pattern"
+                }
+            ],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:35.630Z",
+            "version": "WzM0MzYsMV0="
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": [], \"query\": {\"query_string\": {\"analyze_wildcard\": true, \"query\": \"*\"}}}"
+                },
+                "title": "Dashboard Navigation [Filebeat Netflow]",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"type\": \"markdown\", \"aggs\": [], \"title\": \"Dashboard Navigation [Filebeat Netflow]\", \"params\": {\"markdown\": \"[Overview](#/dashboard/34e26884-161a-4448-9556-43b5bf2f62a2) | [Conversation Partners](#/dashboard/acd7a630-0c71-4840-bc9e-4a3801374a32) | [Traffic Analysis](#/dashboard/38012abe-c611-4124-8497-381fcd85acc8) | [Top-N](#/dashboard/14387a13-53bc-43a4-b9cd-63977aa8d87c) | [Geo Location](#/dashboard/77326664-23be-4bf1-a126-6d7e60cfc024) | [Autonomous Systems](#/dashboard/c64665f9-d222-421e-90b0-c7310d944b8a) | [Flow Exporters](#/dashboard/feebb4e6-b13e-4e4e-b9fc-d3a178276425) | [Raw Flow Records](#/dashboard/94972700-de4a-4272-9143-2fa8d4981365)\\n***\"}, \"listeners\": {}}"
+            },
+            "id": "d4e6520a-9ced-47c9-a8f2-7246e8cbd2d3",
+            "migrationVersion": {
+                "visualization": "7.2.0"
+            },
+            "references": [],
+            "type": "visualization",
+            "updated_at": "2019-07-11T04:44:38.685Z",
+            "version": "WzM0NjQsMV0="
+        }
+    ],
+    "version": "7.2.0"
+}
