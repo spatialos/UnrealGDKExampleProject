@@ -4,37 +4,25 @@
       {
         "name": "codegen",
         "description": "required by spatial worker build build-config.",
-        "steps": [{"name": "No-op", "command": "echo", "arguments": ["No-op."]}]
+        "steps": [{"name": "No-op", "command": "cmd", "arguments": ["/k echo No-op."]}]
       },
       {
         "name": "build",
         "description": "required by spatial worker build build-config.",
-        "steps": [{"name": "No-op", "command": "echo", "arguments": ["No-op."]}]
+        "steps": [{"name": "No-op", "command": "cmd", "arguments": ["/k echo No-op."]}]
       },
       {
         "name": "clean",
         "description": "required by spatial worker build build-config.",
-        "steps": [{"name": "No-op", "command": "echo", "arguments": ["No-op."]}]
+        "steps": [{"name": "No-op", "command": "cmd", "arguments": ["/k echo No-op."]}]
       }
     ]
-  },
-  "bridge": {
-    "worker_attribute_set": {
-      "attributes": [
-        "UnrealWorker"
-      ]
-    },
-    "component_delivery": {
-      "default": "RELIABLE_ORDERED",
-      "checkout_all_initially": true
-    }
   },
   "managed": {
     "windows": {
       "artifact_name": "UnrealEditor@Windows.zip",
       "command": "StartEditor.bat",
       "arguments": [
-        "ThirdPersonExampleMap",
         "-server",
         "-stdout",
         "-nowrite",
@@ -45,17 +33,17 @@
         "-SaveToUserDir",
         "+workerType",
         "UnrealWorker",
-        "+appName",
+        "-appName",
         "${IMPROBABLE_PROJECT_NAME}",
-        "+receptionistHost",
+        "-receptionistHost",
         "${IMPROBABLE_RECEPTIONIST_HOST}",
-        "+receptionistPort",
+        "-receptionistPort",
         "${IMPROBABLE_RECEPTIONIST_PORT}",
-        "+workerType",
+        "-workerType",
         "${IMPROBABLE_WORKER_NAME}",
-        "+workerId",
+        "-workerId",
         "${IMPROBABLE_WORKER_ID}",
-        "+linkProtocol",
+        "-linkProtocol",
         "Tcp",
         "-abslog=${IMPROBABLE_LOG_FILE}",
         "-NoVerifyGC"
@@ -67,21 +55,20 @@
       "arguments": [
         "${IMPROBABLE_WORKER_ID}",
         "${IMPROBABLE_LOG_FILE}",
-        "ThirdPersonExampleMap",
-        "+appName",
+        "-appName",
         "${IMPROBABLE_PROJECT_NAME}",
-        "+receptionistHost",
+        "-receptionistHost",
         "${IMPROBABLE_RECEPTIONIST_HOST}",
-        "+receptionistPort",
+        "-receptionistPort",
         "${IMPROBABLE_RECEPTIONIST_PORT}",
-        "+workerType",
+        "-workerType",
         "${IMPROBABLE_WORKER_NAME}",
-        "+workerId",
+        "-workerId",
         "${IMPROBABLE_WORKER_ID}",
-        "+linkProtocol",
+        "-linkProtocol",
         "Tcp",
         "-NoVerifyGC",
-		"-OverrideSpatialNetworking"
+        "-OverrideSpatialNetworking"
       ]
     }
   }

@@ -5,14 +5,27 @@ param(
 
 . "$PSScriptRoot\common.ps1"
 
+# Grab Artifacts
+Start-Event "fetch-artifacts" "build-unreal-gdk-example-project-:windows:"
+    $schema_path = "Game\Content\Spatial"
+    New-Item -ItemType directory -Path staging | Out-Null
+    if (-Not (Test-Path $schema_path)) {
+        New-Item -ItemType directory -Path $schema_path
+    }
+    buildkite-agent artifact download "*Schema.zip" staging
+    7z x staging\artifacts\Schema.zip -aoa -ospatial
+    buildkite-agent artifact download "*Snapshots.zip" staging
+    7z x staging\artifacts\Snapshots.zip -aoa -ospatial
+Finish-Event "fetch-artifacts" "build-unreal-gdk-example-project-:windows:"
+
 Start-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"
-    # Use the shortened commit hash gathered during GDK plugin clone and the current date and time to distinguish the deployment
-    $date_and_time = Get-Date -Format "MMdd_HHmm"
-    $deployment_name = "exampleproject$($env:STEP_NUMBER)_${date_and_time}_$($gdk_commit_hash)"
+    # deployment_name is created during the generate-auth_token-and-deployment-name step
+    $deployment_name = buildkite-agent meta-data get "deployment-name-$($env:STEP_NUMBER)"    
     $assembly_name = "$($deployment_name)_asm"
-
+    $runtime_version = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_RUNTIME_VERSION" -default_value ""
+    $project_name = Get-Env-Variable-Value-Or-Default -environment_variable_name "SPATIAL_PROJECT_NAME" -default_value "unreal_gdk"
+    
 pushd "spatial"
-
     Start-Event "build-worker-configurations" "deploy-unreal-gdk-example-project-:windows:"
         $build_configs_process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "spatial" -ArgumentList @(`
             "build", `
@@ -62,12 +75,12 @@ pushd "spatial"
                 "$assembly_name", `
                 "$deployment_launch_configuration", `
                 "$deployment_name", `
-                "--runtime_version=0.4.0", `
+                "--runtime_version=$runtime_version", `
                 "--project_name=$project_name", `
-                "--snapshot=$deployment_snapshot_path", `
+                "--snapshot=snapshots/$main_map_name.snapshot", `
                 "--cluster_region=$deployment_cluster_region", `
                 "--log_level=debug", `
-                "--tags=ttl_1_hours", `
+                "--tags=ttl_1_hours,dev_login", `
                 "--deployment_description=`"Engine commit: $($env:ENGINE_COMMIT_HASH)`"" `
             )
 
@@ -76,13 +89,9 @@ pushd "spatial"
                 Throw "Deployment launch failed"
             }
 
-            buildkite-agent meta-data set "deployment-name-$($env:STEP_NUMBER)" "$deployment_name"
-            buildkite-agent meta-data set "project-name" "$project_name"
-            buildkite-agent meta-data set "gdk-commit-hash" "$gdk_commit_hash"
         } else {
             Write-Log "Deployment will not be launched as you have passed in an argument specifying that it should not be (START_DEPLOYMENT=${launch_deployment}). Remove it to have your build launch a deployment."
         }
     Finish-Event "launch-deployment" "deploy-unreal-gdk-example-project-:windows:"
-
 popd
 Finish-Event "deploy-game" "build-unreal-gdk-example-project-:windows:"

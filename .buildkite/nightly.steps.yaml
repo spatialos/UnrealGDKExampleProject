@@ -21,7 +21,7 @@ script_runner: &script_runner
     - "machine_type=quarter"
     - "permission_set=builder"
     - "platform=linux"
-    - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-2019-12-12-bk5225-daecba805768d787}"
+    - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-20-08-12-083656-bk14222-38697241}"
     - "scaler_version=2"
     - "working_hours_time_zone=london"
   retry:
@@ -30,27 +30,14 @@ script_runner: &script_runner
       - <<: *bk_system_error
       - <<: *bk_interrupted_by_signal
 
-windows: &windows
-  agents:
-    - "agent_count=1"
-    - "capable_of_building=gdk-for-unreal"
-    - "environment=production"
-    - "machine_type=quad"
-    - "permission_set=builder"
-    - "platform=windows"
-    - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-03-26-102432-bk9951-8afe0ffb}"
-  timeout_in_minutes: 60
-  retry:
-    automatic:
-      - <<: *agent_transients
-      - <<: *bk_system_error
-      - <<: *bk_interrupted_by_signal
-  plugins:
-    - ca-johnson/taskkill#v4.1: ~
-
 # NOTE: step labels turn into commit-status names like {org}/{repo}/{pipeline}/{step-label}, lower-case and hyphenated.
 # These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
+env:
+    SLACK_CHANNEL: "#unreal-gdk-builds"
+    GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
+    MAIN_MAP_NAME: "Control_Small"
+    SPATIAL_PROJECT_NAME: "unreal_gdk"
+    SPATIAL_RUNTIME_VERSION: "15.0.0" ## the runtime version of SpatialOS
 
 steps:
   - label: "generate-pipeline-steps"
@@ -64,6 +51,10 @@ steps:
   - wait
 
   - label: "slack-notify"
-    if: build.env("SLACK_NOTIFY") == "true" || build.branch == "master"
-    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/slack-notify.ps1"
-    <<: *windows
+    if: |
+      build.env("NIGHTLY_BUILD") == "true" || 
+      build.env("SLACK_NOTIFY") == "true" || 
+      build.env("FIREBASE_TEST") == "true" || 
+      build.branch == "master"
+    command: "python3 ci/slack-notify.py"
+    <<: *script_runner

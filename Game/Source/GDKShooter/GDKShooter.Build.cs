@@ -24,9 +24,10 @@ public class GDKShooter : ModuleRules
 				"Slate",
 				"SlateCore",
 				"SpatialGDK",
-                "Json",
-                "HTTP",
-                "AIModule"
+				"Json",
+				"HTTP",
+				"AIModule",
+				"ApplicationCore"
 			});
 	}
 }

@@ -12,7 +12,8 @@ bk_system_error: &bk_system_error
 bk_interrupted_by_signal: &bk_interrupted_by_signal
   exit_status: 15
   limit: 3
-
+  
+# TODO: UNR-3985 Replace the windows agent with a linux agent
 windows: &windows
   agents:
     - "agent_count=1"
@@ -34,45 +35,25 @@ windows: &windows
   plugins:
     - improbable-eng/taskkill#v4.4.1: ~
 
-macos: &macos
-  agents:
-    - "capable_of_building=gdk-for-unreal"
-    - "environment=production"
-    - "permission_set=builder"
-    - "platform=macos"
-    - "queue=${DARWIN_BUILDER_QUEUE:-v4-9c6ee0ef-d}"
-  timeout_in_minutes: 60
-  retry:
-    automatic:
-      - <<: *agent_transients
-      - <<: *bk_system_error
-      - <<: *bk_interrupted_by_signal
-  plugins:
-  - ssh://git@github.com/improbable/apple-codesigning-plugin#v0.1.3: ~
-
 steps:
-  - label: "build-and-deploy-AGENT_PLACEHOLDER-ENGINE_COMMIT_HASH_PLACEHOLDER"
-    command: "COMMAND_PLACEHOLDER"
-    <<: *AGENT_PLACEHOLDER 
-    key: "setup-and-build-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
-    depends_on:
-      - "generate-auth_token"
-      - "prepare-editor"
-    artifact_paths:
-      - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
-      - "cooked-android/**/*"
-      - "cooked-mac.zip"
-      - "cooked-ios/**/*"
+  - label: "generate-auth-token-and-deployment-name"
+    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/generate-auth-token.ps1"
+    <<: *windows 
+    key: "generate-auth_token"
     env:
-      ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
-      # ENGINE_COMMIT_FORMATTED_HASH is a enviroment variable for subsequent steps
-      # It's very similar to ENGINE_COMMIT_HASH, but it replaces ' ','.','-' with '_' to be able to use it as a buildkite key to distinguish between engine versions.
-      # For more information: https://buildkite.com/docs/pipelines/block-step#text-input-attributes
-      ENGINE_COMMIT_FORMATTED_HASH: "ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
-      STEP_NUMBER: "${STEP_NUMBER}"
+      GDK_BRANCH: "${GDK_BRANCH}"
+
+  - label: "prepare-editor"
+    command: "powershell -NoProfile -NonInteractive -InputFormat Text -Command ./ci/prep-editor.ps1"
+    <<: *windows 
+    key: "prepare-editor"
+    artifact_paths:
+      - "Game/Content/Spatial/SchemaDatabase.uasset"
+      - "artifacts/Schema.zip"
+      - "artifacts/Snapshots.zip"
+    env:
       GDK_BRANCH: "${GDK_BRANCH}"
       UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
       FASTBUILD_CACHE_PATH: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\fastbuild"
       FASTBUILD_CACHE_MODE: rw
       # FASTBUILD_BROKERAGE_PATH: "\\\\fastbuild-brokerage.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba" TODO: UNR-3208 - Temporarily disabled until distribution issues resolved.
-      NDKROOT: "c:/Android/android-ndk-r21d"
