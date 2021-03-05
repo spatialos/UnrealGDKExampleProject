@@ -5,61 +5,52 @@
     "snapshots": {
       "snapshotWritePeriodSeconds": 0
     },
-    "legacy_flags": [
-      {
-        "name": "bridge_soft_handover_enabled",
-        "value": "false"
-      }
-    ],
+    "legacy_flags": [{
+      "name": "bridge_soft_handover_enabled",
+      "value": "false"
+    }],
     "dimensions": {
       "xMeters": 2000,
       "zMeters": 2000
     }
   },
   "load_balancing": {
-    "layer_configurations": [
-      {
-        "layer": "UnrealWorker",
-        "rectangle_grid": {
-          "cols": 1,
-          "rows": 1
-        }
+    "layer_configurations": [{
+      "layer": "UnrealWorker",
+      "rectangle_grid": {
+        "cols": 1,
+        "rows": 1
       }
-    ]
+    }]
   },
-  "workers": [
-    {
+  "workers": [{
       "worker_type": "UnrealWorker",
       "flags": [],
-      "permissions": [
-        {
-          "all": {}
-        }
-      ]
+      "permissions": [{
+        "all": {}
+      }]
     },
     {
       "worker_type": "UnrealClient",
       "flags": [],
-      "permissions": [
-        {
-          "entity_creation": {
-              "allow": false
-            },
-            "entity_deletion": {
-              "allow": false
-            },
-            "entity_query": {
-              "allow": true,
-              "components": [
-                "*"
-              ]
-            },
-            "system_entity_command": {
-              "allow": false
-            }
-  
+      "permissions": [{
+        "entity_creation": {
+          "allow": false
+        },
+        "entity_deletion": {
+          "allow": false
+        },
+        "entity_query": {
+          "allow": true,
+          "components": [
+            "*"
+          ]
+        },
+        "system_entity_command": {
+          "allow": false
         }
-      ]
+
+      }]
     }
   ]
 }
