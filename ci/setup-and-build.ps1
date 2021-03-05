@@ -1,5 +1,6 @@
 param(
   [string] $exampleproject_home = (get-item "$($PSScriptRoot)").parent.FullName, ## The root of the repo
+  [string] $deployment_launch_configuration = "one_worker_test.json",
   [string] $deployment_cluster_region = "eu",
   [string] $build_home = (Get-Item "$($PSScriptRoot)").parent.parent.FullName, ## The root of the entire build. Should ultimately resolve to "C:\b\<number>\".
   [string] $unreal_engine_symlink_dir = "$build_home\UnrealEngine"

@@ -73,7 +73,7 @@ pushd "spatial"
                 "cloud", `
                 "launch", `
                 "$assembly_name", `
-                "${main_map_name}_LocalLaunchConfig.json", `
+                "$deployment_launch_configuration", `
                 "$deployment_name", `
                 "--runtime_version=$runtime_version", `
                 "--project_name=$project_name", `
