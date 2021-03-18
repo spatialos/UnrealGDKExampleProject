@@ -68,6 +68,10 @@ def gcloud_upload(app_platform, app_path, gcloud_storage_keyword, success_keywor
         ios_device = common.get_environment_variable(
         'IOS_DEVICE_AND_VERSION', 'model=iphonexs,version=12.0')
         cmds.append('--device ' + ios_device)
+    elif app_platform == 'android':
+        android_device = common.get_environment_variable(
+        'ANDROID_DEVICE_AND_VERSION', 'model=walleye,version=28')
+        cmds.append('--device ' + android_device)
 
     res = common.run_shell(cmds)
     gcloud_storage_url = ''

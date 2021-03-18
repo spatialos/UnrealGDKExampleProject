@@ -37,7 +37,7 @@ env:
     GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
     MAIN_MAP_NAME: "Control_Small"
     SPATIAL_PROJECT_NAME: "unreal_gdk"
-    SPATIAL_RUNTIME_VERSION: "15.0.0-preview-6" ## the runtime version of SpatialOS
+    SPATIAL_RUNTIME_VERSION: "15.0.0" ## the runtime version of SpatialOS
 
 steps:
   - label: "generate-pipeline-steps"
@@ -58,3 +58,11 @@ steps:
       build.branch == "master"
     command: "python3 ci/slack-notify.py"
     <<: *script_runner
+
+notify:
+  - slack: 
+      channels: 
+        - "#unreal-gdk-builds"
+      message: "<!subteam^SDB5161M5> Build failure! Please triage and post ticket." # SDB5161M5 is @support-unreal
+    if: (build.state == "failed" || build.state == "canceled") && build.branch == "master"
+    
