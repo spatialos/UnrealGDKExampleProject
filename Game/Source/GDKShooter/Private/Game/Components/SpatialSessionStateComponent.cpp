@@ -5,8 +5,8 @@
 #include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
 #include "EngineClasses/SpatialNetDriver.h"
-#include "Interop/SpatialStaticComponentView.h"
 #include "Interop/Connection/SpatialWorkerConnection.h"
+#include "SpatialView/EntityView.h"
 
 void USpatialSessionStateComponent::SendStateUpdate(EGDKSessionProgress SessionProgressState)
 {
@@ -18,7 +18,18 @@ void USpatialSessionStateComponent::SendStateUpdate(EGDKSessionProgress SessionP
 	}
 
 	USpatialNetDriver* SpatialNetDriver = Cast<USpatialNetDriver>(NetDriver);
-	bool bAuthoritativeOverSessionEntity = SpatialNetDriver->StaticComponentView->HasAuthority(SessionEntityId, SessionComponentId);
+
+	const bool bAuthoritativeOverSessionEntity = [this, SpatialNetDriver]()
+	{
+		const SpatialGDK::EntityViewElement* SessionEntity = SpatialNetDriver->Connection->GetView().Find(
+			SessionEntityId);
+		if (SessionEntity != nullptr)
+		{
+			return SessionEntity->Authority.Contains(SessionComponentId);
+		}
+		return false;
+	}();
+
 	if (!bAuthoritativeOverSessionEntity)
 	{
 		return;
