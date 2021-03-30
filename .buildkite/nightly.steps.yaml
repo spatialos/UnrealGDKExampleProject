@@ -40,6 +40,25 @@ env:
     SPATIAL_RUNTIME_VERSION: "15.0.0" ## the runtime version of SpatialOS
 
 steps:
+  # New build pipeline
+  # Trigger a 4.26 build
+  - trigger: "unrealgdkbuild-ci"
+    label: "gdk-ci-426 ${BUILDKITE_MESSAGE}"
+    async: true
+    build: 
+      env: 
+        BUILD_TYPE: "EXAMPLE"
+        GDK_BRANCH: "master"
+        ENGINE_BRANCH: "4.26-SpatialOSUnrealGDK"
+        ENGINE_MAJOR: "4.26"
+        PROJECT_BRANCH: "${BUILDKITE_BRANCH}"
+        USE_FASTBUILD: "True"
+        IS_BUILDKITE_BUILD: "True"
+        BUILD_ANDROID: "True"
+        SKIP_TESTS: "True"
+        CLEAN_BUILD: "False"
+
+  # Old build pipeline
   - label: "generate-pipeline-steps"
     commands: 
       - "chmod -R +rwx ci"
