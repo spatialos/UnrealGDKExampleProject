@@ -22,7 +22,7 @@ windows: &windows
     - "permission_set=builder"
     - "platform=windows"
     - "scaler_version=2"
-    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-08-03-061331-bk13849-b66f334e-d}"
+    - "queue=${CI_WINDOWS_BUILDER_QUEUE:-v4-20-11-18-224740-bk17641-0c4125be-d}"
     - "boot_disk_size_gb=500"
     - "experiment_normalised_upload_paths=true"
   timeout_in_minutes: 60
@@ -32,7 +32,7 @@ windows: &windows
       - <<: *bk_system_error
       - <<: *bk_interrupted_by_signal
   plugins:
-    - ca-johnson/taskkill#v4.1: ~
+    - improbable-eng/taskkill#v4.4.1: ~
 
 macos: &macos
   agents:
@@ -57,10 +57,11 @@ steps:
     key: "setup-and-build-AGENT_PLACEHOLDER-ENGINE_COMMIT_FORMATTED_HASH_PLACEHOLDER"
     depends_on:
       - "generate-auth_token"
+      - "prepare-editor"
     artifact_paths:
       - "UnrealEngine/Engine/Programs/AutomationTool/Saved/Logs/*"
       - "cooked-android/**/*"
-      - "cooked-mac/**/*"
+      - "cooked-mac.zip"
       - "cooked-ios/**/*"
     env:
       ENGINE_COMMIT_HASH: "ENGINE_COMMIT_HASH_PLACEHOLDER"
@@ -71,4 +72,7 @@ steps:
       STEP_NUMBER: "${STEP_NUMBER}"
       GDK_BRANCH: "${GDK_BRANCH}"
       UE-SharedDataCachePath: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\ddc"
+      FASTBUILD_CACHE_PATH: "\\\\gdk-for-unreal-cache.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba\\fastbuild"
+      FASTBUILD_CACHE_MODE: rw
+      # FASTBUILD_BROKERAGE_PATH: "\\\\fastbuild-brokerage.${CI_ENVIRONMENT}-intinf-eu1.i8e.io\\samba" TODO: UNR-3208 - Temporarily disabled until distribution issues resolved.
       NDKROOT: "c:/Android/android-ndk-r21d"

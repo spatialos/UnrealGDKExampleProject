@@ -18,11 +18,12 @@ Start-Event "get-gdk-head-commit" "generate-auth-token-and-deployment-:windows:"
 Finish-Event "get-gdk-head-commit" "generate-auth-token-and-deployment-:windows:"
 
 Start-Event "generate-project-name" "generate-auth-token-and-deployment-:windows:"
-    $date_and_time = Get-Date -Format "MMdd_HHmm"        
+    $date_and_time = Get-Date -Format "MMdd_HHmm"
     $engine_version_count = buildkite-agent meta-data get "engine-version-count"
     for ($i = 0; $i -lt $engine_version_count; $i++){
         $index_string = "$($i+1)"
-        $deployment_name = "exampleproject$(${index_string})_${date_and_time}_$($gdk_commit_hash)"
+        $random_salt = -join ((48..57) + (97..122) | Get-Random -Count 4 | ForEach-Object {[char]$_})
+        $deployment_name = "epci$(${index_string})_${random_salt}_${date_and_time}_$($gdk_commit_hash)"
         buildkite-agent meta-data set "deployment-name-$index_string" "$deployment_name"
     }
 Finish-Event "generate-project-name" "generate-auth-token-and-deployment-:windows:"

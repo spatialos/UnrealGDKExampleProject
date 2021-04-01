@@ -242,3 +242,7 @@ void AGDKCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(AGDKCharacter, bAIPause);
 }
 
+void AGDKCharacter::ClientMovementReset_Implementation()
+{
+	GetCharacterMovement()->ResetPredictionData_Server();
+}

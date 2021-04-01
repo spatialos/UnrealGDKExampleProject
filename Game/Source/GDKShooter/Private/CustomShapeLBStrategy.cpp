@@ -147,7 +147,7 @@ VirtualWorkerId UCustomShapeLBStrategy::WhoShouldHaveAuthority(const AActor& Act
 	return SpatialConstants::INVALID_VIRTUAL_WORKER_ID;
 }
 
-SpatialGDK::QueryConstraint UCustomShapeLBStrategy::GetWorkerInterestQueryConstraint() const
+SpatialGDK::QueryConstraint UCustomShapeLBStrategy::GetWorkerInterestQueryConstraint(const VirtualWorkerId VirtualWorker) const
 {
 	// For a grid-based strategy, the interest area is the cell that the worker is authoritative over plus some border region.
 	check(IsReady());

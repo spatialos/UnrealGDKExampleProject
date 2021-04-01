@@ -18,7 +18,6 @@ run_uat() {
     GAME_UPROJECT="${8:-}"
 
     ${ENGINE_DIRECTORY}/Engine/Build/BatchFiles/RunUAT.sh \
-        -ScriptsForProject="${GAME_UPROJECT}" \
         BuildCookRun \
         -nocompileeditor \
         -nop4 \
@@ -29,10 +28,10 @@ run_uat() {
         -archivedirectory="${ARCHIVE_DIRECTORY}" \
         -package \
         -clientconfig="${CLIENT_CONFIG}" \
-        -ue4exe="${EXAMPLEPROJECT_HOME}/UnrealEngine/Engine/Binaries/Mac/UE4Editor-Cmd" \
-        -pak \
-        -prereqs \
-        -nodebuginfo \
+        -noserver \
+        -unattended \
+        -CrashForUAT \
+        -SkipCookingEditorContent \
         -targetplatform="${TARGET_PLATFORM}" \
         -build \
         -utf8output \
@@ -57,6 +56,10 @@ pushd "$(dirname "$0")"
             --single-branch \
             --depth 1
     popd
+
+    # Grab Artifacts
+    mkdir -p "${EXAMPLEPROJECT_HOME}/Game/Content/Spatial/"
+    buildkite-agent artifact download "*SchemaDatabase.uasset" "${EXAMPLEPROJECT_HOME}"
 
     echo "--- print-head-gdk-commit"
     pushd "${GDK_HOME}"
@@ -90,23 +93,6 @@ pushd "$(dirname "$0")"
             Mac \
             Development \
             "${GAME_UPROJECT}"
-
-        echo "--- generate-schema"
-        pushd "Engine/Binaries/Mac"
-            UE4Editor.app/Contents/MacOS/UE4Editor \
-                "${GAME_UPROJECT}" \
-                -run=CookAndGenerateSchema \
-                -targetplatform=MacNoEditor \
-                -SkipShaderCompile \
-                -unversioned \
-                -map="/Maps/$MAIN_MAP_NAME"
-
-            UE4Editor.app/Contents/MacOS/UE4Editor \
-                "${GAME_UPROJECT}" \
-                -run=GenerateSchemaAndSnapshots \
-                -MapPaths="/Maps/$MAIN_MAP_NAME" \
-                -SkipSchema
-        popd
     popd
 
     echo "--- build-mac-client"
@@ -115,8 +101,8 @@ pushd "$(dirname "$0")"
         "${EXAMPLEPROJECT_HOME}" \
         "Development" \
         "Mac" \
-        "${EXAMPLEPROJECT_HOME}/cooked-mac-${ENGINE_COMMIT_FORMATTED_HASH}" \
-        "-iterative" \
+        "${EXAMPLEPROJECT_HOME}/cooked-mac" \
+        "" \
         "" \
         "${GAME_UPROJECT}"
     
@@ -129,6 +115,9 @@ pushd "$(dirname "$0")"
         buildkite-agent meta-data set "${ENGINE_COMMIT_FORMATTED_HASH}-build-ios-queue-id" "$BUILDKITE_AGENT_META_DATA_QUEUE"       
     fi
 
+    # Zip up the built-out mac client
+    7z a -mx3 "${EXAMPLEPROJECT_HOME}/cooked-mac.zip" "${EXAMPLEPROJECT_HOME}/cooked-mac" 
+    
     echo "--- build-ios-client"
     AUTH_TOKEN=$(buildkite-agent meta-data get "auth-token")
     DEPLOYMENT_NAME=$(buildkite-agent meta-data get "deployment-name-${STEP_NUMBER}")

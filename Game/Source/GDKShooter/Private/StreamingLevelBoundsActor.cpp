@@ -2,6 +2,7 @@
 
 
 #include "StreamingLevelBoundsActor.h"
+#include "Engine/LevelBounds.h"
 
 // Sets default values
 AStreamingLevelBoundsActor::AStreamingLevelBoundsActor()

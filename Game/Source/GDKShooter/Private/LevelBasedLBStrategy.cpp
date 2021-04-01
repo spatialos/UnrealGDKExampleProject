@@ -157,13 +157,13 @@ VirtualWorkerId ULevelBasedLBStrategy::WhoShouldHaveAuthority(const AActor& Acto
 	return SpatialConstants::INVALID_VIRTUAL_WORKER_ID;
 }
 
-SpatialGDK::QueryConstraint ULevelBasedLBStrategy::GetWorkerInterestQueryConstraint() const
+SpatialGDK::QueryConstraint ULevelBasedLBStrategy::GetWorkerInterestQueryConstraint(const VirtualWorkerId VirtualWorker) const
 {
 	check(IsReady());
 	check(bIsStrategyUsedOnLocalWorker);
 
 	SpatialGDK::QueryConstraint Constraint;
-	const TArray<FString> PackagesNamesToCheck = AuthorityRegions[LocalVirtualWorkerId - 1].PackageNames;
+	const TArray<FString> PackagesNamesToCheck = AuthorityRegions[VirtualWorker - 1].PackageNames;
 	/*
 	const TArray<ULevelStreaming*> StreamingLevels = GetWorld()->GetStreamingLevels();
 	for (int32 TileIdx = 0; TileIdx < StreamingLevels.Num(); ++TileIdx)
