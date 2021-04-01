@@ -36,6 +36,7 @@ void ULevelBasedLBStrategy::Init()
 
 void ULevelBasedLBStrategy::SetLocalVirtualWorkerId(VirtualWorkerId InLocalVirtualWorkerId)
 {
+	UE_LOG(LogLevelBasedLBStrategy, Log, TEXT("Set LocalVirtualWorkerId from %d to %d"), LocalVirtualWorkerId, InLocalVirtualWorkerId);
 	if (!VirtualWorkerIds.Contains(InLocalVirtualWorkerId))
 	{
 		// This worker is simulating an offloaded layer.
@@ -105,6 +106,8 @@ VirtualWorkerId ULevelBasedLBStrategy::WhoShouldHaveAuthority(const AActor& Acto
 		return SpatialConstants::INVALID_VIRTUAL_WORKER_ID;
 	}
 
+	if (Actor.GetActorLocation().IsZero())
+		return 1;
 
 	FString ActorInPackageName;
 	/*
@@ -123,7 +126,7 @@ VirtualWorkerId ULevelBasedLBStrategy::WhoShouldHaveAuthority(const AActor& Acto
 	*/
 	for (const TPair<FString, FBox>& Pair : StreamingLevelBoundsActor->LevelBounds)
 	{
-		if (Pair.Value.IsInsideOrOn(Actor.GetActorLocation()))
+		if (Pair.Value.IsInside(Actor.GetActorLocation()))
 		{
 			ActorInPackageName = Pair.Key;
 			break;
@@ -146,7 +149,7 @@ VirtualWorkerId ULevelBasedLBStrategy::WhoShouldHaveAuthority(const AActor& Acto
 	}
 	else
 	{
-		UE_LOG(LogLevelBasedLBStrategy, Error, TEXT("Actor %s is not in bounds of any WorldCompositionTile."), *AActor::GetDebugName(&Actor));
+		UE_LOG(LogLevelBasedLBStrategy, Error, TEXT("Actor %s is not in bounds of any WorldCompositionTile, position: %s."), *AActor::GetDebugName(&Actor), *Actor.GetActorLocation().ToString());
 		return SpatialConstants::INVALID_VIRTUAL_WORKER_ID;
 	}
 

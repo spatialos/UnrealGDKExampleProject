@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{DBF291D7-4F40-B865-A998-5E9169AFF93B}",
+	"EngineAssociation": "{49CA1289-4C89-936E-8EA0-5194035C7533}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -12,7 +12,8 @@
 				"Engine",
 				"SpatialGDK",
 				"UMG",
-				"CoreUObject"
+				"CoreUObject",
+				"UnrealEd"
 			]
 		},
 		{
