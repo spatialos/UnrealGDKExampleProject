@@ -57,6 +57,7 @@ steps:
         BUILD_ANDROID: "True"
         SKIP_TESTS: "True"
         CLEAN_BUILD: "False"
+        START_DEPLOYMENT: "True"
 
   # Old build pipeline
   - label: "generate-pipeline-steps"
