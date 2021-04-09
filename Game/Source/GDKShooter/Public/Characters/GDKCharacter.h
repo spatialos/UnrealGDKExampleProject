@@ -97,4 +97,9 @@ public:
 
 	UFUNCTION(CrossServer, Reliable)
 	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+
+public:
+	// yunjie: for AI configuration
+	UPROPERTY(Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool				BTreeDebugMessage = false;
 };
