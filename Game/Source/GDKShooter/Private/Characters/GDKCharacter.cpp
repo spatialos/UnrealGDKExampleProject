@@ -6,11 +6,15 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "EngineClasses/SpatialNetDriver.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerStart.h"
 #include "Net/UnrealNetwork.h"
 #include "GDKLogging.h"
 #include "Controllers/GDKPlayerController.h"
+#include "AIModule/Classes/AIController.h"
 #include "Controllers/Components/ControllerEventsComponent.h"
 #include "Weapons/Holdable.h"
+#include "GameFramework/C10KGameState.h"
 
 AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGDKMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -75,6 +79,9 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("ToggleMode", IE_Pressed, EquippedComponent, &UEquippedComponent::ToggleMode);
 	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollUp);
 	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollDown);
+
+	PlayerInputComponent->BindAction("+", IE_Pressed, this, &AGDKCharacter::SpawnAIEntities);
+	PlayerInputComponent->BindAction("-", IE_Pressed, this, &AGDKCharacter::DestroyAIEntities);
 }
 
 void AGDKCharacter::MoveForward(float Value)
@@ -214,3 +221,70 @@ void AGDKCharacter::ClientMovementReset_Implementation()
 {
 	GetCharacterMovement()->ResetPredictionData_Server();
 }
+
+void AGDKCharacter::SpawnAIEntities_Implementation()
+{
+	UE_LOG(LogGDK, Warning, TEXT("%s"), *(FString(__FUNCTION__)));
+
+	AC10KGameState *GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
+	UClass* NpcClass = GameState->NpcClass;
+	UClass* NpcSpawnerClass = GameState->NpcSpawnerClass;
+
+	TArray<AActor*> OutPlayerStartActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), OutPlayerStartActors);
+
+	if (!OutPlayerStartActors.Num())
+	{
+		return;
+	}
+
+	TArray<AActor*> OutNpcSpawnerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), NpcSpawnerClass, OutNpcSpawnerActors);
+
+	if (!OutNpcSpawnerActors.Num())
+	{
+		return;
+	}
+
+	for (int Index = 0; Index < AI_SPAWN_COUNT_PER_BATCH; ++Index)
+	{
+		int RandIdx = FMath::RandRange(0, OutPlayerStartActors.Num() - 1);
+		APlayerStart * PlayerStart = Cast<APlayerStart>(OutPlayerStartActors[RandIdx]);
+		if (!PlayerStart)
+		{
+			continue;
+		}
+
+		FActorSpawnParameters SpawnParam;
+		SpawnParam.Owner = OutNpcSpawnerActors[0];
+
+		AGDKCharacter* Character = GetWorld()->SpawnActor<AGDKCharacter>(NpcClass, PlayerStart->GetActorLocation(),
+			PlayerStart->GetActorRotation(), SpawnParam);
+		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(Character->AIControllerClass, PlayerStart->GetActorLocation(),
+			PlayerStart->GetActorRotation(), SpawnParam);
+		AIController->Possess(Character);
+	}
+}
+
+void AGDKCharacter::DestroyAIEntities_Implementation()
+{
+	int Count = 0;
+
+	AC10KGameState *GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
+	UClass* NpcClass = GameState->NpcClass;
+
+	for (TObjectIterator<AGDKCharacter> Itr; Itr; ++Itr)
+	{
+		if (Itr->GetClass()->IsChildOf(NpcClass))
+		{
+			Itr->Destroy();
+			if (++Count >= AI_SPAWN_COUNT_PER_BATCH)
+			{
+				break;
+			}
+		}
+	}
+
+	UE_LOG(LogGDK, Warning, TEXT("%s - destroyed count:[%d]"), *(FString(__FUNCTION__)), Count);
+}
+

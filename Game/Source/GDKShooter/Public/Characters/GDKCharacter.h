@@ -19,6 +19,8 @@
 DECLARE_DELEGATE_OneParam(FBoolean, bool);
 DECLARE_DELEGATE_OneParam(FHoldableSelection, int32);
 
+#define AI_SPAWN_COUNT_PER_BATCH				50
+
 UCLASS()
 class GDKSHOOTER_API AGDKCharacter : public ACharacter, public IGenericTeamAgentInterface, public IAISightTargetInterface
 {
@@ -99,6 +101,11 @@ public:
 	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 
 public:
+	UFUNCTION(Server, Reliable)
+	void SpawnAIEntities();
+	UFUNCTION(Server, Reliable)
+	void DestroyAIEntities();
+
 	// yunjie: for AI configuration
 	UPROPERTY(Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool				BTreeDebugMessage = false;

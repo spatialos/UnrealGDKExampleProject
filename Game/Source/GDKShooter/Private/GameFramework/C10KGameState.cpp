@@ -5,6 +5,19 @@
 
 DEFINE_LOG_CATEGORY(LogC10KGameState);
 
+AC10KGameState::AC10KGameState()
+{
+	static ConstructorHelpers::FObjectFinder<UClass> NpcClassFinder(TEXT("Class'/Game/Blueprints/NPCs/Character_NPC.Character_NPC_C'"));
+	if (NpcClassFinder.Object) {
+		NpcClass = (UClass*)NpcClassFinder.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UClass> NpcSpawnerClassFinder(TEXT("Class'/Game/Blueprints/NPCs/NPCSpawner.NPCSpawner_C'"));
+	if (NpcSpawnerClassFinder.Object) {
+		NpcSpawnerClass = (UClass*)NpcSpawnerClassFinder.Object;
+	}
+}
+
 void AC10KGameState::BeginPlay()
 {
 	AGameStateBase::BeginPlay();

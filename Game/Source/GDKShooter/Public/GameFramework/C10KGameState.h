@@ -15,10 +15,14 @@ class AC10KGameState : public AGameStateBase
 	GENERATED_BODY()
 
 public:
+	AC10KGameState();
 
 	virtual void BeginPlay() override;
 
 	void OutputAIInfos();
+
+	UClass*				NpcSpawnerClass;
+	UClass*				NpcClass;
 
 private:
 	FTimerHandle					AIInfoTimerHandler;
