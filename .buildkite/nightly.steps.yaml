@@ -58,6 +58,7 @@ steps:
         SKIP_TESTS: "True"
         CLEAN_BUILD: "False"
         START_DEPLOYMENT: "True"
+        SPATIAL_PROJECT_NAME: "unreal_gdk"
 
   # Old build pipeline
   - label: "generate-pipeline-steps"
