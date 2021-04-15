@@ -43,9 +43,10 @@ steps:
   # New build pipeline
   # Trigger a 4.26 build
   - trigger: "unrealgdkbuild-ci"
-    label: "gdk-ci-426 ${BUILDKITE_MESSAGE}"
-    async: true
-    build: 
+    label: "exampleproject-ci"
+    async: false
+    build:
+      message: "exampleproject-4.26 ${BUILDKITE_MESSAGE}"
       env: 
         BUILD_TYPE: "EXAMPLE"
         GDK_BRANCH: "master"
