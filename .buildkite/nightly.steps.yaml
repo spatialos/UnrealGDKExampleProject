@@ -1,4 +1,5 @@
 ---
+ci_version: &ci_version "1.0"
 # This is designed to trap and retry failures because agent lost
 # connection. Agent exits with -1 in this case.
 agent_transients: &agent_transients
@@ -43,9 +44,11 @@ steps:
   # New build pipeline
   # Trigger a 4.26 build
   - trigger: "unrealgdkbuild-ci"
-    label: "gdk-ci-426 ${BUILDKITE_MESSAGE}"
-    async: true
-    build: 
+    label: "exampleproject-ci"
+    async: false
+    build:
+      branch: *ci_version
+      message: "exampleproject-4.26 ${BUILDKITE_MESSAGE}"
       env: 
         BUILD_TYPE: "EXAMPLE"
         GDK_BRANCH: "master"
