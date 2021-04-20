@@ -87,6 +87,7 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollUp);
 	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollDown);
 
+	PlayerInputComponent->BindAction("0", IE_Pressed, this, &AGDKCharacter::ChangeCharacterMovementMode);
 	PlayerInputComponent->BindAction("+", IE_Pressed, this, &AGDKCharacter::ServerSpawnAIEntities);
 	PlayerInputComponent->BindAction("-", IE_Pressed, this, &AGDKCharacter::ServerDestroyAIEntities);
 }
@@ -326,5 +327,33 @@ void AGDKCharacter::ClientForceGarbageCollection_Implementation()
 {
 	GEngine->ForceGarbageCollection();
 	UE_LOG(LogGDK, Warning, TEXT("%s"), *(FString(__FUNCTION__)));
+}
+
+
+void AGDKCharacter::ServerChangeCharacterMovementMode_Implementation()
+{
+	ChangeCharacterMovementMode();
+}
+
+void AGDKCharacter::ChangeCharacterMovementMode()
+{
+	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+
+	if (++GetMutableDefault<UGeneralProjectSettings>()->CharacterMovementMode > 1)
+	{
+		GetMutableDefault<UGeneralProjectSettings>()->CharacterMovementMode = 0;
+	}
+
+	// yunjie: since in editor mode, there's only one single instance for GeneralProjectSettings
+	//		so no need to call ServerRPC to get the server updated
+#if !WITH_EDITOR
+	if (!GetGameInstance()->IsDedicatedServerInstance())
+	{
+		ServerChangeCharacterMovementMode();
+	}
+#endif
+
+	UE_LOG(LogGDK, Warning, TEXT("[%s] %s - CharacterMovementMode:[%d]"),
+		*SpatialWorkerId, *FString(__FUNCTION__), GetDefault<UGeneralProjectSettings>()->CharacterMovementMode);
 }
 

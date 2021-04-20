@@ -105,6 +105,9 @@ public:
 	void ServerSpawnAIEntities();
 	UFUNCTION(Server, Reliable)
 	void ServerDestroyAIEntities();
+	UFUNCTION(Server, Reliable)
+	void ServerChangeCharacterMovementMode();
+	void ChangeCharacterMovementMode();
 
 	UFUNCTION(Client, Reliable)
 	void ClientForceGarbageCollection();
