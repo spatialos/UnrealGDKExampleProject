@@ -36,6 +36,13 @@ void AGDKCharacter::BeginPlay()
 
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
+
+	USpatialNetDriver* NetDriver = Cast<USpatialNetDriver>(GetNetDriver());
+
+	if (this->GetGameInstance()->IsDedicatedServerInstance() && NetDriver->SpatialPlatformCoordinator->CheckPlatformSwitch(false))
+	{
+		Cast<USpatialNetDriver>(this->GetNetDriver())->SpatialPlatformCoordinator->SendReadyStatus();
+	}
 }
 
 void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -80,8 +87,8 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollUp);
 	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollDown);
 
-	PlayerInputComponent->BindAction("+", IE_Pressed, this, &AGDKCharacter::SpawnAIEntities);
-	PlayerInputComponent->BindAction("-", IE_Pressed, this, &AGDKCharacter::DestroyAIEntities);
+	PlayerInputComponent->BindAction("+", IE_Pressed, this, &AGDKCharacter::ServerSpawnAIEntities);
+	PlayerInputComponent->BindAction("-", IE_Pressed, this, &AGDKCharacter::ServerDestroyAIEntities);
 }
 
 void AGDKCharacter::MoveForward(float Value)
@@ -222,7 +229,7 @@ void AGDKCharacter::ClientMovementReset_Implementation()
 	GetCharacterMovement()->ResetPredictionData_Server();
 }
 
-void AGDKCharacter::SpawnAIEntities_Implementation()
+void AGDKCharacter::ServerSpawnAIEntities_Implementation()
 {
 	UE_LOG(LogGDK, Warning, TEXT("%s"), *(FString(__FUNCTION__)));
 
@@ -260,15 +267,27 @@ void AGDKCharacter::SpawnAIEntities_Implementation()
 
 		AGDKCharacter* Character = GetWorld()->SpawnActor<AGDKCharacter>(NpcClass, PlayerStart->GetActorLocation(),
 			PlayerStart->GetActorRotation(), SpawnParam);
+		if (!Character)
+		{
+			continue;
+		}
+
 		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(Character->AIControllerClass, PlayerStart->GetActorLocation(),
 			PlayerStart->GetActorRotation(), SpawnParam);
+		if (!AIController)
+		{
+			Character->Destroy();
+			continue;
+		}
+
 		AIController->Possess(Character);
 	}
 }
 
-void AGDKCharacter::DestroyAIEntities_Implementation()
+void AGDKCharacter::ServerDestroyAIEntities_Implementation()
 {
-	int Count = 0;
+	int CharacterCount = 0;
+	int AIControllerCount = 0;
 
 	AC10KGameState *GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
 	UClass* NpcClass = GameState->NpcClass;
@@ -277,14 +296,35 @@ void AGDKCharacter::DestroyAIEntities_Implementation()
 	{
 		if (Itr->GetClass()->IsChildOf(NpcClass))
 		{
+			AController* AIController = Itr->Controller;
+			if (AIController)
+			{
+				AIController->UnPossess();
+				AIController->Destroy();
+				++AIControllerCount;
+			}
+
+			// Itr->UnPossessed();
 			Itr->Destroy();
-			if (++Count >= AI_SPAWN_COUNT_PER_BATCH)
+			if (++CharacterCount >= AI_SPAWN_COUNT_PER_BATCH)
 			{
 				break;
 			}
 		}
 	}
 
-	UE_LOG(LogGDK, Warning, TEXT("%s - destroyed count:[%d]"), *(FString(__FUNCTION__)), Count);
+	// yunjie: as the garbage system of unreal won't immediately free the actor after calling destroy
+	//	so just force to call the GC both on server and client side
+	GEngine->ForceGarbageCollection();
+	ClientForceGarbageCollection();
+
+	UE_LOG(LogGDK, Warning, TEXT("%s - destroyed character count:[%d], destroyed aicontroller count:[%d]"),
+		*(FString(__FUNCTION__)), CharacterCount, AIControllerCount);
+}
+
+void AGDKCharacter::ClientForceGarbageCollection_Implementation()
+{
+	GEngine->ForceGarbageCollection();
+	UE_LOG(LogGDK, Warning, TEXT("%s"), *(FString(__FUNCTION__)));
 }
 

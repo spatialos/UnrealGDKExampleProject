@@ -2,6 +2,7 @@
 
 #include "GameFramework/C10KGameState.h"
 #include "Characters/GDKCharacter.h"
+#include "AIController.h"
 
 DEFINE_LOG_CATEGORY(LogC10KGameState);
 
@@ -26,15 +27,26 @@ void AC10KGameState::BeginPlay()
 
 void AC10KGameState::OutputAIInfos()
 {
-	int Count = 0;
-	int DroppedCount = 0;
+	int CharacterCount = 0;
+	int DroppedCharacterCount = 0;
 	for (TObjectIterator<AGDKCharacter> Itr; Itr; ++Itr)
 	{
-		Count++;
+		CharacterCount++;
 		if (Itr->GetActorLocation().Z < 0)
 		{
-			DroppedCount++;
+			DroppedCharacterCount++;
 		}
 	}
-	UE_LOG(LogC10KGameState, Warning, TEXT("TotalCount:[%d], DroppedCount:[%d]"), Count, DroppedCount);
+
+
+	int AAIControllerCount = 0;
+	for (TObjectIterator<AAIController> Itr; Itr; ++Itr)
+	{
+		AAIControllerCount++;
+	}
+
+	FString WorkerName = this->GetGameInstance()->IsDedicatedServerInstance() ? TEXT("Server") : TEXT("Client");
+
+	UE_LOG(LogC10KGameState, Warning, TEXT("%s, TotalCharacterCount:[%d], DroppedCharacterCount:[%d], TotalAIControllerCount:[%d]"),
+		*WorkerName, CharacterCount, DroppedCharacterCount, AAIControllerCount);
 }

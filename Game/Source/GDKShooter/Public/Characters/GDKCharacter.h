@@ -102,9 +102,12 @@ public:
 
 public:
 	UFUNCTION(Server, Reliable)
-	void SpawnAIEntities();
+	void ServerSpawnAIEntities();
 	UFUNCTION(Server, Reliable)
-	void DestroyAIEntities();
+	void ServerDestroyAIEntities();
+
+	UFUNCTION(Client, Reliable)
+	void ClientForceGarbageCollection();
 
 	// yunjie: for AI configuration
 	UPROPERTY(Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
