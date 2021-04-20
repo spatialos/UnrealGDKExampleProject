@@ -12,10 +12,10 @@ steps:
       message: "exampleproject-4.26 ${BUILDKITE_MESSAGE}"
       env: 
         BUILD_TYPE: "EXAMPLE"
-        GDK_BRANCH: "master"
-        ENGINE_BRANCH: "4.26-SpatialOSUnrealGDK"
+        GDK_BRANCH: "0.13.0-rc"
+        ENGINE_BRANCH: "4.26-SpatialOSUnrealGDK-0.13.0-rc"
         ENGINE_MAJOR: "4.26"
-        PROJECT_BRANCH: "${BUILDKITE_BRANCH}"
+        PROJECT_BRANCH: "0.13.0-rc"
         USE_FASTBUILD: "True"
         IS_BUILDKITE_BUILD: "True"
         BUILD_ANDROID: "True"
