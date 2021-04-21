@@ -12,7 +12,7 @@ steps:
       message: "exampleproject-4.26 ${BUILDKITE_MESSAGE}"
       env: 
         BUILD_TYPE: "EXAMPLE"
-        GDK_BRANCH: "0.13.0-rc" # NOTE: temp fix for new ci release interop issues
+        GDK_BRANCH: "${GDK_BRANCH:-0.13.0-rc}" # NOTE: temp fix for new ci release interop issues
         ENGINE_BRANCH: "4.26-SpatialOSUnrealGDK-0.13.0-rc" # NOTE: temp fix for new ci release interop issues
         ENGINE_MAJOR: "4.26"
         PROJECT_BRANCH: "0.13.0-rc" # NOTE: temp fix for new ci release interop issues
