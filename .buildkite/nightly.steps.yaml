@@ -23,3 +23,4 @@ steps:
         CLEAN_BUILD: "False"
         START_DEPLOYMENT: "True"
         SPATIAL_PROJECT_NAME: "unreal_gdk"
+# TODO: bring back deployment link notifies UNR-5391
