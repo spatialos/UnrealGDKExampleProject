@@ -17,6 +17,7 @@ class AC10KGameState : public AGameStateBase
 public:
 	AC10KGameState();
 
+	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 
 	void OutputAIInfos();
@@ -26,4 +27,7 @@ public:
 
 private:
 	FTimerHandle					AIInfoTimerHandler;
+
+	float							FrameTime;
+	int32							FrameCount;
 };

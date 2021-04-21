@@ -8,6 +8,8 @@ DEFINE_LOG_CATEGORY(LogC10KGameState);
 
 AC10KGameState::AC10KGameState()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	static ConstructorHelpers::FObjectFinder<UClass> NpcClassFinder(TEXT("Class'/Game/Blueprints/NPCs/Character_NPC.Character_NPC_C'"));
 	if (NpcClassFinder.Object) {
 		NpcClass = (UClass*)NpcClassFinder.Object;
@@ -16,6 +18,28 @@ AC10KGameState::AC10KGameState()
 	static ConstructorHelpers::FObjectFinder<UClass> NpcSpawnerClassFinder(TEXT("Class'/Game/Blueprints/NPCs/NPCSpawner.NPCSpawner_C'"));
 	if (NpcSpawnerClassFinder.Object) {
 		NpcSpawnerClass = (UClass*)NpcSpawnerClassFinder.Object;
+	}
+
+	FrameTime = 0.0f;
+	FrameCount = 0;
+}
+
+
+void AC10KGameState::Tick(float DeltaTime)
+{
+	if (GetGameInstance()->IsDedicatedServerInstance())
+	{
+		FrameCount++;
+		FrameTime += DeltaTime;
+
+		if (FrameTime >= 1.0f)
+		{
+			UE_LOG(LogC10KGameState, Display, TEXT("Server FPS %f"),
+				FrameCount / FrameTime);
+
+			FrameCount = 0;
+			FrameTime = 0.0f;
+		}
 	}
 }
 
