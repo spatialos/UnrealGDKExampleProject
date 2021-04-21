@@ -63,22 +63,4 @@ steps:
         START_DEPLOYMENT: "True"
         SPATIAL_PROJECT_NAME: "unreal_gdk"
     <<: *script_runner
-
-  - wait
-
-  - label: "slack-notify"
-    if: |
-      build.env("NIGHTLY_BUILD") == "true" || 
-      build.env("SLACK_NOTIFY") == "true" || 
-      build.env("FIREBASE_TEST") == "true" || 
-      build.branch == "master"
-    command: "python3 ci/slack-notify.py"
-    <<: *script_runner
-
-notify:
-  - slack: 
-      channels: 
-        - "#unreal-gdk-builds"
-      message: "<!subteam^SDB5161M5> Build failure! Please triage and post ticket." # SDB5161M5 is @support-unreal
-    if: (build.state == "failed" || build.state == "canceled") && build.branch == "master"
     
