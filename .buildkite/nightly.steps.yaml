@@ -62,14 +62,6 @@ steps:
         CLEAN_BUILD: "False"
         START_DEPLOYMENT: "True"
         SPATIAL_PROJECT_NAME: "unreal_gdk"
-
-  # Old build pipeline
-  - label: "generate-pipeline-steps"
-    commands: 
-      - "chmod -R +rwx ci"
-      - "ci/generate-pipeline-steps.sh"
-    env:
-      ENGINE_VERSION: "${ENGINE_VERSION}"
     <<: *script_runner
 
   - wait
