@@ -1,44 +1,5 @@
 ---
 ci_version: &ci_version "1.1"
-# This is designed to trap and retry failures because agent lost
-# connection. Agent exits with -1 in this case.
-agent_transients: &agent_transients
-  exit_status: -1
-  limit: 3
-# BK system error
-bk_system_error: &bk_system_error
-  exit_status: 255
-  limit: 3
-# job was interrupted by a signal (e.g. ctrl+c etc)
-bk_interrupted_by_signal: &bk_interrupted_by_signal
-  exit_status: 15
-  limit: 3
-
-script_runner: &script_runner
-  agents:
-    - "agent_count=8"
-    - "capable_of_building=platform"
-    - "environment=production"
-    - "machine_type=quarter"
-    - "permission_set=builder"
-    - "platform=linux"
-    - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-20-08-12-083656-bk14222-38697241}"
-    - "scaler_version=2"
-    - "working_hours_time_zone=london"
-  retry:
-    automatic:
-      - <<: *agent_transients
-      - <<: *bk_system_error
-      - <<: *bk_interrupted_by_signal
-
-# NOTE: step labels turn into commit-status names like {org}/{repo}/{pipeline}/{step-label}, lower-case and hyphenated.
-# These are then relied on to have stable names by other things, so once named, please beware renaming has consequences.
-env:
-    SLACK_CHANNEL: "#unreal-gdk-builds"
-    GDK_REPOSITORY: "git@github.com:spatialos/UnrealGDK.git"
-    MAIN_MAP_NAME: "Control_Small"
-    SPATIAL_PROJECT_NAME: "unreal_gdk"
-    SPATIAL_RUNTIME_VERSION: "15.0.0" ## the runtime version of SpatialOS
 
 steps:
   # New build pipeline
@@ -62,31 +23,4 @@ steps:
         CLEAN_BUILD: "False"
         START_DEPLOYMENT: "True"
         SPATIAL_PROJECT_NAME: "unreal_gdk"
-
-  # Old build pipeline
-  - label: "generate-pipeline-steps"
-    commands: 
-      - "chmod -R +rwx ci"
-      - "ci/generate-pipeline-steps.sh"
-    env:
-      ENGINE_VERSION: "${ENGINE_VERSION}"
-    <<: *script_runner
-
-  - wait
-
-  - label: "slack-notify"
-    if: |
-      build.env("NIGHTLY_BUILD") == "true" || 
-      build.env("SLACK_NOTIFY") == "true" || 
-      build.env("FIREBASE_TEST") == "true" || 
-      build.branch == "master"
-    command: "python3 ci/slack-notify.py"
-    <<: *script_runner
-
-notify:
-  - slack: 
-      channels: 
-        - "#unreal-gdk-builds"
-      message: "<!subteam^SDB5161M5> Build failure! Please triage and post ticket." # SDB5161M5 is @support-unreal
-    if: (build.state == "failed" || build.state == "canceled") && build.branch == "master"
-    
+# TODO: bring back deployment link notifies UNR-5391
