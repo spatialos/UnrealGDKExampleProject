@@ -87,6 +87,7 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollUp);
 	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, EquippedComponent, &UEquippedComponent::ScrollDown);
 
+	PlayerInputComponent->BindAction("9", IE_Pressed, this, &AGDKCharacter::ServerTeleportToNextPlane);
 	PlayerInputComponent->BindAction("0", IE_Pressed, this, &AGDKCharacter::ChangeCharacterMovementMode);
 	PlayerInputComponent->BindAction("+", IE_Pressed, this, &AGDKCharacter::ServerSpawnAIEntities);
 	PlayerInputComponent->BindAction("-", IE_Pressed, this, &AGDKCharacter::ServerDestroyAIEntities);
@@ -97,11 +98,14 @@ void AGDKCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGDKCharacter, BTreeDebugMessage);
+	DOREPLIFETIME(AGDKCharacter, CurrentNpcSpawnerIdx);
 }
 
 void AGDKCharacter::OnAuthorityGained()
 {
 	Super::OnAuthorityGained();
+
+	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
 
 	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
 	UClass* NpcClass = GameState->NpcClass;
@@ -124,6 +128,10 @@ void AGDKCharacter::OnAuthorityGained()
 		}
 
 		AIController->Possess(this);
+	}
+	else
+	{
+		
 	}
 }
 
@@ -409,7 +417,55 @@ void AGDKCharacter::ChangeCharacterMovementMode()
 	}
 #endif
 
-	UE_LOG(LogGDK, Warning, TEXT("[%s] %s - CharacterMovementMode:[%d]"),
+	UE_LOG(LogGDK, Warning, TEXT("%s, %s - CharacterMovementMode:[%d]"),
 		*SpatialWorkerId, *FString(__FUNCTION__), GetDefault<UGeneralProjectSettings>()->CharacterMovementMode);
+}
+
+
+void AGDKCharacter::ServerTeleportToNextPlane_Implementation()
+{
+	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+	AC10KGameState *GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
+
+	UClass* NpcSpawnerClass = GameState->NpcSpawnerClass;
+	TArray<AActor*> OutNpcSpawnerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), NpcSpawnerClass, OutNpcSpawnerActors);
+
+	if (!OutNpcSpawnerActors.Num())
+	{
+		UE_LOG(LogGDK, Warning, TEXT("%s, %s, no npc spawner actor, return"), *SpatialWorkerId, *FString(__FUNCTION__));
+		return;
+	}
+
+	AActor* NpcSpawner = OutNpcSpawnerActors[CurrentNpcSpawnerIdx];
+	CachedNpcSpawnerIdx = CurrentNpcSpawnerIdx;
+
+	UE_LOG(LogGDK, Display, TEXT("%s, %s, CurrentNpcSpawnerIdx:[%d], CachedNpcSpawnerIdx:[%d], target location:[%s]"),
+		*SpatialWorkerId, *FString(__FUNCTION__), CurrentNpcSpawnerIdx, CachedNpcSpawnerIdx, *NpcSpawner->GetActorLocation().ToString());
+
+	if (++CurrentNpcSpawnerIdx >= OutNpcSpawnerActors.Num())
+	{
+		CurrentNpcSpawnerIdx = 0;
+	}
+
+	GetWorldTimerManager().SetTimer(TeleportTimer, this, &AGDKCharacter::TeleportTimerHandler, 2.0f, false);
+}
+
+void AGDKCharacter::TeleportTimerHandler()
+{
+	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+	AC10KGameState *GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
+	UClass* NpcSpawnerClass = GameState->NpcSpawnerClass;
+
+	TArray<AActor*> OutNpcSpawnerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), NpcSpawnerClass, OutNpcSpawnerActors);
+
+	AActor* NpcSpawner = OutNpcSpawnerActors[CachedNpcSpawnerIdx];
+	this->SetActorLocation(NpcSpawner->GetActorLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+
+	GetWorldTimerManager().ClearTimer(TeleportTimer);
+
+	UE_LOG(LogGDK, Display, TEXT("%s, %s, CurrentNpcSpawnerIdx:[%d], CachedNpcSpawnerIdx:[%d], target location:[%s]"),
+		*SpatialWorkerId, *FString(__FUNCTION__), CurrentNpcSpawnerIdx, CachedNpcSpawnerIdx, *NpcSpawner->GetActorLocation().ToString());
 }
 

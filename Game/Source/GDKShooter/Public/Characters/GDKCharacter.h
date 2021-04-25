@@ -104,14 +104,23 @@ public:
 public:
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnAIEntities();
+
 	UFUNCTION(Server, Reliable)
 	void ServerDestroyAIEntities();
+
 	UFUNCTION(Server, Reliable)
 	void ServerChangeCharacterMovementMode();
+
 	void ChangeCharacterMovementMode();
+
+	UFUNCTION(Server, Reliable)
+	void ServerTeleportToNextPlane();
 
 	UFUNCTION(Client, Reliable)
 	void ClientForceGarbageCollection();
+
+	UFUNCTION()
+	void TeleportTimerHandler();
 
 	// yunjie: for AI configuration
 	UPROPERTY(Replicated, Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -119,4 +128,10 @@ public:
 
 	UPROPERTY(Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32				AISpawnCountPerBatch = 50;
+
+	UPROPERTY(Replicated, Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	int32				CurrentNpcSpawnerIdx = 0;
+	int32				CachedNpcSpawnerIdx = 0;
+
+	FTimerHandle		TeleportTimer;
 };
