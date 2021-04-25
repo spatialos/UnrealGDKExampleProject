@@ -92,6 +92,60 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("-", IE_Pressed, this, &AGDKCharacter::ServerDestroyAIEntities);
 }
 
+void AGDKCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGDKCharacter, BTreeDebugMessage);
+}
+
+void AGDKCharacter::OnAuthorityGained()
+{
+	Super::OnAuthorityGained();
+
+	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
+	UClass* NpcClass = GameState->NpcClass;
+	UClass* NpcSpawnerClass = GameState->NpcSpawnerClass;
+
+	if (this->GetClass()->IsChildOf(NpcClass))
+	{
+		TArray<AActor*> OutNpcSpawnerActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), NpcSpawnerClass, OutNpcSpawnerActors);
+
+		FActorSpawnParameters SpawnParam;
+		SpawnParam.Owner = OutNpcSpawnerActors[0];
+
+		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(this->AIControllerClass, this->GetActorLocation(),
+			this->GetActorRotation(), SpawnParam);
+		if (!AIController)
+		{
+			this->Destroy();
+			return;
+		}
+
+		AIController->Possess(this);
+	}
+}
+
+void AGDKCharacter::OnAuthorityLost()
+{
+	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
+	UClass* NpcClass = GameState->NpcClass;
+	UClass* NpcSpawnerClass = GameState->NpcSpawnerClass;
+
+	if (this->GetClass()->IsChildOf(NpcClass))
+	{
+		AController* AIController = this->Controller;
+		if (AIController)
+		{
+			AIController->UnPossess();
+			AIController->Destroy();
+		}
+	}
+
+	Super::OnAuthorityLost();
+}
+
 void AGDKCharacter::MoveForward(float Value)
 {
 	if (Value != 0.0f)
@@ -254,7 +308,7 @@ void AGDKCharacter::ServerSpawnAIEntities_Implementation()
 		return;
 	}
 
-	for (int Index = 0; Index < AI_SPAWN_COUNT_PER_BATCH; ++Index)
+	for (int Index = 0; Index < AISpawnCountPerBatch; ++Index)
 	{
 		int RandIdx = FMath::RandRange(0, OutPlayerStartActors.Num() - 1);
 		APlayerStart * PlayerStart = Cast<APlayerStart>(OutPlayerStartActors[RandIdx]);
@@ -273,6 +327,7 @@ void AGDKCharacter::ServerSpawnAIEntities_Implementation()
 			continue;
 		}
 
+		/*
 		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(Character->AIControllerClass, PlayerStart->GetActorLocation(),
 			PlayerStart->GetActorRotation(), SpawnParam);
 		if (!AIController)
@@ -282,6 +337,7 @@ void AGDKCharacter::ServerSpawnAIEntities_Implementation()
 		}
 
 		AIController->Possess(Character);
+		*/
 	}
 }
 
@@ -307,7 +363,7 @@ void AGDKCharacter::ServerDestroyAIEntities_Implementation()
 
 			// Itr->UnPossessed();
 			Itr->Destroy();
-			if (++CharacterCount >= AI_SPAWN_COUNT_PER_BATCH)
+			if (++CharacterCount >= AISpawnCountPerBatch)
 			{
 				break;
 			}

@@ -24,18 +24,19 @@ AC10KGameState::AC10KGameState()
 	FrameCount = 0;
 }
 
-
 void AC10KGameState::Tick(float DeltaTime)
 {
 	if (GetGameInstance()->IsDedicatedServerInstance())
 	{
+		const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+
 		FrameCount++;
 		FrameTime += DeltaTime;
 
 		if (FrameTime >= 1.0f)
 		{
-			UE_LOG(LogC10KGameState, Display, TEXT("Server FPS %f"),
-				FrameCount / FrameTime);
+			UE_LOG(LogC10KGameState, Display, TEXT("%s, Server FPS %f"),
+				*SpatialWorkerId, FrameCount / FrameTime);
 
 			FrameCount = 0;
 			FrameTime = 0.0f;

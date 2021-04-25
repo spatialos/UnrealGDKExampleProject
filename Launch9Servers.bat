@@ -1,0 +1,9 @@
+START .\LaunchServer.bat
+START .\LaunchServer.bat
+START .\LaunchServer.bat
+START .\LaunchServer.bat
+START .\LaunchServer.bat
+START .\LaunchServer.bat
+START .\LaunchServer.bat
+START .\LaunchServer.bat
+START .\LaunchServer.bat

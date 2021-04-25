@@ -19,8 +19,6 @@
 DECLARE_DELEGATE_OneParam(FBoolean, bool);
 DECLARE_DELEGATE_OneParam(FHoldableSelection, int32);
 
-#define AI_SPAWN_COUNT_PER_BATCH				50
-
 UCLASS()
 class GDKSHOOTER_API AGDKCharacter : public ACharacter, public IGenericTeamAgentInterface, public IAISightTargetInterface
 {
@@ -30,6 +28,9 @@ public:
 	AGDKCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
+	virtual void OnAuthorityGained() override;
+	virtual void OnAuthorityLost() override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -113,6 +114,9 @@ public:
 	void ClientForceGarbageCollection();
 
 	// yunjie: for AI configuration
-	UPROPERTY(Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool				BTreeDebugMessage = false;
+
+	UPROPERTY(Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	int32				AISpawnCountPerBatch = 50;
 };
