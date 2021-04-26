@@ -26,6 +26,7 @@ class GDKSHOOTER_API AGDKCharacter : public ACharacter, public IGenericTeamAgent
 
 public:
 	AGDKCharacter(const FObjectInitializer& ObjectInitializer);
+	virtual ~AGDKCharacter();
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;

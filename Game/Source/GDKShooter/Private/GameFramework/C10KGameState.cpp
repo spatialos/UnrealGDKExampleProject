@@ -1,6 +1,8 @@
  // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/C10KGameState.h"
+#include "GameFramework/GlobalActor.h"
 #include "Characters/GDKCharacter.h"
 #include "AIController.h"
 
@@ -22,6 +24,24 @@ AC10KGameState::AC10KGameState()
 
 	FrameTime = 0.0f;
 	FrameCount = 0;
+}
+
+void AC10KGameState::OnAuthorityGained()
+{
+	Super::OnAuthorityGained();
+
+	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s, Name:[%s]"),
+		*SpatialWorkerId, *FString(__FUNCTION__), *this->GetName());
+}
+
+void AC10KGameState::OnAuthorityLost()
+{
+	Super::OnAuthorityLost();
+
+	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s, Name:[%s]"),
+		*SpatialWorkerId, *FString(__FUNCTION__), *this->GetName());
 }
 
 void AC10KGameState::Tick(float DeltaTime)
@@ -46,8 +66,24 @@ void AC10KGameState::Tick(float DeltaTime)
 
 void AC10KGameState::BeginPlay()
 {
-	AGameStateBase::BeginPlay();
+	Super::BeginPlay();
 	GetWorldTimerManager().SetTimer(AIInfoTimerHandler, this, &AC10KGameState::OutputAIInfos, 10.0f, true, 2.0f);
+
+	TArray<AActor*> OutNpcSpawnerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), NpcSpawnerClass, OutNpcSpawnerActors);
+
+	if (OutNpcSpawnerActors.Num())
+	{
+		if (HasAuthority())
+		{
+			GetWorld()->SpawnActor<AGlobalActor>(AGlobalActor::StaticClass(), OutNpcSpawnerActors[0]->GetActorLocation(),
+				OutNpcSpawnerActors[0]->GetActorRotation());
+		}
+	}
+
+	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s, Name:[%s]"),
+		*SpatialWorkerId, *FString(__FUNCTION__), *this->GetName());
 }
 
 void AC10KGameState::OutputAIInfos()

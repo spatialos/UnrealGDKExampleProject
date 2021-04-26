@@ -15,6 +15,7 @@
 #include "Controllers/Components/ControllerEventsComponent.h"
 #include "Weapons/Holdable.h"
 #include "GameFramework/C10KGameState.h"
+#include "GameFramework/GlobalActor.h"
 
 AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGDKMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -27,6 +28,18 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	MetaDataComponent = CreateDefaultSubobject<UMetaDataComponent>(TEXT("MetaData"));
 	TeamComponent = CreateDefaultSubobject<UTeamComponent>(TEXT("Team"));
 	GDKMovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement());
+}
+
+AGDKCharacter::~AGDKCharacter()
+{
+	/*
+		if (this->GetGameInstance()->IsDedicatedServerInstance())
+		{
+			const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+			UE_LOG(LogGDK, Warning, TEXT("%s, %s, %s is destroying"),
+				*SpatialWorkerId, *FString(__FUNCTION__), *this->GetName());
+		}
+	*/
 }
 
 // Called when the game starts or when spawned
@@ -128,6 +141,12 @@ void AGDKCharacter::OnAuthorityGained()
 		}
 
 		AIController->Possess(this);
+
+		AGlobalActor* GlobalActor = Cast<AGlobalActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGlobalActor::StaticClass()));
+		if (GlobalActor)
+		{
+			GlobalActor->CachedNpcCount++;
+		}
 	}
 	else
 	{
@@ -148,6 +167,12 @@ void AGDKCharacter::OnAuthorityLost()
 		{
 			AIController->UnPossess();
 			AIController->Destroy();
+		}
+
+		AGlobalActor* GlobalActor = Cast<AGlobalActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGlobalActor::StaticClass()));
+		if (GlobalActor)
+		{
+			GlobalActor->CachedNpcCount--;
 		}
 	}
 

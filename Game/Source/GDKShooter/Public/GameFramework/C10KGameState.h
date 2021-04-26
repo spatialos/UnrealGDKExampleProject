@@ -17,6 +17,9 @@ class AC10KGameState : public AGameStateBase
 public:
 	AC10KGameState();
 
+	virtual void OnAuthorityGained() override;
+	virtual void OnAuthorityLost() override;
+
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 
