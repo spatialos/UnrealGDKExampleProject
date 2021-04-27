@@ -9,6 +9,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogC10KGameState, Log, All);
 
+class AGlobalActor;
+
 UCLASS()
 class AC10KGameState : public AGameStateBase
 {
@@ -23,14 +25,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 
-	void OutputAIInfos();
-
 	UClass*				NpcSpawnerClass;
 	UClass*				NpcClass;
 
 private:
-	FTimerHandle					AIInfoTimerHandler;
-
 	float							FrameTime;
 	int32							FrameCount;
+
+	AGlobalActor					*GlobalActor = nullptr;
 };

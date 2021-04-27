@@ -1,7 +1,7 @@
  // Copyright (c) Improbable Worlds Ltd, All Rights Reserved
 
-#include "Kismet/GameplayStatics.h"
 #include "GameFramework/C10KGameState.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/GlobalActor.h"
 #include "Characters/GDKCharacter.h"
 #include "AIController.h"
@@ -31,8 +31,8 @@ void AC10KGameState::OnAuthorityGained()
 	Super::OnAuthorityGained();
 
 	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
-	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s, Name:[%s]"),
-		*SpatialWorkerId, *FString(__FUNCTION__), *this->GetName());
+	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s"),
+		*SpatialWorkerId, *FString(__FUNCTION__));
 }
 
 void AC10KGameState::OnAuthorityLost()
@@ -40,8 +40,8 @@ void AC10KGameState::OnAuthorityLost()
 	Super::OnAuthorityLost();
 
 	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
-	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s, Name:[%s]"),
-		*SpatialWorkerId, *FString(__FUNCTION__), *this->GetName());
+	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s"),
+		*SpatialWorkerId, *FString(__FUNCTION__));
 }
 
 void AC10KGameState::Tick(float DeltaTime)
@@ -53,10 +53,24 @@ void AC10KGameState::Tick(float DeltaTime)
 		FrameCount++;
 		FrameTime += DeltaTime;
 
-		if (FrameTime >= 1.0f)
+		float Fps = FrameCount / FrameTime;
+
+		if (FrameTime >= 0.5f)
 		{
+			if (!GlobalActor)
+			{
+				GlobalActor = Cast<AGlobalActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGlobalActor::StaticClass()));
+			}
+
+			if (GlobalActor)
+			{
+				GlobalActor->UpdateFpsInfo(Fps);
+			}
+
+			/*
 			UE_LOG(LogC10KGameState, Display, TEXT("%s, Server FPS %f"),
-				*SpatialWorkerId, FrameCount / FrameTime);
+				*SpatialWorkerId, Fps);
+			*/
 
 			FrameCount = 0;
 			FrameTime = 0.0f;
@@ -67,7 +81,6 @@ void AC10KGameState::Tick(float DeltaTime)
 void AC10KGameState::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorldTimerManager().SetTimer(AIInfoTimerHandler, this, &AC10KGameState::OutputAIInfos, 10.0f, true, 2.0f);
 
 	TArray<AActor*> OutNpcSpawnerActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), NpcSpawnerClass, OutNpcSpawnerActors);
@@ -82,32 +95,7 @@ void AC10KGameState::BeginPlay()
 	}
 
 	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
-	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s, Name:[%s]"),
-		*SpatialWorkerId, *FString(__FUNCTION__), *this->GetName());
+	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s"),
+		*SpatialWorkerId, *FString(__FUNCTION__));
 }
 
-void AC10KGameState::OutputAIInfos()
-{
-	int CharacterCount = 0;
-	int DroppedCharacterCount = 0;
-	for (TObjectIterator<AGDKCharacter> Itr; Itr; ++Itr)
-	{
-		CharacterCount++;
-		if (Itr->GetActorLocation().Z < 0)
-		{
-			DroppedCharacterCount++;
-		}
-	}
-
-
-	int AAIControllerCount = 0;
-	for (TObjectIterator<AAIController> Itr; Itr; ++Itr)
-	{
-		AAIControllerCount++;
-	}
-
-	FString WorkerName = this->GetGameInstance()->IsDedicatedServerInstance() ? TEXT("Server") : TEXT("Client");
-
-	UE_LOG(LogC10KGameState, Warning, TEXT("%s, TotalCharacterCount:[%d], DroppedCharacterCount:[%d], TotalAIControllerCount:[%d]"),
-		*WorkerName, CharacterCount, DroppedCharacterCount, AAIControllerCount);
-}

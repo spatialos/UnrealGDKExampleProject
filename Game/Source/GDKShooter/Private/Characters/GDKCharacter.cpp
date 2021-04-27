@@ -145,7 +145,6 @@ void AGDKCharacter::OnAuthorityGained()
 		AGlobalActor* GlobalActor = Cast<AGlobalActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGlobalActor::StaticClass()));
 		if (GlobalActor)
 		{
-			GlobalActor->CachedNpcCount++;
 		}
 	}
 	else
@@ -172,7 +171,6 @@ void AGDKCharacter::OnAuthorityLost()
 		AGlobalActor* GlobalActor = Cast<AGlobalActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGlobalActor::StaticClass()));
 		if (GlobalActor)
 		{
-			GlobalActor->CachedNpcCount--;
 		}
 	}
 
