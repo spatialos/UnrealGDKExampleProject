@@ -1,0 +1,10 @@
+START .\LaunchSimPlayerClient_Headless.bat
+START .\LaunchSimPlayerClient_Headless.bat
+START .\LaunchSimPlayerClient_Headless.bat
+START .\LaunchSimPlayerClient_Headless.bat
+START .\LaunchSimPlayerClient_Headless.bat
+START .\LaunchSimPlayerClient_Headless.bat
+START .\LaunchSimPlayerClient_Headless.bat
+START .\LaunchSimPlayerClient_Headless.bat
+START .\LaunchSimPlayerClient_Headless.bat
+START .\LaunchSimPlayerClient_Headless.bat
