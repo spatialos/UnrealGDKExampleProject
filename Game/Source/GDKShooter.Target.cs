@@ -7,7 +7,10 @@ public class GDKShooterTarget : TargetRules
 {
 	public GDKShooterTarget(TargetInfo Target) : base(Target)
 	{
+        // bUseMallocProfiler = true;
+        // bOmitFramePointers = false;
+
 		Type = TargetType.Game;
 		ExtraModuleNames.Add("GDKShooter");
-	}
+    }
 }

@@ -14,6 +14,7 @@
 #include "TimerManager.h"
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "Runtime/AIModule/Classes/Perception/AISightTargetInterface.h"
+#include "Game/Components/SkillComponent.h"
 #include "GDKCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FBoolean, bool);
@@ -50,6 +51,9 @@ protected:
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UTeamComponent* TeamComponent;
+
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	USkillComponent*	SkillComponent;
 
 	UFUNCTION(BlueprintPure)
 	float GetRemotePitch() {
@@ -135,4 +139,5 @@ public:
 	int32				CachedNpcSpawnerIdx = 0;
 
 	FTimerHandle		TeleportTimer;
+	FTimerHandle		SimPlayerGarbageTimer;
 };

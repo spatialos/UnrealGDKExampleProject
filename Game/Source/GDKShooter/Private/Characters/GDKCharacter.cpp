@@ -56,6 +56,11 @@ void AGDKCharacter::BeginPlay()
 	{
 		Cast<USpatialNetDriver>(this->GetNetDriver())->SpatialPlatformCoordinator->SendReadyStatus();
 	}
+
+	if (this->bIsSimulated)
+	{
+		// GetWorldTimerManager().SetTimer(SimPlayerGarbageTimer, this, &AGDKCharacter::ClientForceGarbageCollection_Implementation, 5.0f, true, 1.0f);
+	}
 }
 
 void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
