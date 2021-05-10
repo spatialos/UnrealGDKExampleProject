@@ -3,8 +3,7 @@
 
 #include "Game/GDKShooterGameInstance.h"
 #include "Logging/LogMacros.h"
-
-DEFINE_LOG_CATEGORY(LogGDKShooterGameInstance);
+#include "Utils/SpatialStatics.h"
 
 FNetworkFailureInfo::FNetworkFailureInfo()
 	: NetworkFailureOccurred(false)
@@ -29,7 +28,7 @@ void UGDKShooterGameInstance::Init()
 
 void UGDKShooterGameInstance::HandleOnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type NetworkFailureType, const FString& Reason)
 {
-	UE_LOG(LogGDKShooterGameInstance, Log, TEXT("Network failure due to: %s"), *Reason);
+	USpatialStatics::PrintStringSpatial(World, FString::Printf(TEXT("Network Failure: %s"), *Reason), false);
 
 	NetworkFailureInfo = FNetworkFailureInfo(NetworkFailureType, Reason);
 

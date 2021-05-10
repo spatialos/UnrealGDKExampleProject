@@ -7,8 +7,6 @@
 
 #include "GDKShooterGameInstance.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogGDKShooterGameInstance, Log, All);
-
 USTRUCT(BlueprintType)
 struct FNetworkFailureInfo 
 {
