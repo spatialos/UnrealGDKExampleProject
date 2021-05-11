@@ -205,10 +205,9 @@ public:
 	UPROPERTY(Category = SkillComponent, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32									TargetsRadius = 1000;
 
-protected:
-	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_EffectStatus, Category = "Skill")
+	UPROPERTY(ReplicatedUsing = OnRep_EffectStatus, EditAnywhere, Category = "Skill")
 	FEffectBuffStatus								EffectStatus[SkillEffect_Max];
 
-	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_aaa, Category = "Skill")
+	UPROPERTY(ReplicatedUsing = OnRep_aaa, EditAnywhere, Category = "Skill")
 	int aaa;
 };

@@ -324,6 +324,8 @@ void AGDKCharacter::ServerSpawnAIEntities_Implementation()
 {
 	UE_LOG(LogGDK, Warning, TEXT("%s"), *(FString(__FUNCTION__)));
 
+	SkillEffectComponent->aaa++;
+
 	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
 	UClass* NpcClass = GameState->NpcClass;
 	UClass* NpcSpawnerClass = GameState->NpcSpawnerClass;
