@@ -138,7 +138,7 @@ public:
 	bool				BTreeDebugMessage = false;
 
 	UPROPERTY(Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	int32				AISpawnCountPerBatch = 50;
+	int32				AISpawnCountPerBatch = 1;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentNpcSpawnerIdx, Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32				CurrentNpcSpawnerIdx = 0;
