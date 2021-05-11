@@ -34,6 +34,9 @@ public:
 	float AimingRotationSpeed = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float AimingInterestRange = 5000;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UMaterialInstance* Reticle;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FVector2D ReticleSize = FVector2D(16, 16);
