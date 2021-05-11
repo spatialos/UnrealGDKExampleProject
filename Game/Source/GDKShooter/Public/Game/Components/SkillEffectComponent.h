@@ -176,8 +176,8 @@ public:
 	// yunjie: interfaces oriented to blueprint END 
 
 	// yunjie: Called on client side BEGIN
-	UFUNCTION(Client, Reliable)
-	void ClientUseSkill(int32 SkillId, const TArray<AGDKCharacter*>& Targets);
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticastUseSkill(int32 SkillId, const TArray<AGDKCharacter*>& Targets);
 	void ProcessSkillEffectOnClient(int32 SkillEffect, const TArray<AGDKCharacter*>& Targets);
 
 	UFUNCTION()

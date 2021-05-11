@@ -134,7 +134,7 @@ void USkillEffectComponent::UseSkillOnServer(int32 SkillId, TArray<AGDKCharacter
 		ProcessSkillEffectOnServer(Effect, Targets);
 	}
 
-	ClientUseSkill(SkillId, Targets);
+	NetMulticastUseSkill(SkillId, Targets);
 }
 
 void USkillEffectComponent::ProcessSkillEffectOnServer(int32 SkillEffect, TArray<AGDKCharacter*> Targets)
@@ -164,7 +164,7 @@ void USkillEffectComponent::ProcessSkillEffectOnServer(int32 SkillEffect, TArray
 	}
 }
 
-void USkillEffectComponent::ClientUseSkill_Implementation(int32 SkillId, const TArray<AGDKCharacter*>& Targets)
+void USkillEffectComponent::NetMulticastUseSkill_Implementation(int32 SkillId, const TArray<AGDKCharacter*>& Targets)
 {
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
 
