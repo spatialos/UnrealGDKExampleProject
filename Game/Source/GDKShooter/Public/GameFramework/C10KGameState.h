@@ -25,8 +25,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 
+	void TimestampUpdateTimerHandler();
+
 	UClass*				NpcSpawnerClass;
 	UClass*				NpcClass;
+
+	FTimerHandle		TimeUpdateTimerHandle;
+	FDateTime			NowDt;
+	int64				NowTs = 0;
 
 private:
 	float							FrameTime;

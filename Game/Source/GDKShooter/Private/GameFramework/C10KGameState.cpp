@@ -94,8 +94,16 @@ void AC10KGameState::BeginPlay()
 		}
 	}
 
+	GetWorldTimerManager().SetTimer(TimeUpdateTimerHandle, this, &AC10KGameState::TimestampUpdateTimerHandler, 1.0f, true, 1.0f);
+
 	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
 	UE_LOG(LogC10KGameState, Display, TEXT("%s, %s"),
 		*SpatialWorkerId, *FString(__FUNCTION__));
+}
+
+void AC10KGameState::TimestampUpdateTimerHandler()
+{
+	NowDt = FDateTime::Now();
+	NowTs = NowDt.ToUnixTimestamp();
 }
 

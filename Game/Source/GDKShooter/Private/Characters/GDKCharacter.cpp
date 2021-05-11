@@ -28,6 +28,7 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	MetaDataComponent = CreateDefaultSubobject<UMetaDataComponent>(TEXT("MetaData"));
 	TeamComponent = CreateDefaultSubobject<UTeamComponent>(TEXT("Team"));
 	GDKMovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement());
+	SkillEffectComponent = CreateDefaultSubobject<USkillEffectComponent>(TEXT("SkillEffect"));
 }
 
 AGDKCharacter::~AGDKCharacter()
@@ -273,7 +274,6 @@ void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDa
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
-
 }
 
 FGenericTeamId AGDKCharacter::GetGenericTeamId() const
@@ -324,7 +324,7 @@ void AGDKCharacter::ServerSpawnAIEntities_Implementation()
 {
 	UE_LOG(LogGDK, Warning, TEXT("%s"), *(FString(__FUNCTION__)));
 
-	AC10KGameState *GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
+	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorld()->GetGameState());
 	UClass* NpcClass = GameState->NpcClass;
 	UClass* NpcSpawnerClass = GameState->NpcSpawnerClass;
 
@@ -495,5 +495,12 @@ void AGDKCharacter::TeleportTimerHandler()
 
 	UE_LOG(LogGDK, Display, TEXT("%s, %s, CurrentNpcSpawnerIdx:[%d], CachedNpcSpawnerIdx:[%d], target location:[%s]"),
 		*SpatialWorkerId, *FString(__FUNCTION__), CurrentNpcSpawnerIdx, CachedNpcSpawnerIdx, *NpcSpawner->GetActorLocation().ToString());
+}
+
+void AGDKCharacter::OnRep_CurrentNpcSpawnerIdx()
+{
+	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
+	UE_LOG(LogGDK, Display, TEXT("%s, %s"),
+		*SpatialWorkerId, *FString(__FUNCTION__));
 }
 

@@ -14,7 +14,8 @@
 #include "TimerManager.h"
 #include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "Runtime/AIModule/Classes/Perception/AISightTargetInterface.h"
-#include "Game/Components/SkillComponent.h"
+#include "Game/Components/SkillEffectComponent.h"
+#include "Components/SphereComponent.h"
 #include "GDKCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FBoolean, bool);
@@ -53,7 +54,7 @@ protected:
 	UTeamComponent* TeamComponent;
 
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	USkillComponent*	SkillComponent;
+	USkillEffectComponent*	SkillEffectComponent;
 
 	UFUNCTION(BlueprintPure)
 	float GetRemotePitch() {
@@ -106,6 +107,8 @@ public:
 	UFUNCTION(CrossServer, Reliable)
 	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 
+	USkillEffectComponent* GetSkillComponent() { return SkillEffectComponent; }
+
 public:
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnAIEntities();
@@ -127,6 +130,9 @@ public:
 	UFUNCTION()
 	void TeleportTimerHandler();
 
+	UFUNCTION()
+	void OnRep_CurrentNpcSpawnerIdx();
+
 	// yunjie: for AI configuration
 	UPROPERTY(Replicated, Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool				BTreeDebugMessage = false;
@@ -134,7 +140,7 @@ public:
 	UPROPERTY(Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32				AISpawnCountPerBatch = 50;
 
-	UPROPERTY(Replicated, Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentNpcSpawnerIdx, Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32				CurrentNpcSpawnerIdx = 0;
 	int32				CachedNpcSpawnerIdx = 0;
 
