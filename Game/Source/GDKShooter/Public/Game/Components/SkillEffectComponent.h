@@ -50,7 +50,7 @@ struct FSkillEffectDesc
 	int32				SkillEffectTime = 0;
 };
 
-#define SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO		0.2
+#define SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO		0.3
 
 struct FSkillDesc
 {
