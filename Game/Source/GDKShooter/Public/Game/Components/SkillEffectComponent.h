@@ -44,14 +44,19 @@ enum ESkillEffect : int32
 	SkillEffect_Max,
 };
 
+struct FSkillEffectDesc
+{
+	int32				SkillEffectId = SkillEffect_None;
+	int32				SkillEffectTime = 0;
+};
+
 #define SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO		0.2
-#define SKILL_EFFECT_BUFF_TIME						5
 
 struct FSkillDesc
 {
-	int32					id = SkillId_None;
-	ESkillType				SkillType = SkillType_None;
-	TArray<ESkillEffect>	SkillEffects;
+	int32						id = SkillId_None;
+	ESkillType					SkillType = SkillType_None;
+	TArray<FSkillEffectDesc>	SkillEffects;
 
 	int32					Probability = 0;
 
@@ -134,14 +139,16 @@ struct FEffectBuffStatus
 
 	bool ShouldBeCleared(int64 NowTs) const
 	{
+		return !IsValid(NowTs) && bTriggered;
+
 		if (IsInstant())
 		{
-			return EffectId != 0 && bTriggered;
+			// return EffectId != 0 && bTriggered;
 		}
 
 		if (IsBuff())
 		{
-			return EffectId != 0 && NowTs >= ExpireTime && bTriggered;
+			// return EffectId != 0 && NowTs >= ExpireTime && bTriggered;
 		}
 
 		return false;
@@ -164,7 +171,7 @@ public:
 	// yunjie: fundamental interfaces BEGIN
 	UFUNCTION(BlueprintCallable)
 	void UseSkillOnServer(int32 SkillId, TArray<AGDKCharacter*> Targets);
-	void ProcessSkillEffectOnServer(int32 SkillEffect, TArray<AGDKCharacter*> Targets);
+	void ProcessSkillEffectOnServer(const FSkillEffectDesc& SkillEffect, TArray<AGDKCharacter*> Targets);
 	UFUNCTION()
 	void ProcessEffectTimer();
 	void UpdateEffectStatus();
@@ -183,7 +190,7 @@ public:
 	// yunjie: Called on client side BEGIN
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticastUseSkill(int32 SkillId, const TArray<AGDKCharacter*>& Targets);
-	void ProcessSkillEffectOnClient(int32 SkillEffect, const TArray<AGDKCharacter*>& Targets);
+	void ProcessSkillEffectOnClient(const FSkillEffectDesc& SkillEffect, const TArray<AGDKCharacter*>& Targets);
 
 	UFUNCTION()
 	void OnRep_EffectStatus();
@@ -212,9 +219,6 @@ public:
 
 	UPROPERTY(ReplicatedUsing = OnRep_EffectStatus, EditAnywhere, Category = SkillComponent)
 	FEffectBuffStatus								EffectStatus[SkillEffect_Max];
-
-	UPROPERTY(ReplicatedUsing = OnRep_aaa, EditAnywhere, Category = SkillComponent)
-	int aaa;
 
 	UPROPERTY(EditDefaultsOnly, Category = SkillComponent)
 	UMaterialInterface* DefaultMaterialBody;

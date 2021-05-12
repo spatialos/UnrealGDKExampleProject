@@ -18,24 +18,24 @@ USkillEffectComponent::USkillEffectComponent()
 	FSkillDesc FireBallSkillDesc;
 	FireBallSkillDesc.id = SkillId_FireBall;
 	FireBallSkillDesc.SkillType = SkillType_SingleTarget;
-	FireBallSkillDesc.SkillEffects.Add(SkillEffect_Instant_FireBall);
-	FireBallSkillDesc.SkillEffects.Add(SKillEffect_Buff_Firing);
+	FireBallSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_FireBall, 0});
+	FireBallSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SKillEffect_Buff_Firing, 5});
 	FireBallSkillDesc.Probability = 34;
 	SkillTable.Add(SkillId_FireBall, FireBallSkillDesc);
 
 	FSkillDesc StormSkillDesc;
 	StormSkillDesc.id = SkillId_Storm;
 	StormSkillDesc.SkillType = SkillType_CircleArea;
-	StormSkillDesc.SkillEffects.Add(SkillEffect_Instant_Storm);
-	StormSkillDesc.SkillEffects.Add(SKillEffect_Buff_Frozen);
+	StormSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_Storm, 0 });
+	StormSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SKillEffect_Buff_Frozen, 8 });
 	StormSkillDesc.Probability = 33;
 	SkillTable.Add(SkillId_Storm, StormSkillDesc);
 
 	FSkillDesc PosionSkillDesc;
 	PosionSkillDesc.id = SkillId_Poison;
 	PosionSkillDesc.SkillType = SkillType_MultipleTargets;
-	PosionSkillDesc.SkillEffects.Add(SkillEffect_Instant_Poison);
-	PosionSkillDesc.SkillEffects.Add(SkillEffect_Buff_Poisonous);
+	PosionSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_Poison, 0 });
+	PosionSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Buff_Poisonous, 15 });
 	PosionSkillDesc.Probability = 33;
 	SkillTable.Add(SkillId_Poison, PosionSkillDesc);
 }
@@ -56,7 +56,6 @@ void USkillEffectComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(USkillEffectComponent, aaa);
 	DOREPLIFETIME(USkillEffectComponent, EffectStatus);
 }
 
@@ -150,14 +149,14 @@ void USkillEffectComponent::UseSkillOnServer(int32 SkillId, TArray<AGDKCharacter
 	NetMulticastUseSkill(SkillId, Targets);
 }
 
-void USkillEffectComponent::ProcessSkillEffectOnServer(int32 SkillEffect, TArray<AGDKCharacter*> Targets)
+void USkillEffectComponent::ProcessSkillEffectOnServer(const FSkillEffectDesc& SkillEffect, TArray<AGDKCharacter*> Targets)
 {
 	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorldWrapper()->GetGameState());
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
 	AGDKCharacter* OwnerCharacter = Cast<AGDKCharacter>(GetOwner());
 	int64 NowTs = GameState->NowTs;
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect, Targets.Num());
+	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.SkillEffectId, Targets.Num());
 
 	for (auto Character : Targets)
 	{
@@ -165,10 +164,8 @@ void USkillEffectComponent::ProcessSkillEffectOnServer(int32 SkillEffect, TArray
 		{
 			UGDKMovementComponent* TargetMovementComponent = Cast<UGDKMovementComponent>(Character->GetCharacterMovement());
 
-			Character->CurrentNpcSpawnerIdx++;
-			Character->GetSkillComponent()->aaa++;
-			Character->GetSkillComponent()->EffectStatus[SkillEffect].EffectId = SkillEffect;
-			Character->GetSkillComponent()->EffectStatus[SkillEffect].ExpireTime = NowTs + SKILL_EFFECT_BUFF_TIME;
+			Character->GetSkillComponent()->EffectStatus[SkillEffect.SkillEffectId].EffectId = SkillEffect.SkillEffectId;
+			Character->GetSkillComponent()->EffectStatus[SkillEffect.SkillEffectId].ExpireTime = NowTs + SkillEffect.SkillEffectTime;
 			Character->GetSkillComponent()->UpdateEffectStatus();
 
 			// FDamageEvent De;
@@ -196,11 +193,11 @@ void USkillEffectComponent::NetMulticastUseSkill_Implementation(int32 SkillId, c
 	}
 }
 
-void USkillEffectComponent::ProcessSkillEffectOnClient(int32 SkillEffect, const TArray<AGDKCharacter*>& Targets)
+void USkillEffectComponent::ProcessSkillEffectOnClient(const FSkillEffectDesc& SkillEffect, const TArray<AGDKCharacter*>& Targets)
 {
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect, Targets.Num());
+	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.SkillEffectId, Targets.Num());
 
 	AGDKCharacter* OwnerCharacter = Cast<AGDKCharacter>(GetOwner());
 }
@@ -320,13 +317,12 @@ void USkillEffectComponent::UpdateEffect(int32 SkillBuff)
 	UGDKMovementComponent* MovementComponent = Cast<UGDKMovementComponent>(OwnerCharacter->GetCharacterMovement());
 	int64 NowTs = GameState->NowTs;
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillBuff:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillBuff);
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillBuff:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillBuff);
 
 	switch (SkillBuff)
 	{
 	case SkillEffect_Instant_FireBall:
 	{
-
 	}
 	break;
 
@@ -338,13 +334,13 @@ void USkillEffectComponent::UpdateEffect(int32 SkillBuff)
 
 	case SkillEffect_Instant_Poison:
 	{
-
 	}
 	break;
 
 	case SKillEffect_Buff_Firing:
 	{
-
+		FDamageEvent De;
+		OwnerCharacter->TakeDamageCrossServer(3, De, OwnerCharacter->GetController(), OwnerCharacter);
 	}
 	break;
 
@@ -355,7 +351,8 @@ void USkillEffectComponent::UpdateEffect(int32 SkillBuff)
 
 	case SkillEffect_Buff_Poisonous:
 	{
-
+		FDamageEvent De;
+		OwnerCharacter->TakeDamageCrossServer(1, De, OwnerCharacter->GetController(), OwnerCharacter);
 	}
 	break;
 
@@ -397,7 +394,6 @@ void USkillEffectComponent::ClearEffect(int32 SkillBuff)
 
 	case SKillEffect_Buff_Firing:
 	{
-
 	}
 	break;
 
