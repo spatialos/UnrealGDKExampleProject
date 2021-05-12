@@ -29,11 +29,13 @@ enum ESkillType : int32
 enum ESkillEffect : int32
 {
 	SkillEffect_None = 0,
+	SkillEffect_Instant_Min,
 	SkillEffect_Instant_FireBall,
 	SkillEffect_Instant_Storm,
 	SkillEffect_Instant_Poison,
 	SkillEffect_Instant_Max,
 
+	SkillEffect_Buff_Min,
 	SKillEffect_Buff_Firing,
 	SKillEffect_Buff_Frozen,
 	SkillEffect_Buff_Poisonous,
@@ -42,7 +44,7 @@ enum ESkillEffect : int32
 	SkillEffect_Max,
 };
 
-#define SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO		0.5
+#define SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO		0.2
 #define SKILL_EFFECT_BUFF_TIME						5
 
 struct FSkillDesc
@@ -83,12 +85,12 @@ struct FEffectBuffStatus
 
 	bool IsInstant() const
 	{
-		return EffectId < SkillEffect_Instant_Max;
+		return EffectId > SkillEffect_Instant_Min && EffectId < SkillEffect_Instant_Max;
 	}
 
 	bool IsBuff() const
 	{
-		return EffectId < SkillEffect_Buff_Max;
+		return EffectId > SkillEffect_Buff_Min && EffectId < SkillEffect_Buff_Max;
 	}
 
 	void Trigger()
@@ -107,7 +109,8 @@ struct FEffectBuffStatus
 
 		if (IsBuff())
 		{
-			return EffectId != 0 && NowTs < ExpireTime && !bTriggered;
+			// return EffectId != 0 && NowTs < ExpireTime && !bTriggered;
+			return EffectId != 0 && !bTriggered;
 		}
 
 		return false;
@@ -122,7 +125,8 @@ struct FEffectBuffStatus
 
 		if (IsBuff())
 		{
-			return EffectId != 0 && NowTs < ExpireTime && bTriggered;
+			// return EffectId != 0 && NowTs < ExpireTime && bTriggered;
+			return EffectId != 0 && bTriggered;
 		}
 
 		return false;
@@ -145,7 +149,7 @@ struct FEffectBuffStatus
 
 	bool IsValid(int64 NowTs) const
 	{
-		return EffectId != 0;
+		return EffectId != 0 && NowTs < ExpireTime;
 	}
 };
 
@@ -168,6 +172,7 @@ public:
 	void UpdateEffect(int32 SkillEffect);
 	void ClearEffect(int32 SkillEffect);
 
+	bool HasEffects();
 	// yunjie: fundamental interfaces END 
 
 	// yunjie: interfaces oriented to blueprint BEGIN
@@ -210,4 +215,18 @@ public:
 
 	UPROPERTY(ReplicatedUsing = OnRep_aaa, EditAnywhere, Category = SkillComponent)
 	int aaa;
+
+	UPROPERTY(EditDefaultsOnly, Category = SkillComponent)
+	UMaterialInterface* DefaultMaterialBody;
+
+	UPROPERTY(EditDefaultsOnly, Category = SkillComponent)
+	UMaterialInterface* FiringMaterialBody;
+
+	UPROPERTY(EditDefaultsOnly, Category = SkillComponent)
+	UMaterialInterface* FrozenMaterialBody;
+
+	UPROPERTY(EditDefaultsOnly, Category = SkillComponent)
+	UMaterialInterface* PoisonousMaterialBody;
+
+	UStaticMeshComponent* EffectPlaneComponent;
 };

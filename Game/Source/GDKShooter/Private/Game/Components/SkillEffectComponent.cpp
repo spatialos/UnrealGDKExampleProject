@@ -20,7 +20,7 @@ USkillEffectComponent::USkillEffectComponent()
 	FireBallSkillDesc.SkillType = SkillType_SingleTarget;
 	FireBallSkillDesc.SkillEffects.Add(SkillEffect_Instant_FireBall);
 	FireBallSkillDesc.SkillEffects.Add(SKillEffect_Buff_Firing);
-	FireBallSkillDesc.Probability = 0;
+	FireBallSkillDesc.Probability = 34;
 	SkillTable.Add(SkillId_FireBall, FireBallSkillDesc);
 
 	FSkillDesc StormSkillDesc;
@@ -28,7 +28,7 @@ USkillEffectComponent::USkillEffectComponent()
 	StormSkillDesc.SkillType = SkillType_CircleArea;
 	StormSkillDesc.SkillEffects.Add(SkillEffect_Instant_Storm);
 	StormSkillDesc.SkillEffects.Add(SKillEffect_Buff_Frozen);
-	StormSkillDesc.Probability = 100;
+	StormSkillDesc.Probability = 33;
 	SkillTable.Add(SkillId_Storm, StormSkillDesc);
 
 	FSkillDesc PosionSkillDesc;
@@ -36,7 +36,7 @@ USkillEffectComponent::USkillEffectComponent()
 	PosionSkillDesc.SkillType = SkillType_MultipleTargets;
 	PosionSkillDesc.SkillEffects.Add(SkillEffect_Instant_Poison);
 	PosionSkillDesc.SkillEffects.Add(SkillEffect_Buff_Poisonous);
-	PosionSkillDesc.Probability = 0;
+	PosionSkillDesc.Probability = 33;
 	SkillTable.Add(SkillId_Poison, PosionSkillDesc);
 }
 
@@ -45,6 +45,9 @@ void USkillEffectComponent::BeginPlay()
 	Super::BeginPlay();
 
 	AGDKCharacter* OwnerCharacter = Cast<AGDKCharacter>(GetOwner());
+	TArray<UActorComponent*> Components = OwnerCharacter->GetComponentsByTag(UStaticMeshComponent::StaticClass(), FName(TEXT("EffectPlane")));
+	EffectPlaneComponent = Cast<UStaticMeshComponent>(Components[0]);
+	EffectPlaneComponent->SetVisibility(false);
 
 	OwnerCharacter->GetWorldTimerManager().SetTimer(EffectTimer, this, &USkillEffectComponent::ProcessEffectTimer, 1.0f, true, 1.0f);
 }
@@ -84,10 +87,20 @@ void USkillEffectComponent::UseSkillRandomly()
 			continue;
 		}
 
+		if (Character->GetSkillComponent()->HasEffects())
+		{
+			continue;
+		}
+
 		if (FVector::Dist2D(OwnerCharacter->GetActorLocation(), Character->GetActorLocation()) <= TargetsRadius)
 		{
 			CharactersInRange.Add(Character);
 		}
+	}
+
+	if (!CharactersInRange.Num())
+	{
+		return;
 	}
 
 	const int32 OriginalRandValue = FMath::RandRange(1, 100);
@@ -268,7 +281,8 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 
 	case SKillEffect_Buff_Firing:
 	{
-
+		EffectPlaneComponent->SetVisibility(true);
+		EffectPlaneComponent->SetMaterial(0, FiringMaterialBody);
 	}
 	break;
 
@@ -277,6 +291,9 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 		float OldWalkSpeed = MovementComponent->MaxJogSpeed;
 		MovementComponent->MaxJogSpeed *= SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO;
 
+		EffectPlaneComponent->SetVisibility(true);
+		EffectPlaneComponent->SetMaterial(0, FrozenMaterialBody);
+
 		UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillBuff:[%d], OldWalkSpeed:[%f], NewWalkSpeed:[%f]"),
 			*SpatialWorkerId, *FString(__FUNCTION__), SkillBuff, OldWalkSpeed, MovementComponent->MaxJogSpeed);
 	}
@@ -284,7 +301,8 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 
 	case SkillEffect_Buff_Poisonous:
 	{
-
+		EffectPlaneComponent->SetVisibility(true);
+		EffectPlaneComponent->SetMaterial(0, PoisonousMaterialBody);
 	}
 	break;
 
@@ -403,11 +421,26 @@ void USkillEffectComponent::ClearEffect(int32 SkillBuff)
 	{
 	}
 	}
+
+	EffectPlaneComponent->SetVisibility(false);
 }
 
 void USkillEffectComponent::OnRep_aaa()
 {
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
 	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s"), *SpatialWorkerId, *FString(__FUNCTION__));
+}
+
+bool USkillEffectComponent::HasEffects()
+{
+	for (int32 Idx = 0; Idx < SkillEffect_Max; ++Idx)
+	{
+		if (EffectStatus[Idx].EffectId)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
