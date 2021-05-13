@@ -67,7 +67,7 @@ struct FSkillDesc
 };
 
 USTRUCT()
-struct FEffectBuffStatus
+struct FSkillEffectStatus
 {
 	GENERATED_USTRUCT_BODY();
 
@@ -195,8 +195,6 @@ public:
 	UFUNCTION()
 	void OnRep_EffectStatus();
 
-	UFUNCTION()
-	void OnRep_aaa();
 	// yunjie: Called on client side END
 
 protected:
@@ -220,7 +218,7 @@ public:
 	int32									TargetsRadius = 1000;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EffectStatus, EditAnywhere, Category = SkillComponent)
-	FEffectBuffStatus								EffectStatus[SkillEffect_Max];
+	FSkillEffectStatus								EffectStatus[SkillEffect_Max];
 
 	UPROPERTY(EditDefaultsOnly, Category = SkillComponent)
 	UMaterialInterface* DefaultMaterialBody;

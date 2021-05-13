@@ -419,12 +419,6 @@ void USkillEffectComponent::ClearEffect(int32 SkillBuff)
 	GetEffectPlaneComponent()->SetVisibility(false);
 }
 
-void USkillEffectComponent::OnRep_aaa()
-{
-	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s"), *SpatialWorkerId, *FString(__FUNCTION__));
-}
-
 bool USkillEffectComponent::HasEffects()
 {
 	for (int32 Idx = 0; Idx < SkillEffect_Max; ++Idx)
