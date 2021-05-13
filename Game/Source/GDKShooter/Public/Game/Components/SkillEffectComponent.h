@@ -213,6 +213,8 @@ protected:
 
 	UWorld* GetWorldWrapper() { return GWorld; }
 
+	UStaticMeshComponent* GetEffectPlaneComponent();
+
 public:
 	UPROPERTY(Category = SkillComponent, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32									TargetsRadius = 1000;

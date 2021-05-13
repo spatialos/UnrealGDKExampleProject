@@ -45,9 +45,7 @@ void USkillEffectComponent::BeginPlay()
 	Super::BeginPlay();
 
 	AGDKCharacter* OwnerCharacter = Cast<AGDKCharacter>(GetOwner());
-	TArray<UActorComponent*> Components = OwnerCharacter->GetComponentsByTag(UStaticMeshComponent::StaticClass(), FName(TEXT("EffectPlane")));
-	EffectPlaneComponent = Cast<UStaticMeshComponent>(Components[0]);
-	EffectPlaneComponent->SetVisibility(false);
+	GetEffectPlaneComponent()->SetVisibility(false);
 
 	OwnerCharacter->GetWorldTimerManager().SetTimer(EffectTimer, this, &USkillEffectComponent::ProcessEffectTimer, 1.0f, true, 1.0f);
 }
@@ -278,8 +276,8 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 
 	case SKillEffect_Buff_Firing:
 	{
-		EffectPlaneComponent->SetVisibility(true);
-		EffectPlaneComponent->SetMaterial(0, FiringMaterialBody);
+		GetEffectPlaneComponent()->SetVisibility(true);
+		GetEffectPlaneComponent()->SetMaterial(0, FiringMaterialBody);
 	}
 	break;
 
@@ -288,8 +286,8 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 		float OldWalkSpeed = MovementComponent->MaxJogSpeed;
 		MovementComponent->MaxJogSpeed *= SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO;
 
-		EffectPlaneComponent->SetVisibility(true);
-		EffectPlaneComponent->SetMaterial(0, FrozenMaterialBody);
+		GetEffectPlaneComponent()->SetVisibility(true);
+		GetEffectPlaneComponent()->SetMaterial(0, FrozenMaterialBody);
 
 		UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillBuff:[%d], OldWalkSpeed:[%f], NewWalkSpeed:[%f]"),
 			*SpatialWorkerId, *FString(__FUNCTION__), SkillBuff, OldWalkSpeed, MovementComponent->MaxJogSpeed);
@@ -298,8 +296,8 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 
 	case SkillEffect_Buff_Poisonous:
 	{
-		EffectPlaneComponent->SetVisibility(true);
-		EffectPlaneComponent->SetMaterial(0, PoisonousMaterialBody);
+		GetEffectPlaneComponent()->SetVisibility(true);
+		GetEffectPlaneComponent()->SetMaterial(0, PoisonousMaterialBody);
 	}
 	break;
 
@@ -418,7 +416,7 @@ void USkillEffectComponent::ClearEffect(int32 SkillBuff)
 	}
 	}
 
-	EffectPlaneComponent->SetVisibility(false);
+	GetEffectPlaneComponent()->SetVisibility(false);
 }
 
 void USkillEffectComponent::OnRep_aaa()
@@ -438,5 +436,18 @@ bool USkillEffectComponent::HasEffects()
 	}
 
 	return false;
+}
+
+UStaticMeshComponent* USkillEffectComponent::GetEffectPlaneComponent()
+{
+	if (EffectPlaneComponent)
+	{
+		return EffectPlaneComponent;
+	}
+
+	AGDKCharacter* OwnerCharacter = Cast<AGDKCharacter>(GetOwner());
+	TArray<UActorComponent*> Components = OwnerCharacter->GetComponentsByTag(UStaticMeshComponent::StaticClass(), FName(TEXT("EffectPlane")));
+	EffectPlaneComponent = Cast<UStaticMeshComponent>(Components[0]);
+	return EffectPlaneComponent;
 }
 
