@@ -30,6 +30,7 @@ UGDKMovementComponent::UGDKMovementComponent(const FObjectInitializer& ObjectIni
 	JumpZVelocity = 600.f;
 	AirControl = 0.2f;
 	SetIsReplicatedByDefault(true);
+	//this->NetworkSmoothingMode = ENetworkSmoothingMode::Disabled;
 }
 
 void UGDKMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
@@ -223,6 +224,7 @@ bool UGDKMovementComponent::ServerSetAiming_Validate(bool NewValue)
 void UGDKMovementComponent::ServerSetAiming_Implementation(bool NewValue)
 {
 	bIsAiming = NewValue;
+	OnServerAimingUpdated.Broadcast(bIsAiming);
 }
 
 void UGDKMovementComponent::SetAiming(bool NewValue)

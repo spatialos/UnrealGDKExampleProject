@@ -53,6 +53,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Aiming")
 	FAimingUpdated OnAimingUpdated;
 
+	UPROPERTY(BlueprintAssignable, Category = "Aiming")
+	FAimingUpdated OnServerAimingUpdated;
+
 	UPROPERTY(BlueprintAssignable, Category = "Sprint")
 	FSprintingUpdated SprintingUpdated;
 
