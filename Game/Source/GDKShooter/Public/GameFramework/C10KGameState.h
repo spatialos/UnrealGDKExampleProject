@@ -29,6 +29,7 @@ public:
 
 	UClass*				NpcSpawnerClass;
 	UClass*				NpcClass;
+	UClass*				FireballClass;
 
 	FTimerHandle		TimeUpdateTimerHandle;
 	FDateTime			NowDt;

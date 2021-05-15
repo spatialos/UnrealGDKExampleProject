@@ -22,6 +22,11 @@ AC10KGameState::AC10KGameState()
 		NpcSpawnerClass = (UClass*)NpcSpawnerClassFinder.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UClass> FireballClassFinder(TEXT("Class'/Game/C10K/FireBall/Fireball.Fireball_C'"));
+	if (FireballClassFinder.Object) {
+		FireballClass = (UClass*)FireballClassFinder.Object;
+	}
+
 	FrameTime = 0.0f;
 	FrameCount = 0;
 }

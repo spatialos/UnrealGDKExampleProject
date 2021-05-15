@@ -6,11 +6,14 @@
 #include "Components/ActorComponent.h"
 #include "SkillEffectComponent.generated.h"
 
+#define SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO		0.3
+
 DECLARE_LOG_CATEGORY_EXTERN(LogSkillComponent, Log, All);
 
 class AGDKCharacter;
 
-enum ESkillId : int32
+UENUM(BlueprintType)
+enum ESkillId
 {
 	SkillId_None = 0,
 	SkillId_FireBall,
@@ -18,7 +21,8 @@ enum ESkillId : int32
 	SkillId_Poison,
 };
 
-enum ESkillType : int32
+UENUM(BlueprintType)
+enum ESkillType
 {
 	SkillType_None = 0,
 	SkillType_SingleTarget,
@@ -26,7 +30,8 @@ enum ESkillType : int32
 	SkillType_CircleArea,
 };
 
-enum ESkillEffect : int32
+UENUM(BlueprintType)
+enum ESkillEffect
 {
 	SkillEffect_None = 0,
 	SkillEffect_Instant_Min,
@@ -44,16 +49,23 @@ enum ESkillEffect : int32
 	SkillEffect_Max,
 };
 
+USTRUCT(BlueprintType)
 struct FSkillEffectDesc
 {
+	GENERATED_USTRUCT_BODY();
+
 	int32				SkillEffectId = SkillEffect_None;
+
+	// yunjie: don't set this field to zero, since it would be reset immediately in the next frame then the client will not receive 
+	// this change as the status on server side changed back
 	int32				SkillEffectTime = 0;
 };
 
-#define SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO		0.3
-
+USTRUCT(BlueprintType)
 struct FSkillDesc
 {
+	GENERATED_USTRUCT_BODY();
+
 	int32						id = SkillId_None;
 	ESkillType					SkillType = SkillType_None;
 	TArray<FSkillEffectDesc>	SkillEffects;
@@ -66,26 +78,37 @@ struct FSkillDesc
 	}
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FSkillEffectStatus
 {
 	GENERATED_USTRUCT_BODY();
 
-	UPROPERTY()
+	UPROPERTY(Category = "SkillEffect", EditAnywhere, BlueprintReadWrite)
+	AGDKCharacter		*Causer = nullptr;
+	UPROPERTY(Category = "SkillEffect", EditAnywhere, BlueprintReadWrite)
 	int32				EffectId = 0;
-	UPROPERTY()
+	UPROPERTY(Category = "SkillEffect", EditAnywhere, BlueprintReadWrite)
 	int64				ExpireTime = 0;
-	UPROPERTY()
+	UPROPERTY(Category = "SkillEffect", EditAnywhere, BlueprintReadWrite)
 	int32				ExecuteCount = 0;
 
+public:
 	bool				bTriggered = false;
+	TArray<AActor*>		ClientEffectActors;
 
 	void Reset()
 	{
+		Causer = nullptr;
 		EffectId = 0;
 		ExpireTime = 0;
 		ExecuteCount = 0;
 		bTriggered = false;
+
+		for (auto ClientEffectActor : ClientEffectActors)
+		{
+			ClientEffectActor->Destroy();
+		}
+		ClientEffectActors.Reset();
 	}
 
 	bool IsInstant() const
@@ -139,7 +162,7 @@ struct FSkillEffectStatus
 
 	bool ShouldBeCleared(int64 NowTs) const
 	{
-		return !IsValid(NowTs) && bTriggered;
+		return IsExpired(NowTs) && bTriggered;
 
 		if (IsInstant())
 		{
@@ -154,11 +177,20 @@ struct FSkillEffectStatus
 		return false;
 	}
 
-	bool IsValid(int64 NowTs) const
+	bool IsExpired(int64 NowTs) const
 	{
-		return EffectId != 0 && NowTs < ExpireTime;
+		return EffectId != 0 && NowTs >= ExpireTime;
+	}
+
+	bool IsEmpty() const
+	{
+		return EffectId == 0 && ExpireTime == 0 && !Causer && !bTriggered;
 	}
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSkillEffectTriggerEvent, const FSkillEffectStatus&, SkillEffectStatus);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSkillEffectUpdateEvent, const FSkillEffectStatus&, SkillEffectStatus);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSkillEffectClearEvent, const FSkillEffectStatus&, SkillEffectStatus);
 
 UCLASS()
 class GDKSHOOTER_API USkillEffectComponent: public UActorComponent
@@ -175,9 +207,9 @@ public:
 	UFUNCTION()
 	void ProcessEffectTimer();
 	void UpdateEffectStatus();
-	void TriggerEffect(int32 SkillEffect);
-	void UpdateEffect(int32 SkillEffect);
-	void ClearEffect(int32 SkillEffect);
+	void TriggerEffect(FSkillEffectStatus& SkillEffect);
+	void UpdateEffect(FSkillEffectStatus& SkillEffect);
+	void ClearEffect(FSkillEffectStatus& SkillEffect);
 
 	bool HasEffects();
 	// yunjie: fundamental interfaces END 
@@ -233,4 +265,13 @@ public:
 	UMaterialInterface* PoisonousMaterialBody;
 
 	UStaticMeshComponent* EffectPlaneComponent;
+
+	UPROPERTY(BlueprintAssignable)
+		FSkillEffectTriggerEvent SkillEffectTriggerEvent;
+
+	UPROPERTY(BlueprintAssignable)
+		FSkillEffectUpdateEvent SkillEffectUpdateEvent;
+
+	UPROPERTY(BlueprintAssignable)
+		FSkillEffectClearEvent SkillEffectClearEvent;
 };

@@ -18,15 +18,15 @@ USkillEffectComponent::USkillEffectComponent()
 	FSkillDesc FireBallSkillDesc;
 	FireBallSkillDesc.id = SkillId_FireBall;
 	FireBallSkillDesc.SkillType = SkillType_SingleTarget;
-	FireBallSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_FireBall, 0});
+	FireBallSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_FireBall, 2 });
 	FireBallSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SKillEffect_Buff_Firing, 5});
-	FireBallSkillDesc.Probability = 34;
+	FireBallSkillDesc.Probability = 100;
 	SkillTable.Add(SkillId_FireBall, FireBallSkillDesc);
 
 	FSkillDesc StormSkillDesc;
 	StormSkillDesc.id = SkillId_Storm;
 	StormSkillDesc.SkillType = SkillType_CircleArea;
-	StormSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_Storm, 0 });
+	StormSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_Storm, 2 });
 	StormSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SKillEffect_Buff_Frozen, 8 });
 	StormSkillDesc.Probability = 33;
 	SkillTable.Add(SkillId_Storm, StormSkillDesc);
@@ -34,7 +34,7 @@ USkillEffectComponent::USkillEffectComponent()
 	FSkillDesc PosionSkillDesc;
 	PosionSkillDesc.id = SkillId_Poison;
 	PosionSkillDesc.SkillType = SkillType_MultipleTargets;
-	PosionSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_Poison, 0 });
+	PosionSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_Poison, 2 });
 	PosionSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Buff_Poisonous, 15 });
 	PosionSkillDesc.Probability = 33;
 	SkillTable.Add(SkillId_Poison, PosionSkillDesc);
@@ -80,6 +80,11 @@ void USkillEffectComponent::UseSkillRandomly()
 		}
 
 		if (Character == OwnerCharacter)
+		{
+			continue;
+		}
+
+		if (!Character->GetSkillComponent())
 		{
 			continue;
 		}
@@ -162,6 +167,7 @@ void USkillEffectComponent::ProcessSkillEffectOnServer(const FSkillEffectDesc& S
 		{
 			UGDKMovementComponent* TargetMovementComponent = Cast<UGDKMovementComponent>(Character->GetCharacterMovement());
 
+			Character->GetSkillComponent()->EffectStatus[SkillEffect.SkillEffectId].Causer = OwnerCharacter;
 			Character->GetSkillComponent()->EffectStatus[SkillEffect.SkillEffectId].EffectId = SkillEffect.SkillEffectId;
 			Character->GetSkillComponent()->EffectStatus[SkillEffect.SkillEffectId].ExpireTime = NowTs + SkillEffect.SkillEffectTime;
 			Character->GetSkillComponent()->UpdateEffectStatus();
@@ -227,24 +233,29 @@ void USkillEffectComponent::UpdateEffectStatus()
 
 	for (int32 Idx = 0; Idx < SkillEffect_Max; ++Idx)
 	{
+		if (EffectStatus[Idx].IsEmpty())
+		{
+			continue;
+		}
+
 		if (EffectStatus[Idx].ShouldBeTriggered(NowTs))
 		{
-			TriggerEffect(EffectStatus[Idx].EffectId);
+			TriggerEffect(EffectStatus[Idx]);
 			EffectStatus[Idx].Trigger();
-		}
-		else if (EffectStatus[Idx].IsValid(NowTs))
-		{
-			UpdateEffect(EffectStatus[Idx].EffectId);
 		}
 		else if (EffectStatus[Idx].ShouldBeCleared(NowTs))
 		{
-			ClearEffect(EffectStatus[Idx].EffectId);
+			ClearEffect(EffectStatus[Idx]);
 			EffectStatus[Idx].Reset();
+		}
+		else
+		{
+			UpdateEffect(EffectStatus[Idx]);
 		}
 	}
 }
 
-void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
+void USkillEffectComponent::TriggerEffect(FSkillEffectStatus& SkillEffect)
 {
 	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorldWrapper()->GetGameState());
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
@@ -252,13 +263,18 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 	UGDKMovementComponent* MovementComponent = Cast<UGDKMovementComponent>(OwnerCharacter->GetCharacterMovement());
 	int64 NowTs = GameState->NowTs;
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillBuff:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillBuff);
+	UCapsuleComponent* CapsuleComponent =
+			Cast<UCapsuleComponent>(OwnerCharacter->GetComponentByClass(UCapsuleComponent::StaticClass()));
 
-	switch (SkillBuff)
+	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId);
+
+	switch (SkillEffect.EffectId)
 	{
 	case SkillEffect_Instant_FireBall:
 	{
-
+		if (!GetWorldWrapper()->GetGameInstance()->IsDedicatedServerInstance())
+		{
+		}
 	}
 	break;
 
@@ -276,6 +292,24 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 
 	case SKillEffect_Buff_Firing:
 	{
+		if (!GetWorldWrapper()->GetGameInstance()->IsDedicatedServerInstance())
+		{
+			FVector FireBallLocation = SkillEffect.Causer->GetActorLocation();
+			FRotator FireBallRotation = SkillEffect.Causer->GetActorRotation();
+			AActor* Fireball = GetWorldWrapper()->SpawnActor<AActor>(GameState->FireballClass,
+				FireBallLocation,
+				FireBallRotation);
+
+			UProjectileMovementComponent* ProjectileMovementComponent =
+				Cast<UProjectileMovementComponent>(Fireball->GetComponentByClass(UProjectileMovementComponent::StaticClass()));
+
+			ProjectileMovementComponent->HomingTargetComponent = CapsuleComponent;
+			ProjectileMovementComponent->bIsHomingProjectile = true;
+			ProjectileMovementComponent->HomingAccelerationMagnitude = 25000;
+
+			SkillEffect.ClientEffectActors.Add(Fireball);
+		}
+
 		GetEffectPlaneComponent()->SetVisibility(true);
 		GetEffectPlaneComponent()->SetMaterial(0, FiringMaterialBody);
 	}
@@ -290,7 +324,7 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 		GetEffectPlaneComponent()->SetMaterial(0, FrozenMaterialBody);
 
 		UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillBuff:[%d], OldWalkSpeed:[%f], NewWalkSpeed:[%f]"),
-			*SpatialWorkerId, *FString(__FUNCTION__), SkillBuff, OldWalkSpeed, MovementComponent->MaxJogSpeed);
+			*SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId, OldWalkSpeed, MovementComponent->MaxJogSpeed);
 	}
 	break;
 
@@ -305,9 +339,11 @@ void USkillEffectComponent::TriggerEffect(int32 SkillBuff)
 	{
 	}
 	}
+
+	SkillEffectTriggerEvent.Broadcast(SkillEffect);
 }
 
-void USkillEffectComponent::UpdateEffect(int32 SkillBuff)
+void USkillEffectComponent::UpdateEffect(FSkillEffectStatus& SkillEffect)
 {
 	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorldWrapper()->GetGameState());
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
@@ -315,9 +351,9 @@ void USkillEffectComponent::UpdateEffect(int32 SkillBuff)
 	UGDKMovementComponent* MovementComponent = Cast<UGDKMovementComponent>(OwnerCharacter->GetCharacterMovement());
 	int64 NowTs = GameState->NowTs;
 
-	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillBuff:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillBuff);
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillEffect:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId);
 
-	switch (SkillBuff)
+	switch (SkillEffect.EffectId)
 	{
 	case SkillEffect_Instant_FireBall:
 	{
@@ -358,9 +394,11 @@ void USkillEffectComponent::UpdateEffect(int32 SkillBuff)
 	{
 	}
 	}
+
+	SkillEffectUpdateEvent.Broadcast(SkillEffect);
 }
 
-void USkillEffectComponent::ClearEffect(int32 SkillBuff)
+void USkillEffectComponent::ClearEffect(FSkillEffectStatus& SkillEffect)
 {
 	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorldWrapper()->GetGameState());
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
@@ -368,9 +406,9 @@ void USkillEffectComponent::ClearEffect(int32 SkillBuff)
 	UGDKMovementComponent* MovementComponent = Cast<UGDKMovementComponent>(OwnerCharacter->GetCharacterMovement());
 	int64 NowTs = GameState->NowTs;
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillBuff:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillBuff);
+	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId);
 
-	switch (SkillBuff)
+	switch (SkillEffect.EffectId)
 	{
 	case SkillEffect_Instant_FireBall:
 	{
@@ -400,8 +438,8 @@ void USkillEffectComponent::ClearEffect(int32 SkillBuff)
 		float OldWalkSpeed = MovementComponent->MaxJogSpeed;
 		MovementComponent->MaxJogSpeed /= SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO;
 
-		UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillBuff:[%d], OldWalkSpeed:[%f], NewWalkSpeed:[%f]"),
-			*SpatialWorkerId, *FString(__FUNCTION__), SkillBuff, OldWalkSpeed, MovementComponent->MaxJogSpeed);
+		UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d], OldWalkSpeed:[%f], NewWalkSpeed:[%f]"),
+			*SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId, OldWalkSpeed, MovementComponent->MaxJogSpeed);
 	}
 	break;
 
@@ -417,6 +455,8 @@ void USkillEffectComponent::ClearEffect(int32 SkillBuff)
 	}
 
 	GetEffectPlaneComponent()->SetVisibility(false);
+
+	SkillEffectClearEvent.Broadcast(SkillEffect);
 }
 
 bool USkillEffectComponent::HasEffects()
