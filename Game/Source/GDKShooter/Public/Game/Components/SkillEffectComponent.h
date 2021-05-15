@@ -186,6 +186,11 @@ public:
 	{
 		return EffectId == 0 && ExpireTime == 0 && !Causer && !bTriggered;
 	}
+
+	bool SanityCheck() const
+	{
+		return Causer != nullptr;
+	}
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSkillEffectTriggerEvent, const FSkillEffectStatus&, SkillEffectStatus);

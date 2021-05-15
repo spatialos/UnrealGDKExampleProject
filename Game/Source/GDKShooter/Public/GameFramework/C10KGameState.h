@@ -30,6 +30,8 @@ public:
 	UClass*				NpcSpawnerClass;
 	UClass*				NpcClass;
 	UClass*				FireballClass;
+	UClass*				StormClass;
+	UClass*				PoisonClass;
 
 	FTimerHandle		TimeUpdateTimerHandle;
 	FDateTime			NowDt;

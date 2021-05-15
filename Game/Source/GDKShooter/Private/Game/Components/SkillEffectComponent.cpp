@@ -20,7 +20,7 @@ USkillEffectComponent::USkillEffectComponent()
 	FireBallSkillDesc.SkillType = SkillType_SingleTarget;
 	FireBallSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SkillEffect_Instant_FireBall, 2 });
 	FireBallSkillDesc.SkillEffects.Add(FSkillEffectDesc{ SKillEffect_Buff_Firing, 5});
-	FireBallSkillDesc.Probability = 100;
+	FireBallSkillDesc.Probability = 34;
 	SkillTable.Add(SkillId_FireBall, FireBallSkillDesc);
 
 	FSkillDesc StormSkillDesc;
@@ -238,6 +238,15 @@ void USkillEffectComponent::UpdateEffectStatus()
 			continue;
 		}
 
+		if (!EffectStatus[Idx].SanityCheck())
+		{
+			// yunjie: some actor reference might be invalidated, so just clear the effect here
+			ClearEffect(EffectStatus[Idx]);
+			EffectStatus[Idx].Reset();
+
+			continue;
+		}
+
 		if (EffectStatus[Idx].ShouldBeTriggered(NowTs))
 		{
 			TriggerEffect(EffectStatus[Idx]);
@@ -272,9 +281,7 @@ void USkillEffectComponent::TriggerEffect(FSkillEffectStatus& SkillEffect)
 	{
 	case SkillEffect_Instant_FireBall:
 	{
-		if (!GetWorldWrapper()->GetGameInstance()->IsDedicatedServerInstance())
-		{
-		}
+
 	}
 	break;
 
@@ -294,11 +301,11 @@ void USkillEffectComponent::TriggerEffect(FSkillEffectStatus& SkillEffect)
 	{
 		if (!GetWorldWrapper()->GetGameInstance()->IsDedicatedServerInstance())
 		{
-			FVector FireBallLocation = SkillEffect.Causer->GetActorLocation();
-			FRotator FireBallRotation = SkillEffect.Causer->GetActorRotation();
+			FVector SkillLocation = SkillEffect.Causer->GetActorLocation();
+			FRotator SkillRotation = SkillEffect.Causer->GetActorRotation();
 			AActor* Fireball = GetWorldWrapper()->SpawnActor<AActor>(GameState->FireballClass,
-				FireBallLocation,
-				FireBallRotation);
+				SkillLocation,
+				SkillRotation);
 
 			UProjectileMovementComponent* ProjectileMovementComponent =
 				Cast<UProjectileMovementComponent>(Fireball->GetComponentByClass(UProjectileMovementComponent::StaticClass()));
@@ -323,13 +330,49 @@ void USkillEffectComponent::TriggerEffect(FSkillEffectStatus& SkillEffect)
 		GetEffectPlaneComponent()->SetVisibility(true);
 		GetEffectPlaneComponent()->SetMaterial(0, FrozenMaterialBody);
 
-		UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillBuff:[%d], OldWalkSpeed:[%f], NewWalkSpeed:[%f]"),
+		UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillBuff:[%d], OldWalkSpeed:[%f], NewWalkSpeed:[%f]"),
 			*SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId, OldWalkSpeed, MovementComponent->MaxJogSpeed);
+
+		if (!GetWorldWrapper()->GetGameInstance()->IsDedicatedServerInstance())
+		{
+			FVector SkillLocation = SkillEffect.Causer->GetActorLocation();
+			FRotator SkillRotation = SkillEffect.Causer->GetActorRotation();
+			AActor* Storm = GetWorldWrapper()->SpawnActor<AActor>(GameState->StormClass,
+				SkillLocation,
+				SkillRotation);
+
+			UProjectileMovementComponent* ProjectileMovementComponent =
+				Cast<UProjectileMovementComponent>(Storm->GetComponentByClass(UProjectileMovementComponent::StaticClass()));
+
+			ProjectileMovementComponent->HomingTargetComponent = CapsuleComponent;
+			ProjectileMovementComponent->bIsHomingProjectile = true;
+			ProjectileMovementComponent->HomingAccelerationMagnitude = 25000;
+
+			SkillEffect.ClientEffectActors.Add(Storm);
+		}
 	}
 	break;
 
 	case SkillEffect_Buff_Poisonous:
 	{
+		if (!GetWorldWrapper()->GetGameInstance()->IsDedicatedServerInstance())
+		{
+			FVector SkillLocation = SkillEffect.Causer->GetActorLocation();
+			FRotator SkillRotation = SkillEffect.Causer->GetActorRotation();
+			AActor* Poison = GetWorldWrapper()->SpawnActor<AActor>(GameState->PoisonClass,
+				SkillLocation,
+				SkillRotation);
+
+			UProjectileMovementComponent* ProjectileMovementComponent =
+				Cast<UProjectileMovementComponent>(Poison->GetComponentByClass(UProjectileMovementComponent::StaticClass()));
+
+			ProjectileMovementComponent->HomingTargetComponent = CapsuleComponent;
+			ProjectileMovementComponent->bIsHomingProjectile = true;
+			ProjectileMovementComponent->HomingAccelerationMagnitude = 25000;
+
+			SkillEffect.ClientEffectActors.Add(Poison);
+		}
+
 		GetEffectPlaneComponent()->SetVisibility(true);
 		GetEffectPlaneComponent()->SetMaterial(0, PoisonousMaterialBody);
 	}
@@ -438,7 +481,7 @@ void USkillEffectComponent::ClearEffect(FSkillEffectStatus& SkillEffect)
 		float OldWalkSpeed = MovementComponent->MaxJogSpeed;
 		MovementComponent->MaxJogSpeed /= SKILL_EFFECT_BUFF_FRONZEN_SPEED_RATIO;
 
-		UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d], OldWalkSpeed:[%f], NewWalkSpeed:[%f]"),
+		UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillEffect:[%d], OldWalkSpeed:[%f], NewWalkSpeed:[%f]"),
 			*SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId, OldWalkSpeed, MovementComponent->MaxJogSpeed);
 	}
 	break;

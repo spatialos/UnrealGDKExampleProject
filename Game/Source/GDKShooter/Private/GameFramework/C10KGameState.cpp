@@ -27,6 +27,16 @@ AC10KGameState::AC10KGameState()
 		FireballClass = (UClass*)FireballClassFinder.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UClass> StormClassFinder(TEXT("Class'/Game/C10K/Storm/Storm.Storm_C'"));
+	if (StormClassFinder.Object) {
+		StormClass = (UClass*)StormClassFinder.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UClass> PoisonClassFinder(TEXT("Class'/Game/C10K/Poison/Poison.Poison_C'"));
+	if (PoisonClassFinder.Object) {
+		PoisonClass = (UClass*)PoisonClassFinder.Object;
+	}
+
 	FrameTime = 0.0f;
 	FrameCount = 0;
 }
