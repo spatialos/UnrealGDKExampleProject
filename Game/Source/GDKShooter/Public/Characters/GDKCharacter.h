@@ -134,15 +134,18 @@ public:
 	void OnRep_CurrentNpcSpawnerIdx();
 
 	// yunjie: for AI configuration
-	UPROPERTY(Replicated, Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, Category = GDKCharacterNpc, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool				BTreeDebugMessage = false;
 
-	UPROPERTY(Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	int32				AISpawnCountPerBatch = 50;
+	UPROPERTY(Category = GDKCharacterNpc, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	int32				AISpawnCountPerBatch = 100;
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentNpcSpawnerIdx, Category = AI, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentNpcSpawnerIdx, Category = GDKCharacterNpc, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32				CurrentNpcSpawnerIdx = 0;
 	int32				CachedNpcSpawnerIdx = 0;
+
+	UPROPERTY(Replicated, Category = GDKCharacter, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FString				PlaneId;
 
 	FTimerHandle		TeleportTimer;
 	FTimerHandle		SimPlayerGarbageTimer;

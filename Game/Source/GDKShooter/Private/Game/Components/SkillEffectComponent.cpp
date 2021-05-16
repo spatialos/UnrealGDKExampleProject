@@ -126,7 +126,7 @@ void USkillEffectComponent::UseSkillRandomly()
 		return;
 	}
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, RandValue:[%d], RandedSkill:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), OriginalRandValue, RandedSkill.id);
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, RandValue:[%d], RandedSkill:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), OriginalRandValue, RandedSkill.id);
 
 	UseSkillOnServer(RandedSkill.id, CharactersInRange);
 }
@@ -142,7 +142,7 @@ void USkillEffectComponent::UseSkillOnServer(int32 SkillId, TArray<AGDKCharacter
 		return;
 	}
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillId:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillId, Targets.Num());
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillId:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillId, Targets.Num());
 
 	for (auto Effect : SkillDesc->SkillEffects)
 	{
@@ -159,7 +159,7 @@ void USkillEffectComponent::ProcessSkillEffectOnServer(const FSkillEffectDesc& S
 	AGDKCharacter* OwnerCharacter = Cast<AGDKCharacter>(GetOwner());
 	int64 NowTs = GameState->NowTs;
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.SkillEffectId, Targets.Num());
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillEffect:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.SkillEffectId, Targets.Num());
 
 	for (auto Character : Targets)
 	{
@@ -189,7 +189,7 @@ void USkillEffectComponent::NetMulticastUseSkill_Implementation(int32 SkillId, c
 		return;
 	}
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillId:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillId, Targets.Num());
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillId:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillId, Targets.Num());
 
 	for (auto Effect : SkillDesc->SkillEffects)
 	{
@@ -201,7 +201,7 @@ void USkillEffectComponent::ProcessSkillEffectOnClient(const FSkillEffectDesc& S
 {
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.SkillEffectId, Targets.Num());
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillEffect:[%d], TargetCount:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.SkillEffectId, Targets.Num());
 
 	AGDKCharacter* OwnerCharacter = Cast<AGDKCharacter>(GetOwner());
 }
@@ -217,7 +217,7 @@ void USkillEffectComponent::ProcessEffectTimer()
 void USkillEffectComponent::OnRep_EffectStatus()
 {
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s"), *SpatialWorkerId, *FString(__FUNCTION__));
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s"), *SpatialWorkerId, *FString(__FUNCTION__));
 	UpdateEffectStatus();
 }
 
@@ -275,7 +275,7 @@ void USkillEffectComponent::TriggerEffect(FSkillEffectStatus& SkillEffect)
 	UCapsuleComponent* CapsuleComponent =
 			Cast<UCapsuleComponent>(OwnerCharacter->GetComponentByClass(UCapsuleComponent::StaticClass()));
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId);
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillEffect:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId);
 
 	switch (SkillEffect.EffectId)
 	{
@@ -449,7 +449,7 @@ void USkillEffectComponent::ClearEffect(FSkillEffectStatus& SkillEffect)
 	UGDKMovementComponent* MovementComponent = Cast<UGDKMovementComponent>(OwnerCharacter->GetCharacterMovement());
 	int64 NowTs = GameState->NowTs;
 
-	UE_LOG(LogSkillComponent, Display, TEXT("%s, %s, Using SkillEffect:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId);
+	UE_LOG(LogSkillComponent, Verbose, TEXT("%s, %s, Using SkillEffect:[%d]"), *SpatialWorkerId, *FString(__FUNCTION__), SkillEffect.EffectId);
 
 	switch (SkillEffect.EffectId)
 	{

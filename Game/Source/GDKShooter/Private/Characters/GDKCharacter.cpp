@@ -363,6 +363,12 @@ void AGDKCharacter::ServerSpawnAIEntities_Implementation()
 			continue;
 		}
 
+		if (PlayerStart->Tags.Num())
+		{
+			// yunjie: set the character belongs to which plane in multiple workers/planes case
+			Character->PlaneId = PlayerStart->Tags[0].ToString();
+		}
+
 		/*
 		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(Character->AIControllerClass, PlayerStart->GetActorLocation(),
 			PlayerStart->GetActorRotation(), SpawnParam);
