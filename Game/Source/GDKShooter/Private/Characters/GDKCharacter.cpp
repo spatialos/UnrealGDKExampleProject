@@ -435,26 +435,7 @@ void AGDKCharacter::ServerChangeCharacterMovementMode_Implementation()
 
 void AGDKCharacter::ChangeCharacterMovementMode()
 {
-	const FString SpatialWorkerId = GetWorld()->GetGameInstance()->GetSpatialWorkerId();
-
-	if (++GetMutableDefault<UGeneralProjectSettings>()->CharacterMovementMode > 1)
-	{
-		GetMutableDefault<UGeneralProjectSettings>()->CharacterMovementMode = 0;
-	}
-
-	// yunjie: since in editor mode, there's only one single instance for GeneralProjectSettings
-	//		so no need to call ServerRPC to get the server updated
-#if !WITH_EDITOR
-	if (!GetGameInstance()->IsDedicatedServerInstance())
-	{
-		ServerChangeCharacterMovementMode();
-	}
-#endif
-
-	UE_LOG(LogGDK, Warning, TEXT("%s, %s - CharacterMovementMode:[%d]"),
-		*SpatialWorkerId, *FString(__FUNCTION__), GetDefault<UGeneralProjectSettings>()->CharacterMovementMode);
 }
-
 
 void AGDKCharacter::ServerTeleportToNextPlane_Implementation()
 {

@@ -149,7 +149,7 @@ void USkillEffectComponent::UseSkillOnServer(int32 SkillId, TArray<AGDKCharacter
 		ProcessSkillEffectOnServer(Effect, Targets);
 	}
 
-	NetMulticastUseSkill(SkillId, Targets);
+	// NetMulticastUseSkill(SkillId, Targets);
 }
 
 void USkillEffectComponent::ProcessSkillEffectOnServer(const FSkillEffectDesc& SkillEffect, TArray<AGDKCharacter*> Targets)
@@ -226,6 +226,11 @@ void USkillEffectComponent::UpdateEffectStatus()
 	AGDKCharacter* OwnerCharacter = Cast<AGDKCharacter>(GetOwner());
 	const FString SpatialWorkerId = GetWorldWrapper()->GetGameInstance()->GetSpatialWorkerId();
 	AC10KGameState* GameState = Cast<AC10KGameState>(GetWorldWrapper()->GetGameState());
+	if (!GameState)
+	{
+		return;
+	}
+
 	UGDKMovementComponent* MovementComponent = Cast<UGDKMovementComponent>(OwnerCharacter->GetCharacterMovement());
 	int64 NowTs = GameState->NowTs;
 
@@ -417,7 +422,7 @@ void USkillEffectComponent::UpdateEffect(FSkillEffectStatus& SkillEffect)
 	case SKillEffect_Buff_Firing:
 	{
 		FDamageEvent De;
-		OwnerCharacter->TakeDamageCrossServer(3, De, OwnerCharacter->GetController(), OwnerCharacter);
+		// OwnerCharacter->TakeDamageCrossServer(0.1, De, OwnerCharacter->GetController(), OwnerCharacter);
 	}
 	break;
 
@@ -429,7 +434,7 @@ void USkillEffectComponent::UpdateEffect(FSkillEffectStatus& SkillEffect)
 	case SkillEffect_Buff_Poisonous:
 	{
 		FDamageEvent De;
-		OwnerCharacter->TakeDamageCrossServer(1, De, OwnerCharacter->GetController(), OwnerCharacter);
+		// OwnerCharacter->TakeDamageCrossServer(0.1, De, OwnerCharacter->GetController(), OwnerCharacter);
 	}
 	break;
 
