@@ -5,4 +5,4 @@ COPY --chown=worker:worker ./default.snapshot /improbable/workers/sample-game/sc
 
 RUN chmod 744 /improbable/workers/sample-game/schema/schema.sb
 RUN chmod 744 /improbable/workers/sample-game/schema/default.snapshot
-RUN sleep 1000
+#RUN sleep 1000
