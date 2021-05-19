@@ -1,8 +1,7 @@
 ---
-ci_version: &ci_version "1.1"
+ci_version: &ci_version "${CI_VERSION:-1.2}"
 
 steps:
-  # New build pipeline
   # Trigger a 4.26 build
   - trigger: "unrealgdkbuild-ci"
     label: "exampleproject-ci"
@@ -12,15 +11,19 @@ steps:
       message: "exampleproject-4.26 ${BUILDKITE_MESSAGE}"
       env: 
         BUILD_TYPE: "EXAMPLE"
-        GDK_BRANCH: "${GDK_BRANCH:-0.13.0}" # NOTE: temp fix for new ci release interop issues
-        ENGINE_BRANCH: "${ENGINE_BRANCH:-4.26-SpatialOSUnrealGDK-0.13.0}" # NOTE: temp fix for new ci release interop issues
+        GDK_BRANCH: "${GDK_BRANCH:-match_branch_name_pref::master}"
+        ENGINE_BRANCH: "${ENGINE_BRANCH_426:-match_branch_name_pref_engine::4.26-SpatialOSUnrealGDK}"
         ENGINE_MAJOR: "4.26"
-        PROJECT_BRANCH: "${BUILDKITE_BRANCH}"
-        USE_FASTBUILD: "True"
-        IS_BUILDKITE_BUILD: "True"
-        BUILD_ANDROID: "True"
-        SKIP_TESTS: "True"
-        CLEAN_BUILD: "False"
-        START_DEPLOYMENT: "True"
-        SPATIAL_PROJECT_NAME: "unreal_gdk"
+        PROJECT_BRANCH: "main_branch::${BUILDKITE_BRANCH}"
+        USE_FASTBUILD: "${USE_FASTBUILD:-True}"
+        IS_BUILDKITE_BUILD: "${IS_BUILDKITE_BUILD:-True}"
+        BUILD_ANDROID: "${BUILD_ANDROID:-True}"
+        SKIP_TESTS: "${SKIP_TESTS:-True}"
+        CLEAN_BUILD: "${CLEAN_BUILD:-False}"
+        SLOW_TESTS: "${SLOW_TESTS}"
+        START_DEPLOYMENT: "${START_DEPLOYMENT:-True}"
+        SPATIAL_PROJECT_NAME: "${SPATIAL_PROJECT_NAME:-unreal_gdk}"
+        BUILD_LINUX_SERVER_WORKER: "${BUILD_LINUX_SERVER_WORKER:-True}"
+        BUILD_WINDOWS_CLIENT_WORKER: "${BUILD_WINDOWS_CLIENT_WORKER:-True}"
+        BUILD_SIM_PLAYER_WORKER: "${BUILD_SIM_PLAYER_WORKER:-False}"
 # TODO: bring back deployment link notifies UNR-5391

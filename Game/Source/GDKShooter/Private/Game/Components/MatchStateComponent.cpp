@@ -19,7 +19,7 @@ void UMatchStateComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 void UMatchStateComponent::SetMatchState(EMatchState NewState) 
 { 
-	if (!GetOwner()->HasAuthority())
+	if (!GetOwner()->HasAuthority() || CurrentState == EMatchState::NetworkFailure)
 	{
 		return;
 	}
