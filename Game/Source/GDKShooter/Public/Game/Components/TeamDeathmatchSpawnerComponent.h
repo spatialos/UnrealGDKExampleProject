@@ -9,6 +9,21 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTeamDeathmatchSpawnerComponent, Log, All)
 
+USTRUCT()
+struct FTeamAssignment
+{
+	GENERATED_USTRUCT_BODY()
+	
+	UPROPERTY()
+	int32 TeamId;
+
+	UPROPERTY()
+	int32 PlayerNum;
+
+public:
+	FTeamAssignment(int32 Id = 0, int32 Num = 0) : TeamId(Id), PlayerNum(Num) {}
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GDKSHOOTER_API UTeamDeathmatchSpawnerComponent : public UActorComponent
 {
@@ -16,6 +31,8 @@ class GDKSHOOTER_API UTeamDeathmatchSpawnerComponent : public UActorComponent
 
 public:	
 	UTeamDeathmatchSpawnerComponent();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetTeams(TArray<FGenericTeamId> TeamIds);
@@ -41,10 +58,20 @@ protected:
 	class APlayerStart* GetNextTeamPlayerStart(FGenericTeamId Team);
 	class APlayerStart* GetNextPlayerStart();
 
+	UPROPERTY(Replicated)
 	TArray<class APlayerStart*> PlayerStarts;
+
+	UPROPERTY(Replicated)
 	TArray<class APlayerStart*> TeamPlayerStarts;
-	TMap<int32, int32> TeamAssignments;
+
+	UPROPERTY(ReplicatedUsing=OnRep_Teams)
+	//TMap<int32, int32> TeamAssignments;
+	TArray<FTeamAssignment> TeamAssignments;
+
 	TMap<APlayerController*, int32> SpawnedPlayers;
 	TMap<FGenericTeamId, int32> NextTeamPlayerStart;
 	int32 NextPlayerStart;
+
+	UFUNCTION()
+	void OnRep_Teams();
 };

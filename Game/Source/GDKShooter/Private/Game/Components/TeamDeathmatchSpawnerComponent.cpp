@@ -24,13 +24,23 @@ UTeamDeathmatchSpawnerComponent::UTeamDeathmatchSpawnerComponent()
 	bUseTeamPlayerStarts = true;
 	bShufflePlayerStarts = true;
 	NextPlayerStart = 0;
+	SetIsReplicatedByDefault(true);
+}
+
+void UTeamDeathmatchSpawnerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, PlayerStarts);
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, TeamPlayerStarts);
+	DOREPLIFETIME(UTeamDeathmatchSpawnerComponent, TeamAssignments);
 }
 
 void UTeamDeathmatchSpawnerComponent::SetTeams(TArray<FGenericTeamId> TeamIds)
 {
 	for (FGenericTeamId TeamId : TeamIds)
 	{
-		TeamAssignments.Add(TeamId.GetId(), 0);
+		TeamAssignments.Add(FTeamAssignment(TeamId.GetId(), 0));
 	}
 
 	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
@@ -80,7 +90,14 @@ void UTeamDeathmatchSpawnerComponent::RequestSpawn(APlayerController* Controller
 		// Assign player to smallest team.
 		TeamId = GetSmallestTeam();
 		SpawnedPlayers.Add(Controller, TeamId);
-		TeamAssignments[TeamId] += 1;
+		for (FTeamAssignment& TA : TeamAssignments)
+		{
+			if (TA.TeamId == TeamId)
+			{
+				TA.PlayerNum++;
+				break;;
+			}
+		}
 	}
 	APlayerStart* PlayerStart = nullptr;
 
@@ -150,7 +167,15 @@ void UTeamDeathmatchSpawnerComponent::PlayerDisconnected(APlayerController* Cont
 {
 	if (SpawnedPlayers.Contains(Controller))
 	{
-		TeamAssignments[SpawnedPlayers[Controller]] -= 1;
+		int32 TeamId = SpawnedPlayers[Controller];
+		for (FTeamAssignment& TA : TeamAssignments)
+		{
+			if (TA.TeamId == TeamId)
+			{
+				TA.PlayerNum--;
+				break;;
+			}
+		}
 		SpawnedPlayers.Remove(Controller);
 	}
 }
@@ -160,12 +185,12 @@ int32 UTeamDeathmatchSpawnerComponent::GetSmallestTeam()
 	int32 SmallestTeam = -1;
 	int32 SmallestTeamSize = TNumericLimits<int32>::Max();
 
-	for (auto& Entry : TeamAssignments)
+	for (FTeamAssignment& Entry : TeamAssignments)
 	{
-		if (Entry.Value < SmallestTeamSize)
+		if (Entry.PlayerNum < SmallestTeamSize)
 		{
-			SmallestTeamSize = Entry.Value;
-			SmallestTeam = Entry.Key;
+			SmallestTeamSize = Entry.PlayerNum;
+			SmallestTeam = Entry.TeamId;
 		}
 	}
 
@@ -197,6 +222,11 @@ APlayerStart* UTeamDeathmatchSpawnerComponent::GetNextPlayerStart()
 	return PlayerStart;
 }
 
+
+void UTeamDeathmatchSpawnerComponent::OnRep_Teams()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_Teams"));
+}
 
 void UTeamDeathmatchSpawnerComponent::ShufflePlayerStartArray(TArray<APlayerStart*> Array)
 {

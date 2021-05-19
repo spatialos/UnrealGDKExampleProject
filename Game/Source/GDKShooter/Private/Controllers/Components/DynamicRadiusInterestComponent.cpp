@@ -7,6 +7,7 @@
 
 void UDynamicRadiusInterestComponent::BeginPlay()
 {
+	Super::BeginPlay();
 	RootConstraint.SphereConstraint = SpatialGDK::SphereConstraint{};
 }
 
