@@ -31,7 +31,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMetaDataUpdated();
 
-	UPROPERTY(Handover)
+	UPROPERTY(Replicated)
 	AWeapon* InstigatingWeapon;
 
 protected:
@@ -88,7 +88,7 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void ExplosionVisuals();
 
-	UPROPERTY(Handover)
+	UPROPERTY(Replicated)
 	AController* InstigatingController;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Projectile)
