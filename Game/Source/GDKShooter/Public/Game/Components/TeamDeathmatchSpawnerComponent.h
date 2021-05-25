@@ -64,14 +64,11 @@ protected:
 	UPROPERTY(Replicated)
 	TArray<class APlayerStart*> TeamPlayerStarts;
 
-	UPROPERTY(ReplicatedUsing=OnRep_Teams)
+	UPROPERTY(Replicated)
 	//TMap<int32, int32> TeamAssignments;
 	TArray<FTeamAssignment> TeamAssignments;
 
 	TMap<APlayerController*, int32> SpawnedPlayers;
 	TMap<FGenericTeamId, int32> NextTeamPlayerStart;
 	int32 NextPlayerStart;
-
-	UFUNCTION()
-	void OnRep_Teams();
 };

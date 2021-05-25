@@ -222,12 +222,6 @@ APlayerStart* UTeamDeathmatchSpawnerComponent::GetNextPlayerStart()
 	return PlayerStart;
 }
 
-
-void UTeamDeathmatchSpawnerComponent::OnRep_Teams()
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_Teams"));
-}
-
 void UTeamDeathmatchSpawnerComponent::ShufflePlayerStartArray(TArray<APlayerStart*> Array)
 {
 	int32 LastIndex = Array.Num() - 1;
