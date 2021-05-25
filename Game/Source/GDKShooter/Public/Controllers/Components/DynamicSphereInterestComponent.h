@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Schema/Interest.h"
 #include "EngineClasses/Components/AbstractInterestComponent.h"
-#include "DynamicRadiusInterestComponent.generated.h"
+#include "DynamicSphereInterestComponent.generated.h"
 
 /**
  * 
  */
 UCLASS(SpatialType = ServerOnly, Meta = (BlueprintSpawnableComponent))
-class GDKSHOOTER_API UDynamicRadiusInterestComponent : public UAbstractInterestComponent
+class GDKSHOOTER_API UDynamicSphereInterestComponent : public UAbstractInterestComponent
 {
 	GENERATED_BODY()
 	
