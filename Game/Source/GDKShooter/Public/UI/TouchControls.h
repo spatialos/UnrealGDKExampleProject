@@ -30,7 +30,8 @@ struct SpeedStatistics
 		if (MoveStatisticsCache.IsFull())
 		{
 			float OldestOffset;
-			check(MoveStatisticsCache.Dequeue(OldestOffset));
+			bool bResult = MoveStatisticsCache.Dequeue(OldestOffset);
+			check(bResult);
 			OffsetNum -= OldestOffset;
 		}
 		MoveStatisticsCache.Enqueue(Offset);
