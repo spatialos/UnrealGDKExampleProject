@@ -31,10 +31,10 @@ call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME%Server 
 call %GDK_DIRECTORY%\SpatialGDK\Build\Scripts\BuildWorker.bat %GAME_NAME% Win64 Development "%~dp0\%PROJECT_PATH%\%GAME_NAME%.uproject" || goto :error
 echo All builds succeeded.
 
-pause
+::pause
 exit /b 0
 
 :error
 echo Builds failed.
-pause
+::pause
 exit /b 1
