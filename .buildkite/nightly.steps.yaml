@@ -17,6 +17,7 @@ steps:
         PROJECT_BRANCH: "main_branch::${BUILDKITE_BRANCH}"
         USE_FASTBUILD: "${USE_FASTBUILD:-True}"
         IS_BUILDKITE_BUILD: "${IS_BUILDKITE_BUILD:-True}"
+        BUILD_VARIANT: "${BUILD_VARIANT:-Development}"
         BUILD_ANDROID: "${BUILD_ANDROID:-True}"
         SKIP_TESTS: "${SKIP_TESTS:-True}"
         CLEAN_BUILD: "${CLEAN_BUILD:-False}"
