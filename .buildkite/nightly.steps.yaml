@@ -12,8 +12,8 @@ steps:
       message: "exampleproject-4.26 ${BUILDKITE_MESSAGE}"
       env: 
         BUILD_TYPE: "EXAMPLE"
-        GDK_BRANCH: "${GDK_BRANCH:-match_branch_name_pref::0.13.1-rc}"
-        ENGINE_BRANCH: "${ENGINE_BRANCH_426:-match_branch_name_pref_engine::4.26-SpatialOSUnrealGDK-0.13.1-rc}"
+        GDK_BRANCH: "${GDK_BRANCH:-match_branch_name_pref::0.13.1}"
+        ENGINE_BRANCH: "${ENGINE_BRANCH:-match_branch_name_pref_engine::4.26-SpatialOSUnrealGDK-0.13.1}"
         ENGINE_MAJOR: "4.26"
         PROJECT_BRANCH: "main_branch::${BUILDKITE_BRANCH}"
         USE_FASTBUILD: "True"
