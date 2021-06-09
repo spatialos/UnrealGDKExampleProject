@@ -115,7 +115,9 @@ void AGDKPlayerController::SetUIMode(bool bIsUIMode)
 
 	if (bIsUIMode)
 	{
-		SetInputMode(FInputModeGameAndUI());
+		FInputModeGameAndUI Mode;
+		Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+		SetInputMode(Mode);
 		ActivateTouchInterface(nullptr);
 	}
 	else
