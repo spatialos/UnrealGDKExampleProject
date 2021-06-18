@@ -69,6 +69,9 @@ void AProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 
 	DOREPLIFETIME(AProjectile, bExploded);
 	DOREPLIFETIME(AProjectile, MetaData);
+
+	DOREPLIFETIME_CONDITION(AProjectile, InstigatingWeapon, COND_ServerOnly);
+	DOREPLIFETIME_CONDITION(AProjectile, InstigatingController, COND_ServerOnly);
 }
 
 void AProjectile::PostNetReceiveVelocity(const FVector& NewVelocity)

@@ -11,7 +11,8 @@ enum class EMatchState : uint8
 {
 	PreGame			UMETA(DisplayName = "PreGame"),
 	InGame			UMETA(DisplayName = "InGame"),
-	PostGame		UMETA(DisplayName = "PostGame")
+	PostGame		UMETA(DisplayName = "PostGame"),
+	NetworkFailure	UMETA(DisplayName = "NetworkFailure")
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMatchEvent, EMatchState, CurrentState);
