@@ -1,5 +1,5 @@
 ---
-ci_version: &ci_version "${CI_VERSION:-1.4}"
+ci_version: &ci_version "${CI_VERSION:-0.14.0-rc}"
 
 steps:
   # Trigger a 4.26 build
