@@ -23,6 +23,8 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 	MetaDataComponent = CreateDefaultSubobject<UMetaDataComponent>(TEXT("MetaData"));
 	TeamComponent = CreateDefaultSubobject<UTeamComponent>(TEXT("Team"));
 	GDKMovementComponent = Cast<UGDKMovementComponent>(GetCharacterMovement());
+
+	bLookingAround = false;
 }
 
 // Called when the game starts or when spawned
@@ -32,6 +34,8 @@ void AGDKCharacter::BeginPlay()
 
 	EquippedComponent->HoldableUpdated.AddDynamic(this, &AGDKCharacter::OnEquippedUpdated);
 	GDKMovementComponent->SprintingUpdated.AddDynamic(EquippedComponent, &UEquippedComponent::SetIsSprinting);
+
+	OnTakeAnyDamage.AddDynamic(this, &AGDKCharacter::OnTakeDamage);
 }
 
 void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -150,6 +154,21 @@ void AGDKCharacter::StartRagdoll_Implementation()
 }
 
 
+void AGDKCharacter::LookAround()
+{
+	bLookingAround = true;
+}
+
+void AGDKCharacter::StopLookingAround()
+{
+	bLookingAround = false;
+}
+
+bool AGDKCharacter::IsLookingAround()
+{
+	return bLookingAround;
+}
+
 void AGDKCharacter::DeleteSelf()
 {
 	if (this->IsValidLowLevel())
@@ -158,17 +177,9 @@ void AGDKCharacter::DeleteSelf()
 	}
 }
 
-float AGDKCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void AGDKCharacter::OnTakeDamage(AActor* Target, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	TakeDamageCrossServer(Damage, DamageEvent, EventInstigator, DamageCauser);
-	return Damage;
-}
-
-void AGDKCharacter::TakeDamageCrossServer_Implementation(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	HealthComponent->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
-
+	HealthComponent->TakeDamage(Damage, InstigatedBy, DamageCauser);
 }
 
 FGenericTeamId AGDKCharacter::GetGenericTeamId() const
