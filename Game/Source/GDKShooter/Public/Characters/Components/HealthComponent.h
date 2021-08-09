@@ -31,7 +31,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	virtual void TakeDamage(float Damage, AController* EventInstigator, AActor* DamageCauser);
 
 	UFUNCTION(BlueprintCallable)
 	bool GrantShield(float Value);
@@ -107,6 +107,10 @@ protected:
 	// Current armour of the character, can be at most MaxArmour.
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CurrentArmour, Category = "Health")
 	float CurrentArmour;
+
+	// Whether the owner can take damage.
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
+	bool bInvulnerable;
 
 	FTimerHandle HealthRegenerationHandle;
 
