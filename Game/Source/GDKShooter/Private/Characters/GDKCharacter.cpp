@@ -169,6 +169,12 @@ bool AGDKCharacter::IsLookingAround()
 	return bLookingAround;
 }
 
+float AGDKCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	// Skip APawn's override that prevents non-auth servers from calling AActor::TakeDamage
+	return AActor::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
 void AGDKCharacter::DeleteSelf()
 {
 	if (this->IsValidLowLevel())

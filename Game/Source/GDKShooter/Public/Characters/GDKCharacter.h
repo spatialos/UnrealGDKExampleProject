@@ -94,6 +94,9 @@ protected:
 	UFUNCTION(BlueprintPure)
 	bool IsLookingAround();
 
+public:
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+
 private:
 	UFUNCTION()
 	void DeleteSelf();
