@@ -63,7 +63,11 @@ protected:
 
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
+#if ENGINE_MINOR_VERSION < 27
 	virtual bool CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor = NULL) const override;
+#else
+	virtual bool CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor = nullptr, const bool* bWasVisible = nullptr, int32* UserData = nullptr) const override;
+#endif
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FName> LineOfSightSockets;

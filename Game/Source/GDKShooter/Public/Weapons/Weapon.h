@@ -3,7 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#if ENGINE_MINOR_VERSION < 27
 #include "Camera/CameraShake.h"
+#else
+#include "Camera/CameraShakeBase.h"
+#endif
 #include "Characters/Components/GDKMovementComponent.h"
 #include "Characters/Components/ShootingComponent.h"
 #include "GameFramework/Actor.h"
