@@ -176,7 +176,7 @@ FGenericTeamId AGDKCharacter::GetGenericTeamId() const
 	return TeamComponent->GetTeam();
 }
 
-#if ENGINE_MINOR_VERSION < 27
+#if ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION < 27
 bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor) const
 #else
 bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor, const bool* bWasVisible, int32* UserData) const

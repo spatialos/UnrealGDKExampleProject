@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#if ENGINE_MINOR_VERSION < 27
+#if ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION < 27
 #include "Camera/CameraShake.h"
 #else
 #include "Camera/CameraShakeBase.h"
