@@ -20,6 +20,7 @@ UHealthComponent::UHealthComponent()
 	CurrentHealth = MaxHealth;
 	MaxArmour = 100.f;
 	CurrentArmour = 0.f;
+	bInvulnerable = false;
 }
 
 
@@ -58,7 +59,7 @@ void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
-void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void UHealthComponent::TakeDamage(float Damage, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (UTeamComponent* Team = Cast<UTeamComponent>(GetOwner()->GetComponentByClass(UTeamComponent::StaticClass())))
 	{
@@ -66,6 +67,12 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 		{
 			return;
 		}
+	}
+
+	if (bInvulnerable)
+	{
+		// Owner is invulnerable, ignore damage.
+		return;
 	}
 
 	int32 ArmourRemoved = FMath::Min(Damage, CurrentArmour);
@@ -102,26 +109,8 @@ void UHealthComponent::TakeDamage(float Damage, const FDamageEvent& DamageEvent,
 		InstigatorTeamId = CauserTeam->GetGenericTeamId();
 	}
 
-	FVector Source;
-	FVector Impact;
-
-	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
-	{
-		FPointDamageEvent* const PointDamageEvent = (FPointDamageEvent*)&DamageEvent;
-		Source = DamageCauser ? DamageCauser->GetActorLocation() : GetOwner()->GetActorLocation() - PointDamageEvent->ShotDirection;
-		Impact = PointDamageEvent->HitInfo.ImpactPoint;
-	}
-	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
-	{
-		FRadialDamageEvent* const RadialDamageEvent = (FRadialDamageEvent*)&DamageEvent;
-		Impact = GetOwner()->GetActorLocation() + RadialDamageImpactOffset;
-		Source = RadialDamageEvent->Origin;
-	}
-	else
-	{
-		Source = DamageCauser ? DamageCauser->GetActorLocation() : GetOwner()->GetActorLocation();
-		Impact = GetOwner()->GetActorLocation();
-	}
+	FVector Source = DamageCauser ? DamageCauser->GetActorLocation() : GetOwner()->GetActorLocation();
+	FVector Impact = GetOwner()->GetActorLocation();
 
 	MulticastDamageTaken(Damage, Source, Impact, InstigatorPlayerId, InstigatorTeamId);
 

@@ -85,16 +85,27 @@ protected:
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ClientMovementReset();
 
+	UFUNCTION(BlueprintCallable)
+	void LookAround();
+
+	UFUNCTION(BlueprintCallable)
+	void StopLookingAround();
+
+	UFUNCTION(BlueprintPure)
+	bool IsLookingAround();
+
+public:
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+
 private:
 	UFUNCTION()
 	void DeleteSelf();
 
+	UFUNCTION()
+	void OnTakeDamage(AActor* Target, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
 	FTimerHandle DeletionTimer;
 	FTimerDelegate DeletionDelegate;
-	
-public:
-	float TakeDamage(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	UFUNCTION(CrossServer, Reliable)
-	void TakeDamageCrossServer(float Damage, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	bool bLookingAround;
 };
