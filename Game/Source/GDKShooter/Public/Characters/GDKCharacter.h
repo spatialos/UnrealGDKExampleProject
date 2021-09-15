@@ -86,7 +86,7 @@ protected:
 	void ClientMovementReset();
 
 	UFUNCTION(BlueprintCallable)
-	void LookAround();
+	void StartLookingAround();
 
 	UFUNCTION(BlueprintCallable)
 	void StopLookingAround();

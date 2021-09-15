@@ -154,7 +154,7 @@ void AGDKCharacter::StartRagdoll_Implementation()
 }
 
 
-void AGDKCharacter::LookAround()
+void AGDKCharacter::StartLookingAround()
 {
 	bLookingAround = true;
 }
