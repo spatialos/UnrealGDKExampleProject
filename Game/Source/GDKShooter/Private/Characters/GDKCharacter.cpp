@@ -17,7 +17,7 @@ AGDKCharacter::AGDKCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-	
+
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	EquippedComponent = CreateDefaultSubobject<UEquippedComponent>(TEXT("Equipment"));
 	MetaDataComponent = CreateDefaultSubobject<UMetaDataComponent>(TEXT("MetaData"));
@@ -50,7 +50,7 @@ void AGDKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAxis("TurnRate", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APawn::AddControllerPitchInput);
-    
+
 	PlayerInputComponent->BindAction<FBoolean>("Sprint", IE_Pressed, GDKMovementComponent, &UGDKMovementComponent::SetWantsToSprint, true);
 	PlayerInputComponent->BindAction<FBoolean>("Sprint", IE_Released, GDKMovementComponent, &UGDKMovementComponent::SetWantsToSprint, false);
 	PlayerInputComponent->BindAction<FBoolean>("Crouch", IE_Pressed, this, &AGDKCharacter::Crouch, true);
@@ -176,7 +176,11 @@ FGenericTeamId AGDKCharacter::GetGenericTeamId() const
 	return TeamComponent->GetTeam();
 }
 
+#if UE_VERSION_OLDER_THAN(4, 27, 0)
 bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor) const
+#else
+bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor, const bool* bWasVisible, int32* UserData) const
+#endif
 {
 	int32 PositiveHits = 0;
 

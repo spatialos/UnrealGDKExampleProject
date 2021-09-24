@@ -3,7 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/EngineVersionComparison.h"
+
+#if UE_VERSION_OLDER_THAN(4, 27, 0)
 #include "Camera/CameraShake.h"
+#else
+#include "Camera/CameraShakeBase.h"
+#endif
 #include "Characters/Components/GDKMovementComponent.h"
 #include "Characters/Components/ShootingComponent.h"
 #include "GameFramework/Actor.h"
@@ -16,8 +22,8 @@ UCLASS(Abstract)
 class GDKSHOOTER_API AWeapon : public AHoldable
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AWeapon();
 
 	virtual void Tick(float DeltaTime) override;
@@ -78,10 +84,10 @@ public:
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
+
 	UFUNCTION(BlueprintNativeEvent)
 	void DoFire();
-	
+
 	virtual bool ReadyToFire();
 
 	virtual void AnnounceShot(bool bHit);

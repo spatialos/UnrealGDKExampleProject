@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Materials/MaterialInstance.h"
+#include "Misc/EngineVersionComparison.h"
 #include "GameFramework/Character.h"
 #include "Characters/Components/HealthComponent.h"
 #include "Characters/Components/EquippedComponent.h"
@@ -63,7 +64,11 @@ protected:
 
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
+#if UE_VERSION_OLDER_THAN(4, 27, 0)
 	virtual bool CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor = NULL) const override;
+#else
+	virtual bool CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor = nullptr, const bool* bWasVisible = nullptr, int32* UserData = nullptr) const override;
+#endif
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FName> LineOfSightSockets;

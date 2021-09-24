@@ -2,18 +2,18 @@
 ci_version: &ci_version "${CI_VERSION:-main}"
 
 steps:
-  # Trigger a 4.26 build
+  # Trigger a 4.27 build
   - trigger: "unrealgdkbuild-ci"
     label: "exampleproject-ci"
     async: false
     build:
       branch: *ci_version
-      message: "exampleproject-4.26 ${BUILDKITE_MESSAGE}"
+      message: "exampleproject-4.27 ${BUILDKITE_MESSAGE}"
       env: 
         BUILD_TYPE: "EXAMPLE"
         GDK_BRANCH: "${GDK_BRANCH:-match_branch_name_pref::master}"
-        ENGINE_BRANCH: "${ENGINE_BRANCH_426:-match_branch_name_pref_engine::4.26-SpatialOSUnrealGDK}"
-        ENGINE_MAJOR: "4.26"
+        ENGINE_BRANCH: "${ENGINE_BRANCH_427:-match_branch_name_pref_engine::4.27-SpatialOSUnrealGDK}"
+        ENGINE_MAJOR: "4.27"
         PROJECT_BRANCH: "main_branch::${BUILDKITE_BRANCH}"
         USE_FASTBUILD: "${USE_FASTBUILD:-True}"
         IS_BUILDKITE_BUILD: "${IS_BUILDKITE_BUILD:-True}"
