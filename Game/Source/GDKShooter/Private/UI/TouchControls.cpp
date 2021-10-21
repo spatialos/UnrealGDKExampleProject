@@ -36,9 +36,6 @@ void UTouchControls::NativeConstruct()
 	APlayerController* PlayerController = GetOwningPlayer();
 	check(PlayerController); //sanity check the player controller exists
 
-	PlayerController->InputYawScale = 1.0f;
-	PlayerController->InputPitchScale = -1.0f;
-
 	// Get the left controller center position through the fore icon in blueprint.
 	LeftForeImageCanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(LeftControllerForeImage);
 	LeftControllerInfo.LeftControllerCenter = LeftForeImageCanvasSlot->GetPosition();

@@ -27,7 +27,8 @@ public class GDKShooter : ModuleRules
 				"Json",
 				"HTTP",
 				"AIModule",
-				"ApplicationCore"
+				"ApplicationCore",
+				"NetCore"
 			});
 	}
 }

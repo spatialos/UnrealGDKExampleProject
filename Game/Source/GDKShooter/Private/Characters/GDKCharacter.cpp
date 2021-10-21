@@ -199,7 +199,8 @@ bool AGDKCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutS
 			, LineOfSightCollisionChannel.GetValue()
 			, FCollisionQueryParams(SCENE_QUERY_STAT(AILineOfSight), true, IgnoreActor));
 
-		if (bHit == false || (HitResult.Actor.IsValid() && HitResult.Actor->IsOwnedBy(this)))
+		// TODO: Do we want to fetch here? Seems like it could load the actor.
+		if (bHit == false || (HitResult.HitObjectHandle.IsValid() && HitResult.HitObjectHandle.FetchActor()->IsOwnedBy(this)))
 		{
 			if (!bHasSeen)
 			{
