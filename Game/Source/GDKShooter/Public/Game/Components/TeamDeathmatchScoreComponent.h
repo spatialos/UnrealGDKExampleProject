@@ -22,7 +22,7 @@ public:
 	FName TeamName;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int32 TeamScore;
+	int32 TeamScore = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<FPlayerScore> PlayerScores;

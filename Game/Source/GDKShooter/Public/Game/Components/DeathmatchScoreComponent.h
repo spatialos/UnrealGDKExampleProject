@@ -13,16 +13,16 @@ struct FPlayerScore {
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	int32 PlayerId;
+	int32 PlayerId = 0;
 
 	UPROPERTY(BlueprintReadOnly)
-	FString PlayerName;
+	FString PlayerName = FString();
 
 	UPROPERTY(BlueprintReadOnly)
-	int32 Kills;
+	int32 Kills = 0;
 
 	UPROPERTY(BlueprintReadOnly)
-	int32 Deaths;
+	int32 Deaths = 0;
 };
 
 
